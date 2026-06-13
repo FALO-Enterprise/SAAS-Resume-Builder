@@ -1,0 +1,308 @@
+@import "tailwindcss";
+
+@theme {
+  --font-playfair: var(--font-playfair);
+  --font-syne: var(--font-syne);
+  --font-arabic: var(--font-arabic);
+
+  /* ResuMax Design System */
+  --color-ink: #0a0b0f;
+  --color-ink-soft: #13141a;
+  --color-ink-muted: #1e2028;
+  --color-surface: #f5f4f0;
+  --color-surface-soft: #eeecea;
+  --color-white: #ffffff;
+
+  /* Brand Colors */
+  --color-gold: #f5a623;
+  --color-gold-light: #fbbf24;
+  --color-gold-dark: #d97706;
+  --color-: #1d4ed8;
+  --color-azure-light: #3b82f6;
+  --color-teal: #0d9488;
+  --color-teal-light: #14b8a6;
+
+  /* Grays */
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  /* Utilies */
+  --text-sm: 13px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Font utilities */
+.font-syne {
+  font-family: var(--font-syne), sans-serif;
+}
+
+.font-playfair {
+  font-family: var(--font-playfair), serif;
+}
+
+.font-arabic {
+  font-family: var(--font-arabic), sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-ink);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 2px;
+}
+
+/* Selection */
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+/* Glass morphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-gold {
+  background: rgba(245, 166, 35, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 166, 35, 0.15);
+}
+
+/* Noise texture overlay */
+.noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Gradient text */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #f5a623 0%, #fbbf24 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-azure {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effects */
+.glow-gold {
+  box-shadow: 0 0 40px rgba(245, 166, 35, 0.25), 0 0 80px rgba(245, 166, 35, 0.1);
+}
+
+.glow-azure {
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.25);
+}
+
+/* Section spacing */
+.section-padding {
+  padding-top: 120px;
+  padding-bottom: 120px;
+}
+
+@media (max-width: 768px) {
+  .section-padding {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+}
+
+/* Animated border */
+@keyframes borderRotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Floating animation */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Pulse glow */
+@keyframes pulseGlow {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+/* RTL overrides */
+[dir="rtl"] .font-syne {
+  font-family: var(--font-arabic), sans-serif;
+}
+
+/* Font stacks for build-time compatibility — Google Fonts loaded via CDN in production */
+.font-syne {
+  font-family: 'Syne', 'DM Sans', system-ui, sans-serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-arabic {
+  font-family: 'Noto Kufi Arabic', 'Arabic UI Text', sans-serif;
+}
+
+/* Preload fonts via @font-face from CDN at runtime — add to <head> in layout for production */
+
+
+
+/* ── Animations ── */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes floatSlow {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bar-fill {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 94%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: floatSlow 7s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 18s linear infinite;
+}
+
+.animate-bar {
+  animation: bar-fill 1.6s 1.2s ease-out both;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Placeholder color for inputs */
+input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
