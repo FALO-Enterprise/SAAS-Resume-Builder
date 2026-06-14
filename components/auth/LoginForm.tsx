@@ -36,7 +36,6 @@ function AuthInput({
   error?: string;
   rightSlot?: React.ReactNode;
 }) {
-  const { closeModal } = useAuth();
   const [focused, setFocused] = useState(false);
   const locale = useLocale();
   const isRTL = locale === 'ar';
@@ -81,7 +80,7 @@ function AuthInput({
 
 // ─── Login Form ──────────────────────────────────────────────────────────────
 export default function LoginForm() {
-  const { switchTab, closeModal } = useAuth();
+  const { closeModal } = useAuth();
   const locale = useLocale();
   const t = useTranslations('auth');
   const isRTL = locale === 'ar';  
