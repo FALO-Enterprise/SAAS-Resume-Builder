@@ -6,21 +6,7 @@ import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import LoginForm from './LoginForm';
-import SignupForm from './SignupForm';
-
-const Logo = () => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
-    <div style={{ position: 'relative', width: 32, height: 32 }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #f5a623, #d97706)', borderRadius: 8, transform: 'rotate(3deg)' }} />
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: '#fff', fontWeight: 900, fontSize: 14, fontFamily: 'Playfair Display, serif' }}>R</span>
-      </div>
-    </div>
-    <span style={{ color: '#fff', fontWeight: 700, fontSize: 20, letterSpacing: '-0.02em' }}>
-      Resu<span style={{ color: '#f5a623' }}>Max</span>
-    </span>
-  </div>
-);
+import Logo from '@/components/ui/Logo'
 
 export default function AuthModal() {
   const { isOpen, activeTab, closeModal } = useAuth();
@@ -111,7 +97,7 @@ export default function AuthModal() {
               </button>
 
               {/* Logo */}
-              <div style={{ marginBottom: 28 }}>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' , marginBottom: 28 }}>
                 <Logo />
               </div>
 
@@ -129,9 +115,7 @@ export default function AuthModal() {
                       {activeTab === 'login' ? t('heading.loginTitle') : t('heading.signupTitle')}
                     </h2>
                     <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>
-                      {activeTab === 'login'
-                        ? t('heading.loginSubtitle')
-                        : t('heading.signupSubtitle')}
+                      {t('heading.loginSubtitle')}
                     </p>
                   </motion.div>
                 </AnimatePresence>
@@ -146,7 +130,7 @@ export default function AuthModal() {
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.22 }}
                 >
-                  {activeTab === 'login' ? <LoginForm /> : <SignupForm />}
+                  <LoginForm />
                 </motion.div>
               </AnimatePresence>
 
