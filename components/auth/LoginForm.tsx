@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
 
 interface FormState {
   email: string;
@@ -35,6 +36,7 @@ function AuthInput({
   error?: string;
   rightSlot?: React.ReactNode;
 }) {
+  const { closeModal } = useAuth();
   const [focused, setFocused] = useState(false);
   const locale = useLocale();
   const isRTL = locale === 'ar';
@@ -231,12 +233,13 @@ export default function LoginForm() {
       {/* Switch to signup */}
       <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.45)', fontSize: 14 }}>
         {t('login.switchText')}{' '}
-        <button
-          onClick={() => switchTab('signup')}
+        <Link
+          href={`${locale}/CreateAccount`}
+          onClick={closeModal}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f5a623', fontWeight: 600, fontSize: 14 }}
         >
           {t('login.switchLink')}
-        </button>
+        </Link>
       </p>
     </div>
   );
