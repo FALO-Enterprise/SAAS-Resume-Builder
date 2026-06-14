@@ -16,7 +16,7 @@ export default function Navbar() {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const { openLogin, openSignup } = useAuth();
+  const { openLogin, closeModal } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -74,7 +74,7 @@ export default function Navbar() {
         {/* Desktop Right */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="hidden lg:flex">
           {/* Language switcher */}
-          <div style={{ position: 'relative' }}>
+          <div className='hidden lg:block' style={{ position: 'relative' }}>
             <button onClick={() => setLangOpen(!langOpen)} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: 500, padding: '8px 12px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'all 0.2s' }}>
               <Globe size={14} />
               <span>{locale.toUpperCase()}</span>
@@ -102,10 +102,7 @@ export default function Navbar() {
           {/* ── Sign In ── opens login modal */}
           <button
             onClick={openLogin}
-            className="cursor-pointer text-sm font-medium bg-transparent border-none text-center pb-1 text-white/60 py-2 px-4 transition-colors delay-200"
-            // style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 500, padding: '8px 16px', background: 'transparent', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+            className="hidden lg:block cursor-pointer text-sm font-medium bg-transparent border-none text-center pb-1 text-white/60 py-2 px-4 delay-100 hover:text-white transition-all"
           >
             {t('signIn')}
           </button>
@@ -113,9 +110,7 @@ export default function Navbar() {
           {/* ── Get Started ── opens signup modal */}
           <Link
             href={`/${locale}/CreateAccount`}
-            className="flex-1 text-center bg-gold text-ink font-bold text-sm py-2 px-4 rounded-full border-none cursor-pointer"
-            onMouseEnter={e => { const el = e.currentTarget; el.style.background = '#fbbf24'; el.style.transform = 'scale(1.04)'; }}
-            onMouseLeave={e => { const el = e.currentTarget; el.style.background = '#f5a623'; el.style.transform = 'scale(1)'; }}
+            className="hidden lg:block flex-1 text-center bg-gold text-ink font-bold text-sm py-2 px-4 rounded-full border-none cursor-pointer hover:bg-gold-light hover:scale-[1.04] transition-all"
           >
             {t('getStarted')}
           </Link>
@@ -151,18 +146,17 @@ export default function Navbar() {
                   <Globe size={13} />
                   {locale === 'en' ? 'العربية' : 'English'}
                 </button>
-                <button
-                  onClick={() => { setMobileOpen(false); openSignup(); }}
+                <Link
+                  href={`/${locale}/CreateAccount`}
+                  onClick={closeModal}
                   className="flex-1 text-center bg-gold text-ink font-bold text-sm py-2 px-4 rounded-full border-none cursor-pointer"
-                  // style={{ flex: 1, textAlign: 'center', background: '#f5a623', color: '#0a0b0f', fontWeight: 700, fontSize: 13, padding: '8px 16px', borderRadius: 9999, border: 'none', cursor: 'pointer' }}
                 >
                   {t('getStarted')}
-                </button>
+                </Link>
               </div>
               <button
                 onClick={() => { setMobileOpen(false); openLogin(); }}
                 className="cursor-pointer text-sm font-medium bg-transparent border-none text-center pb-1 text-white/50"
-                // style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center', paddingBottom: 4 }}
               >
                 {t('signIn')}
               </button>
