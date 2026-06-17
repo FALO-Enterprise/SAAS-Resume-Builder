@@ -301,6 +301,33 @@
         "ai": "AI & Optimization",
         "global": "Global & Regional",
         "team": "Team & Collaboration"
+      },
+      "rows": {
+        "resumeExports": "Resume exports / month",
+        "templates": "Templates",
+        "realTimePreview": "Real-time preview",
+        "pdfExport": "PDF export",
+        "docxExport": "DOCX export",
+        "linkedinExport": "LinkedIn-ready export",
+
+        "atsCheck": "ATS check",
+        "atsScore": "ATS score",
+        "keywordAnalysis": "Keyword analysis",
+        "aiCoverLetter": "AI cover letter",
+        "gptCoach": "GPT resume coach",
+        "jobMatch": "Job-match scoring",
+
+        "usFormat": "US / Canada format",
+        "euFormat": "EU Europass format",
+        "gccFormat": "GCC / Middle East",
+        "apacFormat": "Asia-Pacific format",
+        "academicCv": "Academic CV",
+        "rtlSupport": "RTL language support",
+
+        "teamWorkspace": "Team workspace",
+        "linkedinSync": "LinkedIn sync",
+        "prioritySupport": "Priority support",
+        "customBranding": "Custom branding"
       }
     },
     "faq": {
