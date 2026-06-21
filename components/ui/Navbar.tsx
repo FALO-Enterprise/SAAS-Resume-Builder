@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe, ChevronDown } from 'lucide-react';
 import Logo from '@/components/ui/Logo'
+import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 
@@ -73,6 +74,7 @@ export default function Navbar() {
 
         {/* Desktop Right */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="hidden lg:flex">
+          <ThemeToggle />
           {/* Language switcher */}
           <div className='hidden lg:block' style={{ position: 'relative' }}>
             <button onClick={() => setLangOpen(!langOpen)} style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: 500, padding: '8px 12px', borderRadius: 8, background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'all 0.2s' }}>
