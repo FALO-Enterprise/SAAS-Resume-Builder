@@ -4,16 +4,32 @@ import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import SectionLabel from '../ui/SectionLabel';
 
-const versionColors = {
-  Current: { bg: 'bg-[#f5a623]', text: 'text-[#0a0b0f]', border: 'border-[#f5a623]', glow: 'shadow-[0_0_25px_rgba(245,166,35,0.35)]' },
-  Upcoming: { bg: 'bg-[#3b82f6]/20', text: 'text-[#3b82f6]', border: 'border-[#3b82f6]/30', glow: '' },
-  Future: { bg: 'bg-white/5', text: 'text-white/40', border: 'border-white/10', glow: '' },
-};
+type TagKey = 'Current' | 'Upcoming' | 'Future';
 
-const tagTranslations: Record<string, { en: string; status: keyof typeof versionColors }> = {
-  Current: { en: 'Current', status: 'Current' },
-  Upcoming: { en: 'Upcoming', status: 'Upcoming' },
-  Future: { en: 'Future', status: 'Future' },
+const versionColors: Record<TagKey, {
+  badgeBg: string;
+  badgeText: string;
+  border: string;
+  glow: string;
+}> = {
+  Current: {
+    badgeBg: '#f5a623',
+    badgeText: '#0a0b0f',
+    border: '#f5a623',
+    glow: '0 0 25px rgba(245,166,35,0.35)',
+  },
+  Upcoming: {
+    badgeBg: 'rgba(59,130,246,0.2)',
+    badgeText: '#3b82f6',
+    border: 'rgba(59,130,246,0.3)',
+    glow: 'none',
+  },
+  Future: {
+    badgeBg: 'var(--bg-card)',
+    badgeText: 'var(--text-faint)',
+    border: 'var(--edge)',
+    glow: 'none',
+  },
 };
 
 export default function RoadmapSection() {
@@ -23,7 +39,7 @@ export default function RoadmapSection() {
 
   return (
     <section id="roadmap" className="section-padding relative">
-      <div className="absolute inset-0 bg-linear-to-b from-transparent via-[#0d0f18] to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-b from-transparent via-ink to-transparent" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
@@ -72,7 +88,8 @@ export default function RoadmapSection() {
                   {/* Content */}
                   <div className={`flex-1 ps-16 lg:ps-0 ${isRight ? 'lg:pe-12 lg:text-right' : 'lg:ps-12'}`}>
                     <div
-                      className={`glass rounded-2xl p-6 border ${style.border} ${style.glow} transition-all duration-300`}
+                      className='glass rounded-2xl p-6 transition-all duration-300'
+                      style={{ border: `1px solid ${style.border}`, boxShadow: style.glow }}
                     >
                       <div className="flex items-center gap-3 mb-4 flex-wrap">
                         <span
@@ -82,7 +99,7 @@ export default function RoadmapSection() {
                           {t(`versions.${vKey}.version`)}
                         </span>
                         <span
-                          className={`text-xs font-bold px-3 py-1 rounded-full ${style.bg} ${style.text} border ${style.border}`}
+                          className={`text-xs font-bold px-3 py-1 rounded-full bg-[${style.badgeBg}] text-[${style.badgeText}] border border-[${style.border}]`}
                         >
                           {t(`versions.${vKey}.tag`)}
                         </span>
@@ -107,9 +124,7 @@ export default function RoadmapSection() {
                   {/* Center dot */}
                   <div className="absolute left-8 lg:left-1/2 -translate-x-1/2 z-10">
                     <div
-                      className={`w-4 h-4 rounded-full border-2 ${style.border} ${
-                        tagKey === 'Current' ? 'bg-gold' : 'bg-ink'
-                      } ${style.glow}`}
+                      className={`w-4 h-4 rounded-full border-2 border-[${style.border}] ${tagKey === 'Current' ? 'bg-gold' : 'bg-ink'} shadow-[${style.glow}]`}
                     />
                   </div>
 

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Quote } from 'lucide-react';
 import SectionLabel from '../ui/SectionLabel';
 
-const avatarColors = ['from-[#f5a623] to-[#d97706]', 'from-[#1d4ed8] to-[#0d9488]', 'from-[#a855f7] to-[#7c3aed]'];
+const avatarColors = ['from-gold to-gold-dark', 'from-azure to-teal', 'from-vilot to-vilot-light'];
 
 export default function TestimonialsSection() {
   const t = useTranslations('testimonials');
@@ -19,9 +19,9 @@ export default function TestimonialsSection() {
   }));
 
   return (
-    <section id="testimonials" className="section-padding relative overflow-hidden">
+    <section id="testimonials" className="section-padding relative">
       <div className="absolute inset-0 bg-linear-to-b from-transparent via-ink/80 to-transparent" />
-      <div className="absolute top-0 right-0 w-80 h-80 bg-[#a855f7]/5 blur-[100px] rounded-full" />
+      <div className="absolute top-0 right-0 w-80 h-80 bg-gold-dark/15 blur-3xl rounded-full" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
@@ -48,7 +48,7 @@ export default function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.12 }}
-              className="glass rounded-2xl p-7 border border-white/5 hover:border-white/10 transition-all duration-300 group hover:-translate-y-1 flex flex-col"
+              className="glass rounded-2xl p-7 border border-white/8 hover:border-white/15 duration-300 group hover:-translate-y-1 flex flex-col"
             >
               {/* Quote icon */}
               <div className="w-10 h-10 bg-gold/10 rounded-xl flex items-center justify-center mb-6">

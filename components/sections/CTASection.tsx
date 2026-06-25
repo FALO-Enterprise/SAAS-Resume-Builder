@@ -12,7 +12,7 @@ export default function CTASection() {
   return (
     <section id="get-started" className="section-padding relative overflow-hidden">
       {/* Background layers */}
-      <div className="absolute inset-0 bg-linear-to-br from-[#0d0f18] via-ink to-[#0d0f18]" />
+      <div className="absolute inset-0 bg-linear-to-br from-soft via-ink to-soft" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-100 bg-gold/8 blur-[120px] rounded-full" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-100 h-75 bg-azure/10 blur-[80px] rounded-full" />
 
@@ -21,7 +21,7 @@ export default function CTASection() {
         {[...Array(5)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute border border-gold/5 rounded-full"
+            className="absolute border border-gold/10 rounded-full"
             style={{
               width: `${200 + i * 150}px`,
               height: `${200 + i * 150}px`,

@@ -16,7 +16,7 @@ export default function PrinciplesSection() {
 
   return (
     <section id="principles" className="section-padding relative">
-      <div className="absolute inset-0 bg-lonear-to-br from-azure/5 to-teal/5" />
+      <div className="absolute inset-0 bg-linear-to-br from-azure/5 to-teal/5" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-start">

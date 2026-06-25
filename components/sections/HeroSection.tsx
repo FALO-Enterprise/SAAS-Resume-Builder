@@ -15,11 +15,11 @@ const ResumeMockup = () => (
     {/* Glow behind */}
     <div className="absolute inset-0 bg-linear-to-br from-gold/30 via-azure/20 to-transparent blur-3xl rounded-3xl" />
 
-    {/* Main resume card */}
+    {/* Main resume card — intentionally dark in both themes (product screenshot) */}
     <motion.div
       animate={{ y: [0, -12, 0] }}
       transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-      className="relative glass rounded-2xl overflow-hidden w-72 shadow-2xl"
+      className="relative bg-ink text-white rounded-2xl overflow-hidden w-72 shadow-2xl"
     >
       {/* Resume Header */}
       <div className="bg-linear-to-br from-azure to-teal p-6">
@@ -113,8 +113,8 @@ const ResumeMockup = () => (
 
     <motion.div
       animate={{ y: [0, 8, 0] }}
-      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-      className="absolute -bottom-4 -left-10 glass rounded-xl px-3 py-2"
+      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut'}}
+      className="absolute -bottom-4 -left-10 glass rounded-xl px-3 py-2 gap-2 transition-delay-100"
     >
       <div className="text-white/40 text-xs">Templates</div>
       <div className="text-white font-bold text-lg">120+</div>
@@ -142,7 +142,7 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex justify-center items-center overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-linear-to-br from-ink via-[#0d0f18] to-ink" />
+      <div className="absolute inset-0 bg-linear-to-br from-ink via-soft to-ink" />
       <div className="absolute top-0 left-1/3 w-96 h-96 bg-gold/5 blur-[100px] rounded-full" />
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-azure/8 blur-[100px] rounded-full" />
 
@@ -179,7 +179,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-white/50 text-lg leading-relaxed max-w-xl mb-10"
+              className="text-white/55 text-lg leading-relaxed max-w-xl mb-10"
             >
               {t('subtitle')}
             </motion.p>

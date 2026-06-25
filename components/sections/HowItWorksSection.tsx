@@ -14,7 +14,7 @@ export default function HowItWorksSection() {
 
   return (
     <section id="how-it-works" className="section-padding relative">
-      <div className="absolute inset-0 bg-linear-to-b from-transparent via-[#0d0f18]/60 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-br from-transparent via-soft/60 to-transparent"/>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="text-center mb-20">
@@ -42,11 +42,9 @@ export default function HowItWorksSection() {
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 1.2, delay: 0.3 }}
-              className="h-full origin-left"
+              className="h-full origin-left mx-37"
               style={{
                 background: 'linear-gradient(to right, #f5a623, #3b82f6, #14b8a6, #a855f7)',
-                marginLeft: '12.5%',
-                marginRight: '12.5%',
               }}
             />
           </div>

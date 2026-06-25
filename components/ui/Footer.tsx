@@ -1,22 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { ExternalLink, AtSign, Send, Mail } from 'lucide-react';
-
-const Logo = () => (
-  <div className="flex items-center gap-2">
-    <div className="relative w-8 h-8">
-      <div className="absolute inset-0 bg-linear-to-br from-gold to-gold-dark rounded-lg rotate-3" />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-white font-black text-sm" style={{ fontFamily: 'var(--font-playfair)' }}>R</span>
-      </div>
-    </div>
-    <span className="text-white font-bold text-xl tracking-tight">
-      Resu<span className="text-gold">Max</span>
-    </span>
-  </div>
-);
+import Logo from '@/components/ui/Logo';
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -27,7 +13,7 @@ export default function Footer() {
 
   return (
     <footer className="relative border-t border-white/5">
-      <div className="absolute inset-0 bg-linear-to-b from-transparent to-[#050508]" />
+      <div className="absolute inset-0 bg-linear-to-b from-transparent to-ink" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
         <div className="grid lg:grid-cols-5 gap-12">
