@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# backend(API)
+node_modules
+/generated/prisma
+node_modules
+dist
+build
+coverage
