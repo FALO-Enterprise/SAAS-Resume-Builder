@@ -295,12 +295,39 @@
     },
     "table": {
       "title": "قارن جميع المميزات",
-      "subtitle": "كل شيء أمامك لتختار بثقة.",
+      "subtitle": "كل شيء بجانب بعضه لتختار بثقة.",
       "sections": {
         "core": "البناء الأساسي",
         "ai": "الذكاء الاصطناعي والتحسين",
-        "global": "دعم عالمي وإقليمي",
+        "global": "العالمي والإقليمي",
         "team": "الفرق والتعاون"
+      },
+      "rows": {
+        "resumeExports": "عدد مرات التصدير شهريًا",
+        "templates": "القوالب",
+        "realTimePreview": "معاينة فورية",
+        "pdfExport": "تصدير PDF",
+        "docxExport": "تصدير DOCX",
+        "linkedinExport": "تصدير مناسب لـ LinkedIn",
+
+        "atsCheck": "فحص نظام ATS",
+        "atsScore": "نقاط ATS",
+        "keywordAnalysis": "تحليل الكلمات المفتاحية",
+        "aiCoverLetter": "خطاب تغطية بالذكاء الاصطناعي",
+        "gptCoach": "مدرب السيرة الذاتية الذكي",
+        "jobMatch": "تقييم توافق الوظائف",
+
+        "usFormat": "تنسيق الولايات المتحدة / كندا",
+        "euFormat": "تنسيق Europass الأوروبي",
+        "gccFormat": "تنسيق الخليج والشرق الأوسط",
+        "apacFormat": "تنسيق آسيا والمحيط الهادئ",
+        "academicCv": "سيرة ذاتية أكاديمية",
+        "rtlSupport": "دعم اللغات من اليمين لليسار",
+
+        "teamWorkspace": "مساحة عمل للفريق",
+        "linkedinSync": "مزامنة LinkedIn",
+        "prioritySupport": "دعم ذو أولوية",
+        "customBranding": "علامة تجارية مخصصة"
       }
     },
     "faq": {

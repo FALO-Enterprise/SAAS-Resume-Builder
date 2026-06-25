@@ -5,24 +5,25 @@
   --font-syne: var(--font-syne);
   --font-arabic: var(--font-arabic);
 
-  /* ResuMax Design System */
-  --color-ink: #0a0b0f;
-  --color-ink-soft: #13141a;
-  --color-ink-muted: #1e2028;
-  --color-surface: #f5f4f0;
-  --color-surface-soft: #eeecea;
+  /* ResuMax Design System — DARK defaults
+     (Tailwind generates bg-ink, text-surface, etc. from these) */
+  --color-ink: #0a0b0f;          /* page background        */
+  --color-ink-soft: #13141a;     /* elevated surface / card */
+  --color-ink-muted: #1e2028;    /* muted surface           */
+  --color-surface: #f5f4f0;      /* primary text            */
+  --color-surface-soft: #eeecea; /* secondary text          */
   --color-white: #ffffff;
 
-  /* Brand Colors */
+  /* Brand Colors — CONSTANT in both themes */
   --color-gold: #f5a623;
   --color-gold-light: #fbbf24;
   --color-gold-dark: #d97706;
-  --color-: #1d4ed8;
+  --color-azure: #1d4ed8;
   --color-azure-light: #3b82f6;
   --color-teal: #0d9488;
   --color-teal-light: #14b8a6;
 
-  /* Grays */
+  /* Grays — constant palette */
   --color-slate-100: #f1f5f9;
   --color-slate-200: #e2e8f0;
   --color-slate-400: #94a3b8;
@@ -32,8 +33,72 @@
   --color-slate-800: #1e293b;
   --color-slate-900: #0f172a;
 
-  /* Utilies */
+  /* Utilities */
   --text-sm: 13px;
+}
+
+/* ============================================
+   THEME TOKENS
+   - Tailwind classes (bg-ink, text-surface…) read --color-*
+   - Inline styles read --bg-*, --text-*, --edge, --glass-*
+   Both swap together on data-theme change.
+   ============================================ */
+
+:root,
+[data-theme="dark"] {
+  /* surfaces */
+  --bg-base: #0a0b0f;
+  --bg-soft: #0d0f18;
+  --bg-elevated: #13141a;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --bg-card-hover: rgba(255, 255, 255, 0.07);
+
+  /* text */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.55);
+  --text-faint: rgba(255, 255, 255, 0.4);
+  --text-muted: rgba(255, 255, 255, 0.25);
+
+  /* borders */
+  --edge: rgba(255, 255, 255, 0.08);
+  --edge-strong: rgba(255, 255, 255, 0.15);
+
+  /* glass + misc */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-edge: rgba(255, 255, 255, 0.06);
+  --scrollbar-track: #0a0b0f;
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --placeholder: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="light"] {
+  /* swap Tailwind utility tokens */
+  --color-ink: #f5f4f0;          /* page background → light */
+  --color-ink-soft: #ffffff;     /* elevated surface        */
+  --color-ink-muted: #eeecea;    /* muted surface           */
+  --color-surface: #0a0b0f;      /* primary text → dark     */
+  --color-surface-soft: #4a4745; /* secondary text          */
+
+  /* swap inline-style tokens */
+  --bg-base: #f5f4f0;
+  --bg-soft: #eeecea;
+  --bg-elevated: #ffffff;
+  --bg-card: rgba(10, 11, 15, 0.025);
+  --bg-card-hover: rgba(10, 11, 15, 0.05);
+
+  --text-primary: #0a0b0f;
+  --text-secondary: rgba(10, 11, 15, 0.6);
+  --text-faint: rgba(10, 11, 15, 0.42);
+  --text-muted: rgba(10, 11, 15, 0.3);
+
+  --edge: rgba(10, 11, 15, 0.08);
+  --edge-strong: rgba(10, 11, 15, 0.16);
+
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-edge: rgba(10, 11, 15, 0.06);
+  --scrollbar-track: #f5f4f0;
+  --shadow-color: rgba(10, 11, 15, 0.1);
+  --placeholder: rgba(10, 11, 15, 0.3);
 }
 
 * {
@@ -41,8 +106,9 @@
 }
 
 body {
-  background: var(--color-ink);
-  color: var(--color-surface);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -67,7 +133,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-ink);
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -78,15 +144,15 @@ body {
 /* Selection */
 ::selection {
   background: var(--color-gold);
-  color: var(--color-ink);
+  color: #0a0b0f;
 }
 
 /* Glass morphism utility */
 .glass {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-edge);
 }
 
 .glass-gold {
@@ -144,26 +210,14 @@ body {
 
 /* Animated border */
 @keyframes borderRotate {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 /* Floating animation */
 @keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(-12px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-12px); }
 }
 
 .animate-float {
@@ -172,15 +226,8 @@ body {
 
 /* Pulse glow */
 @keyframes pulseGlow {
-
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-
-  50% {
-    opacity: 1;
-  }
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
 }
 
 .animate-pulse-glow {
@@ -205,79 +252,30 @@ body {
   font-family: 'Noto Kufi Arabic', 'Arabic UI Text', sans-serif;
 }
 
-/* Preload fonts via @font-face from CDN at runtime — add to <head> in layout for production */
-
-
-
 /* ── Animations ── */
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(-14px);
-  }
-}
-
 @keyframes floatSlow {
-
-  0%,
-  100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-8px) rotate(2deg);
-  }
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%      { transform: translateY(-8px) rotate(2deg); }
 }
 
 @keyframes pulse-ring {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-
-  100% {
-    transform: scale(2.5);
-    opacity: 0;
-  }
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
 }
 
 @keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 @keyframes bar-fill {
-  from {
-    width: 0%;
-  }
-
-  to {
-    width: 94%;
-  }
+  from { width: 0%; }
+  to   { width: 94%; }
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-
-  100% {
-    background-position: 200% center;
-  }
-}
-
-.animate-float {
-  animation: float 5s ease-in-out infinite;
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
 .animate-float-slow {
@@ -293,16 +291,11 @@ body {
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
-/* Placeholder color for inputs */
+/* Placeholder color for inputs — swaps with theme */
 input::placeholder {
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--placeholder);
 }

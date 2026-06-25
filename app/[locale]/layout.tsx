@@ -5,6 +5,7 @@ import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 import AuthModal from "@/components/auth/AuthModal";
 
 export const metadata: Metadata = {
@@ -33,10 +34,12 @@ export default async function LocaleLayout({
     <html lang={locale} dir={isArabic ? "rtl" : "ltr"} data-scroll-behavior="smooth">
       <body className={isArabic ? "font-arabic" : ""}>
         <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
           <AuthProvider>
             {children}
             <AuthModal />
           </AuthProvider>
+        </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

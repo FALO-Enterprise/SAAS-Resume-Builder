@@ -1,4 +1,3 @@
-// app/[locale]/pricing/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -8,51 +7,52 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { PLANS, type PlanId } from '@/lib/plans';
 import Navbar from '@/components/ui/Navbar'
+import Footer from '@/components/ui/Footer';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Feature comparison table data
 // ─────────────────────────────────────────────────────────────────────────────
 const TABLE_SECTIONS = [
   {
-    title: 'Core Builder',
+    key: 'core',
     rows: [
-      { label: 'Resume exports / month', free: '3', pro: 'Unlimited', enterprise: 'Unlimited' },
-      { label: 'Templates',              free: '5', pro: '120+',      enterprise: '120+' },
-      { label: 'Real-time preview',      free: true, pro: true,       enterprise: true  },
-      { label: 'PDF export',             free: true, pro: true,       enterprise: true  },
-      { label: 'DOCX export',            free: false, pro: true,      enterprise: true  },
-      { label: 'LinkedIn-ready export',  free: false, pro: true,      enterprise: true  },
+      { key: 'resumeExports', free: '3', pro: 'Unlimited', enterprise: 'Unlimited' },
+      { key: 'templates', free: '5', pro: '120+', enterprise: '120+' },
+      { key: 'realTimePreview', free: true, pro: true, enterprise: true },
+      { key: 'pdfExport', free: true, pro: true, enterprise: true },
+      { key: 'docxExport', free: false, pro: true, enterprise: true },
+      { key: 'linkedinExport', free: false, pro: true, enterprise: true },
     ],
   },
   {
-    title: 'AI & Optimization',
+    key: 'ai',
     rows: [
-      { label: 'ATS check',              free: 'Basic', pro: 'Full',  enterprise: 'Full' },
-      { label: 'ATS score',              free: false,   pro: true,    enterprise: true  },
-      { label: 'Keyword analysis',       free: false,   pro: true,    enterprise: true  },
-      { label: 'AI cover letter',        free: false,   pro: true,    enterprise: true  },
-      { label: 'GPT resume coach',       free: false,   pro: false,   enterprise: true  },
-      { label: 'Job-match scoring',      free: false,   pro: false,   enterprise: true  },
+      { key: 'atsCheck', free: 'Basic', pro: 'Full', enterprise: 'Full' },
+      { key: 'atsScore', free: false, pro: true, enterprise: true },
+      { key: 'keywordAnalysis', free: false, pro: true, enterprise: true },
+      { key: 'aiCoverLetter', free: false, pro: true, enterprise: true },
+      { key: 'gptCoach', free: false, pro: false, enterprise: true },
+      { key: 'jobMatch', free: false, pro: false, enterprise: true },
     ],
   },
   {
-    title: 'Global & Regional',
+    key: 'global',
     rows: [
-      { label: 'US / Canada format',     free: true,  pro: true,  enterprise: true },
-      { label: 'EU Europass format',     free: false, pro: true,  enterprise: true },
-      { label: 'GCC / Middle East',      free: false, pro: true,  enterprise: true },
-      { label: 'Asia-Pacific format',    free: false, pro: true,  enterprise: true },
-      { label: 'Academic CV',            free: false, pro: true,  enterprise: true },
-      { label: 'RTL language support',   free: true,  pro: true,  enterprise: true },
+      { key: 'usFormat', free: true, pro: true, enterprise: true },
+      { key: 'euFormat', free: false, pro: true, enterprise: true },
+      { key: 'gccFormat', free: false, pro: true, enterprise: true },
+      { key: 'apacFormat', free: false, pro: true, enterprise: true },
+      { key: 'academicCv', free: false, pro: true, enterprise: true },
+      { key: 'rtlSupport', free: true, pro: true, enterprise: true },
     ],
   },
   {
-    title: 'Team & Collaboration',
+    key: 'team',
     rows: [
-      { label: 'Team workspace',         free: false, pro: false,      enterprise: 'Up to 20' },
-      { label: 'LinkedIn sync',          free: false, pro: false,      enterprise: true },
-      { label: 'Priority support',       free: false, pro: false,      enterprise: true },
-      { label: 'Custom branding',        free: false, pro: false,      enterprise: true },
+      { key: 'teamWorkspace', free: false, pro: false, enterprise: 'Up to 20' },
+      { key: 'linkedinSync', free: false, pro: false, enterprise: true },
+      { key: 'prioritySupport', free: false, pro: false, enterprise: true },
+      { key: 'customBranding', free: false, pro: false, enterprise: true },
     ],
   },
 ];
@@ -152,7 +152,7 @@ export default function PricingPage() {
   const [yearly, setYearly] = useState(false);
 
   const goToRegister = (planId: PlanId) => {
-    router.push(`/${locale}/register?plan=${planId}`);
+    router.push(`/${locale}/CreateAccount?plan=${planId}`);
   };
 
 
@@ -163,20 +163,6 @@ export default function PricingPage() {
       <div style={{ position: 'fixed', top: '5%', left: '5%', width: 500, height: 500, background: 'rgba(245,166,35,0.04)', filter: 'blur(120px)', borderRadius: '50%', pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'fixed', bottom: '10%', right: '5%', width: 400, height: 400, background: 'rgba(167,139,250,0.05)', filter: 'blur(100px)', borderRadius: '50%', pointerEvents: 'none', zIndex: 0 }} />
 
-      {/* ── Minimal top nav ──────────────────────────────── */}
-      {/* <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(10,11,15,0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href={`/${locale}`} style={{ textDecoration: 'none' }}><Logo /></Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <a
-              href={`/${locale}/CreateAccount`}
-              style={{ background: '#f5a623', color: '#0a0b0f', fontWeight: 700, fontSize: 13, padding: '9px 20px', borderRadius: 9999, border: 'none', cursor: 'pointer' }}
-            >
-              {t('nav.getStarted')}
-            </a>
-          </div>
-        </div>
-      </nav> */}
       <Navbar />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
@@ -374,9 +360,9 @@ export default function PricingPage() {
         >
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 42px)', fontFamily: 'Playfair Display, serif', marginBottom: 12 }}>
-              Compare all features
+              {t('pricing.table.title')}
             </h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15 }}>Everything side by side so you can pick with confidence.</p>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15 }}>{t('pricing.table.subtitle')}</p>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, overflow: 'hidden' }}>
@@ -392,13 +378,13 @@ export default function PricingPage() {
 
             {/* Sections */}
             {TABLE_SECTIONS.map((section, si) => (
-              <div key={section.title}>
+              <div key={section.key}>
                 <div style={{ padding: '14px 24px', background: 'rgba(255,255,255,0.025)', borderTop: si > 0 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{section.title}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t(`pricing.table.sections.${section.key}`)}</span>
                 </div>
                 {section.rows.map((row, ri) => (
                   <div
-                    key={row.label}
+                    key={row.key}
                     style={{
                       display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr',
                       borderTop: '1px solid rgba(255,255,255,0.04)',
@@ -408,7 +394,7 @@ export default function PricingPage() {
                     onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)'}
                     onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = ri % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)'}
                   >
-                    <div style={{ padding: '14px 24px', color: 'rgba(255,255,255,0.65)', fontSize: 13, display: 'flex', alignItems: 'center' }}>{row.label}</div>
+                    <div style={{ padding: '14px 24px', color: 'rgba(255,255,255,0.65)', fontSize: 13, display: 'flex', alignItems: 'center' }}>{t(`pricing.table.rows.${row.key}`)}</div>
                     <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Cell value={row.free} />
                     </div>
@@ -454,10 +440,10 @@ export default function PricingPage() {
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 400, height: 200, background: 'rgba(245,166,35,0.06)', filter: 'blur(60px)', borderRadius: '50%', pointerEvents: 'none' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
             <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 'clamp(26px, 4vw, 40px)', marginBottom: 12, fontFamily: 'Playfair Display, serif' }}>
-              Still not sure which plan?
+              {t('pricing.ctaBottom.title')}
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15, marginBottom: 32, maxWidth: 440, margin: '0 auto 32px' }}>
-              Start with Free — no credit card, no commitment. You can always upgrade in one click.
+              {t('pricing.ctaBottom.subtitle')}
             </p>
             <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
@@ -466,7 +452,7 @@ export default function PricingPage() {
                 onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = '#fbbf24'; el.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = '#f5a623'; el.style.transform = 'translateY(0)'; }}
               >
-                Start for free <ArrowRight size={16} />
+                {t('pricing.ctaBottom.primaryButton')} <ArrowRight size={16} />
               </button>
               <button
                 onClick={() => goToRegister('pro')}
@@ -474,12 +460,14 @@ export default function PricingPage() {
                 onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.1)'; el.style.color = '#fff'; }}
                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.06)'; el.style.color = 'rgba(255,255,255,0.8)'; }}
               >
-                Try Pro — $9/mo
+                {t('pricing.ctaBottom.secondaryButton')}
               </button>
             </div>
           </div>
         </motion.div>
       </div>
+
+      <Footer />
     </main>
   );
 }
