@@ -6,13 +6,50 @@ import { LayoutTemplate, Globe2, CheckCircle2, FileText, Monitor, Download } fro
 import SectionLabel from '../ui/SectionLabel';
 
 const featureIcons = [LayoutTemplate, Globe2, CheckCircle2, FileText, Monitor, Download];
+
 const featureColors = [
-  { accent: '#f5a623', bg: 'from-[#f5a623]/15 to-transparent' },
-  { accent: '#3b82f6', bg: 'from-[#3b82f6]/15 to-transparent' },
-  { accent: '#14b8a6', bg: 'from-[#14b8a6]/15 to-transparent' },
-  { accent: '#a855f7', bg: 'from-[#a855f7]/15 to-transparent' },
-  { accent: '#f43f5e', bg: 'from-[#f43f5e]/15 to-transparent' },
-  { accent: '#22c55e', bg: 'from-[#22c55e]/15 to-transparent' },
+  {
+    iconWrap: 'bg-gold/10 border-gold/15',
+    icon: 'text-gold',
+    bg: 'from-gold/15 to-transparent',
+    border: 'hover:border-gold/30',
+    line: 'via-gold',
+  },
+  {
+    iconWrap: 'bg-azure-light/10 border-azure-light/15',
+    icon: 'text-azure-light',
+    bg: 'from-azure-light/15 to-transparent',
+    border: 'hover:border-azure-light/30',
+    line: 'via-azure-light',
+  },
+  {
+    iconWrap: 'bg-teal-light/10 border-teal-light/15',
+    icon: 'text-teal-light',
+    bg: 'from-teal-light/15 to-transparent',
+    border: 'hover:border-teal-light/30',
+    line: 'via-teal-light',
+  },
+  {
+    iconWrap: 'bg-vilot/10 border-vilot/15',
+    icon: 'text-vilot',
+    bg: 'from-vilot/15 to-transparent',
+    border: 'hover:border-vilot/30',
+    line: 'via-vilot',
+  },
+  {
+    iconWrap: 'bg-pink/10 border-pink/15',
+    icon: 'text-pink',
+    bg: 'from-pink/15 to-transparent',
+    border: 'hover:border-pink/30',
+    line: 'via-pink',
+  },
+  {
+    iconWrap: 'bg-green-light/10 border-green-light/15',
+    icon: 'text-green-light',
+    bg: 'from-green-light/15 to-transparent',
+    border: 'hover:border-green-light/30',
+    line: 'via-green-light',
+  },
 ];
 
 export default function FeaturesSection() {
@@ -31,8 +68,7 @@ export default function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-4xl lg:text-6xl font-black mt-5 leading-tight font-playfair"
-            // style={{ fontFamily: 'var(--font-playfair)' }}
+            className="font-playfair text-4xl lg:text-6xl font-black mt-5 leading-tight"
           >
             <span className="text-white">{t('title')}</span>
             <br />
@@ -51,17 +87,14 @@ export default function FeaturesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className={`group relative glass rounded-2xl p-7 border border-white/5 hover:border-[${color.accent}]/30 transition-all duration-300 overflow-hidden hover:-translate-y-1`}
+                className={`group relative glass rounded-2xl p-7 border border-white/5 ${color.border} transition-all duration-300 overflow-hidden hover:-translate-y-1`}
               >
                 {/* Background gradient on hover */}
                 <div className={`absolute inset-0 bg-linear-to-br ${color.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
                 <div className="relative z-10">
-                  <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6`}
-                    style={{ backgroundColor: `${color.accent}18`, border: `1px solid ${color.accent}25` }}
-                  >
-                    <Icon size={22} style={{ color: color.accent }} />
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 border ${color.iconWrap}`}>
+                    <Icon size={22} className={color.icon} />
                   </div>
                   <h3 className="text-white font-bold text-xl mb-3">
                     {t(`items.${key}.title`)}
@@ -72,10 +105,7 @@ export default function FeaturesSection() {
                 </div>
 
                 {/* Accent bottom line */}
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: `linear-gradient(to right, transparent, ${color.accent}, transparent)` }}
-                />
+                <div className={`absolute bottom-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-linear-to-r from-transparent ${color.line} to-transparent`} />
               </motion.div>
             );
           })}
