@@ -29,10 +29,10 @@ export class UserController {
 
     createUser = async (req: Request, res: Response) => {
         const { name, email, password } = req.body;
-        // const avatar = req.file ? `/uploads/${req.file.filename}` : undefined;
+        const avatar = req.file ? `/uploads/${req.file.filename}` : undefined;
 
-        // const user = await this.service.createUser(name, email, password, avatar);
-        // res.create(user);
+        const user = await this.service.createUser(name, email, password, avatar);
+        res.create(user);
     }
 
     updateUser = async (req: Request, res: Response) => {
@@ -41,12 +41,12 @@ export class UserController {
             status(400).json({ error: 'ID required' });
 
         const { name, email } = req.body;
-        // const avatar = req.file ? `/uploads/${req.file.filename}` : undefined;
-        // const user = await this.service.updateUser(Number(id), name, email, avatar);
-        // if (!user) {
-        //     return res.status(404).json({ error: 'User not found' });
-        // }
-        // res.create(user);
+        const avatar = req.file ? `/uploads/${req.file.filename}` : undefined;
+        const user = await this.service.updateUser(String(id), name, email, avatar);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.create(user);
     };
 
 

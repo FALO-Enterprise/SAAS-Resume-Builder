@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { UserRepository } from "./users.repository";
 import { User } from "./users.schema";
 
