@@ -39,24 +39,15 @@ export default function Navbar() {
     { label: t('pricing'),    href: `/${locale}/Pricing` },
   ];
 
-  // const navStyle: React.CSSProperties = {
-  //   position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-  //   transition: 'all 0.4s ease',
-  //   padding: scrolled ? '12px 0' : '20px 0',
-  //   background: scrolled ? 'rgba(10,11,15,0.85)' : 'transparent',
-  //   backdropFilter: scrolled ? 'blur(20px)' : 'none',
-  //   borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : 'none',
-  // };
-
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled  ? 'py-3 bg-red-500 border-b border-white backdrop-blur-xl' : 'py-5 bg-transparent border-b border-transparent'}`}    
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled  ? 'py-3 border-b border-white/20 backdrop-blur-xl shadow-sm' : 'py-5 bg-transparent border-b border-transparent'}`}    
       >
-      <div className='max-w-7xl my-0 mx-auto py-0 px-24 flex items-center justify-between'>
-        <Link href={`/${locale}`} style={{ textDecoration: 'none' }}><Logo /></Link>
+      <div className='max-w-7xl mx-auto px-6 flex items-center justify-between'>
+        <Link href={`/${locale}`} className='no-underline'><Logo /></Link>
 
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-9">
