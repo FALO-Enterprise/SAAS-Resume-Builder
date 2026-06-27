@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, ChevronDown, ArrowRight, Zap } from 'lucide-react';
+import { Check, X, ChevronDown, ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { PLANS, type PlanId } from '@/lib/plans';
-import Navbar from '@/components/ui/Navbar'
+import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -92,15 +92,23 @@ const FAQS = [
 // ─────────────────────────────────────────────────────────────────────────────
 function Cell({ value, highlight }: { value: boolean | string; highlight?: boolean }) {
   if (typeof value === 'boolean') {
-    return value
-      ? <div style={{ width: 22, height: 22, borderRadius: '50%', background: highlight ? 'rgba(245,166,35,0.15)' : 'rgba(74,222,128,0.12)', border: `1px solid ${highlight ? 'rgba(245,166,35,0.3)' : 'rgba(74,222,128,0.25)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
-          <Check size={12} color={highlight ? '#f5a623' : '#4ade80'} />
-        </div>
-      : <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <X size={15} color="rgba(255,255,255,0.2)" />
-        </div>;
+    return value ? (
+      <span
+        className={`mx-auto flex h-5.5 w-5.5 items-center justify-center rounded-full border ${highlight ? 'border-gold/30 bg-gold/15' : 'border-green/25 bg-green/12'}`}
+      >
+        <Check size={12} className={highlight ? 'text-gold' : 'text-green'} />
+      </span>
+    ) : (
+      <span className="flex justify-center">
+        <X size={15} className="text-muted" />
+      </span>
+    );
   }
-  return <span style={{ fontSize: 13, fontWeight: 600, color: highlight ? '#f5a623' : 'rgba(255,255,255,0.7)' }}>{value}</span>;
+  return (
+    <span className={`text-[13px] font-semibold ${highlight ? 'text-gold' : 'text-secondary'}`}>
+      {value}
+    </span>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -109,18 +117,14 @@ function Cell({ value, highlight }: { value: boolean | string; highlight?: boole
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+    <div className="border-b border-edge last:border-none">
       <button
         onClick={() => setOpen(o => !o)}
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '20px 0', background: 'none', border: 'none', cursor: 'pointer',
-          textAlign: 'left', gap: 16,
-        }}
+        className="flex w-full cursor-pointer items-center justify-between gap-4 border-none bg-transparent py-5 text-left"
       >
-        <span style={{ color: '#fff', fontWeight: 600, fontSize: 15, lineHeight: 1.4 }}>{q}</span>
-        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25 }}>
-          <ChevronDown size={18} color="rgba(255,255,255,0.4)" />
+        <span className="text-[15px] font-semibold leading-[1.4] text-primary">{q}</span>
+        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25 }} className="shrink-0">
+          <ChevronDown size={18} className="text-faint" />
         </motion.div>
       </button>
       <AnimatePresence initial={false}>
@@ -130,11 +134,9 @@ function FaqItem({ q, a }: { q: string; a: string }) {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeInOut' }}
-            style={{ overflow: 'hidden' }}
+            className="overflow-hidden"
           >
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, lineHeight: 1.8, paddingBottom: 20 }}>
-              {a}
-            </p>
+            <p className="pb-5 text-[14px] leading-[1.8] text-secondary">{a}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -149,97 +151,54 @@ export default function PricingPage() {
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
-  const [yearly, setYearly] = useState(false);
 
   const goToRegister = (planId: PlanId) => {
     router.push(`/${locale}/CreateAccount?plan=${planId}`);
   };
 
-
   return (
-    <main style={{ minHeight: '100vh', background: '#0a0b0f', color: '#f5f4f0', overflowX: 'hidden' }}>
+    <main className="min-h-screen overflow-x-hidden bg-base text-primary">
 
       {/* ── Background glows ─────────────────────────────── */}
-      <div style={{ position: 'fixed', top: '5%', left: '5%', width: 500, height: 500, background: 'rgba(245,166,35,0.04)', filter: 'blur(120px)', borderRadius: '50%', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'fixed', bottom: '10%', right: '5%', width: 400, height: 400, background: 'rgba(167,139,250,0.05)', filter: 'blur(100px)', borderRadius: '50%', pointerEvents: 'none', zIndex: 0 }} />
+      <div className="pointer-events-none fixed left-[5%] top-[5%] z-0 h-125 w-125 rounded-full bg-gold/4 blur-3xl" />
+      <div className="pointer-events-none fixed bottom-[10%] right-[5%] z-0 h-100 w-100 rounded-full bg-vilot/5 blur-3xl" />
 
       <Navbar />
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
+      <div className="relative z-1 mx-auto max-w-7xl px-6">
 
         {/* ── Hero header ──────────────────────────────────── */}
-        <div style={{ textAlign: 'center', padding: '80px 0 64px' }}>
+        <div className="pb-16 pt-20 text-center">
           <motion.div
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.2)', borderRadius: 9999, padding: '6px 16px', marginBottom: 24 }}
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-4 py-1.5"
           >
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f5a623', animation: 'pulse 2s infinite' }} />
-            <span style={{ color: '#f5a623', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{t('pricing.hero.badge')}</span>
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-gold">{t('pricing.hero.badge')}</span>
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}
-            style={{ fontSize: 'clamp(36px, 5vw, 60px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 16, fontFamily: 'Playfair Display, serif' }}
+            className="mb-4 font-playfair text-[clamp(36px,5vw,60px)] font-black leading-[1.1]"
           >
-            <span style={{ color: '#fff' }}>{t('pricing.hero.titleLine1')}</span>
+            <span className="text-primary">{t('pricing.hero.titleLine1')}</span>
             <br />
-            <span style={{
-              background: 'linear-gradient(135deg, #f5a623, #fbbf24, #f59e0b)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            }}>{t('pricing.hero.titleHighlight')}</span>
+            <span className="text-gradient-gold">{t('pricing.hero.titleHighlight')}</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
-            style={{ color: 'rgba(255,255,255,0.5)', fontSize: 17, maxWidth: 520, margin: '0 auto 40px', lineHeight: 1.7 }}
+            className="mx-auto max-w-130 text-[17px] leading-[1.7] text-secondary"
           >
             {t('pricing.hero.subtitle')}
           </motion.p>
-
-          {/* Billing toggle */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9999, padding: '6px 6px 6px 20px' }}
-          >
-            <span style={{ fontSize: 13, fontWeight: 600, color: !yearly ? '#fff' : 'rgba(255,255,255,0.4)', transition: 'color 0.2s' }}>Monthly</span>
-
-            <button
-              onClick={() => setYearly(y => !y)}
-              style={{
-                width: 44, height: 26, borderRadius: 9999, border: 'none', cursor: 'pointer', position: 'relative',
-                background: yearly ? '#f5a623' : 'rgba(255,255,255,0.12)',
-                transition: 'background 0.25s', flexShrink: 0,
-              }}
-            >
-              <motion.div
-                animate={{ x: yearly ? 20 : 2 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                style={{ position: 'absolute', top: 3, width: 20, height: 20, borderRadius: '50%', background: '#fff' }}
-              />
-            </button>
-
-            <span style={{ fontSize: 13, fontWeight: 600, color: yearly ? '#fff' : 'rgba(255,255,255,0.4)', transition: 'color 0.2s' }}>Yearly</span>
-
-            <AnimatePresence>
-              {yearly && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8, x: -8 }} animate={{ opacity: 1, scale: 1, x: 0 }} exit={{ opacity: 0, scale: 0.8 }}
-                  style={{ background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: 9999, padding: '3px 10px', display: 'flex', alignItems: 'center', gap: 4 }}
-                >
-                  <Zap size={11} color="#4ade80" />
-                  <span style={{ color: '#4ade80', fontSize: 11, fontWeight: 700 }}>Save 22%</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
         </div>
 
         {/* ── Plan cards ───────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 80, alignItems: 'start' }}>
+        <div className="mb-20 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] items-start gap-5">
           {PLANS.map((plan, i) => {
             const Icon = plan.icon;
             const isPopular = plan.badge === 'Most Popular';
-            const price = yearly && plan.yearlyPrice > 0 ? plan.yearlyPrice : plan.monthlyPrice;
             const isFree = plan.monthlyPrice === 0;
 
             return (
@@ -248,103 +207,66 @@ export default function PricingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                style={{
-                  background: isPopular ? 'rgba(245,166,35,0.06)' : 'rgba(255,255,255,0.02)',
-                  border: `1.5px solid ${isPopular ? 'rgba(245,166,35,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                  borderRadius: 22,
-                  padding: '32px 28px 28px',
-                  position: 'relative',
-                  transform: isPopular ? 'translateY(-12px)' : 'none',
-                  boxShadow: isPopular ? '0 0 50px rgba(245,166,35,0.08)' : 'none',
-                }}
+                className={`relative rounded-3xl border px-7 pb-7 pt-8 ${ isPopular ? '-mt-3 border-gold/30 bg-gold/6 shadow-[0_0_50px_rgba(245,166,35,0.08)]' : 'border-edge bg-primary/2'}`}
               >
                 {/* Popular badge */}
                 {isPopular && (
-                  <div style={{
-                    position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
-                    background: 'linear-gradient(135deg, #f5a623, #d97706)',
-                    color: '#0a0b0f', fontSize: 11, fontWeight: 800,
-                    padding: '5px 18px', borderRadius: 9999,
-                    textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap',
-                  }}>
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-linear-to-br from-gold to-gold-dark px-4.5 py-1.25 text-[11px] font-extrabold uppercase tracking-[0.08em] text-ink">
                     ⚡ Most Popular
                   </div>
                 )}
 
                 {/* Plan icon + name */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: plan.accentColor, border: `1px solid ${plan.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="mb-6 flex items-center gap-3">
+                  <div
+                    className="flex h-11 w-11 items-center justify-center rounded-xl border"
+                    style={{ background: plan.accentColor, borderColor: plan.borderColor }}
+                  >
                     <Icon size={22} color={plan.iconColor} />
                   </div>
                   <div>
-                    <div style={{ color: '#fff', fontWeight: 700, fontSize: 17 }}>{plan.name}</div>
-                    <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12 }}>
-                      {isFree ? 'Always free' : yearly ? 'Billed annually' : 'Billed monthly'}
-                    </div>
+                    <div className="text-[17px] font-bold text-primary">{plan.name}</div>
+                    <div className="text-xs text-muted">{isFree ? 'Always free' : 'Billed monthly'}</div>
                   </div>
                 </div>
 
                 {/* Price */}
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 500, alignSelf: 'flex-start', marginTop: 8 }}>$</span>
-                    <motion.span
-                      key={`${plan.id}-${yearly}`}
-                      initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-                      style={{ fontSize: 52, fontWeight: 900, color: '#fff', lineHeight: 1, fontFamily: 'Playfair Display, serif' }}
-                    >
-                      {price}
-                    </motion.span>
-                    {!isFree && (
-                      <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, marginBottom: 4, alignSelf: 'flex-end' }}>/ mo</span>
-                    )}
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-1">
+                    <span className="mt-2 self-start text-[13px] font-medium text-secondary">$</span>
+                    <span className="font-playfair text-[52px] font-black leading-none text-primary">
+                      {plan.monthlyPrice}
+                    </span>
+                    {!isFree && <span className="mb-1 self-end text-[13px] text-muted">/ mo</span>}
                   </div>
-                  {yearly && !isFree && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                      style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12, marginTop: 4 }}>
-                      Billed ${plan.yearlyPrice * 12}/year
-                    </motion.div>
-                  )}
                 </div>
 
                 {/* CTA button */}
                 <button
                   onClick={() => goToRegister(plan.id)}
-                  style={{
-                    width: '100%', padding: '14px 0', borderRadius: 12, border: 'none',
-                    fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s',
-                    marginBottom: 28,
-                    background: isPopular ? '#f5a623' : 'rgba(255,255,255,0.07)',
-                    color: isPopular ? '#0a0b0f' : 'rgba(255,255,255,0.8)',
-                    boxShadow: isPopular ? '0 8px 24px rgba(245,166,35,0.3)' : 'none',
-                  }}
-                  onMouseEnter={e => {
-                    const el = e.currentTarget as HTMLElement;
-                    el.style.transform = 'translateY(-2px)';
-                    if (isPopular) { el.style.background = '#fbbf24'; el.style.boxShadow = '0 12px 32px rgba(245,166,35,0.45)'; }
-                    else           { el.style.background = 'rgba(255,255,255,0.12)'; el.style.color = '#fff'; }
-                  }}
-                  onMouseLeave={e => {
-                    const el = e.currentTarget as HTMLElement;
-                    el.style.transform = 'translateY(0)';
-                    if (isPopular) { el.style.background = '#f5a623'; el.style.boxShadow = '0 8px 24px rgba(245,166,35,0.3)'; }
-                    else           { el.style.background = 'rgba(255,255,255,0.07)'; el.style.color = 'rgba(255,255,255,0.8)'; }
-                  }}
+                  className={`mb-7 w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 ${
+                    isPopular
+                      ? 'bg-gold text-ink shadow-[0_8px_24px_rgba(245,166,35,0.3)] hover:bg-gold-light hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)]'
+                      : 'bg-primary/[0.07] text-primary/80 hover:bg-primary/12 hover:text-primary'
+                  }`}
                 >
                   {isFree ? 'Get started free' : `Start ${plan.name}`} →
                 </button>
 
                 {/* Divider */}
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.07)', marginBottom: 24 }} />
+                <div className="mb-6 h-px bg-edge" />
 
                 {/* Features */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div className="flex flex-col gap-3">
                   {plan.features.map(f => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                      <div style={{ width: 18, height: 18, borderRadius: '50%', flexShrink: 0, marginTop: 1, background: plan.accentColor, border: `1px solid ${plan.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div key={f} className="flex items-start gap-2.5">
+                      <div
+                        className="mt-px flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full border"
+                        style={{ background: plan.accentColor, borderColor: plan.borderColor }}
+                      >
                         <Check size={10} color={plan.iconColor} />
                       </div>
-                      <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13, lineHeight: 1.5 }}>{f}</span>
+                      <span className="text-[13px] leading-normal text-secondary">{f}</span>
                     </div>
                   ))}
                 </div>
@@ -356,22 +278,22 @@ export default function PricingPage() {
         {/* ── Comparison table ─────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
-          style={{ marginBottom: 100 }}
+          className="mb-25"
         >
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 42px)', fontFamily: 'Playfair Display, serif', marginBottom: 12 }}>
+          <div className="mb-12 text-center">
+            <h2 className="mb-3 font-playfair text-[clamp(28px,4vw,42px)] font-extrabold text-primary">
               {t('pricing.table.title')}
             </h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15 }}>{t('pricing.table.subtitle')}</p>
+            <p className="text-[15px] text-faint">{t('pricing.table.subtitle')}</p>
           </div>
 
-          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, overflow: 'hidden' }}>
+          <div className="overflow-hidden rounded-[20px] border border-edge bg-primary/2">
             {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-              <div style={{ padding: '20px 24px', color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Feature</div>
+            <div className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-edge bg-primary/3">
+              <div className="px-6 py-5 text-xs font-bold uppercase tracking-[0.08em] text-faint">Feature</div>
               {PLANS.map(p => (
-                <div key={p.id} style={{ padding: '20px 16px', textAlign: 'center' }}>
-                  <span style={{ color: p.id === 'pro' ? '#f5a623' : '#fff', fontWeight: 700, fontSize: 14 }}>{p.name}</span>
+                <div key={p.id} className="px-4 py-5 text-center">
+                  <span className={`text-sm font-bold ${p.id === 'pro' ? 'text-gold' : 'text-primary'}`}>{p.name}</span>
                 </div>
               ))}
             </div>
@@ -379,29 +301,22 @@ export default function PricingPage() {
             {/* Sections */}
             {TABLE_SECTIONS.map((section, si) => (
               <div key={section.key}>
-                <div style={{ padding: '14px 24px', background: 'rgba(255,255,255,0.025)', borderTop: si > 0 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
-                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t(`pricing.table.sections.${section.key}`)}</span>
+                <div className={`bg-primary/2 px-6 py-3.5 ${si > 0 ? 'border-t border-edge' : ''}`}>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-muted">{t(`pricing.table.sections.${section.key}`)}</span>
                 </div>
                 {section.rows.map((row, ri) => (
                   <div
                     key={row.key}
-                    style={{
-                      display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr',
-                      borderTop: '1px solid rgba(255,255,255,0.04)',
-                      background: ri % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
-                      transition: 'background 0.2s',
-                    }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = ri % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)'}
+                    className={`grid grid-cols-[2fr_1fr_1fr_1fr] border-t border-edge transition-colors duration-200 hover:bg-primary/3 ${ri % 2 === 0 ? '' : 'bg-primary/12'}`}
                   >
-                    <div style={{ padding: '14px 24px', color: 'rgba(255,255,255,0.65)', fontSize: 13, display: 'flex', alignItems: 'center' }}>{t(`pricing.table.rows.${row.key}`)}</div>
-                    <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="flex items-center px-6 py-3.5 text-[13px] text-secondary">{t(`pricing.table.rows.${row.key}`)}</div>
+                    <div className="flex items-center justify-center px-4 py-3.5">
                       <Cell value={row.free} />
                     </div>
-                    <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245,166,35,0.03)' }}>
+                    <div className="flex items-center justify-center bg-gold/3 px-4 py-3.5">
                       <Cell value={row.pro} highlight />
                     </div>
-                    <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="flex items-center justify-center px-4 py-3.5">
                       <Cell value={row.enterprise} />
                     </div>
                   </div>
@@ -414,16 +329,16 @@ export default function PricingPage() {
         {/* ── FAQ ──────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
-          style={{ maxWidth: 720, margin: '0 auto 100px' }}
+          className="mx-auto mb-25 max-w-180"
         >
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 42px)', fontFamily: 'Playfair Display, serif', marginBottom: 12 }}>
+          <div className="mb-12 text-center">
+            <h2 className="mb-3 font-playfair text-[clamp(28px,4vw,42px)] font-extrabold text-primary">
               Frequently asked questions
             </h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15 }}>Everything you need to know before deciding.</p>
+            <p className="text-[15px] text-faint">Everything you need to know before deciding.</p>
           </div>
 
-          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '8px 32px' }}>
+          <div className="rounded-[20px] border border-edge bg-primary/2 px-8 py-2">
             {FAQS.map(faq => <FaqItem key={faq.q} q={faq.q} a={faq.a} />)}
           </div>
         </motion.div>
@@ -431,34 +346,26 @@ export default function PricingPage() {
         {/* ── Bottom CTA ────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
-          style={{
-            textAlign: 'center', marginBottom: 80, padding: '60px 32px',
-            background: 'rgba(245,166,35,0.05)', border: '1px solid rgba(245,166,35,0.15)',
-            borderRadius: 24, position: 'relative', overflow: 'hidden',
-          }}
+          className="relative mb-20 overflow-hidden rounded-3xl border border-gold/15 bg-gold/5 px-8 py-15 text-center"
         >
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 400, height: 200, background: 'rgba(245,166,35,0.06)', filter: 'blur(60px)', borderRadius: '50%', pointerEvents: 'none' }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 'clamp(26px, 4vw, 40px)', marginBottom: 12, fontFamily: 'Playfair Display, serif' }}>
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-50 w-100 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/6 blur-[60px]" />
+          <div className="relative z-1">
+            <h2 className="mb-3 font-playfair text-[clamp(26px,4vw,40px)] font-extrabold text-primary">
               {t('pricing.ctaBottom.title')}
             </h2>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15, marginBottom: 32, maxWidth: 440, margin: '0 auto 32px' }}>
+            <p className="mx-auto mb-8 max-w-110 text-[15px] text-secondary">
               {t('pricing.ctaBottom.subtitle')}
             </p>
-            <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="flex flex-wrap justify-center gap-4">
               <button
                 onClick={() => goToRegister('free')}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#f5a623', color: '#0a0b0f', fontWeight: 700, fontSize: 15, padding: '16px 32px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 28px rgba(245,166,35,0.35)' }}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = '#fbbf24'; el.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = '#f5a623'; el.style.transform = 'translateY(0)'; }}
+                className="inline-flex items-center gap-2 rounded-xl bg-gold px-8 py-4 text-[15px] font-bold text-ink shadow-[0_8px_28px_rgba(245,166,35,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-light"
               >
                 {t('pricing.ctaBottom.primaryButton')} <ArrowRight size={16} />
               </button>
               <button
                 onClick={() => goToRegister('pro')}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.8)', fontWeight: 600, fontSize: 15, padding: '16px 32px', borderRadius: 12, cursor: 'pointer' }}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.1)'; el.style.color = '#fff'; }}
-                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.06)'; el.style.color = 'rgba(255,255,255,0.8)'; }}
+                className="inline-flex items-center gap-2 rounded-xl border border-edge-strong bg-primary/6 px-8 py-4 text-[15px] font-semibold text-primary/80 transition-all duration-200 hover:bg-primary/10 hover:text-primary"
               >
                 {t('pricing.ctaBottom.secondaryButton')}
               </button>
