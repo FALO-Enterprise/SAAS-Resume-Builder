@@ -11,7 +11,6 @@ import Logo from '@/components/ui/Logo';
 const CODE_LENGTH = 6;
 const RESEND_COOLDOWN = 60; // seconds
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Single OTP digit box
 // ─────────────────────────────────────────────────────────────────────────────
@@ -38,32 +37,21 @@ function OtpBox({
   onFocus: () => void;
   onBlur: () => void;
 }) {
-  const borderColor = hasError
-    ? 'rgba(248,113,113,0.6)'
+  // State → classes (fixed set of conditions, so no inline needed)
+  const stateClasses = hasError
+    ? 'border-pink-light/60 bg-pink-light/[0.07] text-pink-light'
     : focused
-    ? '#f5a623'
+    ? 'border-gold bg-gold/[0.06] text-primary shadow-[0_0_0_3px_rgba(245,166,35,0.12)]'
     : value
-    ? 'rgba(245,166,35,0.4)'
-    : 'rgba(255,255,255,0.1)';
-
-  const bg = hasError
-    ? 'rgba(248,113,113,0.07)'
-    : focused
-    ? 'rgba(245,166,35,0.06)'
-    : value
-    ? 'rgba(245,166,35,0.03)'
-    : 'rgba(255,255,255,0.03)';
-
-  const shadow = focused
-    ? '0 0 0 3px rgba(245,166,35,0.12)'
-    : 'none';
+    ? 'border-gold/40 bg-gold/[0.03] text-primary'
+    : 'border-edge-strong bg-card text-primary';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.05 + index * 0.06 }}
-      style={{ position: 'relative' }}
+      className="relative"
     >
       <input
         ref={inputRef}
@@ -76,23 +64,7 @@ function OtpBox({
         onPaste={onPaste}
         onFocus={onFocus}
         onBlur={onBlur}
-        style={{
-          width: 54,
-          height: 64,
-          textAlign: 'center',
-          fontSize: 26,
-          fontWeight: 800,
-          fontFamily: 'Playfair Display, serif',
-          color: hasError ? '#f87171' : '#fff',
-          background: bg,
-          border: `1.5px solid ${borderColor}`,
-          borderRadius: 14,
-          outline: 'none',
-          transition: 'all 0.2s',
-          boxShadow: shadow,
-          cursor: 'text',
-          caretColor: 'transparent',
-        }}
+        className={`h-16 w-13.5 rounded-[14px] border-[1.5px] text-center font-playfair text-[26px] font-extrabold caret-transparent outline-none transition-all ${stateClasses}`}
       />
     </motion.div>
   );
@@ -125,7 +97,6 @@ export default function VerifyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // email can be passed as query param from register: /verify?email=user@example.com
   const emailParam = searchParams.get('email') ?? '';
 
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
@@ -139,17 +110,16 @@ export default function VerifyPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const { count, expired, restart } = useCountdown(RESEND_COOLDOWN);
 
-  // Auto-focus first box on mount
   useEffect(() => {
     setTimeout(() => inputRefs.current[0]?.focus(), 300);
   }, []);
 
   // ── Input handlers ──────────────────────────────────────────────────────
   const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, ''); // digits only
+    const raw = e.target.value.replace(/\D/g, '');
     if (!raw) return;
 
-    const digit = raw[raw.length - 1]; // take last char if multiple
+    const digit = raw[raw.length - 1];
     const next = [...digits];
     next[index] = digit;
     setDigits(next);
@@ -165,11 +135,9 @@ export default function VerifyPage() {
       e.preventDefault();
       const next = [...digits];
       if (next[index]) {
-        // clear current
         next[index] = '';
         setDigits(next);
       } else if (index > 0) {
-        // move to previous and clear
         next[index - 1] = '';
         setDigits(next);
         inputRefs.current[index - 1]?.focus();
@@ -193,7 +161,6 @@ export default function VerifyPage() {
     pasted.split('').forEach((ch, i) => { next[i] = ch; });
     setDigits(next);
     setError('');
-    // focus last filled or last box
     const lastIndex = Math.min(pasted.length, CODE_LENGTH - 1);
     inputRefs.current[lastIndex]?.focus();
   };
@@ -211,8 +178,7 @@ export default function VerifyPage() {
       // ── BACKEND CONNECTION ───────────────────────────────────────────────
       // POST /api/auth/verify
       // Body:     { email, code }
-      // Response: { token, user }  →  verification successful
-      //           { error }        →  invalid/expired code
+      // Response: { token, user }  |  { error }
       // ────────────────────────────────────────────────────────────────────
       const res = await fetch('/api/auth/verify', {
         method: 'POST',
@@ -241,14 +207,6 @@ export default function VerifyPage() {
       setLoading(false);
     }
   };
-
-    // Auto-submit when all digits filled
-  // useEffect(() => {
-  //   if (digits.every(d => d !== '') && !loading && !success) {
-  //     handleSubmit(digits.join(''));
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [digits]);
 
   // ── Resend ───────────────────────────────────────────────────────────────
   const handleResend = async () => {
@@ -292,51 +250,43 @@ export default function VerifyPage() {
 
   const filledCount = digits.filter(d => d !== '').length;
   const hasError = !!error;
+  const canSubmit = !loading && filledCount === CODE_LENGTH;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Success screen
   // ─────────────────────────────────────────────────────────────────────────
   if (success) {
     return (
-      <main style={{
-        minHeight: '100vh', background: '#0a0b0f',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '40px 24px',
-      }}>
+      <main className="flex min-h-screen items-center justify-center bg-base px-6 py-10">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          style={{ textAlign: 'center', maxWidth: 360 }}
+          className="max-w-90 text-center"
         >
           {/* Animated checkmark */}
           <motion.div
             animate={{ scale: [0, 1.2, 1] }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            style={{
-              width: 80, height: 80, borderRadius: '50%', margin: '0 auto 28px',
-              background: 'rgba(74,222,128,0.12)',
-              border: '1.5px solid rgba(74,222,128,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
+            className="mx-auto mb-7 flex h-20 w-20 items-center justify-center rounded-full border-[1.5px] border-green/30 bg-green/12"
           >
-            <Check size={36} color="#4ade80" />
+            <Check size={36} className="text-green" />
           </motion.div>
 
-          <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 28, marginBottom: 10, fontFamily: 'Playfair Display, serif' }}>
+          <h2 className="mb-2.5 font-playfair text-[28px] font-extrabold text-primary">
             Email verified!
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
+          <p className="mb-8 text-[15px] leading-[1.7] text-faint">
             Your account is now active. Taking you to your dashboard…
           </p>
 
           {/* Progress bar */}
-          <div style={{ height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+          <div className="h-0.75 overflow-hidden rounded-full bg-card">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: '100%' }}
               transition={{ duration: 2, ease: 'linear' }}
-              style={{ height: '100%', background: 'linear-gradient(to right, #f5a623, #fbbf24)', borderRadius: 99 }}
+              className="h-full rounded-full bg-linear-to-r from-gold to-gold-light"
             />
           </div>
         </motion.div>
@@ -348,67 +298,48 @@ export default function VerifyPage() {
   // Main card
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <main style={{
-      minHeight: '100vh', background: '#0a0b0f',
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-      padding: '40px 24px', position: 'relative', overflow: 'hidden',
-    }}>
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-base px-6 py-10">
 
       {/* Background glows */}
-      <div style={{ position: 'fixed', top: '15%', left: '5%', width: 500, height: 500, background: 'rgba(245,166,35,0.04)', filter: 'blur(120px)', borderRadius: '50%', pointerEvents: 'none' }} />
-      <div style={{ position: 'fixed', bottom: '10%', right: '5%', width: 400, height: 400, background: 'rgba(29,78,216,0.05)', filter: 'blur(100px)', borderRadius: '50%', pointerEvents: 'none' }} />
+      <div className="pointer-events-none fixed left-[5%] top-[15%] h-125 w-125 rounded-full bg-gold/4 blur-[120px]" />
+      <div className="pointer-events-none fixed bottom-[10%] right-[5%] h-100 w-100 rounded-full bg-azure/5 blur-[100px]" />
 
       {/* Card */}
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        style={{
-          width: '100%', maxWidth: 480,
-          background: '#13141a',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 28,
-          padding: '40px 40px 48px',
-          boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
-          position: 'relative', zIndex: 10, overflow: 'hidden',
-        }}
+        className="relative z-10 w-full max-w-120 overflow-hidden rounded-[28px] border border-edge bg-elevated px-10 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)]"
       >
 
         {/* Decorative glows inside card */}
-        <div style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, background: 'radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
-        <div style={{ position: 'absolute', bottom: -40, left: -40, width: 160, height: 160, background: 'radial-gradient(circle, rgba(29,78,216,0.08) 0%, transparent 70%)', pointerEvents: 'none', borderRadius: '50%' }} />
+        <div className="pointer-events-none absolute -top-15 -right-15 h-50 w-50 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-gold)_8%,transparent)_0%,transparent_70%)]" />
+        <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-azure)_8%,transparent)_0%,transparent_70%)]" />
 
         {/* Logo */}
-        <div style={{ marginBottom: 36 }}>
-          <Link href={`/${locale}`} style={{ textDecoration: 'none' }}>
+        <div className="mb-9">
+          <Link href={`/${locale}`} className="no-underline">
             <Logo />
           </Link>
         </div>
 
         {/* Header */}
-        <div style={{ marginBottom: 32 }}>
+        <div className="mb-8">
           {/* Icon */}
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.15 }}
-            style={{
-              width: 56, height: 56, borderRadius: 16,
-              background: 'rgba(245,166,35,0.1)',
-              border: '1px solid rgba(245,166,35,0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: 20,
-            }}
+            className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/20 bg-gold/10"
           >
-            <ShieldCheck size={26} color="#f5a623" />
+            <ShieldCheck size={26} className="text-gold" />
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            style={{ color: '#fff', fontWeight: 800, fontSize: 24, marginBottom: 8, fontFamily: 'Playfair Display, serif' }}
+            className="mb-2 font-playfair text-2xl font-extrabold text-primary"
           >
             Check your email
           </motion.h1>
@@ -417,11 +348,11 @@ export default function VerifyPage() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.25 }}
-            style={{ color: 'rgba(255,255,255,0.45)', fontSize: 14, lineHeight: 1.7 }}
+            className="text-sm leading-[1.7] text-faint"
           >
             We sent a 6-digit verification code to{' '}
             {emailParam
-              ? <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>{emailParam}</span>
+              ? <span className="font-semibold text-secondary">{emailParam}</span>
               : 'your email address'
             }.
             {' '}Enter it below to verify your account.
@@ -429,11 +360,8 @@ export default function VerifyPage() {
         </div>
 
         {/* OTP boxes */}
-        <div style={{ marginBottom: 28 }}>
-          <div style={{
-            display: 'flex', gap: 10, justifyContent: 'center',
-            flexWrap: 'wrap',
-          }}>
+        <div className="mb-7">
+          <div className="flex justify-center gap-1.5 sm:gap-2.5">
             {digits.map((digit, i) => (
               <OtpBox
                 key={i}
@@ -452,16 +380,13 @@ export default function VerifyPage() {
           </div>
 
           {/* Progress dots */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 16 }}>
+          <div className="mt-4 flex justify-center gap-1.5">
             {digits.map((d, i) => (
               <motion.div
                 key={i}
-                animate={{
-                  background: d ? '#f5a623' : 'rgba(255,255,255,0.1)',
-                  scale: d ? 1.2 : 1,
-                }}
+                animate={{ scale: d ? 1.2 : 1 }}
                 transition={{ duration: 0.2 }}
-                style={{ width: 5, height: 5, borderRadius: '50%' }}
+                className={`h-1.25 w-1.25 rounded-full transition-colors ${d ? 'bg-gold' : 'bg-edge-strong'}`}
               />
             ))}
           </div>
@@ -475,13 +400,7 @@ export default function VerifyPage() {
               initial={{ opacity: 0, y: -8, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}
               exit={{ opacity: 0, y: -8, height: 0 }}
-              style={{
-                background: 'rgba(248,113,113,0.1)',
-                border: '1px solid rgba(248,113,113,0.25)',
-                borderRadius: 10, padding: '12px 16px',
-                color: '#f87171', fontSize: 13,
-                textAlign: 'center', marginBottom: 20,
-              }}
+              className="mb-5 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
             >
               {error}
             </motion.div>
@@ -496,14 +415,7 @@ export default function VerifyPage() {
               initial={{ opacity: 0, y: -8, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}
               exit={{ opacity: 0, y: -8, height: 0 }}
-              style={{
-                background: 'rgba(74,222,128,0.08)',
-                border: '1px solid rgba(74,222,128,0.2)',
-                borderRadius: 10, padding: '12px 16px',
-                color: '#4ade80', fontSize: 13,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                marginBottom: 20,
-              }}
+              className="mb-5 flex items-center justify-center gap-2 rounded-[10px] border border-green/20 bg-green/8 px-4 py-3 text-[13px] text-green"
             >
               <MailOpen size={14} />
               A new code has been sent to your email.
@@ -514,79 +426,48 @@ export default function VerifyPage() {
         {/* Verify button */}
         <button
           onClick={() => handleSubmit(digits.join(''))}
-          // disabled={loading || count > 0}
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            width: '100%', padding: '15px 24px', borderRadius: 12, border: 'none',
-            fontWeight: 700, fontSize: 15, cursor: loading || filledCount < CODE_LENGTH ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s',
-            background: loading || filledCount < CODE_LENGTH
-              ? 'rgba(245,166,35,0.4)'
-              : '#f5a623',
-            color: '#0a0b0f',
-            boxShadow: loading || filledCount < CODE_LENGTH
-              ? 'none'
-              : '0 8px 25px rgba(245,166,35,0.3)',
-            marginBottom: 24,
-          }}
-          onMouseEnter={e => {
-            if (!loading && filledCount === CODE_LENGTH) {
-              (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
-              (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 35px rgba(245,166,35,0.45)';
-            }
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-            (e.currentTarget as HTMLElement).style.boxShadow = filledCount === CODE_LENGTH ? '0 8px 25px rgba(245,166,35,0.3)' : 'none';
-          }}
+          disabled={!canSubmit}
+          className={`mb-6 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.75 text-[15px] font-bold text-ink transition-all ${
+            canSubmit
+              ? 'cursor-pointer bg-gold shadow-[0_8px_25px_rgba(245,166,35,0.3)] hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.45)]'
+              : 'cursor-not-allowed bg-gold/40'
+          }`}
         >
           {loading
-            ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Verifying…</>
+            ? <><Loader2 size={16} className="animate-spin" /> Verifying…</>
             : <><span>Verify Email</span><ArrowRight size={16} /></>
           }
         </button>
 
         {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
-          <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 12 }}>didn&apos;t receive it?</span>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)' }} />
+        <div className="mb-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-edge" />
+          <span className="text-xs text-muted">didn&apos;t receive it?</span>
+          <div className="h-px flex-1 bg-edge" />
         </div>
 
         {/* Resend row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        <div className="flex items-center justify-center gap-2">
           <button
             onClick={handleResend}
             disabled={!expired || resending}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              background: 'none', border: 'none',
-              fontSize: 13, fontWeight: 600,
-              cursor: expired && !resending ? 'pointer' : 'default',
-              color: expired && !resending ? '#f5a623' : 'rgba(255,255,255,0.25)',
-              transition: 'color 0.2s',
-              padding: '4px 0',
-            }}
+            className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${
+              expired && !resending ? 'cursor-pointer text-gold' : 'cursor-default text-muted'
+            }`}
           >
             {resending
-              ? <><Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> Sending…</>
+              ? <><Loader2 size={13} className="animate-spin" /> Sending…</>
               : <><RefreshCw size={13} /> Resend code</>
             }
           </button>
 
           {!expired && (
-            <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 13 }}>
+            <span className="text-[13px] text-muted">
               in{' '}
               <span
-                style={{
-                  color: count <= 10 ? '#f87171' : 'rgba(255,255,255,0.45)',
-                  fontWeight: 600,
-                  fontVariantNumeric: 'tabular-nums',
-                  transition: 'color 0.3s',
-                  display: 'inline-block',
-                  minWidth: 42,
-                  textAlign: 'center',
-                }}
+                className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${
+                  count <= 10 ? 'text-pink-light' : 'text-faint'
+                }`}
               >
                 {String(Math.floor(count / 60)).padStart(2, '0')}:{String(count % 60).padStart(2, '0')}
               </span>
@@ -595,16 +476,10 @@ export default function VerifyPage() {
         </div>
 
         {/* Back link */}
-        <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
+        <div className="mt-8 border-t border-edge pt-6 text-center">
           <Link
             href={`/${locale}/CreateAccount`}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 6,
-              color: 'rgba(255,255,255,0.35)', fontSize: 13, textDecoration: 'none',
-              transition: 'color 0.2s',
-            }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.65)'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'}
+            className="inline-flex items-center gap-1.5 text-[13px] text-muted no-underline transition-colors hover:text-secondary"
           >
             <ArrowLeft size={13} /> Back to register
           </Link>
@@ -616,7 +491,7 @@ export default function VerifyPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 24, textAlign: 'center' }}
+        className="mt-6 text-center text-xs text-secondary"
       >
         The code expires in 10 minutes. Check your spam folder if you don&apos;t see it.
       </motion.p>
