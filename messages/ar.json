@@ -233,6 +233,14 @@
       }
     },
     "signup": {
+      "title": "أنشئ حسابك",
+"subtitle": "أدخل بياناتك للبدء مع ResuMax.",
+"nameExample": "محمد أحمد",
+"emailExample": "mohammad@example.com",
+"passwordInputPlaceholder": "أنشئ كلمة مرور قوية",
+"confirmInputPlaceholder": "أعد كتابة كلمة المرور",
+"successReady": "حسابك جاهز. ابدأ ببناء السيرة الذاتية التي تفتح لك الفرص.",
+"redirecting": "جاري التحويل إلى لوحة التحكم…",
       "fullNamePlaceholder": "الاسم الكامل",
       "emailPlaceholder": "البريد الإلكتروني",
       "passwordPlaceholder": "كلمة المرور",
