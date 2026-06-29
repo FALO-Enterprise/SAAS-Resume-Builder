@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { FaGoogle, FaLinkedin, FaGithub } from 'react-icons/fa';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
@@ -36,40 +37,29 @@ function AuthInput({
   error?: string;
   rightSlot?: React.ReactNode;
 }) {
-  const [focused, setFocused] = useState(false);
-  const locale = useLocale();
-  const isRTL = locale === 'ar';
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <div style={{
-        display: 'flex', alignItems: 'center',
-        background: focused ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
-        border: `1px solid ${error ? 'rgba(248,113,113,0.5)' : focused ? 'rgba(245,166,35,0.5)' : 'rgba(255,255,255,0.1)'}`,
-        borderRadius: 12, padding: '0 16px',
-        transition: 'all 0.2s',
-        boxShadow: focused ? '0 0 0 3px rgba(245,166,35,0.08)' : 'none',
-      }}>
-        <Icon size={16} color={focused ? '#f5a623' : 'rgba(255,255,255,0.3)'} style={{ flexShrink: 0, transition: 'color 0.2s' }} />
+    <div className="flex flex-col gap-1.5">
+      <div
+        className={`group flex items-center rounded-xl px-4 transition-all focus-within:bg-card-hover ${
+          error
+            ? 'border border-pink-light/50 bg-card'
+            : 'border border-edge bg-card focus-within:border-gold/50 focus-within:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]'
+        }`}
+      >
+        <Icon size={16} className="shrink-0 text-muted transition-colors group-focus-within:text-gold" />
         <input
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          style={{
-            flex: 1, background: 'transparent', border: 'none', outline: 'none',
-            color: '#fff', fontSize: 14, padding: '14px 12px',
-            fontFamily: 'inherit', textAlign: isRTL ? 'right' : 'left',
-          }}
+          className="flex-1 border-none bg-transparent px-3 py-3.5 text-sm text-primary outline-none text-start"
         />
         {rightSlot}
       </div>
       {error && (
         <motion.p
           initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-          style={{ color: '#f87171', fontSize: 12, paddingLeft: 4 }}
+          className="pl-1 text-xs text-pink-light"
         >
           {error}
         </motion.p>
@@ -78,12 +68,19 @@ function AuthInput({
   );
 }
 
+// ─── Social providers ────────────────────────────────────────────────────────
+const PROVIDERS = [
+  { id: 'google',   label: 'Google',   Icon: FaGoogle,   color: 'text-primary' },
+  { id: 'github',   label: 'GitHub',   Icon: FaGithub,   color: 'text-primary' },
+  { id: 'linkedin', label: 'LinkedIn', Icon: FaLinkedin, color: '#0a66c2' },
+] as const;
+
 // ─── Login Form ──────────────────────────────────────────────────────────────
 export default function LoginForm() {
   const { closeModal } = useAuth();
   const locale = useLocale();
   const t = useTranslations('auth');
-  const isRTL = locale === 'ar';  
+  const isRTL = locale === 'ar';
   const [form, setForm] = useState<FormState>({ email: '', password: '' });
   const [errors, setErrors] = useState<FieldError>({});
   const [showPw, setShowPw] = useState(false);
@@ -107,10 +104,8 @@ export default function LoginForm() {
 
     try {
       // ── BACKEND CONNECTION ─────────────────────────────────────────────────
-      // Replace the URL below with your actual backend endpoint.
-      // Expected request body: { email, password }
-      // Expected response:     { token: string, user: { id, name, email } }
-      //                        OR { error: string } on failure
+      // POST /api/auth/login   Body: { email, password }
+      // Response: { token, user } | { error }
       // ──────────────────────────────────────────────────────────────────────
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -125,7 +120,6 @@ export default function LoginForm() {
         return;
       }
 
-      // Store token — swap for cookie/session if your backend uses those
       if (data.token) localStorage.setItem('resumax_token', data.token);
 
       setSuccess(true);
@@ -143,35 +137,49 @@ export default function LoginForm() {
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-        style={{ textAlign: 'center', padding: '40px 0' }}
+        className="py-10 text-center"
       >
-        <div style={{
-          width: 64, height: 64, borderRadius: '50%',
-          background: 'rgba(245,166,35,0.15)', border: '1px solid rgba(245,166,35,0.3)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 20px', fontSize: 28,
-        }}>✓</div>
-        <p style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>{t('login.successTitle')}</p>
-        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 14, marginTop: 6 }}>{t('login.successSubtitle')}</p>
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-gold/30 bg-gold/15 text-[28px] text-gold">
+          ✓
+        </div>
+        <p className="text-lg font-bold text-primary">{t('login.successTitle')}</p>
+        <p className="mt-1.5 text-sm text-faint">{t('login.successSubtitle')}</p>
       </motion.div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, direction: isRTL ? 'rtl' : 'ltr' }}>
+    <div className="flex flex-col gap-5" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* General error banner */}
       {errors.general && (
         <motion.div
           initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-          style={{
-            background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.25)',
-            borderRadius: 10, padding: '12px 16px',
-            color: '#f87171', fontSize: 13, textAlign: 'center',
-          }}
+          className="rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
         >
           {errors.general}
         </motion.div>
       )}
+
+      {/* Social providers */}
+      <div className="flex gap-3">
+        {PROVIDERS.map(({ id, label, Icon, color }) => (
+          <button
+            key={id}
+            type="button"
+            aria-label={`Continue with ${label}`}
+            className="flex flex-1 items-center justify-center rounded-xl border border-edge bg-card py-3 transition-all hover:border-edge-strong hover:bg-card-hover"
+          >
+            <Icon size={20} color={color} />
+          </button>
+        ))}
+      </div>
+
+      {/* Divider — social / email */}
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-edge" />
+        <span className="text-xs text-muted">{t('login.or')}</span>
+        <div className="h-px flex-1 bg-edge" />
+      </div>
 
       {/* Fields */}
       <AuthInput
@@ -184,18 +192,18 @@ export default function LoginForm() {
         value={form.password} onChange={v => setForm(f => ({ ...f, password: v }))}
         error={errors.password}
         rightSlot={
-          <button type="button" onClick={() => setShowPw(p => !p)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+          <button type="button" onClick={() => setShowPw(p => !p)} className="cursor-pointer border-none bg-transparent p-1">
             {showPw
-              ? <EyeOff size={15} color="rgba(255,255,255,0.35)" />
-              : <Eye size={15} color="rgba(255,255,255,0.35)" />
+              ? <EyeOff size={15} className="text-faint" />
+              : <Eye size={15} className="text-faint" />
             }
           </button>
         }
       />
 
       {/* Forgot password */}
-      <div style={{ textAlign: 'right', marginTop: -8 }}>
-        <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f5a623', fontSize: 13, fontWeight: 500 }}>
+      <div className="-mt-2 text-end">
+        <button className="cursor-pointer border-none bg-transparent text-[13px] font-medium text-gold">
           {t('login.forgotPassword')}
         </button>
       </div>
@@ -204,38 +212,21 @@ export default function LoginForm() {
       <button
         onClick={handleSubmit}
         disabled={loading}
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          background: loading ? 'rgba(245,166,35,0.6)' : '#f5a623',
-          color: '#0a0b0f', fontWeight: 700, fontSize: 15,
-          padding: '15px 24px', borderRadius: 12, border: 'none',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          width: '100%', transition: 'all 0.2s',
-          boxShadow: loading ? 'none' : '0 8px 25px rgba(245,166,35,0.3)',
-        }}
-        onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.75 text-[15px] font-bold text-ink shadow-[0_8px_25px_rgba(245,166,35,0.3)] transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:bg-gold/60 disabled:shadow-none"
       >
         {loading
-          ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> {t('login.loading')}</>
+          ? <><Loader2 size={16} className="animate-spin" /> {t('login.loading')}</>
           : <><span>{t('login.submit')}</span><ArrowRight size={16} /></>
         }
       </button>
 
-      {/* Divider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>{t('login.or')}</span>
-        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-      </div>
-
       {/* Switch to signup */}
-      <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.45)', fontSize: 14 }}>
+      <p className="text-center text-sm text-faint">
         {t('login.switchText')}{' '}
         <Link
-          href={`${locale}/CreateAccount`}
+          href={`/${locale}/CreateAccount`}
           onClick={closeModal}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#f5a623', fontWeight: 600, fontSize: 14 }}
+          className="cursor-pointer text-sm font-semibold text-gold"
         >
           {t('login.switchLink')}
         </Link>
