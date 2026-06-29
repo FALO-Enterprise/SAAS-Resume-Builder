@@ -6,10 +6,10 @@ import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import LoginForm from './LoginForm';
-import Logo from '@/components/ui/Logo'
+import Logo from '@/components/ui/Logo';
 
 export default function AuthModal() {
-  const { isOpen, activeTab, closeModal } = useAuth();
+  const { isOpen, closeModal } = useAuth();
   const t = useTranslations('auth');
 
   // Lock body scroll when open
@@ -41,110 +41,60 @@ export default function AuthModal() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             onClick={closeModal}
-            style={{
-              position: 'fixed', inset: 0, zIndex: 1000,
-              background: 'rgba(0,0,0,0.75)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-            }}
+            className="fixed inset-0 z-1000 bg-black/70 backdrop-blur-sm"
           />
 
           {/* Modal panel */}
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 1001,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '16px',
-            }}
-          >            
+          <div className="fixed inset-0 z-1001 flex items-center justify-center p-4">
             <motion.div
               key="modal"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              style={{
-                  position: 'relative',
-                  width: '100%',
-                  maxWidth: '460px',
-                  maxHeight: '100vh',
-                  background: '#13141a',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: '24px',
-                  boxShadow:'0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)',
-                  padding: '32px 32px 40px',
-                }}
+              className="relative max-h-screen w-full max-w-115 overflow-hidden rounded-3xl border border-edge bg-elevated px-8 pb-10 pt-8 shadow-[0_40px_100px_var(--shadow-color)]"
             >
               {/* Close button */}
               <button
                 onClick={closeModal}
-                style={{
-                  position: 'absolute', top: 20, right: 20,
-                  width: 32, height: 32, borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', transition: 'all 0.2s', color: 'rgba(255,255,255,0.5)',
-                }}
-                onMouseEnter={e => { const el = e.currentTarget; el.style.background = 'rgba(255,255,255,0.1)'; el.style.color = '#fff'; }}
-                onMouseLeave={e => { const el = e.currentTarget; el.style.background = 'rgba(255,255,255,0.05)'; el.style.color = 'rgba(255,255,255,0.5)'; }}
+                aria-label="Close"
+                className="absolute inset-e-5 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-edge bg-card text-secondary transition-all hover:bg-card-hover hover:text-primary"
               >
                 <X size={14} />
               </button>
 
               {/* Logo */}
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' , marginBottom: 28 }}>
+              <div className="mb-7 flex items-center justify-center">
                 <Logo />
               </div>
 
               {/* Heading */}
-              <div style={{ marginBottom: 24 }}>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, x: activeTab === 'login' ? -10 : 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: activeTab === 'login' ? 10 : -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 22, marginBottom: 4, fontFamily: 'Playfair Display, serif' }}>
-                      {activeTab === 'login' ? t('heading.loginTitle') : t('heading.signupTitle')}
-                    </h2>
-                    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>
-                      {t('heading.loginSubtitle')}
-                    </p>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2 }}
+                className="mb-6"
+              >
+                <h2 className="mb-1 font-playfair text-[22px] font-extrabold text-primary">
+                  {t('heading.loginTitle')}
+                </h2>
+                <p className="text-sm text-faint">
+                  {t('heading.loginSubtitle')}
+                </p>
+              </motion.div>
 
-              {/* Form body — animated switch */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.22 }}
-                >
-                  <LoginForm />
-                </motion.div>
-              </AnimatePresence>
+              {/* Form body */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.22 }}
+              >
+                <LoginForm />
+              </motion.div>
 
-              {/* Decorative glow */}
-              <div style={{
-                position: 'absolute', top: -60, right: -60, width: 200, height: 200,
-                background: 'radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%)',
-                pointerEvents: 'none', borderRadius: '50%',
-              }} />
-              <div style={{
-                position: 'absolute', bottom: -40, left: -40, width: 160, height: 160,
-                background: 'radial-gradient(circle, rgba(29,78,216,0.08) 0%, transparent 70%)',
-                pointerEvents: 'none', borderRadius: '50%',
-              }} />
+              {/* Decorative glows — brand colors, constant in both themes */}
+              <div className="pointer-events-none absolute -top-15 -right-15 h-50 w-50 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-gold)_8%,transparent)_0%,transparent_70%)]" />
+              <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-azure)_8%,transparent)_0%,transparent_70%)]" />
             </motion.div>
           </div>
         </>
