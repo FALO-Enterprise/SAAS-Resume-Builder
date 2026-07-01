@@ -6,7 +6,7 @@ import {
   User, Briefcase, GraduationCap, Zap,
   Mail, Phone, MapPin, Link2, ArrowRight,
   ArrowLeft, Save, Sparkles, Check,
-  LayoutDashboard, ChevronRight, FileText,
+  LayoutDashboard, ChevronRight, FileText, Menu, X
 } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
@@ -36,7 +36,6 @@ const STEPS: {
   { id: 'skills',     label: 'Skills',     icon: Zap,           num: 4, desc: 'Technical & soft skills'   },
 ];
 
-
 function FieldCard({
   label, icon: Icon, type = 'text', placeholder, value, onChange, error, hint,
 }: {
@@ -46,47 +45,48 @@ function FieldCard({
   const [focused, setFocused] = useState(false);
   const filled = value.length > 0;
 
+  // Border + bg by state (fixed set → static classes)
+  const wrapState = error
+    ? 'border-pink-light/50 bg-card shadow-[0_0_0_3px_rgba(248,113,113,0.08)]'
+    : focused
+    ? 'border-gold/60 bg-gold/4 shadow-[0_0_0_3px_rgba(245,166,35,0.1),0_8px_32px_var(--shadow-color)]'
+    : filled
+    ? 'border-gold/20 bg-card shadow-[0_2px_8px_var(--shadow-color)]'
+    : 'border-edge bg-card shadow-[0_2px_8px_var(--shadow-color)]';
+
+  const iconBox = focused
+    ? 'bg-gold/15'
+    : filled
+    ? 'bg-gold/8'
+    : 'bg-card-hover';
+
+  const iconColor = focused ? 'text-gold' : filled ? 'text-gold/70' : 'text-muted';
+  const labelColor = focused ? 'text-gold' : filled ? 'text-gold/70' : 'text-faint';
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      <motion.div
-        animate={{
-          borderColor: error ? 'rgba(248,113,113,0.5)' : focused ? 'rgba(245,166,35,0.6)' : filled ? 'rgba(245,166,35,0.2)' : 'rgba(255,255,255,0.07)',
-          background: focused ? 'rgba(245,166,35,0.04)' : 'rgba(255,255,255,0.03)',
-          boxShadow: focused ? '0 0 0 3px rgba(245,166,35,0.1), 0 8px 32px rgba(0,0,0,0.3)' : error ? '0 0 0 3px rgba(248,113,113,0.08)' : '0 2px 8px rgba(0,0,0,0.2)',
-        }}
-        transition={{ duration: 0.18 }}
-        style={{ border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '18px 20px', background: 'rgba(255,255,255,0.03)', position: 'relative', overflow: 'hidden' }}
-      >
+    <div className="flex flex-col">
+      <div className={`relative overflow-hidden rounded-[14px] border px-5 py-4.5 transition-all duration-200 ${wrapState}`}>
         <AnimatePresence>
           {focused && (
             <motion.div
               initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }}
               transition={{ duration: 0.25 }}
-              style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(to right, transparent, #f5a623, transparent)', transformOrigin: 'left' }}
+              className="absolute inset-x-0 top-0 h-0.5 origin-left bg-[linear-gradient(to_right,transparent,var(--color-gold),transparent)]"
             />
           )}
         </AnimatePresence>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: focused ? 'rgba(245,166,35,0.15)' : filled ? 'rgba(245,166,35,0.08)' : 'rgba(255,255,255,0.05)',
-            transition: 'background 0.2s',
-          }}>
-            <Icon size={14} color={focused ? '#f5a623' : filled ? 'rgba(245,166,35,0.7)' : 'rgba(255,255,255,0.3)'} style={{ transition: 'color 0.2s' }} />
+        <div className="mb-2.5 flex items-center gap-2">
+          <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${iconBox}`}>
+            <Icon size={14} className={`transition-colors ${iconColor}`} />
           </div>
-          <span style={{
-            fontSize: 11, fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase' as const,
-            color: focused ? '#f5a623' : filled ? 'rgba(245,166,35,0.7)' : 'rgba(255,255,255,0.35)',
-            transition: 'color 0.2s', fontFamily: 'Syne, system-ui, sans-serif',
-          }}>
+          <span className={`font-syne text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
             {label}
           </span>
           {filled && !focused && (
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-              style={{ marginLeft: 'auto', width: 16, height: 16, borderRadius: '50%', background: 'rgba(74,222,128,0.15)', border: '1px solid rgba(74,222,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Check size={9} color="#4ade80" />
+              className="ms-auto flex h-4 w-4 items-center justify-center rounded-full border border-green/30 bg-green/15">
+              <Check size={9} className="text-green" />
             </motion.div>
           )}
         </div>
@@ -95,74 +95,77 @@ function FieldCard({
           type={type} placeholder={placeholder} value={value}
           onChange={e => onChange(e.target.value)}
           onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-          style={{ width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: 15, fontWeight: 500, color: filled ? '#fff' : 'rgba(255,255,255,0.25)', fontFamily: 'Syne, system-ui, sans-serif', paddingLeft: 36 }}
+          className="w-full border-none bg-transparent ps-9 font-syne text-[15px] font-medium text-primary outline-none placeholder:text-muted"
         />
-      </motion.div>
+      </div>
 
       <AnimatePresence>
         {error && (
           <motion.p initial={{ opacity: 0, height: 0, y: -4 }} animate={{ opacity: 1, height: 'auto', y: 0 }} exit={{ opacity: 0, height: 0 }}
-            style={{ color: '#f87171', fontSize: 11.5, fontWeight: 500, marginTop: 6, paddingLeft: 4 }}>
+            className="mt-1.5 ps-1 text-[11.5px] font-medium text-pink-light">
             {error}
           </motion.p>
         )}
       </AnimatePresence>
 
       {hint && !error && (
-        <p style={{ color: 'rgba(255,255,255,0.22)', fontSize: 11, marginTop: 5, paddingLeft: 4 }}>{hint}</p>
+        <p className="mt-1.25 ps-1 text-[11px] text-muted">{hint}</p>
       )}
     </div>
   );
 }
 
-function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving, savedAt }: {
+function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving, savedAt, open, onClose }: {
   currentStep: StepId; completedSteps: Set<StepId>;
   onStepClick: (id: StepId) => void; onSaveDraft: () => void;
   saving: boolean; savedAt: string | null;
+  open: boolean; onClose: () => void;
 }) {
   const currentNum = STEPS.find(s => s.id === currentStep)?.num ?? 1;
   const locale = useLocale();
 
   return (
-    <aside style={{ width: 260, minWidth: 260, height: '100vh', background: '#0d0f18', borderRight: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0 }}>
-
-      <div style={{ padding: '28px 24px 0' }}>
-        <Logo />
+    <aside className={`fixed inset-y-0 start-0 z-50 flex h-screen w-[280px] min-w-[280px] flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-[260px] lg:min-w-[260px] lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className="px-6 pt-7">
+        <div className="flex items-center justify-between">
+          <Logo />
+          <button onClick={onClose} aria-label="Close menu" className="text-secondary lg:hidden">
+            <X size={20} />
+          </button>
+        </div>
         <Link href={`/${locale}`}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 20, color: 'rgba(255,255,255,0.3)', fontSize: 12, textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}
-          onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.6)'}
-          onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.3)'}
+          className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium text-muted no-underline transition-colors hover:text-secondary"
         >
           <LayoutDashboard size={12} /> Back to home
         </Link>
       </div>
 
-      <div style={{ padding: '28px 24px 24px' }}>
-        <div style={{ background: 'rgba(245,166,35,0.06)', border: '1px solid rgba(245,166,35,0.12)', borderRadius: 14, padding: '16px 18px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+      <div className="px-6 pb-6 pt-7">
+        <div className="rounded-[14px] border border-gold/12 bg-gold/6 px-4.5 py-4">
+          <div className="mb-3 flex items-center justify-between">
             <div>
-              <div style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>Onboarding</div>
-              <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, marginTop: 2 }}>Step {currentNum} of {STEPS.length}</div>
+              <div className="text-[15px] font-bold text-primary">Onboarding</div>
+              <div className="mt-0.5 text-xs text-faint">Step {currentNum} of {STEPS.length}</div>
             </div>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(245,166,35,0.12)', border: '2px solid rgba(245,166,35,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: '#f5a623', fontSize: 13, fontWeight: 800 }}>{currentNum}/{STEPS.length}</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-gold/25 bg-gold/12">
+              <span className="text-[13px] font-extrabold text-gold">{currentNum}/{STEPS.length}</span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div className="flex gap-1">
             {STEPS.map(s => (
               <motion.div key={s.id}
-                animate={{ background: completedSteps.has(s.id) ? '#f5a623' : s.id === currentStep ? 'rgba(245,166,35,0.5)' : 'rgba(255,255,255,0.08)' }}
+                animate={{ background: completedSteps.has(s.id) ? 'var(--color-gold)' : s.id === currentStep ? 'color-mix(in srgb, var(--color-gold) 50%, transparent)' : 'var(--edge)' }}
                 transition={{ duration: 0.3 }}
-                style={{ flex: 1, height: 3, borderRadius: 99 }}
+                className="h-0.75 flex-1 rounded-full"
               />
             ))}
           </div>
         </div>
       </div>
 
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.4)', margin: '0 24px' }} />
+      <div className="mx-6 h-px bg-edge" />
 
-      <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto' }}>
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3 px-3">
         {STEPS.map(step => {
           const Icon = step.icon;
           const isActive   = step.id === currentStep;
@@ -172,53 +175,44 @@ function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving
             <motion.button key={step.id}
               onClick={() => !isLocked && onStepClick(step.id)}
               whileHover={!isLocked ? { x: 2 } : {}}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
-                padding: '12px 14px', borderRadius: 12,
-                background: isActive ? 'rgba(245,166,35,0.1)' : 'transparent',
-                border: isActive ? '1px solid rgba(245,166,35,0.15)' : '1px solid rgba(245,166,35,0.10)',
-                cursor: isLocked ? 'default' : 'pointer', textAlign: 'left', transition: 'all 0.2s',
-                opacity: isLocked ? 0.35 : 1,
-              }}
+              className={`flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${
+                isActive ? 'border-gold/15 bg-gold/10' : 'border-gold/10 bg-transparent'
+              } ${isLocked ? 'cursor-default opacity-35' : 'cursor-pointer'}`}
             >
-              <div style={{
-                width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: isActive ? 'rgba(245,166,35,0.15)' : isComplete ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.04)',
-                border: isActive ? '1px solid rgba(245,166,35,0.3)' : isComplete ? '1px solid rgba(74,222,128,0.2)' : '1px solid rgba(255,255,255,0.6)',
-                transition: 'all 0.2s',
-              }}>
-                {isComplete ? <Check size={15} color="#4ade80" /> : <Icon size={15} color={isActive ? '#f5a623' : 'rgba(255,255,255,0.3)'} />}
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-all ${
+                isActive ? 'border-gold/30 bg-gold/15' : isComplete ? 'border-green/20 bg-green/10' : 'border-edge bg-card'
+              }`}>
+                {isComplete ? <Check size={15} className="text-green" /> : <Icon size={15} className={isActive ? 'text-gold' : 'text-muted'} />}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: isActive ? 700 : 500, color: isActive ? '#fff' : isComplete ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.8)', transition: 'color 0.2s' }}>
+              <div className="min-w-0 flex-1">
+                <div className={`text-[13px] transition-colors ${
+                  isActive ? 'font-bold text-primary' : isComplete ? 'font-medium text-secondary' : 'font-medium text-secondary'
+                }`}>
                   {step.label}
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div className="mt-0.5 truncate text-[11px] text-faint">
                   {step.desc}
                 </div>
               </div>
-              {isActive && <ChevronRight size={14} color="rgba(245,166,35,0.6)" />}
+              {isActive && <ChevronRight size={14} className="text-gold/60" />}
             </motion.button>
           );
         })}
       </nav>
 
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.4)', margin: '0 24px' }} />
+      <div className="mx-6 h-px bg-edge" />
 
-      <div style={{ padding: '20px 24px' }}>
+      <div className="px-6 py-5">
         {savedAt && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10, justifyContent: 'center' }}>
-            <Check size={11} color="#4ade80" />
-            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>Saved {savedAt}</span>
+          <div className="mb-2.5 flex items-center justify-center gap-1.5">
+            <Check size={11} className="text-green" />
+            <span className="text-[11px] text-muted">Saved {savedAt}</span>
           </div>
         )}
         <button onClick={onSaveDraft} disabled={saving}
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 0', borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
-          onMouseEnter={e => { if (!saving) { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(245,166,35,0.08)'; el.style.borderColor = 'rgba(245,166,35,0.2)'; el.style.color = '#f5a623'; } }}
-          onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.05)'; el.style.borderColor = 'rgba(255,255,255,0.09)'; el.style.color = 'rgba(255,255,255,0.55)'; }}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-edge bg-card py-3 text-[13px] font-semibold text-secondary transition-all hover:border-gold/20 hover:bg-gold/8 hover:text-gold disabled:cursor-not-allowed"
         >
-          {saving ? <><FileText size={13} style={{ animation: 'spin 1s linear infinite' }} /> Saving…</> : <><Save size={13} /> Save Draft</>}
+          {saving ? <><FileText size={13} className="animate-spin" /> Saving…</> : <><Save size={13} /> Save Draft</>}
         </button>
       </div>
     </aside>
@@ -243,36 +237,34 @@ function ContactStep({ data, onChange, errors }: {
   return (
     <div>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(245,166,35,0.1)', border: '1px solid rgba(245,166,35,0.2)', borderRadius: 9999, padding: '5px 14px', marginBottom: 24 }}>
-        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#f5a623', display: 'inline-block' }} />
-        <span style={{ color: '#f5a623', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Step 1 — Contact Info</span>
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
+        <span className="inline-block h-1.25 w-1.25 rounded-full bg-gold" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">Step 1 — Contact Info</span>
       </motion.div>
 
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
-        style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 14, fontFamily: 'Playfair Display, serif', color: '#fff' }}>
+        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
         Tell us about
-        <span style={{ display: 'block', background: 'linear-gradient(135deg, #f5a623, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-          yourself
-        </span>
+        <span className="block text-gradient-gold">yourself</span>
       </motion.h1>
 
       <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
-        style={{ color: 'rgba(255,255,255,0.45)', fontSize: 15, lineHeight: 1.7, maxWidth: 520, marginBottom: 36 }}>
+        className="mb-9 max-w-130 text-[15px] leading-[1.7] text-faint">
         First impressions matter. We&apos;ll use this information to build your resume header and optimize your contact details for ATS screening.
       </motion.p>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} style={{ marginBottom: 32 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, fontWeight: 500 }}>Section completion</span>
-          <span style={{ color: filledCount === 6 ? '#4ade80' : '#f5a623', fontSize: 12, fontWeight: 700 }}>{filledCount}/6 fields</span>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mb-8">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-medium text-muted">Section completion</span>
+          <span className={`text-xs font-bold ${filledCount === 6 ? 'text-green' : 'text-gold'}`}>{filledCount}/6 fields</span>
         </div>
-        <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+        <div className="h-1 overflow-hidden rounded-full bg-card">
           <motion.div animate={{ width: `${(filledCount / 6) * 100}%` }} transition={{ duration: 0.4, ease: 'easeOut' }}
-            style={{ height: '100%', borderRadius: 99, background: filledCount === 6 ? 'linear-gradient(to right, #4ade80, #22c55e)' : 'linear-gradient(to right, #f5a623, #fbbf24)' }} />
+            className={`h-full rounded-full ${filledCount === 6 ? 'bg-linear-to-r from-green to-green-light' : 'bg-linear-to-r from-gold to-gold-light'}`} />
         </div>
       </motion.div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 14 }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3.5">
         {fields.map((f, i) => (
           <motion.div key={f.key} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.12 + i * 0.06 }}>
             <FieldCard label={f.label} icon={f.icon} type={f.type} placeholder={f.placeholder}
@@ -282,15 +274,15 @@ function ContactStep({ data, onChange, errors }: {
       </div>
 
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.4 }}
-        style={{ marginTop: 28, padding: '16px 20px', background: 'rgba(29,78,216,0.07)', border: '1px solid rgba(29,78,216,0.15)', borderRadius: 14, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-        <div style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Sparkles size={15} color="#3b82f6" />
+        className="mt-7 flex items-start gap-3.5 rounded-[14px] border border-azure/15 bg-azure/[0.07] px-5 py-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-azure-light/20 bg-azure-light/12">
+          <Sparkles size={15} className="text-azure-light" />
         </div>
         <div>
-          <div style={{ color: '#93c5fd', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>ATS Tip</div>
-          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, lineHeight: 1.6 }}>
-            Recruiters spend an average of <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>6 seconds</span> on the header.
-            A complete contact section increases your callback rate by up to <span style={{ color: '#f5a623', fontWeight: 600 }}>60%</span>.
+          <div className="mb-1 text-xs font-bold uppercase tracking-[0.08em] text-[#93c5fd]">ATS Tip</div>
+          <p className="text-[13px] leading-[1.6] text-faint">
+            Recruiters spend an average of <span className="font-semibold text-secondary">6 seconds</span> on the header.
+            A complete contact section increases your callback rate by up to <span className="font-semibold text-gold">60%</span>.
           </p>
         </div>
       </motion.div>
@@ -300,24 +292,24 @@ function ContactStep({ data, onChange, errors }: {
 
 function ComingSoonStep({ stepId }: { stepId: StepId }) {
   const config = {
-    experience: { icon: Briefcase,     label: 'Work Experience', color: '#3b82f6', bg: 'rgba(59,130,246,0.08)',  border: 'rgba(59,130,246,0.15)',  desc: 'Add your work history, job titles, responsibilities, and key achievements.' },
-    education:  { icon: GraduationCap, label: 'Education',       color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.15)', desc: 'List your degrees, institutions, graduation years, and academic honors.' },
-    skills:     { icon: Zap,           label: 'Skills',          color: '#14b8a6', bg: 'rgba(20,184,166,0.08)',  border: 'rgba(20,184,166,0.15)',  desc: 'Showcase your technical skills, tools, languages, and soft skills.' },
+    experience: { icon: Briefcase,     label: 'Work Experience', dot: 'bg-azure-light', iconText: 'text-azure-light', box: 'border-azure-light/15 bg-azure-light/[0.08]', desc: 'Add your work history, job titles, responsibilities, and key achievements.' },
+    education:  { icon: GraduationCap, label: 'Education',       dot: 'bg-vilot',       iconText: 'text-vilot',       box: 'border-vilot/15 bg-vilot/[0.08]',                desc: 'List your degrees, institutions, graduation years, and academic honors.' },
+    skills:     { icon: Zap,           label: 'Skills',          dot: 'bg-teal-light',  iconText: 'text-teal-light',  box: 'border-teal-light/15 bg-teal-light/[0.08]',      desc: 'Showcase your technical skills, tools, languages, and soft skills.' },
   }[stepId as 'experience' | 'education' | 'skills'];
   if (!config) return null;
   const Icon = config.icon;
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 440, textAlign: 'center', padding: '0 40px' }}>
+      className="flex min-h-110 flex-col items-center justify-center px-10 text-center">
       <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ width: 80, height: 80, borderRadius: 24, background: config.bg, border: `1.5px solid ${config.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 28, boxShadow: `0 0 40px ${config.bg}` }}>
-        <Icon size={36} color={config.color} />
+        className={`mb-7 flex h-20 w-20 items-center justify-center rounded-3xl border-[1.5px] ${config.box}`}>
+        <Icon size={36} className={config.iconText} />
       </motion.div>
-      <h2 style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 12, fontFamily: 'Playfair Display, serif' }}>{config.label}</h2>
-      <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, lineHeight: 1.7, maxWidth: 400, marginBottom: 28 }}>{config.desc}</p>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9999, padding: '8px 18px' }}>
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: config.color }} />
-        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13 }}>Coming in the next build</span>
+      <h2 className="mb-3 font-playfair text-[32px] font-black text-primary">{config.label}</h2>
+      <p className="mb-7 max-w-110 text-[15px] leading-[1.7] text-faint">{config.desc}</p>
+      <div className="inline-flex items-center gap-2 rounded-full border border-edge bg-card px-4.5 py-2">
+        <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
+        <span className="text-[13px] text-faint">Coming in the next build</span>
       </div>
     </motion.div>
   );
@@ -331,6 +323,8 @@ export default function DashboardPage() {
   const [savedAt, setSavedAt]          = useState<string | null>(null);
   const [contact, setContact]          = useState<ContactData>({ fullName: '', title: '', email: '', phone: '', location: '', linkedin: '' });
   const [errors, setErrors]            = useState<Partial<Record<keyof ContactData, string>>>({});
+  const [navOpen, setNavOpen] = useState(false);
+
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
   const nextStep     = STEPS[currentIndex + 1];
@@ -366,6 +360,11 @@ export default function DashboardPage() {
     if (nextStep) setCurrentStep(nextStep.id);
   };
 
+  const handleSidebarStep = (id: StepId) => {
+    handleStepClick(id);
+    setNavOpen(false);
+  };
+
   const handleStepClick = (id: StepId) => {
     const clickedIdx = STEPS.findIndex(s => s.id === id);
     if (clickedIdx <= currentIndex || completedSteps.has(id)) {
@@ -382,15 +381,41 @@ export default function DashboardPage() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0a0b0f', fontFamily: 'Syne, system-ui, sans-serif' }}>
-      <div style={{ position: 'fixed', top: '20%', right: '15%', width: 400, height: 400, background: 'rgba(245,166,35,0.04)', filter: 'blur(100px)', borderRadius: '50%', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'fixed', bottom: '20%', right: '30%', width: 300, height: 300, background: 'rgba(29,78,216,0.04)', filter: 'blur(80px)', borderRadius: '50%', pointerEvents: 'none', zIndex: 0 }} />
+    <div className="flex min-h-screen bg-base font-syne">
+      <div className="pointer-events-none fixed right-[15%] top-[20%] z-0 h-100 w-100 rounded-full bg-gold/4 blur-[100px]" />
+      <div className="pointer-events-none fixed bottom-[20%] right-[30%] z-0 h-75 w-75 rounded-full bg-azure/4 blur-[80px]" />
 
-      <Sidebar currentStep={currentStep} completedSteps={completedSteps} onStepClick={handleStepClick} onSaveDraft={handleSaveDraft} saving={saving} savedAt={savedAt} />
+      <Sidebar
+        currentStep={currentStep}
+        completedSteps={completedSteps}
+        onStepClick={handleSidebarStep}
+        onSaveDraft={handleSaveDraft}
+        saving={saving}
+        savedAt={savedAt}
+        open={navOpen}
+        onClose={() => setNavOpen(false)}
+      />
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative', zIndex: 1 }}>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '52px 60px 40px' }}>
-          <div style={{ maxWidth: 860, width: '100%' }}>
+      {/* Mobile drawer backdrop */}
+      {navOpen && (
+        <div
+          onClick={() => setNavOpen(false)}
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-[2px] lg:hidden"
+        />
+      )}
+
+
+      <div className="relative z-1 flex min-h-screen flex-1 flex-col">
+        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-[color-mix(in_srgb,var(--bg-base)_92%,transparent)] px-5 py-3 backdrop-blur-xl lg:hidden">
+          <button onClick={() => setNavOpen(true)} aria-label="Open menu" className="text-primary">
+            <Menu size={22} />
+          </button>
+          <Logo />
+          <span className="w-[22px]" /> {/* spacer to center logo */}
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-[60px] lg:pt-[52px]">
+          <div className="w-full max-w-215">
             <AnimatePresence mode="wait">
               <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
                 {currentStep === 'contact' && (
@@ -404,36 +429,29 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '18px 60px', background: 'rgba(10,11,15,0.95)', backdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', bottom: 0, zIndex: 10 }}>
+        <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-edge bg-[color-mix(in_srgb,var(--bg-base)_95%,transparent)] px-5 py-[14px] backdrop-blur-[20px] sm:px-8 lg:px-[60px] lg:py-[18px]">
           {prevStep ? (
             <button onClick={() => setCurrentStep(prevStep.id)}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', fontSize: 14, fontWeight: 600, transition: 'color 0.2s', padding: '10px 0' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'}>
+              className="flex items-center gap-2 border-none bg-transparent py-2.5 text-sm font-semibold text-muted transition-colors hover:text-secondary">
               <ArrowLeft size={16} /> Back
             </button>
           ) : (
             <Link href={`/${locale}`}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.35)', fontSize: 14, fontWeight: 600, textDecoration: 'none', transition: 'color 0.2s' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)'}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.35)'}>
+              className="flex items-center gap-2 text-sm font-semibold text-muted no-underline transition-colors hover:text-secondary">
               <ArrowLeft size={16} /> Exit to home
             </Link>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="hidden items-center gap-2 sm:flex">
             {STEPS.map(s => (
               <motion.div key={s.id}
-                animate={{ width: s.id === currentStep ? 24 : 6, background: completedSteps.has(s.id) ? '#4ade80' : s.id === currentStep ? '#f5a623' : 'rgba(255,255,255,0.12)' }}
                 transition={{ duration: 0.3 }}
-                style={{ height: 6, borderRadius: 99 }} />
+                className={`h-1.5 rounded-full ${s.id === currentStep ? 'w-6' : 'w-1.5'} ${completedSteps.has(s.id) ? 'bg-green' : s.id === currentStep ? 'bg-gold' : 'bg-edge-strong'}`} />
             ))}
           </div>
 
           <button onClick={handleNext}
-            style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#f5a623', color: '#0a0b0f', fontSize: 14, fontWeight: 700, padding: '13px 26px', borderRadius: 12, border: 'none', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 6px 20px rgba(245,166,35,0.35)' }}
-            onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = '#fbbf24'; el.style.transform = 'translateY(-1px)'; el.style.boxShadow = '0 10px 28px rgba(245,166,35,0.5)'; }}
-            onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = '#f5a623'; el.style.transform = 'translateY(0)'; el.style.boxShadow = '0 6px 20px rgba(245,166,35,0.35)'; }}>
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-[13px] text-[13px] font-bold text-[#0a0b0f] shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light hover:shadow-[0_10px_28px_rgba(245,166,35,0.5)] sm:px-[26px] sm:text-sm">
             {nextLabel[currentStep]} <ArrowRight size={15} />
           </button>
         </div>
@@ -443,8 +461,9 @@ export default function DashboardPage() {
         initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1, type: 'spring', stiffness: 260, damping: 18 }}
         whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}
         title="AI Resume Assistant"
-        style={{ position: 'fixed', bottom: 88, right: 28, zIndex: 50, width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #13141a, #1e2028)', border: '1px solid rgba(245,166,35,0.25)', boxShadow: '0 8px 30px rgba(0,0,0,0.4), 0 0 0 1px rgba(245,166,35,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Sparkles size={20} color="#f5a623" />
+        className="fixed bottom-[88px] right-5 z-50 flex h-[52px] w-[52px] items-center justify-center rounded-full border border-gold/25 bg-linear-to-br from-elevated to-ink-muted shadow-[0_8px_30px_var(--shadow-color)] lg:right-7"
+      >
+        <Sparkles size={20} className="text-gold" />
       </motion.button>
     </div>
   );
