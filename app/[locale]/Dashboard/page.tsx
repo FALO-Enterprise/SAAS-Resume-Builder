@@ -125,7 +125,7 @@ function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving
   const locale = useLocale();
 
   return (
-    <aside className={`fixed inset-y-0 start-0 z-50 flex h-screen w-[280px] min-w-[280px] flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-[260px] lg:min-w-[260px] lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`fixed inset-y-0 inset-0 z-50 flex h-screen w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="px-6 pt-7">
         <div className="flex items-center justify-between">
           <Logo />
@@ -411,10 +411,10 @@ export default function DashboardPage() {
             <Menu size={22} />
           </button>
           <Logo />
-          <span className="w-[22px]" /> {/* spacer to center logo */}
+          <span className="w-5.5" /> {/* spacer to center logo */}
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-[60px] lg:pt-[52px]">
+        <div className="flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-15 lg:pt-13">
           <div className="w-full max-w-215">
             <AnimatePresence mode="wait">
               <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
@@ -429,7 +429,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-edge bg-[color-mix(in_srgb,var(--bg-base)_95%,transparent)] px-5 py-[14px] backdrop-blur-[20px] sm:px-8 lg:px-[60px] lg:py-[18px]">
+        <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-edge bg-[color-mix(in_srgb,var(--bg-base)_95%,transparent)] px-5 py-3.5 backdrop-blur-[20px] sm:px-8 lg:px-15 lg:py-4.5">
           {prevStep ? (
             <button onClick={() => setCurrentStep(prevStep.id)}
               className="flex items-center gap-2 border-none bg-transparent py-2.5 text-sm font-semibold text-muted transition-colors hover:text-secondary">
@@ -451,7 +451,7 @@ export default function DashboardPage() {
           </div>
 
           <button onClick={handleNext}
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-[13px] text-[13px] font-bold text-[#0a0b0f] shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light hover:shadow-[0_10px_28px_rgba(245,166,35,0.5)] sm:px-[26px] sm:text-sm">
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-3.25 text-[13px] font-bold text-ink shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light hover:shadow-[0_10px_28px_rgba(245,166,35,0.5)] sm:px-6.5 sm:text-sm">
             {nextLabel[currentStep]} <ArrowRight size={15} />
           </button>
         </div>
@@ -461,7 +461,7 @@ export default function DashboardPage() {
         initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1, type: 'spring', stiffness: 260, damping: 18 }}
         whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}
         title="AI Resume Assistant"
-        className="fixed bottom-[88px] right-5 z-50 flex h-[52px] w-[52px] items-center justify-center rounded-full border border-gold/25 bg-linear-to-br from-elevated to-ink-muted shadow-[0_8px_30px_var(--shadow-color)] lg:right-7"
+        className="fixed bottom-22 right-5 z-50 flex h-13 w-13 items-center justify-center rounded-full border border-gold/25 bg-linear-to-br from-elevated to-ink-muted shadow-[0_8px_30px_var(--shadow-color)] lg:right-7"
       >
         <Sparkles size={20} className="text-gold" />
       </motion.button>
