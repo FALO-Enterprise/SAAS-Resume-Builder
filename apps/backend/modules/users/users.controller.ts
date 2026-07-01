@@ -49,5 +49,16 @@ export class UserController {
         res.create(user);
     };
 
+    deleteUser = async (req: Request, res: Response) => {
+        const id = (req.params.id)?.toString();
+        if (!id) return res.status(400).json({ error: 'ID required' });
+
+        const deleted = await this.service.deleteUser(id);
+        if (!deleted) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.ok({});
+    };
+
 
 }
