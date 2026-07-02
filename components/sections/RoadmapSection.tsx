@@ -6,29 +6,25 @@ import SectionLabel from '../ui/SectionLabel';
 
 type TagKey = 'Current' | 'Upcoming' | 'Future';
 
-const versionColors: Record<TagKey, {
-  badgeBg: string;
-  badgeText: string;
-  border: string;
-  glow: string;
+const versionStyles: Record<TagKey, {
+  badge: string;
+  card: string;
+  dot: string;
 }> = {
   Current: {
-    badgeBg: '#f5a623',
-    badgeText: '#0a0b0f',
-    border: '#f5a623',
-    glow: '0 0 25px rgba(245,166,35,0.35)',
+    badge: 'bg-gold text-ink border border-gold',
+    card: 'border border-gold shadow-[0_0_25px_rgba(245,166,35,0.35)]',
+    dot: 'border-gold bg-gold shadow-[0_0_25px_rgba(245,166,35,0.35)]',
   },
   Upcoming: {
-    badgeBg: 'rgba(59,130,246,0.2)',
-    badgeText: '#3b82f6',
-    border: 'rgba(59,130,246,0.3)',
-    glow: 'none',
+    badge: 'bg-azure-light/20 text-azure-light border border-azure-light/30',
+    card: 'border border-azure-light/30',
+    dot: 'border-azure-light/30 bg-ink',
   },
   Future: {
-    badgeBg: 'var(--bg-card)',
-    badgeText: 'var(--text-faint)',
-    border: 'var(--edge)',
-    glow: 'none',
+    badge: 'bg-card text-faint border border-edge',
+    card: 'border border-edge',
+    dot: 'border-edge bg-ink',
   },
 };
 
@@ -64,8 +60,8 @@ export default function RoadmapSection() {
 
           <div className="space-y-10">
             {versionKeys.map((vKey, i) => {
-              const tagKey = ['Current', 'Upcoming', 'Upcoming', 'Future'][i] as keyof typeof versionColors;
-              const style = versionColors[tagKey];
+              const tagKey = ['Current', 'Upcoming', 'Upcoming', 'Future'][i] as keyof typeof versionStyles;
+              const s = versionStyles[tagKey];
               const features = [
                 t(`versions.${vKey}.features.0`),
                 t(`versions.${vKey}.features.1`),
@@ -88,8 +84,7 @@ export default function RoadmapSection() {
                   {/* Content */}
                   <div className={`flex-1 ps-16 lg:ps-0 ${isRight ? 'lg:pe-12 lg:text-right' : 'lg:ps-12'}`}>
                     <div
-                      className='glass rounded-2xl p-6 transition-all duration-300'
-                      style={{ border: `1px solid ${style.border}`, boxShadow: style.glow }}
+                      className={`glass rounded-2xl p-6 transition-all duration-300 ${s.card}`}
                     >
                       <div className="flex items-center gap-3 mb-4 flex-wrap">
                         <span
@@ -98,9 +93,7 @@ export default function RoadmapSection() {
                         >
                           {t(`versions.${vKey}.version`)}
                         </span>
-                        <span
-                          className={`text-xs font-bold px-3 py-1 rounded-full bg-[${style.badgeBg}] text-[${style.badgeText}] border border-[${style.border}]`}
-                        >
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${s.badge}`}>
                           {t(`versions.${vKey}.tag`)}
                         </span>
                       </div>
@@ -123,9 +116,7 @@ export default function RoadmapSection() {
 
                   {/* Center dot */}
                   <div className="absolute left-8 lg:left-1/2 -translate-x-1/2 z-10">
-                    <div
-                      className={`w-4 h-4 rounded-full border-2 border-[${style.border}] ${tagKey === 'Current' ? 'bg-gold' : 'bg-ink'} shadow-[${style.glow}]`}
-                    />
+                    <div className={`w-4 h-4 rounded-full border-2 ${s.dot}`} />
                   </div>
 
                   {/* Empty right half for desktop */}
