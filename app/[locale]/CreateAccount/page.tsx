@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Check } from 'lucide-react';
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
@@ -65,35 +65,42 @@ function AuthInput({ icon: Icon, type, placeholder, value, onChange, error, righ
 // Shared — Password strength
 // ─────────────────────────────────────────────────────────────────────────────
 function PasswordStrength({ password }: { password: string }) {
-  const checks = [
-    { label: '8+ characters',    pass: password.length >= 8 },
-    { label: 'Uppercase',        pass: /[A-Z]/.test(password) },
-    { label: 'Number',           pass: /\d/.test(password) },
-    { label: 'Special character', pass: /[^A-Za-z0-9]/.test(password) },
+    const t = useTranslations('auth.signup');
+  const checks = [{ label: t('passwordChecks.length'), pass: password.length >= 8 },
+    { label: t('passwordChecks.uppercase'), pass: /[A-Z]/.test(password) },
+    { label: t('passwordChecks.number'), pass: /\d/.test(password) },
+    { label: t('passwordChecks.special'), pass: /[^A-Za-z0-9]/.test(password) },
   ];
   const score = checks.filter(c => c.pass).length;
   const barColor = ['#f87171', '#f87171', '#fb923c', '#facc15', '#4ade80'][score];
-  const label    = ['', 'Weak', 'Fair', 'Good', 'Strong'][score];
-  if (!password) return null;
+  const label = ['', t('strength.weak'), t('strength.fair'), t('strength.good'), t('strength.strong')][score];  if (!password) return null;
   return (
-    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-      className="flex flex-col gap-2">
+    
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      className="flex flex-col gap-2"
+    >
       <div className="flex items-center gap-1">
-        {[1,2,3,4].map(i => (
-          <div
+        {[1, 2, 3, 4].map(i => (
+                    <div
             key={i}
             className="h-0.75 flex-1 rounded-full transition-colors duration-300"
             style={{ background: i <= score ? barColor : 'var(--edge)' }}
           />
         ))}
-        <span className="min-w-11 text-right text-[11px] font-semibold" style={{ color: barColor }}>{label}</span>
-      </div>
+          <span className="min-w-11 text-right text-[11px] font-semibold" style={{ color: barColor }}>
+          {label}
+        </span>  
+            </div>
       <div className="flex flex-wrap gap-x-4 gap-y-1">
         {checks.map(c => (
           <div key={c.label} className="flex items-center gap-1.25">
             <Check size={11} className={c.pass ? 'text-green' : 'text-muted'} />
-            <span className={`text-[11px] ${c.pass ? 'text-secondary' : 'text-muted'}`}>{c.label}</span>
-          </div>
+            <span className={`text-[11px] ${c.pass ? 'text-secondary' : 'text-muted'}`}>
+              {c.label}
+            </span>
+         </div>
         ))}
       </div>
     </motion.div>
@@ -104,6 +111,7 @@ function PasswordStrength({ password }: { password: string }) {
 // Register form
 // ─────────────────────────────────────────────────────────────────────────────
 function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) => void; loading: boolean }) {
+  const t = useTranslations('auth.signup');
   const [form, setForm] = useState<RegisterData>({ name: '', email: '', password: '', confirm: '' });
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPw, setShowPw] = useState(false);
@@ -111,16 +119,21 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
 
   const validate = (): boolean => {
     const e: FormErrors = {};
-    if (!form.name.trim())                      e.name     = 'Full name is required';
-    if (!form.email)                             e.email    = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email    = 'Enter a valid email';
-    if (!form.password)                          e.password = 'Password is required';
-    else if (form.password.length < 8)           e.password = 'Minimum 8 characters';
-    if (!form.confirm)                           e.confirm  = 'Please confirm your password';
-    else if (form.confirm !== form.password)     e.confirm  = 'Passwords do not match';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
+
+  if (!form.name.trim()) e.name = t('errors.nameRequired');
+
+  if (!form.email) e.email = t('errors.emailRequired');
+  else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = t('errors.invalidEmail');
+
+  if (!form.password) e.password = t('errors.passwordRequired');
+  else if (form.password.length < 8) e.password = t('errors.passwordMin');
+
+  if (!form.confirm) e.confirm = t('errors.confirmRequired');
+  else if (form.confirm !== form.password) e.confirm = t('errors.confirmMismatch');
+
+  setErrors(e);
+  return Object.keys(e).length === 0;
+};
 
   const eyeBtn = (shown: boolean, toggle: () => void) => (
     <button type="button" onClick={toggle} className="cursor-pointer border-none bg-transparent p-1">
@@ -130,22 +143,19 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
 
   return (
     <div className="flex flex-col gap-5">
-      <AuthInput icon={User} type="text" placeholder="John Smith" label="Full name"
-        value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} error={errors.name} />
+      <AuthInput icon={User} type="text" placeholder={t('nameExample')} label={t('fullNamePlaceholder')}        value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} error={errors.name} />
 
-      <AuthInput icon={Mail} type="email" placeholder="john@example.com" label="Email address"
+      <AuthInput icon={Mail} type="email" placeholder={t('emailExample')} label={t('emailPlaceholder')}
         value={form.email} onChange={v => setForm(f => ({ ...f, email: v }))} error={errors.email} />
 
       <div className="flex flex-col gap-2">
-        <AuthInput icon={Lock} type={showPw ? 'text' : 'password'} placeholder="Create a strong password" label="Password"
-          value={form.password} onChange={v => setForm(f => ({ ...f, password: v }))} error={errors.password}
+   <AuthInput icon={Lock} type={showPw ? 'text' : 'password'} placeholder={t('passwordInputPlaceholder')} label={t('passwordPlaceholder')}          value={form.password} onChange={v => setForm(f => ({ ...f, password: v }))} error={errors.password}
           rightSlot={eyeBtn(showPw, () => setShowPw(p => !p))}
         />
         <PasswordStrength password={form.password} />
       </div>
 
-      <AuthInput icon={Lock} type={showConfirm ? 'text' : 'password'} placeholder="Repeat your password" label="Confirm password"
-        value={form.confirm} onChange={v => setForm(f => ({ ...f, confirm: v }))} error={errors.confirm}
+<AuthInput icon={Lock} type={showConfirm ? 'text' : 'password'}placeholder={t('confirmInputPlaceholder')} label={t('confirmPasswordPlaceholder')}        value={form.confirm} onChange={v => setForm(f => ({ ...f, confirm: v }))} error={errors.confirm}
         rightSlot={eyeBtn(showConfirm, () => setShowConfirm(p => !p))}
       />
 
@@ -154,8 +164,10 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
         disabled={loading}
         className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_25px_rgba(245,166,35,0.3)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.45)] disabled:cursor-not-allowed disabled:bg-gold/60 disabled:shadow-none"
       >
-        {loading ? <><Loader2 size={16} className="animate-spin" /> Creating account…</> : <><span>Create account</span><ArrowRight size={16} /></> }
-      </button>
+        {loading
+  ? <><Loader2 size={16} className="animate-spin" /> {t('loading')}</>
+  : <><span>{t('submit')}</span><ArrowRight size={16} /></>
+}      </button>
     </div>
   );
 }
@@ -164,6 +176,7 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
 // Success screen
 // ─────────────────────────────────────────────────────────────────────────────
 function SuccessScreen({ name }: { name: string }) {
+    const t = useTranslations('auth.signup');
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
@@ -177,15 +190,13 @@ function SuccessScreen({ name }: { name: string }) {
         <Check size={32} className="text-green" />
       </motion.div>
       <h2 className="mb-2 font-playfair text-[26px] font-extrabold text-primary">
-        You&apos;re in, {name.split(' ')[0]}!
-      </h2>
+       {t('successTitle', { name: name.split(' ')[0] })}      </h2>
       <p className="mx-auto mb-8 max-w-[320px] text-[15px] leading-[1.6] text-faint">
-        Your account is ready. Start building the resume that opens doors.
-      </p>
+        {t('successReady')}      </p>
       <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.5">
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green" />
-        <span className="text-xs text-secondary">Redirecting to dashboard…</span>
-      </div>
+        <span className="text-xs text-secondary">{t('redirecting')}</span>
+        </div>
     </motion.div>
   );
 }
@@ -195,6 +206,7 @@ function SuccessScreen({ name }: { name: string }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function RegisterPage() {
   const locale = useLocale();
+  const t = useTranslations('auth.signup');
   const router = useRouter();
 
   const [success, setSuccess] = useState(false);
@@ -221,8 +233,8 @@ export default function RegisterPage() {
       const resData = await res.json();
 
       if (!res.ok) {
-        setServerError(resData?.error || 'Something went wrong. Please try again.');
-        setLoading(false);
+       setServerError(resData?.error || t('errors.registrationFailed'));
+           setLoading(false);
         return;
       }
 
@@ -233,7 +245,7 @@ export default function RegisterPage() {
       setTimeout(() => router.push(`/${locale}/VerificationCode`), 2000);
 
     } catch {
-      setServerError('Network error. Please try again.');
+      setServerError(t('errors.network'));
       setLoading(false);
     }
   };
@@ -263,12 +275,13 @@ export default function RegisterPage() {
         {/* Section heading */}
         {!success && (
           <div className="mb-7">
-            <h1 className="mb-1.5 font-playfair text-2xl font-extrabold text-primary">
-              Create your account
-            </h1>
-            <p className="text-sm text-faint">
-              Fill in your details to get started with ResuMax.
-            </p>
+                 <h1 className="mb-1.5 font-playfair text-2xl font-extrabold text-primary">
+         {t('title')}
+      </h1>
+
+     <p className="text-sm text-faint">
+     {t('subtitle')}
+       </p>
           </div>
         )}
 
@@ -299,13 +312,13 @@ export default function RegisterPage() {
         {/* Footer — sign in link */}
         {!success && (
           <p className="mt-7 text-center text-sm text-muted">
-            Already have an account?{' '}
-            <Link
+                 {t('switchText')}            
+                 <Link
             href={`/${locale}`} 
             onClick={openLogin}
             className="font-semibold text-gold no-underline">
-              Sign in
-            </Link>
+               {t('switchLink')} 
+                       </Link>
           </p>
         )}
 
@@ -320,10 +333,16 @@ export default function RegisterPage() {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
           className="mt-6 text-center text-xs text-muted"
         >
-          By creating an account you agree to our{' '}
-          <a href="#" className="text-faint no-underline">Terms</a>
-          {' '}and{' '}
-          <a href="#" className="text-faint no-underline">Privacy Policy</a>
+          {t('termsPrefix')}{' '}
+<a href="#" className="text-faint no-underline">
+  {t('termsLink')}
+</a>
+{' '}
+{t('termsAnd')}
+{' '}
+<a href="#" className="text-faint no-underline">
+  {t('policyLink')}
+</a>
         </motion.p>
       )}
     </main>
