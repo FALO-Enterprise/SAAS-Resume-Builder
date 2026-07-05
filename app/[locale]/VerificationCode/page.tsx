@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, ArrowRight, Loader2, Check, RefreshCw, ArrowLeft, MailOpen } from 'lucide-react';
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Logo from '@/components/ui/Logo';
 
@@ -95,6 +95,7 @@ function useCountdown(initial: number) {
 export default function VerifyPage() {
   const locale = useLocale();
   const router = useRouter();
+  const t = useTranslations('verify');
   const searchParams = useSearchParams();
 
   const emailParam = searchParams.get('email') ?? '';
@@ -168,7 +169,7 @@ export default function VerifyPage() {
   // ── Submit ───────────────────────────────────────────────────────────────
   const handleSubmit = async (code: string) => {
     if (code.length < CODE_LENGTH) {
-      setError('Please enter the complete 6-digit code.');
+      setError(t('errors.incomplete'));
       return;
     }
     setLoading(true);
@@ -189,7 +190,7 @@ export default function VerifyPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data?.error || 'Invalid code. Please try again.');
+        setError(data?.error || t('errors.invalid'));
         setDigits(Array(CODE_LENGTH).fill(''));
         setTimeout(() => inputRefs.current[0]?.focus(), 50);
         return;
@@ -200,13 +201,21 @@ export default function VerifyPage() {
       setTimeout(() => router.push(`/${locale}/dashboard`), 2000);
 
     } catch {
-      setError('Network error. Please try again.');
+      setError(t('errors.network'));
       setDigits(Array(CODE_LENGTH).fill(''));
       setTimeout(() => inputRefs.current[0]?.focus(), 50);
     } finally {
       setLoading(false);
     }
   };
+
+  // Auto-submit when all digits filled
+  useEffect(() => {
+    if (digits.every(d => d !== '') && !loading && !success) {
+      handleSubmit(digits.join(''));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [digits]);
 
   // ── Resend ───────────────────────────────────────────────────────────────
   const handleResend = async () => {
@@ -229,7 +238,7 @@ export default function VerifyPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data?.error || 'Could not resend code. Try again.');
+        setError(data?.error || t('errors.resendFailed'));
         return;
       }
 
@@ -242,7 +251,7 @@ export default function VerifyPage() {
       }, 2500);
 
     } catch {
-      setError('Network error. Could not resend.');
+      setError(t('errors.resendNetwork'));
     } finally {
       setResending(false);
     }
@@ -274,10 +283,10 @@ export default function VerifyPage() {
           </motion.div>
 
           <h2 className="mb-2.5 font-playfair text-[28px] font-extrabold text-primary">
-            Email verified!
+            {t('success.title')}
           </h2>
           <p className="mb-8 text-[15px] leading-[1.7] text-faint">
-            Your account is now active. Taking you to your dashboard…
+            {t('success.subtitle')}
           </p>
 
           {/* Progress bar */}
@@ -341,7 +350,7 @@ export default function VerifyPage() {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="mb-2 font-playfair text-2xl font-extrabold text-primary"
           >
-            Check your email
+            {t('heading')}
           </motion.h1>
 
           <motion.p
@@ -350,18 +359,18 @@ export default function VerifyPage() {
             transition={{ duration: 0.4, delay: 0.25 }}
             className="text-sm leading-[1.7] text-faint"
           >
-            We sent a 6-digit verification code to{' '}
+            {t('subtitlePrefix')}{' '}
             {emailParam
               ? <span className="font-semibold text-secondary">{emailParam}</span>
-              : 'your email address'
-            }.
-            {' '}Enter it below to verify your account.
+              : t('subtitleFallback')
+            }
+            {'. '}{t('subtitleSuffix')}
           </motion.p>
         </div>
 
         {/* OTP boxes */}
         <div className="mb-7">
-          <div className="flex justify-center gap-1.5 sm:gap-2.5">
+          <div dir="ltr" className="flex justify-center gap-1.5 sm:gap-2.5">
             {digits.map((digit, i) => (
               <OtpBox
                 key={i}
@@ -418,7 +427,7 @@ export default function VerifyPage() {
               className="mb-5 flex items-center justify-center gap-2 rounded-[10px] border border-green/20 bg-green/8 px-4 py-3 text-[13px] text-green"
             >
               <MailOpen size={14} />
-              A new code has been sent to your email.
+              {t('resendSuccess')}
             </motion.div>
           )}
         </AnimatePresence>
@@ -434,15 +443,15 @@ export default function VerifyPage() {
           }`}
         >
           {loading
-            ? <><Loader2 size={16} className="animate-spin" /> Verifying…</>
-            : <><span>Verify Email</span><ArrowRight size={16} /></>
+            ? <><Loader2 size={16} className="animate-spin" /> {t('verifying')}</>
+            : <><span>{t('verifyButton')}</span><ArrowRight size={16} /></>
           }
         </button>
 
         {/* Divider */}
         <div className="mb-5 flex items-center gap-3">
           <div className="h-px flex-1 bg-edge" />
-          <span className="text-xs text-muted">didn&apos;t receive it?</span>
+          <span className="text-xs text-muted">{t('dividerText')}</span>
           <div className="h-px flex-1 bg-edge" />
         </div>
 
@@ -456,14 +465,14 @@ export default function VerifyPage() {
             }`}
           >
             {resending
-              ? <><Loader2 size={13} className="animate-spin" /> Sending…</>
-              : <><RefreshCw size={13} /> Resend code</>
+              ? <><Loader2 size={13} className="animate-spin" /> {t('resending')}</>
+              : <><RefreshCw size={13} /> {t('resend')}</>
             }
           </button>
 
           {!expired && (
             <span className="text-[13px] text-muted">
-              in{' '}
+              {t('resendIn')}{' '}
               <span
                 className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${
                   count <= 10 ? 'text-pink-light' : 'text-faint'
@@ -481,7 +490,7 @@ export default function VerifyPage() {
             href={`/${locale}/CreateAccount`}
             className="inline-flex items-center gap-1.5 text-[13px] text-muted no-underline transition-colors hover:text-secondary"
           >
-            <ArrowLeft size={13} /> Back to register
+            <ArrowLeft size={13} /> {t('backToRegister')}
           </Link>
         </div>
       </motion.div>
@@ -493,7 +502,7 @@ export default function VerifyPage() {
         transition={{ delay: 0.5 }}
         className="mt-6 text-center text-xs text-secondary"
       >
-        The code expires in 10 minutes. Check your spam folder if you don&apos;t see it.
+        {t('bottomNote')}
       </motion.p>
     </main>
   );

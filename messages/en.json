@@ -273,6 +273,32 @@
       }
     }
   },
+  "verify": {
+    "heading": "Check your email",
+    "subtitlePrefix": "We sent a 6-digit verification code to",
+    "subtitleFallback": "your email address",
+    "subtitleSuffix": "Enter it below to verify your account.",
+    "verifyButton": "Verify Email",
+    "verifying": "Verifying…",
+    "dividerText": "didn't receive it?",
+    "resend": "Resend code",
+    "resending": "Sending…",
+    "resendIn": "in",
+    "resendSuccess": "A new code has been sent to your email.",
+    "backToRegister": "Back to register",
+    "bottomNote": "The code expires in 10 minutes. Check your spam folder if you don't see it.",
+    "success": {
+      "title": "Email verified!",
+      "subtitle": "Your account is now active. Taking you to your dashboard…"
+    },
+    "errors": {
+      "incomplete": "Please enter the complete 6-digit code.",
+      "invalid": "Invalid code. Please try again.",
+      "resendFailed": "Could not resend code. Try again.",
+      "network": "Network error. Please try again.",
+      "resendNetwork": "Network error. Could not resend."
+    }
+  },
    "pricing": {
     "hero": {
       "badge": "Simple Pricing",
