@@ -233,8 +233,8 @@
       }
     },
     "signup": {
-            "title": "أنشئ حسابك",
-          "subtitle": "أدخل بياناتك للبدء مع ResuMax.",
+      "title": "أنشئ حسابك",
+      "subtitle": "أدخل بياناتك للبدء مع ResuMax.",
       "nameExample": "محمد أحمد",
       "emailExample": "mohammad@example.com",
       "passwordInputPlaceholder": "أنشئ كلمة مرور قوية",

@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Check } from 'lucide-react';
@@ -8,7 +7,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
@@ -24,7 +22,6 @@ interface FormErrors {
   password?: string;
   confirm?: string;
 }
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared — Input
 // ─────────────────────────────────────────────────────────────────────────────
@@ -66,14 +63,16 @@ function AuthInput({ icon: Icon, type, placeholder, value, onChange, error, righ
 // ─────────────────────────────────────────────────────────────────────────────
 function PasswordStrength({ password }: { password: string }) {
     const t = useTranslations('auth.signup');
-  const checks = [{ label: t('passwordChecks.length'), pass: password.length >= 8 },
+    const checks = [
+    { label: t('passwordChecks.length'), pass: password.length >= 8 },
     { label: t('passwordChecks.uppercase'), pass: /[A-Z]/.test(password) },
     { label: t('passwordChecks.number'), pass: /\d/.test(password) },
     { label: t('passwordChecks.special'), pass: /[^A-Za-z0-9]/.test(password) },
   ];
   const score = checks.filter(c => c.pass).length;
   const barColor = ['#f87171', '#f87171', '#fb923c', '#facc15', '#4ade80'][score];
-  const label = ['', t('strength.weak'), t('strength.fair'), t('strength.good'), t('strength.strong')][score];  if (!password) return null;
+  const label = ['', t('strength.weak'), t('strength.fair'), t('strength.good'), t('strength.strong')][score];  
+  if (!password) return null;
   return (
     
     <motion.div
@@ -83,23 +82,19 @@ function PasswordStrength({ password }: { password: string }) {
     >
       <div className="flex items-center gap-1">
         {[1, 2, 3, 4].map(i => (
-                    <div
+         <div
             key={i}
             className="h-0.75 flex-1 rounded-full transition-colors duration-300"
             style={{ background: i <= score ? barColor : 'var(--edge)' }}
           />
-        ))}
-          <span className="min-w-11 text-right text-[11px] font-semibold" style={{ color: barColor }}>
-          {label}
-        </span>  
-            </div>
+          ))}
+          <span className="min-w-11 text-right text-[11px] font-semibold" style={{ color: barColor }}>{label}</span>  
+          </div>
       <div className="flex flex-wrap gap-x-4 gap-y-1">
         {checks.map(c => (
           <div key={c.label} className="flex items-center gap-1.25">
             <Check size={11} className={c.pass ? 'text-green' : 'text-muted'} />
-            <span className={`text-[11px] ${c.pass ? 'text-secondary' : 'text-muted'}`}>
-              {c.label}
-            </span>
+            <span className={`text-[11px] ${c.pass ? 'text-secondary' : 'text-muted'}`}>{c.label}</span>
          </div>
         ))}
       </div>
@@ -115,10 +110,10 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
   const [form, setForm] = useState<RegisterData>({ name: '', email: '', password: '', confirm: '' });
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPw, setShowPw] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false); 
 
   const validate = (): boolean => {
-    const e: FormErrors = {};
+  const e: FormErrors = {};
 
   if (!form.name.trim()) e.name = t('errors.nameRequired');
 
@@ -145,29 +140,20 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
     <div className="flex flex-col gap-5">
       <AuthInput icon={User} type="text" placeholder={t('nameExample')} label={t('fullNamePlaceholder')}        value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} error={errors.name} />
 
-      <AuthInput icon={Mail} type="email" placeholder={t('emailExample')} label={t('emailPlaceholder')}
-        value={form.email} onChange={v => setForm(f => ({ ...f, email: v }))} error={errors.email} />
+      <AuthInput icon={Mail} type="email" placeholder={t('emailExample')} label={t('emailPlaceholder')} value={form.email} onChange={v => setForm(f => ({ ...f, email: v }))} error={errors.email} />
 
       <div className="flex flex-col gap-2">
-   <AuthInput icon={Lock} type={showPw ? 'text' : 'password'} placeholder={t('passwordInputPlaceholder')} label={t('passwordPlaceholder')}          value={form.password} onChange={v => setForm(f => ({ ...f, password: v }))} error={errors.password}
-          rightSlot={eyeBtn(showPw, () => setShowPw(p => !p))}
-        />
+        <AuthInput icon={Lock} type={showPw ? 'text' : 'password'} placeholder={t('passwordInputPlaceholder')} label={t('passwordPlaceholder')} value={form.password} onChange={v => setForm(f => ({ ...f, password: v }))} error={errors.password} rightSlot={eyeBtn(showPw, () => setShowPw(p => !p))} />
         <PasswordStrength password={form.password} />
       </div>
 
-<AuthInput icon={Lock} type={showConfirm ? 'text' : 'password'}placeholder={t('confirmInputPlaceholder')} label={t('confirmPasswordPlaceholder')}        value={form.confirm} onChange={v => setForm(f => ({ ...f, confirm: v }))} error={errors.confirm}
-        rightSlot={eyeBtn(showConfirm, () => setShowConfirm(p => !p))}
-      />
-
+      <AuthInput icon={Lock} type={showConfirm ? 'text' : 'password'}placeholder={t('confirmInputPlaceholder')} label={t('confirmPasswordPlaceholder')} value={form.confirm} onChange={v => setForm(f => ({ ...f, confirm: v }))} error={errors.confirm}rightSlot={eyeBtn(showConfirm, () => setShowConfirm(p => !p))}/>
       <button
         onClick={() => { if (validate()) onSubmit(form); }}
         disabled={loading}
-        className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_25px_rgba(245,166,35,0.3)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.45)] disabled:cursor-not-allowed disabled:bg-gold/60 disabled:shadow-none"
-      >
-        {loading
-  ? <><Loader2 size={16} className="animate-spin" /> {t('loading')}</>
-  : <><span>{t('submit')}</span><ArrowRight size={16} /></>
-}      </button>
+        className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_25px_rgba(245,166,35,0.3)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.45)] disabled:cursor-not-allowed disabled:bg-gold/60 disabled:shadow-none">
+        {loading ? <><Loader2 size={16} className="animate-spin" /> {t('loading')}</>: <><span>{t('submit')}</span><ArrowRight size={16} /></>}      
+      </button>
     </div>
   );
 }
@@ -176,26 +162,24 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
 // Success screen
 // ─────────────────────────────────────────────────────────────────────────────
 function SuccessScreen({ name }: { name: string }) {
-    const t = useTranslations('auth.signup');
+  const t = useTranslations('auth.signup');
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="px-0 pb-2.5 pt-5 text-center"
     >
-      <motion.div
+     <motion.div
         animate={{ scale: [0, 1.2, 1] }} transition={{ duration: 0.5 }}
         className="mx-auto mb-6 flex h-18 w-18 items-center justify-center rounded-full border-[1.5px] border-green/30 bg-green/12"
       >
         <Check size={32} className="text-green" />
       </motion.div>
-      <h2 className="mb-2 font-playfair text-[26px] font-extrabold text-primary">
-       {t('successTitle', { name: name.split(' ')[0] })}      </h2>
-      <p className="mx-auto mb-8 max-w-[320px] text-[15px] leading-[1.6] text-faint">
-        {t('successReady')}      </p>
-      <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.5">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green" />
-        <span className="text-xs text-secondary">{t('redirecting')}</span>
+        <h2 className="mb-2 font-playfair text-[26px] font-extrabold text-primary">{t('successTitle', { name: name.split(' ')[0] })}</h2>
+        <p className="mx-auto mb-8 max-w-[320px] text-[15px] leading-[1.6] text-faint">{t('successReady')}</p>
+        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.5">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green" />
+          <span className="text-xs text-secondary">{t('redirecting')}</span>
         </div>
     </motion.div>
   );
@@ -234,7 +218,7 @@ export default function RegisterPage() {
 
       if (!res.ok) {
        setServerError(resData?.error || t('errors.registrationFailed'));
-           setLoading(false);
+       setLoading(false);
         return;
       }
 
@@ -275,13 +259,13 @@ export default function RegisterPage() {
         {/* Section heading */}
         {!success && (
           <div className="mb-7">
-                 <h1 className="mb-1.5 font-playfair text-2xl font-extrabold text-primary">
-         {t('title')}
-      </h1>
+           <h1 className="mb-1.5 font-playfair text-2xl font-extrabold text-primary">
+            {t('title')}
+           </h1>
 
-     <p className="text-sm text-faint">
-     {t('subtitle')}
-       </p>
+           <p className="text-sm text-faint">
+             {t('subtitle')}
+           </p>
           </div>
         )}
 
@@ -312,13 +296,14 @@ export default function RegisterPage() {
         {/* Footer — sign in link */}
         {!success && (
           <p className="mt-7 text-center text-sm text-muted">
-                 {t('switchText')}            
-                 <Link
+            {t('switchText')}            
+           <Link
             href={`/${locale}`} 
             onClick={openLogin}
-            className="font-semibold text-gold no-underline">
-               {t('switchLink')} 
-                       </Link>
+            className="font-semibold text-gold no-underline"
+            >
+             {t('switchLink')} 
+            </Link>
           </p>
         )}
 
@@ -334,15 +319,15 @@ export default function RegisterPage() {
           className="mt-6 text-center text-xs text-muted"
         >
           {t('termsPrefix')}{' '}
-<a href="#" className="text-faint no-underline">
-  {t('termsLink')}
-</a>
-{' '}
-{t('termsAnd')}
-{' '}
-<a href="#" className="text-faint no-underline">
-  {t('policyLink')}
-</a>
+          <a href="#" className="text-faint no-underline">
+            {t('termsLink')}
+          </a>
+          {' '}
+          {t('termsAnd')}
+          {' '}
+          <a href="#" className="text-faint no-underline">
+            {t('policyLink')}
+          </a>
         </motion.p>
       )}
     </main>
