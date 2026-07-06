@@ -6,22 +6,15 @@ import {
   User, Briefcase, GraduationCap, Zap,
   Mail, Phone, MapPin, Link2, ArrowRight,
   ArrowLeft, Save, Sparkles, Check,
-  LayoutDashboard, ChevronRight, FileText, Menu, X
+  LayoutDashboard, ChevronRight, FileText, Menu, X,
+  Plus, Trash2, Building2, Calendar, Info,
+  Award, Lightbulb, PlusCircle, Search,
 } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import Logo from '@/components/ui/Logo';
-
-type StepId = 'contact' | 'experience' | 'education' | 'skills';
-
-interface ContactData {
-  fullName: string;
-  title: string;
-  email: string;
-  phone: string;
-  location: string;
-  linkedin: string;
-}
+import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem } from '@/lib/types';
+import { emptyRole, emptyEdu, emptyCert } from '@/lib/resume';
 
 const STEPS: {
   id: StepId;
@@ -36,6 +29,16 @@ const STEPS: {
   { id: 'skills',     label: 'Skills',     icon: Zap,           num: 4, desc: 'Technical & soft skills'   },
 ];
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const YEARS = Array.from({ length: 40 }, (_, i) => String(new Date().getFullYear() - i));
+
+const DEFAULT_SUGGESTIONS = [
+  'AWS Cloud', 'UI/UX Design', 'Agile Method', 'Data Analysis',
+  'Product Strategy', 'TypeScript', 'Docker', 'GraphQL',
+  'Kubernetes', 'Figma', 'Python', 'System Design',
+];
+
+
 function FieldCard({
   label, icon: Icon, type = 'text', placeholder, value, onChange, error, hint,
 }: {
@@ -45,7 +48,6 @@ function FieldCard({
   const [focused, setFocused] = useState(false);
   const filled = value.length > 0;
 
-  // Border + bg by state (fixed set → static classes)
   const wrapState = error
     ? 'border-pink-light/50 bg-card shadow-[0_0_0_3px_rgba(248,113,113,0.08)]'
     : focused
@@ -115,6 +117,570 @@ function FieldCard({
   );
 }
 
+// ── Shared field/select for Experience + Education ───────────────────────────
+function ExpField({ label, icon: Icon, placeholder, value, onChange, type = 'text', rightIcon: RightIcon }: {
+  label: string; icon?: React.ElementType; placeholder: string;
+  value: string; onChange: (v: string) => void; type?: string; rightIcon?: React.ElementType;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-azure-light">
+        {Icon && <Icon size={12} />} {label}
+      </label>
+      <div className="relative">
+        <input
+          type={type} placeholder={placeholder} value={value}
+          onChange={e => onChange(e.target.value)}
+          className="w-full rounded-xl border border-edge bg-base/40 px-4 py-3 pe-10 text-[14px] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4 focus:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]"
+        />
+        {RightIcon && <RightIcon size={15} className="pointer-events-none absolute inset-e-3.5 top-1/2 -translate-y-1/2 text-muted" />}
+      </div>
+    </div>
+  );
+}
+
+function ExpSelect({ value, onChange, options, placeholder, disabled }: {
+  value: string; onChange: (v: string) => void; options: string[];
+  placeholder: string; disabled?: boolean;
+}) {
+  return (
+    <div className="relative flex-1">
+      <select
+        value={value} onChange={e => onChange(e.target.value)} disabled={disabled}
+        className="w-full appearance-none rounded-xl border border-edge bg-base/40 px-4 py-3 text-[14px] text-primary outline-none transition-all focus:border-gold/50 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <option value="" className="bg-elevated text-primary">{placeholder}</option>
+        {options.map(o => <option key={o} value={o} className="bg-elevated text-primary">{o}</option>)}
+      </select>
+      <ChevronRight size={14} className="pointer-events-none absolute inset-e-3 top-1/2 -translate-y-1/2 rotate-90 text-muted" />
+    </div>
+  );
+}
+
+// ── ATS completion ring ──────────────────────────────────────────────────────
+function AtsRing({ percent }: { percent: number }) {
+  const r = 42;
+  const c = 2 * Math.PI * r;
+  const offset = c * (1 - percent / 100);
+  return (
+    <svg viewBox="0 0 100 100" className="h-28 w-28 -rotate-90">
+      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--edge-strong)" strokeWidth="8" />
+      <motion.circle
+        cx="50" cy="50" r={r} fill="none" stroke="var(--color-gold)" strokeWidth="8" strokeLinecap="round"
+        strokeDasharray={c}
+        initial={{ strokeDashoffset: c }}
+        animate={{ strokeDashoffset: offset }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      />
+    </svg>
+  );
+}
+
+// ── Experience step (accordion) ──────────────────────────────────────────────
+function ExperienceStep({ items, onChange }: {
+  items: ExperienceItem[];
+  onChange: (items: ExperienceItem[]) => void;
+}) {
+  const [expandedId, setExpandedId] = useState<string>(items[0]?.id ?? '');
+
+  const update = (id: string, patch: Partial<ExperienceItem>) =>
+    onChange(items.map(it => it.id === id ? { ...it, ...patch } : it));
+
+  const addRole = () => {
+    const role = emptyRole();
+    onChange([...items, role]);
+    setExpandedId(role.id);
+  };
+
+  const removeRole = (id: string) => {
+    const remaining = items.filter(it => it.id !== id);
+    onChange(remaining);
+    if (expandedId === id) setExpandedId(remaining[remaining.length - 1]?.id ?? '');
+  };
+
+  const toggle = (id: string) => setExpandedId(prev => (prev === id ? '' : id));
+
+  return (
+    <div>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
+        <span className="inline-block h-1.25 w-1.25 rounded-full bg-gold" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">Step 2 — Experience</span>
+      </motion.div>
+
+      <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
+        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        Work Experience
+      </motion.h1>
+
+      <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
+        className="mb-9 max-w-130 text-[15px] leading-[1.7] text-faint">
+        Detail your career history to highlight your impact and leadership.
+      </motion.p>
+
+      <div className="flex flex-col gap-4">
+        {items.map((role, idx) => {
+          const isOpen = expandedId === role.id;
+          const title = role.jobTitle || `Role ${idx + 1}`;
+          const subtitle = [role.company, role.location].filter(Boolean).join(' · ');
+
+          return (
+            <div key={role.id} className="overflow-hidden rounded-2xl border border-edge bg-card">
+              <button
+                type="button"
+                onClick={() => toggle(role.id)}
+                className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-card-hover sm:px-7"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold/20 bg-gold/10">
+                  <Briefcase size={15} className="text-gold" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[14px] font-semibold text-primary">{title}</div>
+                  {subtitle && <div className="truncate text-[12px] text-faint">{subtitle}</div>}
+                </div>
+                {items.length > 1 && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); removeRole(role.id); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); removeRole(role.id); } }}
+                    aria-label="Remove role"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light"
+                  >
+                    <Trash2 size={14} />
+                  </span>
+                )}
+                <ChevronRight size={16} className={`shrink-0 text-muted transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
+              </button>
+
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="border-t border-edge px-5 pb-6 pt-5 sm:px-7">
+                      <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
+                        <ExpField label="Job Title" placeholder="e.g. Senior Software Engineer"
+                          value={role.jobTitle} onChange={v => update(role.id, { jobTitle: v })} />
+                        <ExpField label="Company Name" icon={Building2} placeholder="e.g. Global Tech Solutions"
+                          value={role.company} onChange={v => update(role.id, { company: v })} />
+
+                        <ExpField label="Location" icon={MapPin} placeholder="e.g. New York, NY or Remote"
+                          value={role.location} onChange={v => update(role.id, { location: v })} />
+
+                        <div className="flex items-end">
+                          <label className="flex cursor-pointer items-center gap-2.5 py-3">
+                            <button type="button" role="checkbox" aria-checked={role.current}
+                              onClick={() => update(role.id, { current: !role.current, endMonth: '', endYear: '' })}
+                              className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${
+                                role.current ? 'border-gold bg-gold' : 'border-edge-strong bg-transparent'
+                              }`}>
+                              {role.current && <Check size={12} className="text-ink" />}
+                            </button>
+                            <span className="text-[14px] text-secondary">I currently work here</span>
+                          </label>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-azure-light">
+                            <Calendar size={12} /> Start Date
+                          </label>
+                          <div className="flex gap-2.5">
+                            <ExpSelect value={role.startMonth} onChange={v => update(role.id, { startMonth: v })} options={MONTHS} placeholder="Month" />
+                            <ExpSelect value={role.startYear} onChange={v => update(role.id, { startYear: v })} options={YEARS} placeholder="Year" />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-azure-light">
+                            <Calendar size={12} /> End Date
+                          </label>
+                          <div className="flex gap-2.5">
+                            <ExpSelect value={role.endMonth} onChange={v => update(role.id, { endMonth: v })} options={MONTHS} placeholder="Month" disabled={role.current} />
+                            <ExpSelect value={role.endYear} onChange={v => update(role.id, { endYear: v })} options={YEARS} placeholder="Year" disabled={role.current} />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex flex-col gap-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <label className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-azure-light">
+                            Description / Key Achievements
+                          </label>
+                          <span className="rounded-md border border-azure-light/20 bg-azure-light/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.06em] text-azure-light">
+                            ATS Optimized Tips Available
+                          </span>
+                        </div>
+                        <textarea
+                          rows={5} placeholder="• Spearheaded the development of a cloud-native platform, increasing deployment speed by 40%…"
+                          value={role.description} onChange={e => update(role.id, { description: e.target.value })}
+                          className="w-full resize-none rounded-xl border border-edge bg-base/40 px-4 py-3.5 text-[14px] leading-[1.6] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4 focus:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]"
+                        />
+                        <p className="flex items-center gap-1.5 text-[12px] text-muted">
+                          <Info size={12} /> Use action verbs and quantify results where possible.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
+
+      <button onClick={addRole}
+        className="mx-auto mt-6 flex items-center gap-2 rounded-xl border border-dashed border-azure-light/40 bg-azure-light/4 px-6 py-3.5 text-[14px] font-semibold text-azure-light transition-all hover:border-azure-light/60 hover:bg-azure-light/8">
+        <Plus size={16} /> Add Another Role
+      </button>
+    </div>
+  );
+}
+
+// ── Education step ───────────────────────────────────────────────────────────
+function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
+  education: EducationItem[];
+  onEducationChange: (items: EducationItem[]) => void;
+  certs: CertItem[];
+  onCertsChange: (items: CertItem[]) => void;
+}) {
+  const [expandedId, setExpandedId] = useState<string>(education[0]?.id ?? '');
+
+  const updateEdu = (id: string, patch: Partial<EducationItem>) =>
+    onEducationChange(education.map(it => it.id === id ? { ...it, ...patch } : it));
+
+  const addEdu = () => {
+    const edu = emptyEdu();
+    onEducationChange([...education, edu]);
+    setExpandedId(edu.id);
+  };
+
+  const removeEdu = (id: string) => {
+    const remaining = education.filter(it => it.id !== id);
+    onEducationChange(remaining);
+    if (expandedId === id) setExpandedId(remaining[remaining.length - 1]?.id ?? '');
+  };
+
+  const toggleEdu = (id: string) => setExpandedId(prev => (prev === id ? '' : id));
+
+  const updateCert = (id: string, patch: Partial<CertItem>) =>
+    onCertsChange(certs.map(it => it.id === id ? { ...it, ...patch } : it));
+  const addCert = () => onCertsChange([...certs, emptyCert()]);
+  const removeCert = (id: string) => onCertsChange(certs.filter(it => it.id !== id));
+
+  const eduFilled = education.reduce((n, e) => n + [e.institution, e.degree, e.field, e.gradYear].filter(v => v.trim()).length, 0);
+  const eduTotal = education.length * 4;
+  const certFilled = certs.reduce((n, c) => n + [c.name, c.org].filter(v => v.trim()).length, 0);
+  const certTotal = certs.length * 2;
+  const total = eduTotal + certTotal;
+  const percent = total === 0 ? 0 : Math.round(((eduFilled + certFilled) / total) * 100);
+
+  return (
+    <div>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
+        <span className="inline-block h-1.25 w-1.25 rounded-full bg-gold" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">Academic Portfolio</span>
+      </motion.div>
+
+      <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
+        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        Education &amp; Certifications
+      </motion.h1>
+
+      <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
+        className="mb-9 max-w-150 text-[15px] leading-[1.7] text-faint">
+        Showcase your academic foundations and professional credentials. ResuMax helps align these with industry standards for better ATS ranking.
+      </motion.p>
+
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <GraduationCap size={20} className="text-gold" />
+          <h2 className="text-[20px] font-bold text-primary">Formal Education</h2>
+        </div>
+        <button onClick={addEdu}
+          className="flex items-center gap-1.5 text-[14px] font-semibold text-azure-light transition-colors hover:text-azure">
+          <PlusCircle size={16} /> Add Institution
+        </button>
+      </div>
+
+      <div className="mb-10 flex flex-col gap-4">
+        {education.map((edu, idx) => {
+          const isOpen = expandedId === edu.id;
+          const title = edu.institution || `Institution ${idx + 1}`;
+          const subtitle = [edu.degree, edu.gradYear].filter(Boolean).join(' · ');
+
+          return (
+            <div key={edu.id} className="overflow-hidden rounded-2xl border border-edge bg-card">
+              <button
+                type="button"
+                onClick={() => toggleEdu(edu.id)}
+                className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-card-hover sm:px-7"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold/20 bg-gold/10">
+                  <GraduationCap size={15} className="text-gold" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[14px] font-semibold text-primary">{title}</div>
+                  {subtitle && <div className="truncate text-[12px] text-faint">{subtitle}</div>}
+                </div>
+                {education.length > 1 && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => { e.stopPropagation(); removeEdu(edu.id); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); removeEdu(edu.id); } }}
+                    aria-label="Remove institution"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light"
+                  >
+                    <Trash2 size={14} />
+                  </span>
+                )}
+                <ChevronRight size={16} className={`shrink-0 text-muted transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} />
+              </button>
+
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <div className="border-t border-edge px-5 pb-6 pt-5 sm:px-7">
+                      <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
+                        <ExpField label="Institution Name" placeholder="e.g. Stanford University"
+                          value={edu.institution} onChange={v => updateEdu(edu.id, { institution: v })} />
+                        <ExpField label="Degree" placeholder="e.g. B.S. Computer Science"
+                          value={edu.degree} onChange={v => updateEdu(edu.id, { degree: v })} />
+                        <ExpField label="Field of Study" placeholder="e.g. Artificial Intelligence"
+                          value={edu.field} onChange={v => updateEdu(edu.id, { field: v })} />
+                        <ExpField label="Graduation Year" placeholder="2023" rightIcon={Calendar}
+                          value={edu.gradYear} onChange={v => updateEdu(edu.id, { gradYear: v })} />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mb-4 flex items-center gap-2.5">
+        <Award size={20} className="text-gold" />
+        <h2 className="text-[20px] font-bold text-primary">Professional Certifications</h2>
+      </div>
+
+      <div className="mb-10 rounded-2xl border border-edge bg-card p-5 sm:p-7">
+        <div className="flex flex-col gap-4">
+          {certs.map((cert) => (
+            <motion.div key={cert.id}
+              initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+              className="relative grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2"
+            >
+              <ExpField label="Certificate Name" placeholder="e.g. AWS Certified Solutions Architect"
+                value={cert.name} onChange={v => updateCert(cert.id, { name: v })} />
+              <div className="flex items-end gap-2">
+                <div className="flex-1">
+                  <ExpField label="Issuing Organization" placeholder="e.g. Amazon Web Services"
+                    value={cert.org} onChange={v => updateCert(cert.id, { org: v })} />
+                </div>
+                {certs.length > 1 && (
+                  <button onClick={() => removeCert(cert.id)} aria-label="Remove certificate"
+                    className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light">
+                    <Trash2 size={15} />
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button onClick={addCert}
+            className="flex items-center gap-2 rounded-xl border border-azure-light/25 bg-azure-light/10 px-4 py-2.5 text-[13px] font-semibold text-azure-light transition-all hover:border-azure-light/40 hover:bg-azure-light/15">
+            <Plus size={15} /> Add Certificate
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto]">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+          className="relative overflow-hidden rounded-2xl border border-gold/50 bg-gold/4 p-6">
+          <div className="relative z-10">
+            <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-gold">Pro Tip</div>
+            <p className="max-w-[90%] text-[14px] leading-[1.7] text-secondary">
+              Listing relevant coursework can significantly boost your ATS score for entry-level and mid-level roles. Ensure you use industry keywords.
+            </p>
+          </div>
+          <Lightbulb size={90} className="pointer-events-none absolute -bottom-3 i-2 text-gold/10" />
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
+          className="flex flex-col items-center justify-center rounded-2xl border border-edge bg-card p-6 lg:w-64">
+          <div className="relative flex items-center justify-center">
+            <AtsRing percent={percent} />
+            <span className="absolute text-[22px] font-black text-primary">{percent}%</span>
+          </div>
+          <div className="mt-3 text-[14px] font-bold text-primary">ATS Score Rank</div>
+          <div className="text-[12px] text-faint">Profile completion progress</div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+// ── Skills step ──────────────────────────────────────────────────────────────
+function SkillsStep({ skills, onChange, onFinish }: {
+  skills: string[];
+  onChange: (skills: string[]) => void;
+  onFinish: () => void;
+}) {
+  const [input, setInput] = useState('');
+  const [showAll, setShowAll] = useState(false);
+
+  const addSkill = (value: string) => {
+    const v = value.trim();
+    if (!v || skills.some(s => s.toLowerCase() === v.toLowerCase())) return;
+    onChange([...skills, v]);
+    setInput('');
+  };
+  const removeSkill = (value: string) => onChange(skills.filter(s => s !== value));
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') { e.preventDefault(); addSkill(input); }
+  };
+
+  const available = DEFAULT_SUGGESTIONS.filter(s => !skills.some(k => k.toLowerCase() === s.toLowerCase()));
+  const visible = showAll ? available : available.slice(0, 5);
+  const remaining = available.length - visible.length;
+
+  const percent = Math.min(100, 40 + skills.length * 7);
+
+  return (
+    <div>
+      <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        Skills &amp; Expertise
+      </motion.h1>
+
+      <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
+        className="mb-9 max-w-150 text-[15px] leading-[1.7] text-faint">
+        ResuMax AI has analyzed your job history. Add specific skills to pass ATS filters and stand out to recruiters.
+      </motion.p>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]">
+        {/* Left column */}
+        <div>
+          <div className="rounded-2xl border border-edge bg-card p-5 sm:p-6">
+            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">Add Manually</div>
+            <div className="relative mb-5">
+              <Search size={16} className="pointer-events-none absolute inset-s-4 top-1/2 -translate-y-1/2 text-muted" />
+              <input
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={onKeyDown}
+                placeholder="e.g., Python, Project Management…"
+                className="w-full rounded-xl border border-edge bg-base/40 py-3.5 ps-11 pe-4 text-[14px] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4 focus:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2.5">
+              <AnimatePresence>
+                {skills.map(skill => (
+                  <motion.button
+                    key={skill}
+                    type="button"
+                    onClick={() => removeSkill(skill)}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex items-center gap-2 rounded-full border border-gold/50 bg-gold/10 px-4 py-2 text-[13px] font-semibold text-gold transition-colors hover:bg-gold/15"
+                  >
+                    {skill} <X size={13} />
+                  </motion.button>
+                ))}
+              </AnimatePresence>
+              {skills.length === 0 && (
+                <span className="py-2 text-[13px] text-muted">No skills added yet — type above or pick a suggestion.</span>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">Suggested for your role</div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {visible.map(s => (
+                <button
+                  key={s}
+                  onClick={() => addSkill(s)}
+                  className="group flex min-h-24 flex-col justify-between rounded-xl border border-edge bg-card p-4 text-left transition-all hover:border-gold/30 hover:bg-card-hover"
+                >
+                  <span className="text-[14px] font-semibold text-primary">{s}</span>
+                  <PlusCircle size={18} className="text-muted transition-colors group-hover:text-gold" />
+                </button>
+              ))}
+              {remaining > 0 && (
+                <button
+                  onClick={() => setShowAll(true)}
+                  className="flex min-h-24 items-center justify-center rounded-xl border border-edge bg-card-hover p-4 text-[14px] font-medium text-faint transition-colors hover:text-primary"
+                >
+                  View {remaining}+ more
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-azure/20 bg-azure/6 p-6 text-center">
+            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">Estimated ATS Score</div>
+            <div className="relative mx-auto flex w-fit items-center justify-center">
+              <AtsRing percent={percent} />
+              <span className="absolute text-[26px] font-black text-gold">{percent}%</span>
+            </div>
+            <p className="mt-5 text-[13px] italic leading-[1.6] text-secondary">
+              &quot;Add 3 more technical skills to increase visibility for Senior Developer roles.&quot;
+            </p>
+          </div>
+
+          <div className="flex items-start gap-3 rounded-2xl border border-edge bg-card p-5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-azure-light/20 bg-azure-light/12">
+              <Sparkles size={15} className="text-azure-light" />
+            </div>
+            <div>
+              <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-azure-light">Pro Tip</div>
+              <p className="text-[13px] leading-[1.6] text-faint">
+                Skills like &apos;Public Speaking&apos; or &apos;Critical Thinking&apos; are great, but focus on industry-standard software and tools first.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <button
+              onClick={onFinish}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_30px_rgba(245,166,35,0.4)] transition-all hover:-translate-y-px hover:bg-gold-light"
+            >
+              Finish &amp; Generate Resume <Zap size={16} />
+            </button>
+            <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.08em] text-muted">
+              No credit card required • AI powered generation
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving, savedAt, open, onClose }: {
   currentStep: StepId; completedSteps: Set<StepId>;
   onStepClick: (id: StepId) => void; onSaveDraft: () => void;
@@ -125,7 +691,7 @@ function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving
   const locale = useLocale();
 
   return (
-    <aside className={`fixed inset-y-0 inset-0 z-50 flex h-screen w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`fixed inset-y-0 inset-s-0 z-50 flex h-screen w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="px-6 pt-7">
         <div className="flex items-center justify-between">
           <Logo />
@@ -290,31 +856,6 @@ function ContactStep({ data, onChange, errors }: {
   );
 }
 
-function ComingSoonStep({ stepId }: { stepId: StepId }) {
-  const config = {
-    experience: { icon: Briefcase,     label: 'Work Experience', dot: 'bg-azure-light', iconText: 'text-azure-light', box: 'border-azure-light/15 bg-azure-light/[0.08]', desc: 'Add your work history, job titles, responsibilities, and key achievements.' },
-    education:  { icon: GraduationCap, label: 'Education',       dot: 'bg-vilot',       iconText: 'text-vilot',       box: 'border-vilot/15 bg-vilot/[0.08]',                desc: 'List your degrees, institutions, graduation years, and academic honors.' },
-    skills:     { icon: Zap,           label: 'Skills',          dot: 'bg-teal-light',  iconText: 'text-teal-light',  box: 'border-teal-light/15 bg-teal-light/[0.08]',      desc: 'Showcase your technical skills, tools, languages, and soft skills.' },
-  }[stepId as 'experience' | 'education' | 'skills'];
-  if (!config) return null;
-  const Icon = config.icon;
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-      className="flex min-h-110 flex-col items-center justify-center px-10 text-center">
-      <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className={`mb-7 flex h-20 w-20 items-center justify-center rounded-3xl border-[1.5px] ${config.box}`}>
-        <Icon size={36} className={config.iconText} />
-      </motion.div>
-      <h2 className="mb-3 font-playfair text-[32px] font-black text-primary">{config.label}</h2>
-      <p className="mb-7 max-w-110 text-[15px] leading-[1.7] text-faint">{config.desc}</p>
-      <div className="inline-flex items-center gap-2 rounded-full border border-edge bg-card px-4.5 py-2">
-        <span className={`h-1.5 w-1.5 rounded-full ${config.dot}`} />
-        <span className="text-[13px] text-faint">Coming in the next build</span>
-      </div>
-    </motion.div>
-  );
-}
-
 export default function DashboardPage() {
   const locale = useLocale();
   const [currentStep, setCurrentStep]  = useState<StepId>('contact');
@@ -322,9 +863,12 @@ export default function DashboardPage() {
   const [saving, setSaving]            = useState(false);
   const [savedAt, setSavedAt]          = useState<string | null>(null);
   const [contact, setContact]          = useState<ContactData>({ fullName: '', title: '', email: '', phone: '', location: '', linkedin: '' });
+  const [experience, setExperience]    = useState<ExperienceItem[]>([emptyRole()]);
+  const [education, setEducation]      = useState<EducationItem[]>([emptyEdu()]);
+  const [certs, setCerts]              = useState<CertItem[]>([emptyCert()]);
+  const [skills, setSkills]            = useState<string[]>(['Strategic Planning', 'React.js', 'Team Leadership']);
   const [errors, setErrors]            = useState<Partial<Record<keyof ContactData, string>>>({});
-  const [navOpen, setNavOpen] = useState(false);
-
+  const [navOpen, setNavOpen]          = useState(false);
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
   const nextStep     = STEPS[currentIndex + 1];
@@ -346,7 +890,7 @@ export default function DashboardPage() {
       await fetch('/api/resume/draft', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('resumax_token') : ''}` },
-        body: JSON.stringify({ step: 'contact', contact }),
+        body: JSON.stringify({ step: currentStep, contact, experience, education, certs, skills }),
       });
       const now = new Date();
       setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
@@ -360,9 +904,10 @@ export default function DashboardPage() {
     if (nextStep) setCurrentStep(nextStep.id);
   };
 
-  const handleSidebarStep = (id: StepId) => {
-    handleStepClick(id);
-    setNavOpen(false);
+  const handleFinish = () => {
+    setCompleted(prev => new Set(prev).add('skills'));
+    // ── BACKEND: generate resume / navigate to preview ──
+    // router.push(`/${locale}/resume/preview`);
   };
 
   const handleStepClick = (id: StepId) => {
@@ -373,6 +918,11 @@ export default function DashboardPage() {
       setCompleted(prev => new Set(prev).add(currentStep));
       setCurrentStep(id);
     }
+  };
+
+  const handleSidebarStep = (id: StepId) => {
+    handleStepClick(id);
+    setNavOpen(false);
   };
 
   const nextLabel: Record<StepId, string> = {
@@ -396,7 +946,6 @@ export default function DashboardPage() {
         onClose={() => setNavOpen(false)}
       />
 
-      {/* Mobile drawer backdrop */}
       {navOpen && (
         <div
           onClick={() => setNavOpen(false)}
@@ -404,14 +953,13 @@ export default function DashboardPage() {
         />
       )}
 
-
       <div className="relative z-1 flex min-h-screen flex-1 flex-col">
         <div className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-[color-mix(in_srgb,var(--bg-base)_92%,transparent)] px-5 py-3 backdrop-blur-xl lg:hidden">
           <button onClick={() => setNavOpen(true)} aria-label="Open menu" className="text-primary">
             <Menu size={22} />
           </button>
           <Logo />
-          <span className="w-5.5" /> {/* spacer to center logo */}
+          <span className="w-5.5" />
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-15 lg:pt-13">
@@ -423,7 +971,15 @@ export default function DashboardPage() {
                     onChange={(field, value) => { setContact(c => ({ ...c, [field]: value })); if (errors[field]) setErrors(e => ({ ...e, [field]: undefined })); }}
                     errors={errors} />
                 )}
-                {currentStep !== 'contact' && <ComingSoonStep stepId={currentStep} />}
+                {currentStep === 'experience' && (
+                  <ExperienceStep items={experience} onChange={setExperience} />
+                )}
+                {currentStep === 'education' && (
+                  <EducationStep education={education} onEducationChange={setEducation} certs={certs} onCertsChange={setCerts} />
+                )}
+                {currentStep === 'skills' && (
+                  <SkillsStep skills={skills} onChange={setSkills} onFinish={handleFinish} />
+                )}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -450,10 +1006,14 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <button onClick={handleNext}
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-3.25 text-[13px] font-bold text-ink shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light hover:shadow-[0_10px_28px_rgba(245,166,35,0.5)] sm:px-6.5 sm:text-sm">
-            {nextLabel[currentStep]} <ArrowRight size={15} />
-          </button>
+          {currentStep !== 'skills' ? (
+            <button onClick={handleNext}
+              className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-3.25 text-[13px] font-bold text-ink shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light hover:shadow-[0_10px_28px_rgba(245,166,35,0.5)] sm:px-6.5 sm:text-sm">
+              {nextLabel[currentStep]} <ArrowRight size={15} />
+            </button>
+          ) : (
+            <span className="w-px" />
+          )}
         </div>
       </div>
 
