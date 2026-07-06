@@ -8,24 +8,20 @@ import RoadmapSection from '@/components/sections/RoadmapSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';
 import CTASection from '@/components/sections/CTASection';
 import Footer from '@/components/ui/Footer';
-// import ClientParticles from '@/components/3d/ClientParticles';
 
 export default function LandingPage() {
   return (
-    <main className="relative h-screen bg-ink overflow-x-hidden">
-      {/* <ClientParticles /> */}
-      <div className="relative z-10">
-        <Navbar />
-        <HeroSection />
-        <ChallengeSection />
-        <FeaturesSection />
-        <HowItWorksSection />
-        <PrinciplesSection />
-        <RoadmapSection />
-        <TestimonialsSection />
-        <CTASection />
-        <Footer />
-      </div>
+    <main className="relative z-10 overflow-hidden">
+      <Navbar />
+      <HeroSection />
+      <ChallengeSection />
+      <FeaturesSection />
+      <HowItWorksSection />
+      <PrinciplesSection />
+      <RoadmapSection />
+      <TestimonialsSection />
+      <CTASection />
+      <Footer />
     </main>
   );
 }
