@@ -18,7 +18,7 @@ class ResumeService {
     }
 
     public updateResume(id: string, payload: UpdateResumeDTO): Promise<Resume> {
-        return this.repository.update(id, payload.title, payload.templateId, payload.userId);
+        return this.repository.update(id, payload.title, payload.templateId);
     }
 
     deleteResume(id: string): Promise<boolean> {
