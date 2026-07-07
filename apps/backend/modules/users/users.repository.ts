@@ -27,7 +27,7 @@ export class UserRepository {
     }
 
 
-    create(name: string, email: string, password: string, avatar?: string, role: Role = Role.USER,): Promise<User> {
+    create(name: string, email: string, password: string, avatar?: string, role: Role = Role.REGULAR,): Promise<User> {
         const user: Omit<User, 'id'> = {
             name,
             email,
