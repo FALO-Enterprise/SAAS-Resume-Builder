@@ -141,28 +141,44 @@
         "name": "Foundation",
         "date": "Aug 2026",
         "tag": "Current",
-        "features": ["Basic resume builder", "5 starter templates", "PDF export"]
+        "features": [
+          "Basic resume builder",
+          "5 starter templates",
+          "PDF export"
+        ]
       },
       "v15": {
         "version": "v1.5",
         "name": "Expansion",
         "date": "Nov 2026",
         "tag": "Upcoming",
-        "features": ["30 templates", "Multi-language support", "Cover letter builder"]
+        "features": [
+          "30 templates",
+          "Multi-language support",
+          "Cover letter builder"
+        ]
       },
       "v2": {
         "version": "v2.0",
         "name": "Global Core",
         "date": "Jan 2027",
         "tag": "Upcoming",
-        "features": ["120+ templates", "ATS optimizer", "AI suggestions"]
+        "features": [
+          "120+ templates",
+          "ATS optimizer",
+          "AI suggestions"
+        ]
       },
       "v3": {
         "version": "v3.0",
         "name": "AI-Powered",
         "date": "Q3 2027",
         "tag": "Future",
-        "features": ["GPT resume coach", "Job-match scoring", "LinkedIn sync"]
+        "features": [
+          "GPT resume coach",
+          "Job-match scoring",
+          "LinkedIn sync"
+        ]
       }
     }
   },
@@ -307,7 +323,7 @@
       "resendNetwork": "Network error. Could not resend."
     }
   },
-   "pricing": {
+  "pricing": {
     "hero": {
       "badge": "Simple Pricing",
       "titleLine1": "Invest in your",
@@ -343,21 +359,18 @@
         "pdfExport": "PDF export",
         "docxExport": "DOCX export",
         "linkedinExport": "LinkedIn-ready export",
-
         "atsCheck": "ATS check",
         "atsScore": "ATS score",
         "keywordAnalysis": "Keyword analysis",
         "aiCoverLetter": "AI cover letter",
         "gptCoach": "GPT resume coach",
         "jobMatch": "Job-match scoring",
-
         "usFormat": "US / Canada format",
         "euFormat": "EU Europass format",
         "gccFormat": "GCC / Middle East",
         "apacFormat": "Asia-Pacific format",
         "academicCv": "Academic CV",
         "rtlSupport": "RTL language support",
-
         "teamWorkspace": "Team workspace",
         "linkedinSync": "LinkedIn sync",
         "prioritySupport": "Priority support",
@@ -399,6 +412,102 @@
       "subtitle": "Start with Free — no credit card, no commitment. You can always upgrade in one click.",
       "primaryButton": "Start for free",
       "secondaryButton": "Try Pro — $9/mo"
+    }
+  },
+  "templatesPage": {
+    "hero": {
+      "badge": "Localized & Responsive",
+      "title": "Templates for Every Career Stage",
+      "subtitle": "Built to exceed global institutional standards. Our layouts are surgical, precise, and 100% ATS-optimized to ensure your expertise never goes unnoticed."
+    },
+    "filters": {
+      "all": "All",
+      "professional": "Professional",
+      "creative": "Creative",
+      "technical": "Technical",
+      "minimalist": "Minimalist"
+    },
+    "actions": {
+      "useTemplate": "Use Template"
+    },
+    "labels": {
+      "studio": "Template Studio",
+      "ats": "ATS Ready",
+      "preview": "Preview",
+      "close": "Close",
+      "premium": "Premium",
+      "trusted": "Professional templates ready to apply",
+      "atsScore": "ATS Score",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "zoomControl": "Preview zoom percentage",
+      "rank": "#{number}"
+    },
+    "stats": {
+      "templates": "Templates",
+      "responsive": "Responsive",
+      "languages": "Arabic / English"
+    },
+    "templates": {
+      "executive": {
+        "title": "The Executive",
+        "tag": "High Performance",
+        "description": "Optimized for finance, leadership, and high-stakes corporate roles. Clean margins and a single-column layout for maximum impact.",
+        "field": "Finance / Mgmt"
+      },
+      "developer": {
+        "title": "The Developer",
+        "tag": "Density Focus",
+        "description": "Designed for software engineering and data science. Features a multi-column layout to highlight technical stack and repositories.",
+        "field": "Tech / STEM"
+      },
+      "director": {
+        "title": "The Director",
+        "tag": "Artistic Edge",
+        "description": "A bold, high-contrast design for creative directors and designers. Uses asymmetrical elements and refined typography.",
+        "field": "Design / Art"
+      },
+      "minimal": {
+        "title": "The Minimal",
+        "tag": "Clean Cut",
+        "description": "A precise, distraction-free template for modern professionals who want clarity, whitespace, and fast scanning.",
+        "field": "Business / General"
+      },
+      "academic": {
+        "title": "The Academic",
+        "tag": "Research Ready",
+        "description": "Structured for academic CVs, publications, research experience, teaching roles, and graduate applications.",
+        "field": "Education / Research"
+      },
+      "global": {
+        "title": "The Global",
+        "tag": "International",
+        "description": "A globally polished resume layout built for international applications, languages, certifications, and remote roles.",
+        "field": "Global / Remote"
+      }
+    },
+    "quality": {
+      "badge": "Surgical precision",
+      "title": "Surgical Precision in Every Pixel",
+      "subtitle": "Every template is built around clarity, responsive structure, and career-focused hierarchy so your experience stays easy to scan on every device.",
+      "items": {
+        "ats": {
+          "title": "ATS Shield Guaranteed",
+          "description": "Every template is pre-vetted to support clean parsing and reliable data extraction by hiring systems."
+        },
+        "global": {
+          "title": "Global Standards",
+          "description": "Compliant with US, EU, and UK resume expectations for international talent portability."
+        },
+        "rtl": {
+          "title": "RTL & LTR Ready",
+          "description": "Layouts are designed to stay balanced in Arabic and English without breaking spacing or hierarchy."
+        },
+        "support": {
+          "title": "Expert Support",
+          "description": "Built for a smooth editing experience with clear sections, readable spacing, and professional structure."
+        }
+      }
     }
   },
   "footer": {
