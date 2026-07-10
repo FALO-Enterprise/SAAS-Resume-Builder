@@ -45,6 +45,8 @@ type TemplateCard = {
   accent: string;
 };
 
+type ReactTouchList = TouchEvent<HTMLDivElement>['touches'];
+
 const filters: FilterKey[] = ['all', 'professional', 'creative', 'technical', 'minimalist'];
 
 const templates: TemplateCard[] = [
@@ -129,9 +131,11 @@ function RatingStars() {
   );
 }
 
-function getTouchDistance(touches: TouchList) {
+function getTouchDistance(touches: ReactTouchList) {
   const firstTouch = touches[0];
   const secondTouch = touches[1];
+
+  if (!firstTouch || !secondTouch) return 0;
 
   return Math.hypot(
     secondTouch.clientX - firstTouch.clientX,
