@@ -1,69 +1,65 @@
-# ResuMax — Trusted. Global. Effortless.
+# ResuMax
 
-A premium SaaS Resume Builder landing page built with Next.js 15, Tailwind CSS v4, Three.js, and Framer Motion.
+A premium SaaS resume builder — Next.js frontend, Express/Prisma backend, structured as an npm-workspaces monorepo orchestrated with Turbo.
 
-## Tech Stack
-
-- **Next.js 15** (App Router)
-- **Tailwind CSS v4**
-- **Three.js** — Interactive particle field background
-- **Framer Motion** — Scroll-triggered animations
-- **next-intl** — Arabic & English i18n with RTL/LTR support
-
-## Getting Started
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) — it auto-redirects to `/en`.
-
-## Language Switching
-
-- English: `http://localhost:3000/en`
-- Arabic (RTL): `http://localhost:3000/ar`
-
-## Project Structure
+## Structure
 
 ```
 resumax/
-├── app/
-│   ├── [locale]/         # Locale-aware routes
-│   │   ├── layout.tsx    # HTML with lang/dir attrs
-│   │   └── page.tsx      # Landing page
-│   └── globals.css       # Design system + Tailwind
-├── components/
-│   ├── 3d/               # Three.js particle field
-│   ├── sections/         # All landing page sections
-│   └── ui/               # Navbar, Footer, SectionLabel
-├── i18n/
-│   ├── routing.ts        # Locale routing config
-│   └── request.ts        # next-intl request config
-├── messages/
-│   ├── en.json           # English translations
-│   └── ar.json           # Arabic translations
-└── middleware.ts         # i18n middleware
+├── apps/
+│   ├── frontend/          # Next.js app (App Router, Tailwind v4, next-intl, Three.js)
+│   └── backend/           # Express API (Prisma + PostgreSQL, JWT auth)
+├── packages/
+│   ├── shared-types/      # @resumax/shared-types — DTOs/interfaces shared across apps
+│   └── shared-utils/      # @resumax/shared-utils — shared utility functions
+├── package.json           # root workspace config
+└── turbo.json             # Turbo task pipeline (build/dev/lint/type-check)
 ```
 
-## Sections
+Frontend and backend are independent runtimes — the frontend never imports backend code directly, only `@resumax/shared-types` and `@resumax/shared-utils`, and talks to the API over HTTP.
 
-1. **Hero** — Animated 3D particle bg, floating resume mockup, stats
-2. **Challenge** — 4 pain points with hover effects
-3. **Features** — 2×3 card grid with colored accents
-4. **How It Works** — 4-step process with connecting timeline
-5. **Global Principles** — 5 standards + regional support
-6. **Roadmap** — v1.0 → v3.0 timeline
-7. **Testimonials** — 3 testimonials from global users
-8. **CTA** — Bold close with animated rings
-9. **Footer** — Full links + social icons
+## Getting started
 
-## Next Steps (Backend Integration)
+```bash
+npm install         # installs and links all workspaces
+npm run dev          # starts frontend + backend concurrently
+```
 
-- Connect `/api/auth` for Sign In / Sign Up
-- Connect `/api/resumes` for CRUD operations
-- Add Stripe for `/api/billing`
-- Add database (PostgreSQL + Prisma recommended)
+- Frontend: http://localhost:3000 (auto-redirects to `/en`; also serves `/ar` for RTL)
+- Backend: see `apps/backend` for its configured port
+
+The backend needs a `.env` in `apps/backend` (Prisma `DATABASE_URL`, JWT secret, etc.) — not committed, create it locally before `npm run dev` will fully work end-to-end.
+
+## Commands
+
+All root scripts run through Turbo, which caches per-workspace and only rebuilds what changed:
+
+```bash
+npm run dev          # turbo run dev     — all apps, watch mode
+npm run build        # turbo run build   — all apps + packages
+npm run lint          # turbo run lint
+npm run type-check    # turbo run type-check
+npm run clean         # remove all node_modules
+npm run format        # prettier --write across the repo
+```
+
+Run a single workspace directly:
+
+```bash
+npm run frontend                              # frontend dev server only
+npm run backend                               # backend dev server only
+npm --workspace apps/frontend run build
+npm --workspace apps/backend run type-check
+npm --workspace @resumax/shared-types run build
+```
+
+## Frontend
+
+Next.js App Router app under `apps/frontend/app/[locale]`. Landing page sections live in `apps/frontend/components/sections`, shared UI in `apps/frontend/components/ui`. i18n (English/Arabic, RTL-aware) is configured in `apps/frontend/i18n` with translations in `apps/frontend/messages`.
+
+## Backend
+
+Express API under `apps/backend/src`, organized by module (`auth`, `resume`, `template`, `users`), each with its own controller/service/repository/schema. Database access is via Prisma (`apps/backend/prisma/schema.prisma`).
 
 ---
 

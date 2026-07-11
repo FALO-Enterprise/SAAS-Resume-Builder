@@ -1,0 +1,422 @@
+{
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "templates": "Templates",
+    "pricing": "Pricing",
+    "getStarted": "Get Started",
+    "signIn": "Sign In"
+  },
+  "hero": {
+    "badge": "v1.0 Launching Soon",
+    "title": "Build Resumes That",
+    "titleHighlight": "Open Doors",
+    "subtitle": "World-class resumes & CVs following global standards. Trusted by professionals across every industry, from Silicon Valley to the Gulf.",
+    "cta": "Start Building Free",
+    "ctaSecondary": "View Templates",
+    "stats": {
+      "resumes": "50K+",
+      "resumesLabel": "Resumes Created",
+      "templates": "120+",
+      "templatesLabel": "Templates",
+      "satisfaction": "98%",
+      "satisfactionLabel": "Satisfaction Rate"
+    }
+  },
+  "challenge": {
+    "label": "The Problem",
+    "title": "Why Most Resumes",
+    "titleHighlight": "Never Get Read",
+    "items": {
+      "formats": {
+        "title": "Inconsistent Formats",
+        "desc": "Resumes vary wildly across candidates, causing confusion for recruiters before they even read a word."
+      },
+      "standards": {
+        "title": "No Global Standards",
+        "desc": "Most tools ignore regional and industry-specific CV expectations — what works in NYC fails in Dubai."
+      },
+      "content": {
+        "title": "Untrustworthy Content",
+        "desc": "Fabricated or exaggerated entries damage careers and credibility. Recruiters notice every inconsistency."
+      },
+      "ats": {
+        "title": "Poor ATS Compatibility",
+        "desc": "Poorly structured resumes get filtered out before any human sees them. 75% never make it through."
+      }
+    }
+  },
+  "features": {
+    "label": "Key Features",
+    "title": "Everything You Need to",
+    "titleHighlight": "Stand Out Globally",
+    "items": {
+      "templates": {
+        "title": "120+ Templates",
+        "desc": "Industry-specific layouts for every profession and region — crafted by professional designers."
+      },
+      "multiRegion": {
+        "title": "Multi-Region Support",
+        "desc": "US, EU Europass, GCC, Asia-Pacific, and academic CV formats all built-in and current."
+      },
+      "ats": {
+        "title": "ATS Optimizer",
+        "desc": "Score & optimize your resume for applicant tracking systems with real-time keyword analysis."
+      },
+      "coverLetter": {
+        "title": "Cover Letter Builder",
+        "desc": "AI-assisted cover letters matched to job descriptions. Personalized, not generic."
+      },
+      "preview": {
+        "title": "Real-Time Preview",
+        "desc": "See changes live as you build. No surprises when you export — what you see is what you get."
+      },
+      "export": {
+        "title": "Export Anywhere",
+        "desc": "PDF, DOCX, LinkedIn-ready formats with one click. Share a live link or download instantly."
+      }
+    }
+  },
+  "howItWorks": {
+    "label": "Process",
+    "title": "From Blank Page to",
+    "titleHighlight": "Job-Ready in Minutes",
+    "steps": {
+      "template": {
+        "num": "01",
+        "title": "Choose Template",
+        "desc": "Pick from 120+ industry & region-specific layouts built to global standards."
+      },
+      "info": {
+        "num": "02",
+        "title": "Enter Your Info",
+        "desc": "Guided form with smart prompts, skill suggestions & impact-driven phrasing."
+      },
+      "check": {
+        "num": "03",
+        "title": "ATS & Quality Check",
+        "desc": "Real-time score, keyword analysis, and section-by-section improvement tips."
+      },
+      "export": {
+        "num": "04",
+        "title": "Export & Apply",
+        "desc": "Download as PDF or DOCX. Share direct link or push to LinkedIn with one click."
+      }
+    }
+  },
+  "principles": {
+    "label": "Global Principles",
+    "title": "Built on Standards",
+    "titleHighlight": "The World Trusts",
+    "items": {
+      "honesty": {
+        "title": "Honesty First",
+        "desc": "ResuMax enforces truthful representation — no inflated job titles or fabricated credentials."
+      },
+      "ats": {
+        "title": "ATS-First Structure",
+        "desc": "Every template is engineered for machine readability, maximizing recruiter visibility."
+      },
+      "relevance": {
+        "title": "Relevance Over Length",
+        "desc": "Guided word limits and section priorities ensure concise, impact-driven documents."
+      },
+      "cultural": {
+        "title": "Cultural Sensitivity",
+        "desc": "Region-specific guidance on photos, age, marital status, and appropriate length."
+      },
+      "privacy": {
+        "title": "Privacy by Design",
+        "desc": "Users control exactly what personal data appears and how it is stored."
+      }
+    }
+  },
+  "roadmap": {
+    "label": "Roadmap",
+    "title": "Where We're",
+    "titleHighlight": "Headed",
+    "versions": {
+      "v1": {
+        "version": "v1.0",
+        "name": "Foundation",
+        "date": "Aug 2026",
+        "tag": "Current",
+        "features": ["Basic resume builder", "5 starter templates", "PDF export"]
+      },
+      "v15": {
+        "version": "v1.5",
+        "name": "Expansion",
+        "date": "Nov 2026",
+        "tag": "Upcoming",
+        "features": ["30 templates", "Multi-language support", "Cover letter builder"]
+      },
+      "v2": {
+        "version": "v2.0",
+        "name": "Global Core",
+        "date": "Jan 2027",
+        "tag": "Upcoming",
+        "features": ["120+ templates", "ATS optimizer", "AI suggestions"]
+      },
+      "v3": {
+        "version": "v3.0",
+        "name": "AI-Powered",
+        "date": "Q3 2027",
+        "tag": "Future",
+        "features": ["GPT resume coach", "Job-match scoring", "LinkedIn sync"]
+      }
+    }
+  },
+  "testimonials": {
+    "label": "Testimonials",
+    "title": "Trusted by",
+    "titleHighlight": "Professionals Worldwide",
+    "items": [
+      {
+        "name": "Sarah Mitchell",
+        "role": "Senior Product Manager",
+        "company": "Google",
+        "text": "ResuMax helped me land interviews at 5 top tech companies. The ATS optimizer is a game-changer.",
+        "region": "USA"
+      },
+      {
+        "name": "Ahmed Al-Rashidi",
+        "role": "Civil Engineer",
+        "company": "NEOM",
+        "text": "The GCC-specific template was exactly what I needed. Professional, culturally appropriate, and stunning.",
+        "region": "Saudi Arabia"
+      },
+      {
+        "name": "Elena Vasquez",
+        "role": "Data Scientist",
+        "company": "Spotify",
+        "text": "The Europass format support saved me hours. Perfect for applying across multiple EU countries.",
+        "region": "Spain"
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready to Build Your",
+    "titleHighlight": "Best Resume?",
+    "subtitle": "Join thousands of professionals who trust ResuMax to represent them with clarity, honesty, and global standards.",
+    "button": "Start Building — It's Free",
+    "note": "No credit card required · Available in Arabic & English"
+  },
+  "auth": {
+    "tabs": {
+      "login": "Sign In",
+      "signup": "Create Account"
+    },
+    "heading": {
+      "loginTitle": "Welcome back",
+      "loginSubtitle": "Sign in to continue building your career.",
+      "signupTitle": "Join ResuMax",
+      "signupSubtitle": "Create your account and start building today."
+    },
+    "login": {
+      "emailPlaceholder": "Email address",
+      "passwordPlaceholder": "Password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "loading": "Signing in…",
+      "or": "or",
+      "switchText": "Don't have an account?",
+      "switchLink": "Create one",
+      "successTitle": "Welcome back!",
+      "successSubtitle": "Redirecting you now…",
+      "errors": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordMin": "Password must be at least 6 characters",
+        "invalidCredentials": "Invalid email or password.",
+        "network": "Network error. Please try again."
+      }
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Fill in your details to get started with ResuMax.",
+      "nameExample": "John Smith",
+      "emailExample": "john@example.com",
+      "passwordInputPlaceholder": "Create a strong password",
+      "confirmInputPlaceholder": "Repeat your password",
+      "successReady": "Your account is ready. Start building the resume that opens doors.",
+      "redirecting": "Redirecting to dashboard…",
+      "fullNamePlaceholder": "Full name",
+      "emailPlaceholder": "Email address",
+      "passwordPlaceholder": "Password",
+      "confirmPasswordPlaceholder": "Confirm password",
+      "termsPrefix": "By creating an account you agree to our",
+      "termsLink": "Terms of Service",
+      "termsAnd": "and",
+      "policyLink": "Privacy Policy",
+      "submit": "Create Account",
+      "loading": "Creating account…",
+      "switchText": "Already have an account?",
+      "switchLink": "Sign in",
+      "successTitle": "Account created!",
+      "successSubtitle": "Welcome to ResuMax, {name}!",
+      "passwordChecks": {
+        "length": "8+ characters",
+        "uppercase": "Uppercase letter",
+        "number": "Number",
+        "special": "Special character"
+      },
+      "strength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong"
+      },
+      "errors": {
+        "nameRequired": "Full name is required",
+        "emailRequired": "Email is required",
+        "invalidEmail": "Enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordMin": "Password must be at least 8 characters",
+        "confirmRequired": "Please confirm your password",
+        "confirmMismatch": "Passwords do not match",
+        "termsRequired": "Please accept the Terms of Service to continue.",
+        "registrationFailed": "Registration failed. Please try again.",
+        "network": "Network error. Please try again."
+      }
+    }
+  },
+  "verify": {
+    "heading": "Check your email",
+    "subtitlePrefix": "We sent a 6-digit verification code to",
+    "subtitleFallback": "your email address",
+    "subtitleSuffix": "Enter it below to verify your account.",
+    "verifyButton": "Verify Email",
+    "verifying": "Verifying…",
+    "dividerText": "didn't receive it?",
+    "resend": "Resend code",
+    "resending": "Sending…",
+    "resendIn": "in",
+    "resendSuccess": "A new code has been sent to your email.",
+    "backToRegister": "Back to register",
+    "bottomNote": "The code expires in 10 minutes. Check your spam folder if you don't see it.",
+    "success": {
+      "title": "Email verified!",
+      "subtitle": "Your account is now active. Taking you to your dashboard…"
+    },
+    "errors": {
+      "incomplete": "Please enter the complete 6-digit code.",
+      "invalid": "Invalid code. Please try again.",
+      "resendFailed": "Could not resend code. Try again.",
+      "network": "Network error. Please try again.",
+      "resendNetwork": "Network error. Could not resend."
+    }
+  },
+   "pricing": {
+    "hero": {
+      "badge": "Simple Pricing",
+      "titleLine1": "Invest in your",
+      "titleHighlight": "career, not your resume tool",
+      "subtitle": "Start free. Upgrade when you're ready. No surprises."
+    },
+    "billing": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "save": "Save 22%",
+      "billedAnnually": "Billed annually",
+      "billedMonthly": "Billed monthly"
+    },
+    "plans": {
+      "popular": "Most Popular",
+      "alwaysFree": "Always free",
+      "getStarted": "Get started free",
+      "startPlan": "Start {plan}"
+    },
+    "table": {
+      "title": "Compare all features",
+      "subtitle": "Everything side by side so you can pick with confidence.",
+      "sections": {
+        "core": "Core Builder",
+        "ai": "AI & Optimization",
+        "global": "Global & Regional",
+        "team": "Team & Collaboration"
+      },
+      "rows": {
+        "resumeExports": "Resume exports / month",
+        "templates": "Templates",
+        "realTimePreview": "Real-time preview",
+        "pdfExport": "PDF export",
+        "docxExport": "DOCX export",
+        "linkedinExport": "LinkedIn-ready export",
+
+        "atsCheck": "ATS check",
+        "atsScore": "ATS score",
+        "keywordAnalysis": "Keyword analysis",
+        "aiCoverLetter": "AI cover letter",
+        "gptCoach": "GPT resume coach",
+        "jobMatch": "Job-match scoring",
+
+        "usFormat": "US / Canada format",
+        "euFormat": "EU Europass format",
+        "gccFormat": "GCC / Middle East",
+        "apacFormat": "Asia-Pacific format",
+        "academicCv": "Academic CV",
+        "rtlSupport": "RTL language support",
+
+        "teamWorkspace": "Team workspace",
+        "linkedinSync": "LinkedIn sync",
+        "prioritySupport": "Priority support",
+        "customBranding": "Custom branding"
+      }
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "Everything you need to know before deciding.",
+      "items": [
+        {
+          "q": "Can I switch plans later?",
+          "a": "Yes, you can upgrade or downgrade at any time. When you upgrade, you get access to the new features immediately. When you downgrade, the change takes effect at the start of your next billing cycle."
+        },
+        {
+          "q": "Is there a free trial for Pro or Enterprise?",
+          "a": "You can start with the Free plan at any time with no credit card required. We also offer a 7-day money-back guarantee on Pro and Enterprise plans if you are not satisfied."
+        },
+        {
+          "q": "What payment methods do you accept?",
+          "a": "We accept all major credit cards (Visa, Mastercard, Amex) and PayPal via Stripe. All transactions are encrypted and secure."
+        },
+        {
+          "q": "Can I cancel my subscription?",
+          "a": "Absolutely. You can cancel any time from your account settings. You keep access to all paid features until the end of your current billing period."
+        },
+        {
+          "q": "Do you support Arabic and RTL languages?",
+          "a": "Yes. ResuMax is fully bilingual — both the interface and the resume builder support Arabic with proper RTL layout."
+        }
+      ]
+    },
+    "ctaBottom": {
+      "title": "Still not sure which plan?",
+      "subtitle": "Start with Free — no credit card, no commitment. You can always upgrade in one click.",
+      "primaryButton": "Start for free",
+      "secondaryButton": "Try Pro — $9/mo"
+    }
+  },
+  "footer": {
+    "tagline": "Trusted. Global. Effortless.",
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "links": {
+      "features": "Features",
+      "templates": "Templates",
+      "pricing": "Pricing",
+      "changelog": "Changelog",
+      "about": "About Us",
+      "blog": "Blog",
+      "careers": "Careers",
+      "press": "Press",
+      "help": "Help Center",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    },
+    "rights": "All rights reserved.",
+    "poweredBy": "Powered by FALO Enterprise"
+  }
+}
