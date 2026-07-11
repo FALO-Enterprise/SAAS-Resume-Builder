@@ -216,7 +216,7 @@ export default function TemplatesPage() {
         <div className="absolute inset-0 bg-linear-to-br from-ink via-soft to-ink" />
         <div className="absolute left-1/4 top-16 h-80 w-80 rounded-full bg-gold/10 blur-[110px]" />
         <div className="absolute bottom-24 right-1/4 h-80 w-80 rounded-full bg-azure/10 blur-[110px]" />
-        <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-vilot/5 blur-[120px]" />
+        <div className="absolute left-1/2 top-1/2 h-105 w-105-translate-x-1/2 -translate-y-1/2 rounded-full bg-vilot/5 blur-[120px]" />
 
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 pb-16 pt-32 lg:grid-cols-[1.08fr_0.92fr] lg:pb-20 lg:pt-36">
           <div className="text-center lg:text-start">
@@ -235,7 +235,7 @@ export default function TemplatesPage() {
               </span>
             </h1>
 
-            <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-white/60 lg:mx-0">
+            <p className="mx-auto mt-5 max-w-xl text-primary leading-7 lg:mx-0">
               {t('hero.subtitle')}
             </p>
 
@@ -255,7 +255,7 @@ export default function TemplatesPage() {
 
               <motion.span
                 whileHover={{ y: -2 }}
-                className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white/75 backdrop-blur-xl"
+                className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/4 px-6 py-3 text-sm font-semibold text-white/75 backdrop-blur-xl"
               >
                 <ShieldCheck size={16} className="text-gold" />
                 {t('labels.ats')}
@@ -285,9 +285,9 @@ export default function TemplatesPage() {
             initial={{ opacity: 0, x: 38, scale: 0.96 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ duration: 0.85, delay: 0.15, ease }}
-            className="relative mx-auto w-full max-w-[288px] sm:max-w-[305px] lg:max-w-[318px]"
+            className="relative mx-auto w-full max-w-[288px] sm:max-w-76.25 lg:max-w-79.5"
           >
-            <div className="absolute -inset-5 rounded-[2rem] bg-linear-to-br from-gold/25 via-azure/10 to-transparent blur-3xl" />
+            <div className="absolute -inset-5 rounded-4xl bg-linear-to-br from-gold/25 via-azure/10 to-transparent blur-3xl" />
 
             <motion.div
               animate={{ y: [0, -5, 0] }}
@@ -304,7 +304,7 @@ export default function TemplatesPage() {
                       {t('labels.trusted')}
                     </p>
 
-                    <h2 className="mt-1 truncate text-base font-black tracking-[-0.03em] text-white">
+                    <h2 className="mt-1 truncate text-primary font-black tracking-[-0.03em]">
                       {t(`templates.${featuredTemplate.id}.title`)}
                     </h2>
                   </div>
@@ -315,7 +315,7 @@ export default function TemplatesPage() {
                 </div>
               </div>
 
-              <div className="relative aspect-[210/297] overflow-hidden bg-[#f6efe3] p-2.5">
+              <div className="relative aspect-210/297 overflow-hidden bg-[#f6efe3] p-2.5">
                 <div className="absolute inset-0 bg-linear-to-br from-[#ead8b8] via-[#f6efe3] to-[#faf6ee]" />
 
                 <div className="pointer-events-none absolute left-4 top-4 h-16 w-16 rounded-full border border-gold/20" />
@@ -363,7 +363,7 @@ export default function TemplatesPage() {
         transition={{ duration: 0.55, ease }}
         className="mx-auto max-w-7xl px-5 py-10 lg:px-6"
       >
-        <div className="mx-auto flex max-w-4xl snap-x snap-mandatory items-center gap-3 overflow-x-auto scroll-smooth rounded-[1.5rem] border border-edge bg-card/70 p-3 backdrop-blur-md [-ms-overflow-style:none] [scrollbar-width:none] md:flex-wrap md:justify-center [&::-webkit-scrollbar]:hidden">
+        <div className="mx-auto flex max-w-4xl snap-x snap-mandatory items-center gap-3 overflow-x-auto scroll-smooth rounded-3xl border border-edge bg-card/70 p-3 backdrop-blur-md [-ms-overflow-style:none] scrollbar-none md:flex-wrap md:justify-center [&::-webkit-scrollbar]:hidden">
           {filters.map((filter) => {
             const isActive = activeFilter === filter;
 
@@ -405,7 +405,7 @@ export default function TemplatesPage() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-60px' }}
-          className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth py-6 [-ms-overflow-style:none] [scrollbar-width:none] md:grid md:grid-cols-2 md:gap-8 md:overflow-visible md:py-6 xl:grid-cols-3 [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth py-6 [-ms-overflow-style:none] scrollbar-none md:grid md:grid-cols-2 md:gap-8 md:overflow-visible md:py-6 xl:grid-cols-3 [&::-webkit-scrollbar]:hidden"
         >
           <AnimatePresence mode="popLayout">
             {visibleTemplates.map((template, index) => {
@@ -426,18 +426,18 @@ export default function TemplatesPage() {
                     layout: { type: 'spring', stiffness: 260, damping: 26 },
                   }}
                   whileHover={{ y: -6, scale: 1.006 }}
-                  className="group min-w-[82vw] snap-center overflow-hidden rounded-[1.75rem] border border-edge bg-elevated shadow-[0_8px_30px_var(--shadow-color)] transition-colors duration-300 hover:border-edge-strong sm:min-w-[400px] md:min-w-0"
+                  className="group min-w-[82vw] snap-center overflow-hidden rounded-[1.75rem] border border-edge bg-elevated shadow-[0_8px_30px_var(--shadow-color)] transition-colors duration-300 hover:border-edge-strong sm:min-w-100 md:min-w-0"
                 >
                   <div className="relative border-b border-edge bg-[#f6efe3]">
                     <div className={`absolute inset-0 bg-linear-to-br ${template.accent}`} />
 
-                    <div className="relative aspect-[4/5] w-full overflow-hidden p-4">
+                    <div className="relative aspect-4/5 w-full overflow-hidden p-4">
                       <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-[#e4d4bb] bg-white/70 px-2.5 py-1.5 text-[11px] font-extrabold text-ink shadow-sm backdrop-blur-md">
                         <Icon size={14} className="text-gold" />
                         {t('labels.rank', { number: index + 1 })}
                       </div>
 
-                      <div className="absolute right-4 top-4 z-10 rounded-full border border-gold/25 bg-gold/10 px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-gold backdrop-blur-md">
+                      <div className="absolute right-4 top-4 z-10 rounded-full border border-gold/25 bg-gold/10 px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-gold backdrop-blur-md">
                         {t(`templates.${template.id}.tag`)}
                       </div>
 
@@ -467,7 +467,7 @@ export default function TemplatesPage() {
                       {t(`templates.${template.id}.title`)}
                     </h2>
 
-                    <p className="mt-3 min-h-[72px] text-sm leading-6 text-secondary">
+                    <p className="mt-3 min-h-18 text-sm leading-6 text-secondary">
                       {t(`templates.${template.id}.description`)}
                     </p>
 
@@ -515,7 +515,7 @@ export default function TemplatesPage() {
 
       {/* Quality Section */}
       <section className="mx-auto max-w-7xl px-5 pb-24 lg:px-6">
-        <div className="relative overflow-hidden rounded-[2rem] border border-edge bg-card p-8 md:p-10 lg:p-12">
+        <div className="relative overflow-hidden rounded-4xl border border-edge bg-card p-8 md:p-10 lg:p-12">
           <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-gold/10 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 -right-20 h-80 w-80 rounded-full bg-azure/10 blur-3xl" />
 
@@ -530,7 +530,7 @@ export default function TemplatesPage() {
                 {t('quality.title')}
               </h2>
 
-              <p className="mt-4 max-w-xl text-lg leading-7 text-slate-600 [[data-theme=dark]_&]:text-white/80">
+              <p className="mt-4 max-w-xl text-lg leading-7 text-slate-600 in-data-[theme=dark]:text-white/80">
                 {t('quality.subtitle')}
               </p>
             </div>
@@ -555,7 +555,7 @@ export default function TemplatesPage() {
                     {t(`quality.items.${key}.title`)}
                   </h3>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-600 [[data-theme=dark]_&]:text-white/75">
+                  <p className="mt-2 text-sm leading-6 text-slate-600 in-data-[theme=dark]:text-white/75">
                     {t(`quality.items.${key}.description`)}
                   </p>
                 </motion.div>
@@ -569,7 +569,7 @@ export default function TemplatesPage() {
       <AnimatePresence>
         {previewTemplate && (
           <motion.div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-3 backdrop-blur-md sm:p-4"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-black/75 p-3 backdrop-blur-md sm:p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -615,7 +615,7 @@ export default function TemplatesPage() {
                       step={ZOOM_STEP}
                       value={previewZoom}
                       onChange={(event) => setPreviewZoom(Number(event.target.value))}
-                      className="h-1 w-24 cursor-pointer accent-[#f5a623] sm:w-32"
+                      className="h-1 w-24 cursor-pointer accent-gold sm:w-32"
                       aria-label={t('labels.zoomControl')}
                     />
 
