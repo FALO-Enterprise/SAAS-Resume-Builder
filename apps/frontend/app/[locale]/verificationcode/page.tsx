@@ -41,10 +41,10 @@ function OtpBox({
   const stateClasses = hasError
     ? 'border-pink-light/60 bg-pink-light/[0.07] text-pink-light'
     : focused
-    ? 'border-gold bg-gold/[0.06] text-primary shadow-[0_0_0_3px_rgba(245,166,35,0.12)]'
-    : value
-    ? 'border-gold/40 bg-gold/[0.03] text-primary'
-    : 'border-edge-strong bg-card text-primary';
+      ? 'border-gold bg-gold/[0.06] text-primary shadow-[0_0_0_3px_rgba(245,166,35,0.12)]'
+      : value
+        ? 'border-gold/40 bg-gold/[0.03] text-primary'
+        : 'border-edge-strong bg-card text-primary';
 
   return (
     <motion.div
@@ -181,7 +181,7 @@ export default function VerifyPage() {
       // Body:     { email, code }
       // Response: { token, user }  |  { error }
       // ────────────────────────────────────────────────────────────────────
-      const res = await fetch('/api/auth/verify', {
+      const res = await fetch('http://localhost:3001/api/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailParam, code }),
@@ -190,7 +190,7 @@ export default function VerifyPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data?.error || t('errors.invalid'));
+        setError(data?.error?.message || t('errors.invalid'));
         setDigits(Array(CODE_LENGTH).fill(''));
         setTimeout(() => inputRefs.current[0]?.focus(), 50);
         return;
@@ -230,7 +230,7 @@ export default function VerifyPage() {
       // Body:     { email }
       // Response: { success: true }  |  { error }
       // ────────────────────────────────────────────────────────────────────
-      const res = await fetch('/api/auth/resend-code', {
+      const res = await fetch('http://localhost:3001/api/auth/resend-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailParam }),
@@ -238,7 +238,7 @@ export default function VerifyPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data?.error || t('errors.resendFailed'));
+        setError(data?.error?.message || t('errors.resendFailed'));
         return;
       }
 
@@ -436,11 +436,10 @@ export default function VerifyPage() {
         <button
           onClick={() => handleSubmit(digits.join(''))}
           disabled={!canSubmit}
-          className={`mb-6 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.75 text-[15px] font-bold text-ink transition-all ${
-            canSubmit
-              ? 'cursor-pointer bg-gold shadow-[0_8px_25px_rgba(245,166,35,0.3)] hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.45)]'
-              : 'cursor-not-allowed bg-gold/40'
-          }`}
+          className={`mb-6 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.75 text-[15px] font-bold text-ink transition-all ${canSubmit
+            ? 'cursor-pointer bg-gold shadow-[0_8px_25px_rgba(245,166,35,0.3)] hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.45)]'
+            : 'cursor-not-allowed bg-gold/40'
+            }`}
         >
           {loading
             ? <><Loader2 size={16} className="animate-spin" /> {t('verifying')}</>
@@ -460,9 +459,8 @@ export default function VerifyPage() {
           <button
             onClick={handleResend}
             disabled={!expired || resending}
-            className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${
-              expired && !resending ? 'cursor-pointer text-gold' : 'cursor-default text-muted'
-            }`}
+            className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${expired && !resending ? 'cursor-pointer text-gold' : 'cursor-default text-muted'
+              }`}
           >
             {resending
               ? <><Loader2 size={13} className="animate-spin" /> {t('resending')}</>
@@ -474,9 +472,8 @@ export default function VerifyPage() {
             <span className="text-[13px] text-muted">
               {t('resendIn')}{' '}
               <span
-                className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${
-                  count <= 10 ? 'text-pink-light' : 'text-faint'
-                }`}
+                className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${count <= 10 ? 'text-pink-light' : 'text-faint'
+                  }`}
               >
                 {String(Math.floor(count / 60)).padStart(2, '0')}:{String(count % 60).padStart(2, '0')}
               </span>

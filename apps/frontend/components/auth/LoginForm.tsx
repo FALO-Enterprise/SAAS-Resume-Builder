@@ -12,8 +12,8 @@ import Link from 'next/link';
 
 // ─── Social providers ────────────────────────────────────────────────────────
 const PROVIDERS = [
-  { id: 'google',   label: 'Google',   Icon: FaGoogle,   color: 'text-primary' },
-  { id: 'github',   label: 'GitHub',   Icon: FaGithub,   color: 'text-primary' },
+  { id: 'google', label: 'Google', Icon: FaGoogle, color: 'text-primary' },
+  { id: 'github', label: 'GitHub', Icon: FaGithub, color: 'text-primary' },
   { id: 'linkedin', label: 'LinkedIn', Icon: FaLinkedin, color: 'text-primary' },
 ] as const;
 
@@ -31,10 +31,10 @@ export default function LoginForm() {
 
   const validate = (): boolean => {
     const e: FieldError = {};
-    if (!form.email)                          e.email    = t('login.errors.emailRequired');
-    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email  = t('login.errors.invalidEmail');
-    if (!form.password)                        e.password = t('login.errors.passwordRequired');
-    else if (form.password.length < 6)         e.password = t('login.errors.passwordMin');
+    if (!form.email) e.email = t('login.errors.emailRequired');
+    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = t('login.errors.invalidEmail');
+    if (!form.password) e.password = t('login.errors.passwordRequired');
+    else if (form.password.length < 6) e.password = t('login.errors.passwordMin');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -49,7 +49,7 @@ export default function LoginForm() {
       // POST /api/auth/login   Body: { email, password }
       // Response: { token, user } | { error }
       // ──────────────────────────────────────────────────────────────────────
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email, password: form.password }),

@@ -27,3 +27,22 @@ export type FieldError = {
 }
 
 
+
+export type SessionUser = {
+  id: string
+  name: string
+  email: string
+  role: string
+}
+
+export type RegisterInput = {
+  name: string
+  email: string
+  password: string
+  avatar?: string
+}
+
+export type LoginInput = {
+  email: string
+  password: string
+}
