@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  avatar       String?
+  password     String
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  isVerified   Boolean       @default(false)
+  resumes      Resume?
+  Subscription Subscription?
+}
+
+model Template {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  thumbnail String?
+  isPremium Boolean  @default(false)
+  createdAt DateTime @default(now())
+  resumes   Resume[]
+}
+
+model Resume {
+  id         String   @id @default(cuid())
+  title      String
+  templateId String
+  userId     String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  template   Template @relation(fields: [templateId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Plan {
+  id              String         @id @default(cuid())
+  name            PlanType       @unique
+  price           Float
+  maxResumes      Int
+  hasWatermark    Boolean        @default(true)
+  canExportPDF    Boolean        @default(false)
+  canUseTemplates Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt       
+  Subscription    Subscription[]  
+}
+
+model Subscription {
+  id         String             @id @default(cuid())
+  userId     String             @unique
+  planId     String                                
+  status     SubscriptionStatus @default(ACTIVE)
+  startDate  DateTime           @default(now())
+  endDate    DateTime?
+  canceledAt DateTime?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt        
+  Plan       Plan               @relation(fields: [planId], references: [id])
+  User       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum PlanType {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+  PAST_DUE
+}

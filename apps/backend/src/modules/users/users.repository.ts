@@ -27,7 +27,7 @@ export class UserRepository {
     }
 
 
-    create(name: string, email: string, password: string, avatar?: string, role: Role = Role.REGULAR,): Promise<User> {
+    create(name: string, email: string, password: string, avatar?: string, role: Role = Role.USER, isVerified?: boolean): Promise<User> {
         const user: Omit<User, 'id'> = {
             name,
             email,
@@ -35,6 +35,7 @@ export class UserRepository {
             createdAt: new Date(),
             updatedAt: new Date(),
             password,
+            isVerified: isVerified || false,
             avatar: avatar || null
         }
 
@@ -42,6 +43,14 @@ export class UserRepository {
             data: user
         });
     }
+
+    markAsVerified(id: string): Promise<User> {
+        return this.prismaUser.update({
+            where: { id },
+            data: { isVerified: true }
+        });
+    }
+
 
     update(id: string, name?: string, email?: string, avatar?: string, role?: Role): Promise<User> {
         return this.prismaUser.update({

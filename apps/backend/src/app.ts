@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
@@ -6,20 +7,27 @@ import { authRouter } from './modules/auth/auth.routes'
 import { userRouter } from './modules/users/users.routes'
 import { templateRouter } from './modules/template/template.routes'
 import session from 'express-session'
-import { isProduction } from './config/app.config'
+import { responseEnhancer } from './common/middlewares/response.middleware'
 
 const app = express()
 
 app.use(express.json())
+app.use(responseEnhancer);
 app.use(cors())
 app.use(helmet())
+app.use(express.urlencoded({ extended: true }));
 app.use(express.urlencoded());
 app.use(
     session({
-        secret: process.env.SESSION_SECRET ?? 'resumax-dev-session-secret',
+        secret: process.env.SESSION_SECRET || 'dev-secret',
         resave: false,
         saveUninitialized: false,
-        cookie: { secure: isProduction, maxAge: 1000 * 60 * 60 * 24 * 30 }
+        cookie: {
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: true,
+            sameSite: 'lax',
+            maxAge: 1000 * 60 * 60 * 24 * 30,
+        },
     })
 );
 

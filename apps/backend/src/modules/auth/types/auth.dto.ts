@@ -11,6 +11,8 @@ export type LoginResponseDTOWithJWT = {
     token: string;
 }
 
-export type RegisterDTO = Pick<User, 'avatar' | 'email' | 'name' | 'password'>
-
+export type RegisterDTO =
+    Omit<Pick<User, 'avatar' | 'email' | 'name' | 'password'>, 'avatar'> & {
+        avatar?: string | null;
+    };
 export type RegisterResponseDTO = Omit<User, 'password'>

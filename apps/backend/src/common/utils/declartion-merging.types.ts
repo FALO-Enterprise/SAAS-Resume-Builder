@@ -3,6 +3,7 @@
 import {
   UnifiedApiErrorResponse
 } from '../middlewares/response.middleware'
+import { Plan } from '@prisma/client';
 
 import 'express-session'
 
@@ -28,6 +29,16 @@ declare global {
   }
 
   namespace Express {
+
+    interface Request {
+      user: {
+        id: string
+        email: string
+        role: string
+      }
+      plan: Plan
+    }
+
     interface Response {
       create: (data: object) => this;
       ok: (data: object) => this;

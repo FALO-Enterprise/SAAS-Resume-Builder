@@ -32,6 +32,10 @@ class UserService {
     isUserIdExist(id: string): Promise<boolean> {
         return this.repository.findById(id).then(user => !!user);
     }
+
+    public markUserAsVerified(id: string): Promise<User> {
+        return this.repository.markAsVerified(id);
+    }
 }
 
 export const userService = new UserService(); 

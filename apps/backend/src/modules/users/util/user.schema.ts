@@ -6,8 +6,9 @@ export const userSchema = z.object({
     id: z.string(),
     name: z.string(),
     email: z.email(),
-    role: z.enum(Object.values(ROLES_NAMES)).default('REGULAR'),
+    role: z.enum(Object.values(ROLES_NAMES)).default('USER'),
     avatar: z.string().nullable(),
+    isVerified: z.boolean().default(false),
     createdAt: z.date(),
     updatedAt: z.date(),
     password: z.string().min(8) // hash value
