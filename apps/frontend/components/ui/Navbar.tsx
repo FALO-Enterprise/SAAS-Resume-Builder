@@ -33,8 +33,8 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { label: t("features"), href: "#features" },
-    { label: t("howItWorks"), href: "#how-it-works" },
+    { label: t("features"), href: `/${locale}/#features` },
+    { label: t("howItWorks"), href: `/${locale}/#how-it-works` },
     { label: t("templates"), href: `/${locale}/templates` },
     { label: t("pricing"), href: `/${locale}/pricing` },
   ];
@@ -54,13 +54,13 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-9">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="text-secondary text-[14px] font-medium transition-colors delay-200 hover:text-primary no-underline tracking-wide"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
