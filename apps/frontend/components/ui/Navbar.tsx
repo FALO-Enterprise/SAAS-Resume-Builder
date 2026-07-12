@@ -35,7 +35,7 @@ export default function Navbar() {
   const navLinks = [
     { label: t("features"), href: `/${locale}/#features` },
     { label: t("howItWorks"), href: `/${locale}/#how-it-works` },
-    { label: t("templates"), href: "#templates" },
+    { label: t("templates"), href: `/${locale}/templates` },
     { label: t("pricing"), href: `/${locale}/pricing` },
   ];
 
