@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useMemo, useRef, useState } from 'react';
-import type { TouchEvent } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useLocale, useTranslations } from 'next-intl';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useMemo, useRef, useState } from "react";
+import type { TouchEvent } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Briefcase,
@@ -22,83 +22,94 @@ import {
   X,
   ZoomIn,
   ZoomOut,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import Navbar from '@/components/ui/Navbar';
-import Footer from '@/components/ui/Footer';
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import Navbar from "@/components/ui/Navbar";
+import Footer from "@/components/ui/Footer";
 
-type FilterKey = 'all' | 'professional' | 'creative' | 'technical' | 'minimalist';
+type FilterKey =
+  | "all"
+  | "professional"
+  | "creative"
+  | "technical"
+  | "minimalist";
 
 type TemplateId =
-  | 'executive'
-  | 'developer'
-  | 'director'
-  | 'minimal'
-  | 'academic'
-  | 'global';
+  | "executive"
+  | "developer"
+  | "director"
+  | "minimal"
+  | "academic"
+  | "global";
 
 type TemplateCard = {
   id: TemplateId;
   image: string;
-  category: Exclude<FilterKey, 'all'>;
+  category: Exclude<FilterKey, "all">;
   icon: LucideIcon;
   accent: string;
 };
 
-type ReactTouchList = TouchEvent<HTMLDivElement>['touches'];
+type ReactTouchList = TouchEvent<HTMLDivElement>["touches"];
 
-const filters: FilterKey[] = ['all', 'professional', 'creative', 'technical', 'minimalist'];
+const filters: FilterKey[] = [
+  "all",
+  "professional",
+  "creative",
+  "technical",
+  "minimalist",
+];
 
 const templates: TemplateCard[] = [
   {
-    id: 'executive',
-    image: '/templates/executive.png',
-    category: 'professional',
+    id: "executive",
+    image: "/templates/executive.png",
+    category: "professional",
     icon: Briefcase,
-    accent: 'from-gold/20 via-[#f6ead3]/80 to-[#f8f1e6]',
+    accent: "from-gold/20 via-card-hover to-base",
   },
   {
-    id: 'developer',
-    image: '/templates/developer.png',
-    category: 'technical',
+    id: "developer",
+    image: "/templates/developer.png",
+    category: "technical",
     icon: Code2,
-    accent: 'from-gold/15 via-[#f6ead3]/80 to-[#f8f1e6]',
+    accent: "from-gold/15 via-card-hover to-base",
   },
   {
-    id: 'director',
-    image: '/templates/director.png',
-    category: 'creative',
+    id: "director",
+    image: "/templates/director.png",
+    category: "creative",
     icon: Palette,
-    accent: 'from-gold/15 via-[#f6ead3]/80 to-[#f8f1e6]',
+    accent: "from-gold/15 via-card-hover to-base",
   },
   {
-    id: 'minimal',
-    image: '/templates/minimal.png',
-    category: 'minimalist',
+    id: "minimal",
+    image: "/templates/minimal.png",
+    category: "minimalist",
     icon: Sparkles,
-    accent: 'from-gold/15 via-[#f6ead3]/80 to-[#f8f1e6]',
+    accent: "from-gold/15 via-card-hover to-base",
   },
   {
-    id: 'academic',
-    image: '/templates/academic.png',
-    category: 'professional',
+    id: "academic",
+    image: "/templates/academic.png",
+    category: "professional",
     icon: GraduationCap,
-    accent: 'from-gold/15 via-[#f6ead3]/80 to-[#f8f1e6]',
+    accent: "from-gold/15 via-card-hover to-base",
   },
   {
-    id: 'global',
-    image: '/templates/global.png',
-    category: 'technical',
+    id: "global",
+    image: "/templates/global.png",
+    category: "technical",
     icon: Languages,
-    accent: 'from-gold/15 via-[#f6ead3]/80 to-[#f8f1e6]',
+    accent: "from-gold/15 via-card-hover to-base",
   },
 ];
 
 const qualityItems = [
-  { key: 'ats', icon: ShieldCheck },
-  { key: 'global', icon: Globe2 },
-  { key: 'rtl', icon: CheckCircle2 },
-  { key: 'support', icon: Sparkles },
+  { key: "ats", icon: ShieldCheck },
+  { key: "global", icon: Globe2 },
+  { key: "rtl", icon: CheckCircle2 },
+  { key: "support", icon: Sparkles },
 ] as const;
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -144,18 +155,20 @@ function getTouchDistance(touches: ReactTouchList) {
 }
 
 export default function TemplatesPage() {
-  const t = useTranslations('templatesPage');
+  const t = useTranslations("templatesPage");
   const locale = useLocale();
 
-  const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
-  const [previewTemplate, setPreviewTemplate] = useState<TemplateCard | null>(null);
+  const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
+  const [previewTemplate, setPreviewTemplate] = useState<TemplateCard | null>(
+    null,
+  );
   const [previewZoom, setPreviewZoom] = useState(DEFAULT_ZOOM);
 
   const pinchStartDistanceRef = useRef<number | null>(null);
   const pinchStartZoomRef = useRef(DEFAULT_ZOOM);
 
   const visibleTemplates = useMemo(() => {
-    if (activeFilter === 'all') return templates;
+    if (activeFilter === "all") return templates;
     return templates.filter((template) => template.category === activeFilter);
   }, [activeFilter]);
 
@@ -216,36 +229,39 @@ export default function TemplatesPage() {
         <div className="absolute inset-0 bg-linear-to-br from-ink via-soft to-ink" />
         <div className="absolute left-1/4 top-16 h-80 w-80 rounded-full bg-gold/10 blur-[110px]" />
         <div className="absolute bottom-24 right-1/4 h-80 w-80 rounded-full bg-azure/10 blur-[110px]" />
-        <div className="absolute left-1/2 top-1/2 h-105 w-105-translate-x-1/2 -translate-y-1/2 rounded-full bg-vilot/5 blur-[120px]" />
+        <div className="absolute left-1/2 top-1/2 h-105 w-105 -translate-x-1/2 -translate-y-1/2 rounded-full bg-vilot/5 blur-[120px]" />
 
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 pb-16 pt-32 lg:grid-cols-[1.08fr_0.92fr] lg:pb-20 lg:pt-36">
           <div className="text-center lg:text-start">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-4 py-1.5">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" />
               <span className="text-xs font-bold uppercase tracking-widest text-gold">
-                {t('labels.studio')}
+                {t("labels.studio")}
               </span>
             </div>
 
-            <h1 className="font-playfair text-4xl font-black leading-[1.06] tracking-[-0.045em] text-white md:text-5xl lg:text-6xl">
-              {t('hero.title')}
+            <h1 className="font-playfair text-4xl font-black leading-[1.06] tracking-[-0.045em] text-primary md:text-5xl lg:text-6xl">
+              {t("hero.title")}
               <br />
               <span className="bg-linear-to-r from-gold via-gold-light to-gold bg-clip-text text-transparent">
-                {t('hero.badge')}
+                {t("hero.badge")}
               </span>
             </h1>
 
             <p className="mx-auto mt-5 max-w-xl text-primary leading-7 lg:mx-0">
-              {t('hero.subtitle')}
+              {t("hero.subtitle")}
             </p>
 
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row lg:items-start">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.96 }}
+              >
                 <Link
                   href="#templates-grid"
-                  className="group flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold text-ink transition-all duration-200 hover:bg-gold-light hover:shadow-[0_0_26px_rgba(245,166,35,0.32)]"
+                  className="group flex items-center justify-center gap-2 rounded-full bg-gold px-6 py-3 text-sm font-bold text-ink transition-all duration-200 hover:bg-gold-light hover:shadow-xl"
                 >
-                  {t('actions.useTemplate')}
+                  {t("actions.useTemplate")}
                   <ArrowRight
                     size={17}
                     className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
@@ -255,24 +271,24 @@ export default function TemplatesPage() {
 
               <motion.span
                 whileHover={{ y: -2 }}
-                className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/4 px-6 py-3 text-sm font-semibold text-white/75 backdrop-blur-xl"
+                className="flex items-center justify-center gap-2 rounded-full border border-edge bg-card px-6 py-3 text-sm font-semibold text-secondary backdrop-blur-xl"
               >
                 <ShieldCheck size={16} className="text-gold" />
-                {t('labels.ats')}
+                {t("labels.ats")}
               </motion.span>
             </div>
 
             <div className="mt-10 flex flex-wrap justify-center gap-8 lg:justify-start">
               {[
-                ['6+', t('stats.templates')],
-                ['100%', t('stats.responsive')],
-                ['RTL', t('stats.languages')],
+                ["6+", t("stats.templates")],
+                ["100%", t("stats.responsive")],
+                ["RTL", t("stats.languages")],
               ].map(([number, label]) => (
                 <div key={label} className="text-center lg:text-start">
-                  <div className="font-playfair text-3xl font-black text-white">
+                  <div className="font-playfair text-3xl font-black text-primary">
                     {number}
                   </div>
-                  <div className="mt-1 text-sm font-medium tracking-wide text-white/45">
+                  <div className="mt-1 text-sm font-medium tracking-wide text-secondary">
                     {label}
                   </div>
                 </div>
@@ -292,48 +308,52 @@ export default function TemplatesPage() {
             <motion.div
               animate={{ y: [0, -5, 0] }}
               whileHover={{ y: -9, scale: 1.012 }}
-              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative overflow-hidden rounded-[1.55rem] border border-white/10 bg-ink text-white shadow-2xl"
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+              className="relative overflow-hidden rounded-[1.55rem] border border-edge bg-elevated text-primary shadow-2xl"
             >
               <div className="absolute inset-x-6 top-0 h-px bg-linear-to-r from-transparent via-gold/60 to-transparent" />
 
-              <div className="border-b border-white/10 bg-white/[0.035] px-4 py-3">
+              <div className="border-b border-edge bg-card px-4 py-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="truncate text-[9px] font-bold uppercase tracking-[0.22em] text-white/40">
-                      {t('labels.trusted')}
+                    <p className="truncate text-[9px] font-bold uppercase tracking-[0.22em] text-secondary">
+                      {t("labels.trusted")}
                     </p>
 
-                    <h2 className="mt-1 truncate text-primary font-black tracking-[-0.03em]">
+                    <h2 className="mt-1 truncate text-praimary font-black tracking-[-0.03em]">
                       {t(`templates.${featuredTemplate.id}.title`)}
                     </h2>
                   </div>
 
-                  <span className="shrink-0 rounded-full border border-gold/25 bg-gold/10 px-2.5 py-1 text-[10px] font-bold text-gold">
-                    {t('labels.premium')}
+                  <span className="shrink-0 rounded-full border border-gold/30 bg-gold/10 px-2.5 py-1 text-[10px] font-bold text-gold">
+                    {t("labels.premium")}
                   </span>
                 </div>
               </div>
 
-              <div className="relative aspect-210/297 overflow-hidden bg-[#f6efe3] p-2.5">
-                <div className="absolute inset-0 bg-linear-to-br from-[#ead8b8] via-[#f6efe3] to-[#faf6ee]" />
+              <div className="relative aspect-210/297 overflow-hidden bg-card p-2.5">
+                <div className="absolute inset-0 bg-linear-to-br from-gold/15 via-card-hover to-base" />
 
                 <div className="pointer-events-none absolute left-4 top-4 h-16 w-16 rounded-full border border-gold/20" />
                 <div className="pointer-events-none absolute bottom-5 right-5 h-14 w-14 rounded-2xl border border-gold/20" />
 
                 <motion.div
                   animate={{ y: [0, -4, 0] }}
-                  transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-                  className="relative h-full overflow-hidden rounded-2xl border border-[#e4d4bb] bg-[#f6efe3] p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.55)]"
+                  transition={{
+                    duration: 7,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="relative h-full overflow-hidden rounded-2xl border border-edge bg-card p-2 shadow-inner"
                 >
-                  <div className="relative h-full w-full overflow-hidden rounded-xl bg-[#f8f2e8] p-3">
+                  <div className="relative h-full w-full overflow-hidden rounded-xl bg-elevated p-3">
                     <div className="relative h-full w-full">
                       <Image
                         src={featuredTemplate.image}
                         alt={t(`templates.${featuredTemplate.id}.title`)}
                         fill
                         priority
-                        className="object-contain object-center drop-shadow-[0_14px_18px_rgba(62,45,23,0.18)]"
+                        className="object-contain object-center drop-shadow-2xl"
                         sizes="(max-width: 1024px) 100vw, 318px"
                       />
                     </div>
@@ -343,10 +363,16 @@ export default function TemplatesPage() {
                 <motion.div
                   animate={{ y: [0, 4, 0], x: [0, -2, 0] }}
                   whileHover={{ scale: 1.06 }}
-                  transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute bottom-5 left-5 rounded-2xl border border-[#d8c8ac] bg-white/50 px-3 py-2 text-ink shadow-[0_12px_30px_rgba(62,45,23,0.16)] backdrop-blur-xl"
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="absolute bottom-5 left-5 rounded-2xl border border-edge bg-elevated/80 px-3 py-2 text-primary shadow-xl backdrop-blur-xl"
                 >
-                  <div className="text-[10px] text-ink/45">{t('labels.atsScore')}</div>
+                  <div className="text-[10px] text-secondary">
+                    {t("labels.atsScore")}
+                  </div>
                   <div className="mt-0.5 text-xl font-black text-gold">98%</div>
                 </motion.div>
               </div>
@@ -359,7 +385,7 @@ export default function TemplatesPage() {
       <motion.section
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
+        viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.55, ease }}
         className="mx-auto max-w-7xl px-5 py-10 lg:px-6"
       >
@@ -374,17 +400,16 @@ export default function TemplatesPage() {
                 onClick={() => setActiveFilter(filter)}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className={`relative h-10 shrink-0 snap-center rounded-full border px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] transition ${
-                  isActive
-                    ? 'border-gold bg-gold text-ink shadow-[0_10px_28px_rgba(245,166,35,0.24)]'
-                    : 'border-edge bg-elevated text-secondary hover:border-edge-strong hover:bg-card-hover hover:text-primary'
-                }`}
+                className={`relative h-10 shrink-0 snap-center rounded-full border px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] transition ${isActive
+                    ? "border-gold bg-gold text-ink shadow-xl"
+                    : "border-edge bg-elevated text-secondary hover:border-edge-strong hover:bg-card-hover hover:text-primary"
+                  }`}
               >
                 {isActive && (
                   <motion.span
                     layoutId="activeFilter"
                     className="absolute inset-0 rounded-full bg-gold"
-                    transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                    transition={{ type: "spring", stiffness: 320, damping: 28 }}
                   />
                 )}
 
@@ -404,7 +429,7 @@ export default function TemplatesPage() {
           layout
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
+          viewport={{ once: true, margin: "-60px" }}
           className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth py-6 [-ms-overflow-style:none] scrollbar-none md:grid md:grid-cols-2 md:gap-8 md:overflow-visible md:py-6 xl:grid-cols-3 [&::-webkit-scrollbar]:hidden"
         >
           <AnimatePresence mode="popLayout">
@@ -423,37 +448,39 @@ export default function TemplatesPage() {
                     duration: 0.42,
                     delay: index * 0.035,
                     ease,
-                    layout: { type: 'spring', stiffness: 260, damping: 26 },
+                    layout: { type: "spring", stiffness: 260, damping: 26 },
                   }}
                   whileHover={{ y: -6, scale: 1.006 }}
-                  className="group min-w-[82vw] snap-center overflow-hidden rounded-[1.75rem] border border-edge bg-elevated shadow-[0_8px_30px_var(--shadow-color)] transition-colors duration-300 hover:border-edge-strong sm:min-w-100 md:min-w-0"
+                  className="group min-w-[82vw] snap-center overflow-hidden rounded-[1.75rem] border border-edge bg-elevated shadow-xl transition-colors duration-300 hover:border-edge-strong sm:min-w-100 md:min-w-0"
                 >
-                  <div className="relative border-b border-edge bg-[#f6efe3]">
-                    <div className={`absolute inset-0 bg-linear-to-br ${template.accent}`} />
+                  <div className="relative border-b border-edge bg-card">
+                    <div
+                      className={`absolute inset-0 bg-linear-to-br ${template.accent}`}
+                    />
 
                     <div className="relative aspect-4/5 w-full overflow-hidden p-4">
-                      <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-[#e4d4bb] bg-white/70 px-2.5 py-1.5 text-[11px] font-extrabold text-ink shadow-sm backdrop-blur-md">
+                      <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-edge bg-elevated/80 px-2.5 py-1.5 text-[11px] font-extrabold text-primary shadow-sm backdrop-blur-md">
                         <Icon size={14} className="text-gold" />
-                        {t('labels.rank', { number: index + 1 })}
+                        {t("labels.rank", { number: index + 1 })}
                       </div>
 
                       <div className="absolute right-4 top-4 z-10 rounded-full border border-gold/25 bg-gold/10 px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-gold backdrop-blur-md">
                         {t(`templates.${template.id}.tag`)}
                       </div>
 
-                      <div className="relative h-full w-full overflow-hidden rounded-[1.25rem] border border-[#e4d4bb] bg-[#f6efe3] p-3 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.55)]">
+                      <div className="relative h-full w-full overflow-hidden rounded-[1.25rem] border border-edge bg-card p-3 shadow-inner">
                         <motion.div
                           whileHover={{ scale: 1.018 }}
                           transition={{ duration: 0.35 }}
-                          className="relative h-full w-full overflow-hidden rounded-xl bg-[#f8f2e8] p-5"
+                          className="relative h-full w-full overflow-hidden rounded-xl bg-elevated p-5"
                         >
                           <div className="relative h-full w-full">
                             <Image
                               src={template.image}
                               alt={t(`templates.${template.id}.title`)}
                               fill
-                              priority={template.id === 'executive'}
-                              className="object-contain object-center drop-shadow-[0_16px_18px_rgba(62,45,23,0.14)]"
+                              priority={template.id === "executive"}
+                              className="object-contain object-center drop-shadow-2xl"
                               sizes="(max-width: 768px) 82vw, (max-width: 1280px) 50vw, 33vw"
                             />
                           </div>
@@ -489,18 +516,24 @@ export default function TemplatesPage() {
                           whileHover={{ scale: 1.08, rotate: 2 }}
                           whileTap={{ scale: 0.92 }}
                           className="flex h-11 w-11 items-center justify-center rounded-full border border-edge bg-card text-secondary transition hover:border-edge-strong hover:text-primary"
-                          aria-label={t('labels.preview')}
+                          aria-label={t("labels.preview")}
                         >
                           <Eye size={17} />
                         </motion.button>
 
-                        <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                        <motion.div
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.96 }}
+                        >
                           <Link
                             href={`/${locale}/Dashboard?template=${template.id}`}
                             className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gold px-4 py-2.5 text-[12px] font-extrabold leading-none text-ink transition hover:bg-gold-light sm:text-sm"
                           >
-                            <span>{t('actions.useTemplate')}</span>
-                            <ArrowRight size={16} className="shrink-0 rtl:rotate-180" />
+                            <span>{t("actions.useTemplate")}</span>
+                            <ArrowRight
+                              size={16}
+                              className="shrink-0 rtl:rotate-180"
+                            />
                           </Link>
                         </motion.div>
                       </div>
@@ -523,15 +556,15 @@ export default function TemplatesPage() {
             <div>
               <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-edge bg-elevated px-4 py-2 text-xs font-extrabold uppercase tracking-[0.14em] text-secondary">
                 <Sparkles size={14} className="text-gold" />
-                {t('quality.badge')}
+                {t("quality.badge")}
               </span>
 
               <h2 className="max-w-xl text-3xl font-black leading-tight tracking-[-0.04em] text-primary sm:text-4xl">
-                {t('quality.title')}
+                {t("quality.title")}
               </h2>
 
-              <p className="mt-4 max-w-xl text-lg leading-7 text-slate-600 in-data-[theme=dark]:text-white/80">
-                {t('quality.subtitle')}
+              <p className="mt-4 max-w-xl text-lg leading-7 text-secondary">
+                {t("quality.subtitle")}
               </p>
             </div>
 
@@ -540,7 +573,7 @@ export default function TemplatesPage() {
                 <motion.div
                   key={key}
                   whileHover={{ y: -5, scale: 1.012 }}
-                  transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+                  transition={{ type: "spring", stiffness: 240, damping: 20 }}
                   className="rounded-3xl border border-edge bg-elevated p-5 transition-colors hover:border-edge-strong"
                 >
                   <motion.div
@@ -555,7 +588,7 @@ export default function TemplatesPage() {
                     {t(`quality.items.${key}.title`)}
                   </h3>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-600 in-data-[theme=dark]:text-white/75">
+                  <p className="mt-2 text-sm leading-6 text-secondary">
                     {t(`quality.items.${key}.description`)}
                   </p>
                 </motion.div>
@@ -581,12 +614,12 @@ export default function TemplatesPage() {
               exit={{ opacity: 0, scale: 0.92, y: 24 }}
               transition={{ duration: 0.25, ease }}
               onClick={(event) => event.stopPropagation()}
-              className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-edge bg-elevated p-3 shadow-[0_30px_120px_rgba(0,0,0,0.55)] sm:p-4"
+              className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-edge bg-elevated p-3 shadow-2xl sm:p-4"
             >
               <div className="mb-3 flex flex-col gap-3 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-secondary">
-                    {t('labels.preview')}
+                    {t("labels.preview")}
                   </p>
 
                   <h3 className="mt-1 text-xl font-black tracking-[-0.03em] text-primary">
@@ -603,7 +636,7 @@ export default function TemplatesPage() {
                       whileHover={{ scale: previewZoom <= MIN_ZOOM ? 1 : 1.08 }}
                       whileTap={{ scale: previewZoom <= MIN_ZOOM ? 1 : 0.92 }}
                       className="flex h-8 w-8 items-center justify-center rounded-full text-secondary transition hover:bg-card-hover hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
-                      aria-label={t('labels.zoomOut')}
+                      aria-label={t("labels.zoomOut")}
                     >
                       <ZoomOut size={17} />
                     </motion.button>
@@ -614,9 +647,11 @@ export default function TemplatesPage() {
                       max={MAX_ZOOM}
                       step={ZOOM_STEP}
                       value={previewZoom}
-                      onChange={(event) => setPreviewZoom(Number(event.target.value))}
+                      onChange={(event) =>
+                        setPreviewZoom(Number(event.target.value))
+                      }
                       className="h-1 w-24 cursor-pointer accent-gold sm:w-32"
-                      aria-label={t('labels.zoomControl')}
+                      aria-label={t("labels.zoomControl")}
                     />
 
                     <span className="min-w-12 text-center text-xs font-extrabold text-primary">
@@ -630,7 +665,7 @@ export default function TemplatesPage() {
                       whileHover={{ scale: previewZoom >= MAX_ZOOM ? 1 : 1.08 }}
                       whileTap={{ scale: previewZoom >= MAX_ZOOM ? 1 : 0.92 }}
                       className="flex h-8 w-8 items-center justify-center rounded-full text-secondary transition hover:bg-card-hover hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
-                      aria-label={t('labels.zoomIn')}
+                      aria-label={t("labels.zoomIn")}
                     >
                       <ZoomIn size={17} />
                     </motion.button>
@@ -642,7 +677,7 @@ export default function TemplatesPage() {
                     whileHover={{ scale: 1.08, rotate: 90 }}
                     whileTap={{ scale: 0.92 }}
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-edge bg-card text-secondary transition hover:border-edge-strong hover:text-primary"
-                    aria-label={t('labels.close')}
+                    aria-label={t("labels.close")}
                   >
                     <X size={18} />
                   </motion.button>
@@ -650,7 +685,7 @@ export default function TemplatesPage() {
               </div>
 
               <div
-                className="min-h-0 flex-1 overflow-auto rounded-2xl border border-[#e4d4bb] bg-[#f6efe3] p-4 overscroll-contain"
+                className="min-h-0 flex-1 overflow-auto rounded-2xl border border-edge bg-card p-4 overscroll-contain"
                 onTouchStart={handlePreviewTouchStart}
                 onTouchMove={handlePreviewTouchMove}
                 onTouchEnd={handlePreviewTouchEnd}
@@ -668,7 +703,7 @@ export default function TemplatesPage() {
                     alt={t(`templates.${previewTemplate.id}.title`)}
                     width={1060}
                     height={1320}
-                    className="h-auto w-full rounded-xl object-contain shadow-[0_20px_50px_rgba(62,45,23,0.20)]"
+                    className="h-auto w-full rounded-xl object-contain shadow-2xl"
                     priority
                     draggable={false}
                   />
