@@ -401,11 +401,10 @@ export default function TemplatesPage() {
                 onClick={() => setActiveFilter(filter)}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className={`relative h-10 shrink-0 snap-center rounded-full border px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] transition ${
-                  isActive
+                className={`relative h-10 shrink-0 snap-center rounded-full border px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] transition ${isActive
                     ? "border-gold bg-gold text-ink shadow-xl"
                     : "border-edge bg-elevated text-secondary hover:border-edge-strong hover:bg-card-hover hover:text-primary"
-                }`}
+                  }`}
               >
                 {isActive && (
                   <motion.span
