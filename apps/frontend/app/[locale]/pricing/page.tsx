@@ -6,7 +6,10 @@ import { Check, X, ChevronDown, ArrowRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { PLANS, type PlanId } from "@/lib/placeholder-data/plans.placeholder";
-import { TABLE_SECTIONS } from "@/lib/placeholder-data/pricing.placeholder";
+import {
+  TABLE_SECTIONS,
+  type CellValue,
+} from "@/lib/placeholder-data/pricing.placeholder";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 
@@ -40,6 +43,19 @@ function Cell({
       {value}
     </span>
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Resolves a table cell value, translating i18n-keyed values on the fly
+// ─────────────────────────────────────────────────────────────────────────────
+function resolveCellValue(
+  value: CellValue,
+  t: ReturnType<typeof useTranslations>,
+): boolean | string {
+  if (typeof value === "object") {
+    return t(value.i18nKey, value.params);
+  }
+  return value;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,8 +159,12 @@ export default function PricingPage() {
         <div className="mb-20 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] items-start gap-5">
           {PLANS.map((plan, i) => {
             const Icon = plan.icon;
-            const isPopular = plan.badge === "Most Popular";
+            const isPopular = plan.isPopular;
             const isFree = plan.monthlyPrice === 0;
+            const planName = t(`pricing.plans.items.${plan.id}.name`);
+            const planFeatures = t.raw(
+              `pricing.plans.items.${plan.id}.features`,
+            ) as string[];
 
             return (
               <motion.div
@@ -157,7 +177,7 @@ export default function PricingPage() {
                 {/* Popular badge */}
                 {isPopular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-linear-to-br from-gold to-gold-dark px-4.5 py-1.25 text-[11px] font-extrabold uppercase tracking-[0.08em] text-ink">
-                    ⚡ Most Popular
+                    ⚡ {t("pricing.plans.popular")}
                   </div>
                 )}
 
@@ -174,10 +194,12 @@ export default function PricingPage() {
                   </div>
                   <div>
                     <div className="text-[17px] font-bold text-primary">
-                      {plan.name}
+                      {planName}
                     </div>
                     <div className="text-xs text-muted">
-                      {isFree ? "Always free" : "Billed monthly"}
+                      {isFree
+                        ? t("pricing.plans.alwaysFree")
+                        : t("pricing.plans.billedMonthly")}
                     </div>
                   </div>
                 </div>
@@ -193,7 +215,7 @@ export default function PricingPage() {
                     </span>
                     {!isFree && (
                       <span className="mb-1 self-end text-[13px] text-muted">
-                        / mo
+                        {t("pricing.plans.perMonth")}
                       </span>
                     )}
                   </div>
@@ -208,7 +230,10 @@ export default function PricingPage() {
                       : "bg-primary/[0.07] text-primary/80 hover:bg-primary/12 hover:text-primary"
                   }`}
                 >
-                  {isFree ? "Get started free" : `Start ${plan.name}`} →
+                  {isFree
+                    ? t("pricing.plans.getStarted")
+                    : t("pricing.plans.startPlan", { plan: planName })}{" "}
+                  →
                 </button>
 
                 {/* Divider */}
@@ -216,7 +241,7 @@ export default function PricingPage() {
 
                 {/* Features */}
                 <div className="flex flex-col gap-3">
-                  {plan.features.map((f) => (
+                  {planFeatures.map((f) => (
                     <div key={f} className="flex items-start gap-2.5">
                       <div
                         className="mt-px flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full border"
@@ -259,14 +284,14 @@ export default function PricingPage() {
             {/* Table header */}
             <div className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-edge bg-primary/3">
               <div className="px-6 py-5 text-xs font-bold uppercase tracking-[0.08em] text-faint">
-                Feature
+                {t("pricing.table.featureHeader")}
               </div>
               {PLANS.map((p) => (
                 <div key={p.id} className="px-4 py-5 text-center">
                   <span
                     className={`text-sm font-bold ${p.id === "pro" ? "text-gold" : "text-primary"}`}
                   >
-                    {p.name}
+                    {t(`pricing.plans.items.${p.id}.name`)}
                   </span>
                 </div>
               ))}
@@ -291,13 +316,13 @@ export default function PricingPage() {
                       {t(`pricing.table.rows.${row.key}`)}
                     </div>
                     <div className="flex items-center justify-center px-4 py-3.5">
-                      <Cell value={row.free} />
+                      <Cell value={resolveCellValue(row.free, t)} />
                     </div>
                     <div className="flex items-center justify-center bg-gold/3 px-4 py-3.5">
-                      <Cell value={row.pro} highlight />
+                      <Cell value={resolveCellValue(row.pro, t)} highlight />
                     </div>
                     <div className="flex items-center justify-center px-4 py-3.5">
-                      <Cell value={row.enterprise} />
+                      <Cell value={resolveCellValue(row.enterprise, t)} />
                     </div>
                   </div>
                 ))}
@@ -316,10 +341,10 @@ export default function PricingPage() {
         >
           <div className="mb-12 text-center">
             <h2 className="mb-3 font-playfair text-[clamp(28px,4vw,42px)] font-extrabold text-primary">
-              Frequently asked questions
+              {t("pricing.faq.title")}
             </h2>
             <p className="text-[15px] text-faint">
-              Everything you need to know before deciding.
+              {t("pricing.faq.subtitle")}
             </p>
           </div>
 

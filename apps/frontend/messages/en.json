@@ -5,7 +5,9 @@
     "templates": "Templates",
     "pricing": "Pricing",
     "getStarted": "Get Started",
-    "signIn": "Sign In"
+    "signIn": "Sign In",
+    "dashboard": "Dashboard",
+    "logout": "Log Out"
   },
   "hero": {
     "badge": "v1.0 Launching Soon",
@@ -324,12 +326,49 @@
     "plans": {
       "popular": "Most Popular",
       "alwaysFree": "Always free",
+      "billedMonthly": "Billed monthly",
+      "perMonth": "/ mo",
       "getStarted": "Get started free",
-      "startPlan": "Start {plan}"
+      "startPlan": "Start {plan}",
+      "items": {
+        "free": {
+          "name": "Free",
+          "features": [
+            "3 resume exports / month",
+            "5 starter templates",
+            "PDF export only",
+            "Basic ATS check"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "badge": "Most Popular",
+          "features": [
+            "Unlimited resume exports",
+            "120+ premium templates",
+            "PDF, DOCX & LinkedIn export",
+            "Full ATS optimizer + score",
+            "AI cover letter builder",
+            "Real-time preview"
+          ]
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "features": [
+            "Everything in Pro",
+            "Team workspace (up to 20)",
+            "GPT resume coach",
+            "Job-match scoring",
+            "LinkedIn sync",
+            "Priority support"
+          ]
+        }
+      }
     },
     "table": {
       "title": "Compare all features",
       "subtitle": "Everything side by side so you can pick with confidence.",
+      "featureHeader": "Feature",
       "sections": {
         "core": "Core Builder",
         "ai": "AI & Optimization",
