@@ -63,42 +63,42 @@ const filters: FilterKey[] = [
 const templates: TemplateCard[] = [
   {
     id: "executive",
-    image: "/templates/executive.png",
+    image: "https://i.imgur.com/oPsyIDT.png",
     category: "professional",
     icon: Briefcase,
     accent: "from-gold/20 via-card-hover to-base",
   },
   {
     id: "developer",
-    image: "/templates/developer.png",
+    image: "https://i.imgur.com/UFjkAoq.png",
     category: "technical",
     icon: Code2,
     accent: "from-gold/15 via-card-hover to-base",
   },
   {
     id: "director",
-    image: "/templates/director.png",
+    image: "https://i.imgur.com/bIVtQW4.png",
     category: "creative",
     icon: Palette,
     accent: "from-gold/15 via-card-hover to-base",
   },
   {
     id: "minimal",
-    image: "/templates/minimal.png",
+    image: "https://i.imgur.com/KnsEIYe.png",
     category: "minimalist",
     icon: Sparkles,
     accent: "from-gold/15 via-card-hover to-base",
   },
   {
     id: "academic",
-    image: "/templates/academic.png",
+    image: "https://i.imgur.com/cL8Rls0.png",
     category: "professional",
     icon: GraduationCap,
     accent: "from-gold/15 via-card-hover to-base",
   },
   {
     id: "global",
-    image: "/templates/global.png",
+    image: "https://i.imgur.com/uaye0sJ.png",
     category: "technical",
     icon: Languages,
     accent: "from-gold/15 via-card-hover to-base",
@@ -320,7 +320,7 @@ export default function TemplatesPage() {
                       {t("labels.trusted")}
                     </p>
 
-                    <h2 className="mt-1 truncate text-praimary font-black tracking-[-0.03em]">
+                    <h2 className="mt-1 truncate text-primary font-black tracking-[-0.03em]">
                       {t(`templates.${featuredTemplate.id}.title`)}
                     </h2>
                   </div>
@@ -353,6 +353,7 @@ export default function TemplatesPage() {
                         alt={t(`templates.${featuredTemplate.id}.title`)}
                         fill
                         priority
+                        unoptimized
                         className="object-contain object-center drop-shadow-2xl"
                         sizes="(max-width: 1024px) 100vw, 318px"
                       />
@@ -400,10 +401,11 @@ export default function TemplatesPage() {
                 onClick={() => setActiveFilter(filter)}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className={`relative h-10 shrink-0 snap-center rounded-full border px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] transition ${isActive
+                className={`relative h-10 shrink-0 snap-center rounded-full border px-5 text-[11px] font-extrabold uppercase tracking-[0.12em] transition ${
+                  isActive
                     ? "border-gold bg-gold text-ink shadow-xl"
                     : "border-edge bg-elevated text-secondary hover:border-edge-strong hover:bg-card-hover hover:text-primary"
-                  }`}
+                }`}
               >
                 {isActive && (
                   <motion.span
@@ -480,6 +482,7 @@ export default function TemplatesPage() {
                               alt={t(`templates.${template.id}.title`)}
                               fill
                               priority={template.id === "executive"}
+                              unoptimized
                               className="object-contain object-center drop-shadow-2xl"
                               sizes="(max-width: 768px) 82vw, (max-width: 1280px) 50vw, 33vw"
                             />
@@ -705,6 +708,7 @@ export default function TemplatesPage() {
                     height={1320}
                     className="h-auto w-full rounded-xl object-contain shadow-2xl"
                     priority
+                    unoptimized
                     draggable={false}
                   />
                 </div>
