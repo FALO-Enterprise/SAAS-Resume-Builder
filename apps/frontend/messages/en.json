@@ -369,6 +369,12 @@
       "title": "Compare all features",
       "subtitle": "Everything side by side so you can pick with confidence.",
       "featureHeader": "Feature",
+      "values": {
+        "unlimited": "Unlimited",
+        "basic": "Basic",
+        "full": "Full",
+        "upTo": "Up to {count}"
+      },
       "sections": {
         "core": "Core Builder",
         "ai": "AI & Optimization",
