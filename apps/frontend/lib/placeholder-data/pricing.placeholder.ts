@@ -1,8 +1,21 @@
-export const TABLE_SECTIONS = [
+export type CellValue =
+  | boolean
+  | string
+  | { i18nKey: string; params?: Record<string, string | number> };
+
+export const TABLE_SECTIONS: {
+  key: string;
+  rows: { key: string; free: CellValue; pro: CellValue; enterprise: CellValue }[];
+}[] = [
   {
     key: 'core',
     rows: [
-      { key: 'resumeExports', free: '3', pro: 'Unlimited', enterprise: 'Unlimited' },
+      {
+        key: 'resumeExports',
+        free: '3',
+        pro: { i18nKey: 'pricing.table.values.unlimited' },
+        enterprise: { i18nKey: 'pricing.table.values.unlimited' },
+      },
       { key: 'templates', free: '5', pro: '120+', enterprise: '120+' },
       { key: 'realTimePreview', free: true, pro: true, enterprise: true },
       { key: 'pdfExport', free: true, pro: true, enterprise: true },
@@ -13,7 +26,12 @@ export const TABLE_SECTIONS = [
   {
     key: 'ai',
     rows: [
-      { key: 'atsCheck', free: 'Basic', pro: 'Full', enterprise: 'Full' },
+      {
+        key: 'atsCheck',
+        free: { i18nKey: 'pricing.table.values.basic' },
+        pro: { i18nKey: 'pricing.table.values.full' },
+        enterprise: { i18nKey: 'pricing.table.values.full' },
+      },
       { key: 'atsScore', free: false, pro: true, enterprise: true },
       { key: 'keywordAnalysis', free: false, pro: true, enterprise: true },
       { key: 'aiCoverLetter', free: false, pro: true, enterprise: true },
@@ -35,7 +53,12 @@ export const TABLE_SECTIONS = [
   {
     key: 'team',
     rows: [
-      { key: 'teamWorkspace', free: false, pro: false, enterprise: 'Up to 20' },
+      {
+        key: 'teamWorkspace',
+        free: false,
+        pro: false,
+        enterprise: { i18nKey: 'pricing.table.values.upTo', params: { count: 20 } },
+      },
       { key: 'linkedinSync', free: false, pro: false, enterprise: true },
       { key: 'prioritySupport', free: false, pro: false, enterprise: true },
       { key: 'customBranding', free: false, pro: false, enterprise: true },
