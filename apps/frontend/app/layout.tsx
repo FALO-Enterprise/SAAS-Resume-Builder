@@ -19,6 +19,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={isArabic ? "rtl" : "ltr"}
+      className="scroll-smooth"
     >
       <body className={isArabic ? "font-arabic" : ""}>{children}</body>
     </html>
