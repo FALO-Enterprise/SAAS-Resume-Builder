@@ -1,7 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "postgresql"
 }
@@ -49,20 +49,20 @@ model Plan {
   canExportPDF    Boolean        @default(false)
   canUseTemplates Boolean        @default(false)
   createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt       
-  Subscription    Subscription[]  
+  updatedAt       DateTime       @updatedAt
+  Subscription    Subscription[]
 }
 
 model Subscription {
   id         String             @id @default(cuid())
   userId     String             @unique
-  planId     String                                
+  planId     String
   status     SubscriptionStatus @default(ACTIVE)
   startDate  DateTime           @default(now())
   endDate    DateTime?
   canceledAt DateTime?
   createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt        
+  updatedAt  DateTime           @updatedAt
   Plan       Plan               @relation(fields: [planId], references: [id])
   User       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
