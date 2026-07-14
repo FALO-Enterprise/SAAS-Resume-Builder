@@ -49,8 +49,6 @@ type TemplateCard = {
   accent: string;
 };
 
-type ReactTouchList = TouchEvent<HTMLDivElement>["touches"];
-
 const filters: FilterKey[] = [
   "all",
   "professional",
@@ -141,7 +139,7 @@ function RatingStars() {
   );
 }
 
-function getTouchDistance(touches: ReactTouchList) {
+function getTouchDistance(touches: TouchList) {
   const firstTouch = touches[0];
   const secondTouch = touches[1];
 
@@ -163,7 +161,10 @@ export default function TemplatesPage() {
  
   // Mirror of previewZoom readable inside native (non-React) event listeners.
   const zoomRef = useRef(previewZoom);
-  zoomRef.current = previewZoom;
+  
+  useEffect(() => {
+    zoomRef.current = previewZoom;
+  }, [previewZoom]);
  
   // The scrollable preview surface that receives native pinch listeners.
   const previewSurfaceRef = useRef<HTMLDivElement>(null);
@@ -644,20 +645,26 @@ export default function TemplatesPage() {
             onClick={closePreview}
           >
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="preview-title"
               initial={{ opacity: 0, scale: 0.92, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 24 }}
               transition={{ duration: 0.25, ease }}
               onClick={(event) => event.stopPropagation()}
-              className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-edge bg-elevated p-3 shadow-2xl sm:p-4"
+              className="flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl border border-edge bg-elevated p-3 shadow-[0_30px_120px_rgba(0,0,0,0.55)] sm:p-4"
             >
-              <div className="mb-3 flex flex-col gap-3 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
+              <div className="mb-3 flex flex-row flex-wrap items-center justify-between gap-3 sm:mb-4">
+                <div className="min-w-0">
                   <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-secondary">
-                    {t("labels.preview")}
+                    {t('labels.preview')}
                   </p>
 
-                  <h3 className="mt-1 text-xl font-black tracking-[-0.03em] text-primary">
+                  <h3
+                    id="preview-title"
+                    className="mt-1 truncate text-xl font-black tracking-[-0.03em] text-primary"
+                  >
                     {t(`templates.${previewTemplate.id}.title`)}
                   </h3>
                 </div>
@@ -671,28 +678,26 @@ export default function TemplatesPage() {
                       whileHover={{ scale: previewZoom <= MIN_ZOOM ? 1 : 1.08 }}
                       whileTap={{ scale: previewZoom <= MIN_ZOOM ? 1 : 0.92 }}
                       className="flex h-8 w-8 items-center justify-center rounded-full text-secondary transition hover:bg-card-hover hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
-                      aria-label={t("labels.zoomOut")}
+                      aria-label={t('labels.zoomOut')}
                     >
                       <ZoomOut size={17} />
                     </motion.button>
-
+ 
                     <input
                       type="range"
                       min={MIN_ZOOM}
                       max={MAX_ZOOM}
                       step={ZOOM_STEP}
                       value={previewZoom}
-                      onChange={(event) =>
-                        setPreviewZoom(Number(event.target.value))
-                      }
+                      onChange={(event) => setPreviewZoom(Number(event.target.value))}
                       className="h-1 w-24 cursor-pointer accent-gold sm:w-32"
-                      aria-label={t("labels.zoomControl")}
+                      aria-label={t('labels.zoomControl')}
                     />
-
+ 
                     <span className="min-w-12 text-center text-xs font-extrabold text-primary">
                       {previewZoom}%
                     </span>
-
+ 
                     <motion.button
                       type="button"
                       onClick={zoomIn}
@@ -700,34 +705,31 @@ export default function TemplatesPage() {
                       whileHover={{ scale: previewZoom >= MAX_ZOOM ? 1 : 1.08 }}
                       whileTap={{ scale: previewZoom >= MAX_ZOOM ? 1 : 0.92 }}
                       className="flex h-8 w-8 items-center justify-center rounded-full text-secondary transition hover:bg-card-hover hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
-                      aria-label={t("labels.zoomIn")}
+                      aria-label={t('labels.zoomIn')}
                     >
                       <ZoomIn size={17} />
                     </motion.button>
                   </div>
-
+ 
                   <motion.button
                     type="button"
                     onClick={closePreview}
                     whileHover={{ scale: 1.08, rotate: 90 }}
                     whileTap={{ scale: 0.92 }}
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-edge bg-card text-secondary transition hover:border-edge-strong hover:text-primary"
-                    aria-label={t("labels.close")}
+                    aria-label={t('labels.close')}
                   >
                     <X size={18} />
                   </motion.button>
                 </div>
               </div>
-
+ 
               <div
-                className="min-h-0 flex-1 overflow-auto rounded-2xl border border-edge bg-card p-4 overscroll-contain"
-                onTouchStart={handlePreviewTouchStart}
-                onTouchMove={handlePreviewTouchMove}
-                onTouchEnd={handlePreviewTouchEnd}
-                onTouchCancel={handlePreviewTouchEnd}
+                ref={previewSurfaceRef}
+                className="min-h-0 flex-1 overflow-auto rounded-2xl border border-paper-edge bg-paper p-4 overscroll-contain"
               >
                 <div
-                  className="mx-auto transition-all duration-200"
+                  className="mx-auto transition-[width,max-width] duration-200"
                   style={{
                     width: `${previewZoom}%`,
                     maxWidth: `${previewZoom * 5.3}px`,
@@ -738,9 +740,9 @@ export default function TemplatesPage() {
                     alt={t(`templates.${previewTemplate.id}.title`)}
                     width={1060}
                     height={1320}
-                    className="h-auto w-full rounded-xl object-contain shadow-2xl"
-                    priority
                     unoptimized
+                    className="h-auto w-full rounded-xl object-contain shadow-[0_20px_50px_rgba(62,45,23,0.20)]"
+                    priority
                     draggable={false}
                   />
                 </div>
@@ -749,6 +751,7 @@ export default function TemplatesPage() {
           </motion.div>
         )}
       </AnimatePresence>
+ 
 
       <Footer />
     </main>
