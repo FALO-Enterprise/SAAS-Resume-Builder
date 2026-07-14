@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import type { TouchEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -155,70 +154,104 @@ function getTouchDistance(touches: ReactTouchList) {
 }
 
 export default function TemplatesPage() {
-  const t = useTranslations("templatesPage");
+   const t = useTranslations('templatesPage');
   const locale = useLocale();
-
-  const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
-  const [previewTemplate, setPreviewTemplate] = useState<TemplateCard | null>(
-    null,
-  );
+ 
+  const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
+  const [previewTemplate, setPreviewTemplate] = useState<TemplateCard | null>(null);
   const [previewZoom, setPreviewZoom] = useState(DEFAULT_ZOOM);
-
-  const pinchStartDistanceRef = useRef<number | null>(null);
-  const pinchStartZoomRef = useRef(DEFAULT_ZOOM);
-
+ 
+  // Mirror of previewZoom readable inside native (non-React) event listeners.
+  const zoomRef = useRef(previewZoom);
+  zoomRef.current = previewZoom;
+ 
+  // The scrollable preview surface that receives native pinch listeners.
+  const previewSurfaceRef = useRef<HTMLDivElement>(null);
+ 
   const visibleTemplates = useMemo(() => {
-    if (activeFilter === "all") return templates;
+    if (activeFilter === 'all') return templates;
     return templates.filter((template) => template.category === activeFilter);
   }, [activeFilter]);
-
-  const featuredTemplate = templates[0];
-
+ 
+  const [featuredTemplate] = templates;
+ 
+  const closePreview = useCallback(() => {
+    setPreviewTemplate(null);
+    setPreviewZoom(DEFAULT_ZOOM);
+  }, []);
+ 
   const openPreview = (template: TemplateCard) => {
     setPreviewTemplate(template);
     setPreviewZoom(DEFAULT_ZOOM);
-    pinchStartDistanceRef.current = null;
-    pinchStartZoomRef.current = DEFAULT_ZOOM;
   };
-
-  const closePreview = () => {
-    setPreviewTemplate(null);
-    setPreviewZoom(DEFAULT_ZOOM);
-    pinchStartDistanceRef.current = null;
-    pinchStartZoomRef.current = DEFAULT_ZOOM;
-  };
-
+ 
   const zoomIn = () => {
     setPreviewZoom((value) => Math.min(value + ZOOM_STEP, MAX_ZOOM));
   };
-
+ 
   const zoomOut = () => {
     setPreviewZoom((value) => Math.max(value - ZOOM_STEP, MIN_ZOOM));
   };
-
-  const handlePreviewTouchStart = (event: TouchEvent<HTMLDivElement>) => {
-    if (event.touches.length !== 2) return;
-
-    pinchStartDistanceRef.current = getTouchDistance(event.touches);
-    pinchStartZoomRef.current = previewZoom;
-  };
-
-  const handlePreviewTouchMove = (event: TouchEvent<HTMLDivElement>) => {
-    if (event.touches.length !== 2 || !pinchStartDistanceRef.current) return;
-
-    event.preventDefault();
-
-    const currentDistance = getTouchDistance(event.touches);
-    const scale = currentDistance / pinchStartDistanceRef.current;
-    const nextZoom = Math.round((pinchStartZoomRef.current * scale) / 5) * 5;
-
-    setPreviewZoom(Math.min(Math.max(nextZoom, MIN_ZOOM), MAX_ZOOM));
-  };
-
-  const handlePreviewTouchEnd = () => {
-    pinchStartDistanceRef.current = null;
-    pinchStartZoomRef.current = previewZoom;
-  };
+ 
+  // Escape-to-close + body scroll lock while the modal is open.
+  useEffect(() => {
+    if (!previewTemplate) return;
+ 
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closePreview();
+    };
+ 
+    document.addEventListener('keydown', onKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+ 
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [previewTemplate, closePreview]);
+ 
+  // Native, non-passive pinch-to-zoom so preventDefault() actually suppresses
+  // the browser's page zoom. React's synthetic touch listeners are passive.
+  useEffect(() => {
+    const element = previewSurfaceRef.current;
+    if (!previewTemplate || !element) return;
+ 
+    let startDistance: number | null = null;
+    let startZoom = zoomRef.current;
+ 
+    const onTouchStart = (event: globalThis.TouchEvent) => {
+      if (event.touches.length !== 2) return;
+      startDistance = getTouchDistance(event.touches);
+      startZoom = zoomRef.current;
+    };
+ 
+    const onTouchMove = (event: globalThis.TouchEvent) => {
+      if (event.touches.length !== 2 || startDistance == null) return;
+      event.preventDefault();
+ 
+      const scale = getTouchDistance(event.touches) / startDistance;
+      const nextZoom = Math.round((startZoom * scale) / 5) * 5;
+      setPreviewZoom(Math.min(Math.max(nextZoom, MIN_ZOOM), MAX_ZOOM));
+    };
+ 
+    const onTouchEnd = () => {
+      startDistance = null;
+    };
+ 
+    element.addEventListener('touchstart', onTouchStart, { passive: false });
+    element.addEventListener('touchmove', onTouchMove, { passive: false });
+    element.addEventListener('touchend', onTouchEnd);
+    element.addEventListener('touchcancel', onTouchEnd);
+ 
+    return () => {
+      element.removeEventListener('touchstart', onTouchStart);
+      element.removeEventListener('touchmove', onTouchMove);
+      element.removeEventListener('touchend', onTouchEnd);
+      element.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [previewTemplate]);
+ 
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-base text-primary">
