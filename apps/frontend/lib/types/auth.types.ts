@@ -26,6 +26,25 @@ export type FieldError = {
   general?: string;
 }
 
+// Auth user type
+export type AuthUser = {
+  name: string;
+  email: string;
+  avatar?: string | null;
+}
+
+// Auth context type
+export type AuthContextType = {
+  isOpen: boolean;
+  isVerified: boolean;
+  user: AuthUser | null;
+  openLogin: () => void;
+  closeModal: () => void;
+  login: (user: AuthUser) => void;
+  logout: () => void;
+}
+
+
 
 
 export type SessionUser = {
