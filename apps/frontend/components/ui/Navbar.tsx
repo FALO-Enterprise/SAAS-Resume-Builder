@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Globe, ChevronDown } from "lucide-react";
+import { Menu, X, Globe } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import UserAvatarMenu from "@/components/ui/UserAvatarMenu";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
@@ -15,10 +17,9 @@ export default function Navbar() {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const { openLogin, closeModal, isverfied } = useAuth();
+  const { openLogin, closeModal, isVerified } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -29,14 +30,27 @@ export default function Navbar() {
   const switchLocale = (newLocale: string) => {
     const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
     router.push(newPath);
-    setLangOpen(false);
   };
 
+  const home = `/${locale}`;
+
   const navLinks = [
-    { label: t("features"), href: `/${locale}/#features` },
-    { label: t("howItWorks"), href: `/${locale}/#how-it-works` },
-    { label: t("templates"), href: `/${locale}/templates` },
-    { label: t("pricing"), href: `/${locale}/pricing` },
+    {
+      label: t("features"),
+      href: `${home}#features`,
+    },
+    {
+      label: t("howItWorks"),
+      href: `${home}#how-it-works`,
+    },
+    {
+      label: t("templates"),
+      href: `${home}/templates`,
+    },
+    {
+      label: t("pricing"),
+      href: `${home}/pricing`,
+    },
   ];
 
   return (
@@ -68,46 +82,14 @@ export default function Navbar() {
         <div className="hidden lg:flex items-center gap-3">
           <ThemeToggle />
           {/* Language switcher */}
-          <div className="hidden lg:block relative">
-            <button
-              onClick={() => setLangOpen(!langOpen)}
-              className="flex items-center gap-1.5 text-secondary text-sm font-medium py-2 px-3 rounded-lg bg-transparent border border-edge cursor-pointer transition-all delay-200"
-            >
-              <Globe size={14} />
-              <span>{locale.toUpperCase()}</span>
-              <ChevronDown
-                size={11}
-                className={`transition-transform duration-200 ${langOpen ? "rotate-180" : "rotate-0"}`}
-              />
-            </button>
-            <AnimatePresence>
-              {langOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute top-[calc(100%+8px)] right-0 bg-ink border border-edge rounded-xl overflow-hidden min-w-32 z-100 shadow-2xl"
-                >
-                  {[
-                    { code: "en", label: "English" },
-                    { code: "ar", label: "العربية" },
-                  ].map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => switchLocale(lang.code)}
-                      className={`w-full text-left px-3 py-4 text-sm text-[${locale === lang.code ? "#f5a623" : "rgba(255,255,255,0.65)"}] bg-transparent border-none cursor-pointer transition-colors delay-150 hover:bg-white/4`}
-                    >
-                      {lang.label}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div className="hidden lg:block">
+            <LanguageSwitcher />
           </div>
 
-          {isverfied ? (
-            ""
+          {isVerified ? (
+            <div className="hidden lg:block">
+              <UserAvatarMenu />
+            </div>
           ) : (
             <>
               {/* ── Sign In ── opens login modal */}
@@ -132,6 +114,7 @@ export default function Navbar() {
         {/* Mobile toggle */}
         <div className="flex items-center gap-2 lg:hidden">
           <ThemeToggle />
+          {isVerified && <UserAvatarMenu />}
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -151,7 +134,6 @@ export default function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden bg-ink border-t-white/6"
-          // style={{ overflow: 'hidden', background: 'rgba(10,11,15,0.95)', borderTop: '1px solid rgba(255,255,255,0.06)' }}
           >
             <div className="py-5 px-6 flex flex-col gap-4">
               {navLinks.map((link) => (
@@ -173,23 +155,28 @@ export default function Navbar() {
                   <Globe size={13} />
                   {locale === "en" ? "العربية" : "English"}
                 </button>
-                <Link
-                  href={`/${locale}/createaccount`}
-                  onClick={closeModal}
-                  className="flex-1 text-center bg-gold text-ink font-bold text-sm py-2 px-4 rounded-full border-none cursor-pointer"
-                >
-                  {t("getStarted")}
-                </Link>
+                {!isVerified && (
+                  <Link
+                    href={`/${locale}/createaccount`}
+                    onClick={closeModal}
+                    className="flex-1 text-center bg-gold text-ink font-bold text-sm py-2 px-4 rounded-full border-none cursor-pointer"
+                  >
+                    {t("getStarted")}
+                  </Link>
+                )}
               </div>
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  openLogin();
-                }}
-                className="cursor-pointer text-sm font-medium bg-transparent border-none text-center pb-1 text-secondary"
-              >
-                {t("signIn")}
-              </button>
+
+              {!isVerified && (
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    openLogin();
+                  }}
+                  className="cursor-pointer text-sm font-medium bg-transparent border-none text-center pb-1 text-secondary"
+                >
+                  {t("signIn")}
+                </button>
+              )}
             </div>
           </motion.div>
         )}
