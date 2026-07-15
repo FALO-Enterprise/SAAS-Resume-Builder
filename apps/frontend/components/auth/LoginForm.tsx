@@ -19,7 +19,7 @@ const PROVIDERS = [
 
 // ─── Login Form ──────────────────────────────────────────────────────────────
 export default function LoginForm() {
-  const { closeModal } = useAuth();
+  const { closeModal, login } = useAuth();
   const locale = useLocale();
   const t = useTranslations('auth');
   const isRTL = locale === 'ar';
@@ -64,6 +64,11 @@ export default function LoginForm() {
 
       if (data.token) localStorage.setItem('resumax_token', data.token);
 
+      login({
+        name: data.user?.name ?? form.email.split('@')[0],
+        email: data.user?.email ?? form.email,
+        avatar: data.user?.avatar ?? null,
+      });
       setSuccess(true);
       setTimeout(() => closeModal(), 800);
 

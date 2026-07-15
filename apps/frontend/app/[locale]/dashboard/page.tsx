@@ -13,15 +13,18 @@ import {
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import Logo from '@/components/ui/Logo';
+import UserAvatarMenu from '@/components/ui/UserAvatarMenu';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem } from '@/lib/types/dashborad.types';
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
 import { emptyRole, emptyEdu, emptyCert } from '@/lib/resume';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 function FieldCard({
-  label, icon: Icon, type = 'text', placeholder, value, onChange, error, hint,
+  label, icon: Icon, type = 'text', placeholder, value, onChange, error, hint, optional,
 }: {
   label: string; icon: React.ElementType; type?: string; placeholder: string;
-  value: string; onChange: (v: string) => void; error?: string; hint?: string;
+  value: string; onChange: (v: string) => void; error?: string; hint?: string; optional?: boolean;
 }) {
   const [focused, setFocused] = useState(false);
   const filled = value.length > 0;
@@ -63,6 +66,11 @@ function FieldCard({
           <span className={`font-syne text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
             {label}
           </span>
+          {optional && (
+            <span className="rounded-full border border-edge bg-card px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.06em] text-gold">
+              Optional
+            </span>
+          )}
           {filled && !focused && (
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
               className="ms-auto flex h-4 w-4 items-center justify-center rounded-full border border-green/30 bg-green/15">
@@ -102,7 +110,7 @@ function ExpField({ label, icon: Icon, placeholder, value, onChange, type = 'tex
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-azure-light">
+      <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
         {Icon && <Icon size={12} />} {label}
       </label>
       <div className="relative">
@@ -264,7 +272,7 @@ function ExperienceStep({ items, onChange }: {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-azure-light">
+                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> Start Date
                           </label>
                           <div className="flex gap-2.5">
@@ -274,7 +282,7 @@ function ExperienceStep({ items, onChange }: {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-azure-light">
+                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> End Date
                           </label>
                           <div className="flex gap-2.5">
@@ -286,10 +294,10 @@ function ExperienceStep({ items, onChange }: {
 
                       <div className="mt-5 flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-3">
-                          <label className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-azure-light">
+                          <label className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             Description / Key Achievements
                           </label>
-                          <span className="rounded-md border border-azure-light/20 bg-azure-light/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.06em] text-azure-light">
+                          <span className="rounded-md border border-azure-light/20 bg-azure-light/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.06em] text-faint">
                             ATS Optimized Tips Available
                           </span>
                         </div>
@@ -312,7 +320,7 @@ function ExperienceStep({ items, onChange }: {
       </div>
 
       <button onClick={addRole}
-        className="mx-auto mt-6 flex items-center gap-2 rounded-xl border border-dashed border-azure-light/40 bg-azure-light/4 px-6 py-3.5 text-[14px] font-semibold text-azure-light transition-all hover:border-azure-light/60 hover:bg-azure-light/8">
+        className="mx-auto mt-6 flex items-center gap-2 rounded-xl border border-dashed border-azure-light/40 bg-azure-light/4 px-6 py-3.5 text-[14px] font-semibold text-faint transition-all hover:border-azure-light/60 hover:bg-azure-light/8">
         <Plus size={16} /> Add Another Role
       </button>
     </div>
@@ -381,7 +389,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
           <h2 className="text-[20px] font-bold text-primary">Formal Education</h2>
         </div>
         <button onClick={addEdu}
-          className="flex items-center gap-1.5 text-[14px] font-semibold text-azure-light transition-colors hover:text-azure">
+          className="flex items-center gap-1.5 text-[14px] font-semibold text-faint transition-colors hover:text-azure">
           <PlusCircle size={16} /> Add Institution
         </button>
       </div>
@@ -482,7 +490,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
 
         <div className="mt-6 flex justify-end">
           <button onClick={addCert}
-            className="flex items-center gap-2 rounded-xl border border-azure-light/25 bg-azure-light/10 px-4 py-2.5 text-[13px] font-semibold text-azure-light transition-all hover:border-azure-light/40 hover:bg-azure-light/15">
+            className="flex items-center gap-2 rounded-xl border border-azure-light/25 bg-azure-light/10 px-4 py-2.5 text-[13px] font-semibold text-faint transition-all hover:border-azure-light/40 hover:bg-azure-light/15">
             <Plus size={15} /> Add Certificate
           </button>
         </div>
@@ -632,10 +640,10 @@ function SkillsStep({ skills, onChange, onFinish }: {
 
           <div className="flex items-start gap-3 rounded-2xl border border-edge bg-card p-5">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-azure-light/20 bg-azure-light/12">
-              <Sparkles size={15} className="text-azure-light" />
+              <Sparkles size={15} className="text-faint" />
             </div>
             <div>
-              <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-azure-light">Pro Tip</div>
+              <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-faint">Pro Tip</div>
               <p className="text-[13px] leading-[1.6] text-faint">
                 Skills like &apos;Public Speaking&apos; or &apos;Critical Thinking&apos; are great, but focus on industry-standard software and tools first.
               </p>
@@ -672,7 +680,9 @@ function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving
     <aside className={`fixed inset-y-0 inset-s-0 z-50 flex h-screen w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="px-6 pt-7">
         <div className="flex items-center justify-between">
-          <Logo />
+          <Link href={`/${locale}`} aria-label="ResuMax home">
+            <Logo />
+          </Link>
           <button onClick={onClose} aria-label="Close menu" className="text-secondary lg:hidden">
             <X size={20} />
           </button>
@@ -768,13 +778,13 @@ function ContactStep({ data, onChange, errors }: {
   onChange: (f: keyof ContactData, v: string) => void;
   errors: Partial<Record<keyof ContactData, string>>;
 }) {
-  const fields: { key: keyof ContactData; label: string; icon: React.ElementType; placeholder: string; type?: string; hint?: string; }[] = [
+  const fields: { key: keyof ContactData; label: string; icon: React.ElementType; placeholder: string; type?: string; hint?: string; optional?: boolean; }[] = [
     { key: 'fullName', label: 'Full Name',            icon: User,     placeholder: 'e.g. Alex Sterling',                hint: 'Use your real name as it appears on official documents' },
     { key: 'title',    label: 'Professional Title',   icon: Briefcase,placeholder: 'e.g. Senior UX Designer',           hint: "Your current role or the role you're targeting" },
     { key: 'email',    label: 'Email Address',        icon: Mail,     placeholder: 'alex.sterling@example.com', type: 'email', hint: 'Use a professional email address' },
-    { key: 'phone',    label: 'Phone Number',         icon: Phone,    placeholder: '+1 (555) 000-0000',         type: 'tel' },
-    { key: 'location', label: 'Location',             icon: MapPin,   placeholder: 'San Francisco, CA',                 hint: 'City and country is enough — no full address needed' },
-    { key: 'linkedin', label: 'LinkedIn Profile URL', icon: Link2,    placeholder: 'linkedin.com/in/alexsterling',       hint: 'Increases your callback rate by up to 40%' },
+    { key: 'phone',    label: 'Phone Number',         icon: Phone,    placeholder: '+1 (555) 000-0000',         type: 'tel', optional: true },
+    { key: 'location', label: 'Location',             icon: MapPin,   placeholder: 'San Francisco, CA',                 hint: 'City and country is enough — no full address needed', optional: true },
+    { key: 'linkedin', label: 'LinkedIn Profile URL', icon: Link2,    placeholder: 'linkedin.com/in/alexsterling',       hint: 'Increases your callback rate by up to 40%', optional: true },
   ];
   const filledCount = Object.values(data).filter(v => v.trim()).length;
 
@@ -812,7 +822,7 @@ function ContactStep({ data, onChange, errors }: {
         {fields.map((f, i) => (
           <motion.div key={f.key} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.12 + i * 0.06 }}>
             <FieldCard label={f.label} icon={f.icon} type={f.type} placeholder={f.placeholder}
-              value={data[f.key]} onChange={v => onChange(f.key, v)} error={errors[f.key]} hint={f.hint} />
+              value={data[f.key]} onChange={v => onChange(f.key, v)} error={errors[f.key]} hint={f.hint} optional={f.optional} />
           </motion.div>
         ))}
       </div>
@@ -820,7 +830,7 @@ function ContactStep({ data, onChange, errors }: {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.4 }}
         className="mt-7 flex items-start gap-3.5 rounded-[14px] border border-azure/15 bg-azure/[0.07] px-5 py-4">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-azure-light/20 bg-azure-light/12">
-          <Sparkles size={15} className="text-azure-light" />
+          <Sparkles size={15} className="text-faint" />
         </div>
         <div>
           <div className="mb-1 text-xs font-bold uppercase tracking-[0.08em] text-[#93c5fd]">ATS Tip</div>
@@ -932,13 +942,20 @@ export default function DashboardPage() {
       )}
 
       <div className="relative z-1 flex min-h-screen flex-1 flex-col">
-        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-[color-mix(in_srgb,var(--bg-base)_92%,transparent)] px-5 py-3 backdrop-blur-xl lg:hidden">
+        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3 backdrop-blur-xl md:hidden">
           <button onClick={() => setNavOpen(true)} aria-label="Open menu" className="text-primary">
             <Menu size={22} />
           </button>
           <Logo />
           <span className="w-5.5" />
         </div>
+
+        <div className="fixed inset-x-0 top-0 z-30 hidden h-16 items-center justify-end gap-3 border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent px-8 backdrop-blur-xl md:flex lg:inset-s-65 lg:px-15">
+          <ThemeToggle />
+          <LanguageSwitcher />
+          <UserAvatarMenu />
+        </div>
+        <div className="hidden h-16 shrink-0 md:block" aria-hidden />
 
         <div className="flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-15 lg:pt-13">
           <div className="w-full max-w-215">
@@ -963,7 +980,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-edge bg-[color-mix(in_srgb,var(--bg-base)_95%,transparent)] px-5 py-3.5 backdrop-blur-[20px] sm:px-8 lg:px-15 lg:py-4.5">
+        <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3.5 backdrop-blur-[20px] sm:px-8 lg:px-15 lg:py-4.5">
           {prevStep ? (
             <button onClick={() => setCurrentStep(prevStep.id)}
               className="flex items-center gap-2 border-none bg-transparent py-2.5 text-sm font-semibold text-muted transition-colors hover:text-secondary">

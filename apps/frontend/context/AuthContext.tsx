@@ -1,33 +1,51 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
+import { AuthUser } from "@/lib/types/auth.types";
+import { AuthContextType } from "@/lib/types/auth.types";
 
-type AuthTab = 'login' | 'signup';
-
-interface AuthContextType {
-  isOpen: boolean;
-  isverfied: boolean;
-  activeTab: AuthTab;
-  openLogin: () => void;
-  openSignup: () => void;
-  closeModal: () => void;
-  switchTab: (tab: AuthTab) => void;
-}
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<AuthTab>('login');
+  const [isVerified, setIsVerified] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("resumax_isVerified") === "true";
+  });
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    if (typeof window === "undefined") return null;
+    const stored = localStorage.getItem("resumax_user");
+    return stored ? JSON.parse(stored) : null;
+  });
 
-  const openLogin  = () => { setActiveTab('login');  setIsOpen(true); };
-  const openSignup = () => { setActiveTab('signup'); setIsOpen(true); };
+  const openLogin = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
-  const switchTab  = (tab: AuthTab) => setActiveTab(tab);
 
+  const login = (nextUser: AuthUser) => {
+    setIsVerified(true);
+    setUser(nextUser);
+    localStorage.setItem("resumax_isVerified", "true");
+    localStorage.setItem("resumax_user", JSON.stringify(nextUser));
+  };
+
+  const logout = () => {
+    setIsVerified(false);
+    setUser(null);
+    localStorage.removeItem("resumax_isVerified");
+    localStorage.removeItem("resumax_user");
+    localStorage.removeItem("resumax_token");
+    router.push(`/${locale}`);
+  };
 
   return (
-    <AuthContext.Provider value={{ isOpen, activeTab, openLogin, openSignup, closeModal, switchTab, isverfied: false }}>
+    <AuthContext.Provider
+      value={{ isOpen, openLogin, closeModal, isVerified, user, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -35,6 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
