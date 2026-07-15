@@ -26,15 +26,15 @@ export default function UserAvatarMenu() {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 py-1.5 pl-1.5 pr-3 rounded-full bg-transparent border border-edge cursor-pointer transition-all delay-200"
+        className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-transparent border border-edge cursor-pointer transition-all delay-200"
       >
-        <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gold text-ink font-bold text-xs overflow-hidden shrink-0">
+        <div className="flex items-center justify-center h-6 w-6 rounded-full bg-gold text-ink font-bold text-[10px] overflow-hidden shrink-0">
           {user?.avatar ? (
             <Image
               src={user.avatar}
               alt={user.name}
-              width={32}
-              height={32}
+              width={24}
+              height={24}
               className="h-full w-full object-cover"
             />
           ) : (
