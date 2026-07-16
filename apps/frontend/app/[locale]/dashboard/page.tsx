@@ -15,6 +15,7 @@ import Link from 'next/link';
 import Logo from '@/components/ui/Logo';
 import UserAvatarMenu from '@/components/ui/UserAvatarMenu';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import HintTooltip from '@/components/ui/HintTooltip';
 import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem } from '@/lib/types/dashborad.types';
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
 import { emptyRole, emptyEdu, emptyCert } from '@/lib/resume';
@@ -47,7 +48,7 @@ function FieldCard({
   const labelColor = focused ? 'text-gold' : filled ? 'text-gold/70' : 'text-faint';
 
   return (
-    <div className="flex flex-col">
+    <div className="relative flex flex-col">
       <div className={`relative overflow-hidden rounded-[14px] border px-5 py-4.5 transition-all duration-200 ${wrapState}`}>
         <AnimatePresence>
           {focused && (
@@ -59,7 +60,7 @@ function FieldCard({
           )}
         </AnimatePresence>
 
-        <div className="mb-2.5 flex items-center gap-2">
+        <div className={`mb-2.5 flex items-center gap-2 ${hint ? 'pe-9' : ''}`}>
           <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${iconBox}`}>
             <Icon size={14} className={`transition-colors ${iconColor}`} />
           </div>
@@ -86,6 +87,8 @@ function FieldCard({
           className="w-full border-none bg-transparent ps-9 font-syne text-[15px] font-medium text-primary outline-none placeholder:text-muted"
         />
       </div>
+
+      {hint && <HintTooltip hint={hint} className="absolute inset-e-4 top-4.5" />}
 
       <AnimatePresence>
         {error && (
