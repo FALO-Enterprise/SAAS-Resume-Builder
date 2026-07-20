@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
 import type { RegisterData, FormErrors } from '@/lib/types/auth.types';
+import { PROVIDERS } from '@/lib/placeholder-data/providors.placeholder';
 import AuthInput from '@/components/ui/AuthInput';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -90,6 +91,27 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
 
   return (
     <div className="flex flex-col gap-5">
+      {/* Social providers */}
+      <div className="flex gap-3">
+        {PROVIDERS.map(({ id, label, Icon, color }) => (
+          <button
+            key={id}
+            type="button"
+            aria-label={`Continue with ${label}`}
+            className="flex flex-1 items-center justify-center rounded-xl border border-edge bg-card py-3 transition-all hover:border-edge-strong hover:bg-card-hover"
+          >
+            <Icon size={20} color={color} />
+          </button>
+        ))}
+      </div>
+
+      {/* Divider — social / email */}
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-edge" />
+        <span className="text-xs text-muted">{t('or')}</span>
+        <div className="h-px flex-1 bg-edge" />
+      </div>
+
       <AuthInput icon={User} type="text" placeholder={t('nameExample')} label={t('fullNamePlaceholder')} value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} error={errors.name} />
 
       <AuthInput icon={Mail} type="email" placeholder={t('emailExample')} label={t('emailPlaceholder')} value={form.email} onChange={v => setForm(f => ({ ...f, email: v }))} error={errors.email} />
@@ -250,7 +272,7 @@ export default function RegisterPage() {
         {/* Footer — sign in link */}
         {!success && (
           <p className="mt-7 text-center text-sm text-muted">
-            {t('switchText')}
+            {t('switchText')}{' '}
             <Link
               href={`/${locale}`}
               onClick={openLogin}

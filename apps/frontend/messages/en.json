@@ -253,6 +253,7 @@
       "policyLink": "Privacy Policy",
       "submit": "Create Account",
       "loading": "Creating account…",
+      "or": "or",
       "switchText": "Already have an account?",
       "switchLink": "Sign in",
       "successTitle": "Account created!",
