@@ -12,6 +12,7 @@ import {
 } from "@/lib/placeholder-data/pricing.placeholder";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
+import { useAuth } from "@/context/AuthContext";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cell renderer — handles boolean | string values in table
@@ -104,6 +105,8 @@ export default function PricingPage() {
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
+  const { isVerified, user } = useAuth();
+  const currentPlanId = user?.activePlanId ?? "free";
 
   const goToRegister = (planId: PlanId) => {
     router.push(`/${locale}/createaccount?plan=${planId}`);
@@ -165,6 +168,14 @@ export default function PricingPage() {
             const planFeatures = t.raw(
               `pricing.plans.items.${plan.id}.features`,
             ) as string[];
+            const isCurrentPlan = isVerified && currentPlanId === plan.id;
+            const ctaLabel = isVerified
+              ? isCurrentPlan
+                ? t("pricing.plans.currentPlan")
+                : t("pricing.plans.upgradePlan", { plan: planName })
+              : isFree
+                ? t("pricing.plans.getStarted")
+                : t("pricing.plans.startPlan", { plan: planName });
 
             return (
               <motion.div
@@ -194,7 +205,9 @@ export default function PricingPage() {
                   </div>
                   <div>
                     <div className="text-[17px] font-bold text-primary">
-                      {planName}
+                      <div className="flex items-center gap-2">
+                        <span>{planName}</span>
+                      </div>
                     </div>
                     <div className="text-xs text-muted">
                       {isFree
@@ -223,17 +236,26 @@ export default function PricingPage() {
 
                 {/* CTA button */}
                 <button
-                  onClick={() => goToRegister(plan.id)}
-                  className={`mb-7 w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 hover:-translate-y-0.5 ${
-                    isPopular
-                      ? "bg-gold text-ink shadow-[0_8px_24px_rgba(245,166,35,0.3)] hover:bg-gold-light hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)]"
-                      : "bg-primary/[0.07] text-primary/80 hover:bg-primary/12 hover:text-primary"
+                  type="button"
+                  onClick={() => {
+                    if (!isVerified || !isCurrentPlan) goToRegister(plan.id);
+                  }}
+                  disabled={isVerified && isCurrentPlan}
+                  aria-disabled={isVerified && isCurrentPlan}
+                  className={`mb-7 w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none ${
+                    isVerified
+                      ? isCurrentPlan
+                        ? "pointer-events-none border border-edge bg-primary/5 text-primary/55"
+                        : "bg-gold text-ink shadow-[0_8px_24px_rgba(245,166,35,0.3)] hover:bg-gold-light hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)]"
+                      : isPopular
+                        ? "bg-gold text-ink shadow-[0_8px_24px_rgba(245,166,35,0.3)] hover:bg-gold-light hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)]"
+                        : "bg-primary/[0.07] text-primary/80 hover:bg-primary/12 hover:text-primary"
                   }`}
                 >
-                  {isFree
-                    ? t("pricing.plans.getStarted")
-                    : t("pricing.plans.startPlan", { plan: planName })}{" "}
-                  →
+                  <span className="inline-flex items-center gap-1">
+                    <span>{ctaLabel}</span>
+                    {!isCurrentPlan && <ArrowRight size={16} />}
+                  </span>
                 </button>
 
                 {/* Divider */}

@@ -347,6 +347,8 @@
       "perMonth": "/ mo",
       "getStarted": "Get started free",
       "startPlan": "Start {plan}",
+      "currentPlan": "Current plan",
+      "upgradePlan": "Upgrade to {plan}",
       "items": {
         "free": {
           "name": "Free",
