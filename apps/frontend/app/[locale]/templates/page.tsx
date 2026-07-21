@@ -562,7 +562,7 @@ export default function TemplatesPage() {
                           whileTap={{ scale: 0.96 }}
                         >
                           <Link
-                            href={`/${locale}/Dashboard?template=${template.id}`}
+                            href={`/${locale}/dashboard?template=${template.id}`}
                             className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gold px-4 py-2.5 text-[12px] font-extrabold leading-none text-ink transition hover:bg-gold-light sm:text-sm"
                           >
                             <span>{t("actions.useTemplate")}</span>
