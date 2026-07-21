@@ -1,7 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from "next-intl";
+import Link from 'next/link';
 import { ArrowRight, Play, Sparkles } from 'lucide-react';
 
 const ResumeMockup = () => (
@@ -138,6 +139,7 @@ const Stat = ({ number, label, delay }: { number: string; label: string; delay: 
 
 export default function HeroSection() {
   const t = useTranslations('hero');
+  const locale = useLocale();
 
   return (
     <section className="relative min-h-screen flex justify-center items-center overflow-hidden">
@@ -190,20 +192,20 @@ export default function HeroSection() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-wrap gap-4 mb-16"
             >
-              <a
+              <Link
                 href="#get-started"
                 className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-bold px-7 py-4 rounded-full transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(245,166,35,0.4)]"
               >
                 {t('cta')}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </a>
-              <a
-                href="#templates"
+              </Link>
+              <Link
+                href={`${locale}/templates`}
                 className="flex items-center gap-2 glass border border-edge text-secondary hover:text-primary font-semibold px-7 py-4 rounded-full transition-all duration-200 hover:border-edge-strong"
               >
                 <Play size={15} className="fill-current" />
                 {t('ctaSecondary')}
-              </a>
+              </Link>
             </motion.div>
 
             {/* Stats */}
