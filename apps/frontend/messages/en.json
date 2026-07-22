@@ -298,6 +298,57 @@
         "registrationFailed": "Registration failed. Please try again.",
         "network": "Network error. Please try again."
       }
+    },
+    "passwordRecovery": {
+      "backToHome": "Home",
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email address and we will send you a secure link to reset your password.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "name@example.com",
+      "sendButton": "Send reset link",
+      "sending": "Sending...",
+      "remembered": "Remembered your password?",
+      "signIn": "Sign in",
+      "sentTitle": "Check your email",
+      "sentSubtitle": "We sent a password reset link to {email}. If you do not see it, check your spam folder or resend the email.",
+      "resendQuestion": "Did not receive the email?",
+      "resendButton": "Resend email",
+      "resendCountdown": "Resend in {seconds}s",
+      "resendSuccess": "A new reset email has been sent.",
+      "backToLogin": "Back to sign in",
+      "errors": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Enter a valid email address"
+      }
+    },
+    "resetPassword": {
+      "backToLogin": "Sign in",
+      "title": "Create a new password",
+      "subtitle": "Add a strong password and confirm it so you can get back to your ResuMax account.",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "Enter your new password",
+      "confirmLabel": "Confirm password",
+      "confirmPlaceholder": "Re-enter your new password",
+      "submit": "Update password",
+      "saving": "Updating...",
+      "successTitle": "Password updated",
+      "successSubtitle": "Your password has been changed successfully. Redirecting you to sign in...",
+      "checks": {
+        "length": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "number": "One number",
+        "special": "One special character"
+      },
+      "errors": {
+        "passwordRequired": "New password is required",
+        "passwordWeak": "Use a stronger password that matches all requirements",
+        "confirmRequired": "Please confirm your new password",
+        "confirmMismatch": "Passwords do not match",
+        "network": "Network error. Please try again."
+      },
+      "invalidTitle": "Invalid reset link",
+      "invalidSubtitle": "This password reset link is missing or no longer valid. Please request a new reset email.",
+      "requestNewLink": "Request new reset link"
     }
   },
   "verify": {
