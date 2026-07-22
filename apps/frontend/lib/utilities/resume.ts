@@ -1,4 +1,4 @@
-import type { ExperienceItem, EducationItem, CertItem } from './types/dashborad.types';
+import type { ExperienceItem, EducationItem, CertItem } from '../types/dashborad.types';
 
 export const emptyRole = (): ExperienceItem => ({
   id: crypto.randomUUID(),
