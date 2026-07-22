@@ -1,13 +1,44 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import { AuthUser } from "@/lib/types/auth.types";
+import { AuthUser, PlanName } from "@/lib/types/auth.types";
 import { AuthContextType } from "@/lib/types/auth.types";
 
 
 const AuthContext = createContext<AuthContextType | null>(null);
+
+function isPlanName(value: unknown): value is PlanName {
+  return value === "FREE" || value === "PRO" || value === "ENTERPRISE";
+}
+
+function readStoredUser(): AuthUser | null {
+  const stored = localStorage.getItem("resumax_user");
+  if (!stored) return null;
+
+  try {
+    const parsed = JSON.parse(stored) as {
+      name?: unknown;
+      email?: unknown;
+      planName?: unknown;
+      plan?: { name?: unknown };
+    };
+    const planName = parsed.planName ?? parsed.plan?.name;
+
+    if (
+      typeof parsed.name !== "string" ||
+      typeof parsed.email !== "string" ||
+      !isPlanName(planName)
+    ) {
+      return null;
+    }
+
+    return { name: parsed.name, email: parsed.email, planName };
+  } catch {
+    return null;
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -19,9 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
   const [user, setUser] = useState<AuthUser | null>(() => {
     if (typeof window === "undefined") return null;
-    const stored = localStorage.getItem("resumax_user");
-    return stored ? JSON.parse(stored) : null;
+    return readStoredUser();
   });
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("resumax_user", JSON.stringify(user));
+    }
+  }, [user]);
 
   const openLogin = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
@@ -30,7 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsVerified(true);
     setUser(nextUser);
     localStorage.setItem("resumax_isVerified", "true");
-    localStorage.setItem("resumax_user", JSON.stringify(nextUser));
   };
 
   const logout = () => {

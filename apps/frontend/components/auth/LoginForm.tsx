@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import AuthInput from '@/components/ui/AuthInput';
 import type { FormState, FieldError } from '@/lib/types/auth.types';
+import { loginWithBackend } from '@/lib/backend';
 import Link from 'next/link';
 
 // ─── Social providers ────────────────────────────────────────────────────────
@@ -46,34 +47,32 @@ export default function LoginForm() {
 
     try {
       // ── BACKEND CONNECTION ─────────────────────────────────────────────────
-      // POST /api/auth/login   Body: { email, password }
+      // POST /api/auth/login-jwt   Body: { email, password }
       // Response: { token, user } | { error }
       // ──────────────────────────────────────────────────────────────────────
-      const res = await fetch('http://localhost:3001/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, password: form.password }),
+      const data = await loginWithBackend({
+        email: form.email,
+        password: form.password,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setErrors({ general: data?.error || t('login.errors.invalidCredentials') });
+      if ('error' in data) {
+        setErrors({ general: data.error });
         return;
       }
 
-      if (data.token) localStorage.setItem('resumax_token', data.token);
-
+      localStorage.setItem('resumax_token', data.token);
       login({
-        name: data.user?.name ?? form.email.split('@')[0],
-        email: data.user?.email ?? form.email,
-        avatar: data.user?.avatar ?? null,
+        name: data.user.name,
+        email: data.user.email,
+        planName: data.user.plan.name,
       });
       setSuccess(true);
       setTimeout(() => closeModal(), 800);
 
-    } catch {
-      setErrors({ general: t('login.errors.network') });
+    } catch (error) {
+      setErrors({
+        general: error instanceof Error ? error.message : t('login.errors.network'),
+      });
     } finally {
       setLoading(false);
     }

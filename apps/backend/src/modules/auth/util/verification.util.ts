@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
 import nodemailer from 'nodemailer';
 
-const verificationCodes = new Map<string, { code: string; expiresAt: number; userId: string; name: string }>();
+const verificationCodes = new Map<string, { code: string; expiresAt: number }>();
 const CODE_TTL_MS = 10 * 60 * 1000;
 
 function normalizeEmail(email: string) {
@@ -12,15 +12,13 @@ function generateCode() {
     return randomInt(0, 1000000).toString().padStart(6, '0');
 }
 
-export async function sendVerificationCode(email: string, userId: string, name: string) {
+export async function sendVerificationCode(email: string) {
     const normalizedEmail = normalizeEmail(email);
     const code = generateCode();
 
     verificationCodes.set(normalizedEmail, {
         code,
         expiresAt: Date.now() + CODE_TTL_MS,
-        userId,
-        name,
     });
 
     console.log(`Verification code generated for ${normalizedEmail}: ${code}`);
@@ -28,8 +26,8 @@ export async function sendVerificationCode(email: string, userId: string, name: 
     return code;
 }
 
-export async function resendVerificationCode(email: string, userId: string, name: string) {
-    return sendVerificationCode(email, userId, name);
+export async function resendVerificationCode(email: string) {
+    return sendVerificationCode(email);
 }
 
 export function verifyVerificationCode(email: string, code: string) {
