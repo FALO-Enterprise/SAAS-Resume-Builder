@@ -25,18 +25,26 @@ function isValidEmail(value: string) {
 
 export default function ForgetPasswordPage() {
   const locale = useLocale();
+
   const t = useTranslations("auth.passwordRecovery");
+  const verifyT = useTranslations("verify");
+
   const isRTL = locale === "ar";
 
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
-  const normalizedEmail = useMemo(() => email.trim().toLowerCase(), [email]);
+  const normalizedEmail = useMemo(
+    () => email.trim().toLowerCase(),
+    [email],
+  );
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -71,10 +79,17 @@ export default function ForgetPasswordPage() {
     setLoading(true);
     setResendSuccess(false);
 
-    // Frontend only for now.
-    // Later backend can use:
-    // POST /api/auth/forgot-password
-    // body: { email: normalizedEmail, locale }
+    /*
+      Backend connection:
+
+      POST /api/auth/forgot-password
+
+      Body:
+      {
+        email: normalizedEmail,
+        locale
+      }
+    */
 
     window.setTimeout(() => {
       setLoading(false);
@@ -89,10 +104,17 @@ export default function ForgetPasswordPage() {
     setResending(true);
     setResendSuccess(false);
 
-    // Frontend only for now.
-    // Later backend can use:
-    // POST /api/auth/forgot-password
-    // body: { email: normalizedEmail, locale }
+    /*
+      Backend connection:
+
+      POST /api/auth/forgot-password
+
+      Body:
+      {
+        email: normalizedEmail,
+        locale
+      }
+    */
 
     window.setTimeout(() => {
       setResending(false);
@@ -110,7 +132,9 @@ export default function ForgetPasswordPage() {
       dir={isRTL ? "rtl" : "ltr"}
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base px-6 py-10"
     >
+      {/* Background glows */}
       <div className="pointer-events-none fixed left-[6%] top-[12%] h-125 w-125 rounded-full bg-gold/5 blur-[120px]" />
+
       <div className="pointer-events-none fixed bottom-[8%] right-[6%] h-107.5 w-107.5 rounded-full bg-azure/5 blur-[110px]" />
 
       <motion.div
@@ -119,9 +143,12 @@ export default function ForgetPasswordPage() {
         transition={{ duration: 0.45 }}
         className="relative z-10 w-full max-w-130 overflow-hidden rounded-[28px] border border-edge bg-elevated px-6 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)] sm:px-10"
       >
+        {/* Card glows */}
         <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gold/5 blur-3xl" />
+
         <div className="pointer-events-none absolute -bottom-14 -left-14 h-52 w-52 rounded-full bg-azure/5 blur-3xl" />
 
+        {/* Logo */}
         <div className="relative z-10 mb-12 flex justify-center">
           <Link href={`/${locale}`} className="no-underline">
             <Logo />
@@ -139,12 +166,14 @@ export default function ForgetPasswordPage() {
               transition={{ duration: 0.25 }}
               className="relative z-10"
             >
+              {/* Icon */}
               <div className="mb-7 flex justify-center">
                 <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
                   <Mail size={28} className="text-gold" />
                 </div>
               </div>
 
+              {/* Header */}
               <div className="mb-9 text-center">
                 <h1 className="mb-3 font-playfair text-[28px] font-extrabold leading-tight text-primary">
                   {t("title")}
@@ -155,6 +184,7 @@ export default function ForgetPasswordPage() {
                 </p>
               </div>
 
+              {/* Email input */}
               <div className="mb-7">
                 <AuthInput
                   icon={Mail}
@@ -170,6 +200,7 @@ export default function ForgetPasswordPage() {
                 />
               </div>
 
+              {/* Send button */}
               <button
                 type="submit"
                 disabled={loading}
@@ -182,7 +213,8 @@ export default function ForgetPasswordPage() {
                   </>
                 ) : (
                   <>
-                    {t("sendButton")}
+                    <span>{t("sendButton")}</span>
+
                     <ArrowRight
                       size={16}
                       className={isRTL ? "rotate-180" : ""}
@@ -191,12 +223,18 @@ export default function ForgetPasswordPage() {
                 )}
               </button>
 
+              {/* Divider */}
               <div className="mb-7 flex items-center gap-3">
                 <div className="h-px flex-1 bg-edge" />
-                <span className="text-xs text-muted">{t("remembered")}</span>
+
+                <span className="text-xs text-muted">
+                  {t("remembered")}
+                </span>
+
                 <div className="h-px flex-1 bg-edge" />
               </div>
 
+              {/* Login link */}
               <div className="text-center">
                 <Link
                   href={`/${locale}`}
@@ -206,6 +244,7 @@ export default function ForgetPasswordPage() {
                     size={13}
                     className={isRTL ? "rotate-180" : ""}
                   />
+
                   {t("signIn")}
                 </Link>
               </div>
@@ -219,35 +258,53 @@ export default function ForgetPasswordPage() {
               transition={{ duration: 0.25 }}
               className="relative z-10 text-center"
             >
+              {/* Icon */}
               <div className="mb-7 flex justify-center">
                 <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
                   <ShieldCheck size={28} className="text-gold" />
                 </div>
               </div>
 
+              {/* Sent message */}
               <div className="mb-8">
                 <h1 className="mb-3 font-playfair text-[28px] font-extrabold leading-tight text-primary">
                   {t("sentTitle")}
                 </h1>
 
                 <p className="mx-auto max-w-97.5 text-sm leading-7 text-faint">
-                  {t("sentSubtitle", { email: normalizedEmail })}
+                  {t("sentSubtitle", {
+                    email: normalizedEmail,
+                  })}
                 </p>
               </div>
 
+              {/* Success check */}
               <div className="mb-8 flex justify-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full border border-green/30 bg-green/10">
                   <Check size={26} className="text-green" />
                 </div>
               </div>
 
+              {/* Resend success message */}
               <AnimatePresence>
                 {resendSuccess && (
                   <motion.div
                     key="resend-success"
-                    initial={{ opacity: 0, y: -8, height: 0 }}
-                    animate={{ opacity: 1, y: 0, height: "auto" }}
-                    exit={{ opacity: 0, y: -8, height: 0 }}
+                    initial={{
+                      opacity: 0,
+                      y: -8,
+                      height: 0,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      height: "auto",
+                    }}
+                    exit={{
+                      opacity: 0,
+                      y: -8,
+                      height: 0,
+                    }}
                     className="mb-6 rounded-[10px] border border-green/20 bg-green/10 px-4 py-3 text-[13px] text-green"
                   >
                     {t("resendSuccess")}
@@ -255,39 +312,67 @@ export default function ForgetPasswordPage() {
                 )}
               </AnimatePresence>
 
+              {/* Divider */}
               <div className="mb-7 flex items-center gap-3">
                 <div className="h-px flex-1 bg-edge" />
+
                 <span className="text-xs text-muted">
                   {t("resendQuestion")}
                 </span>
+
                 <div className="h-px flex-1 bg-edge" />
               </div>
 
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={cooldown > 0 || resending}
-                className={`mx-auto mb-9 flex w-full max-w-90 items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-bold transition-all ${
-                  cooldown > 0 || resending
-                    ? "cursor-not-allowed border-edge bg-card text-muted opacity-70"
-                    : "cursor-pointer border-gold/35 bg-gold/10 text-gold shadow-[0_8px_24px_rgba(245,166,35,0.12)] hover:-translate-y-px hover:border-gold/60 hover:bg-gold/15 hover:text-gold-light"
-                }`}
-              >
-                {resending ? (
-                  <>
-                    <Loader2 size={15} className="animate-spin" />
-                    {t("sending")}
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw size={15} />
-                    {cooldown > 0
-                      ? t("resendCountdown", { seconds: cooldown })
-                      : t("resendButton")}
-                  </>
-                )}
-              </button>
+              {/* Resend button and countdown */}
+              <div className="mb-9 flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={cooldown > 0 || resending}
+                  className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${
+                    cooldown === 0 && !resending
+                      ? "cursor-pointer text-gold"
+                      : "cursor-default text-muted"
+                  }`}
+                >
+                  {resending ? (
+                    <>
+                      <Loader2
+                        size={13}
+                        className="animate-spin"
+                      />
 
+                      {t("sending")}
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw size={13} />
+                      {t("resendButton")}
+                    </>
+                  )}
+                </button>
+
+                {cooldown > 0 && (
+                  <span className="text-[13px] text-muted">
+                    {verifyT("resendIn")}{" "}
+                    <span
+                      className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${
+                        cooldown <= 10
+                          ? "text-pink-light"
+                          : "text-faint"
+                      }`}
+                    >
+                      {String(
+                        Math.floor(cooldown / 60),
+                      ).padStart(2, "0")}
+                      :
+                      {String(cooldown % 60).padStart(2, "0")}
+                    </span>
+                  </span>
+                )}
+              </div>
+
+              {/* Back to login */}
               <div className="border-t border-edge pt-8">
                 <Link
                   href={`/${locale}`}
@@ -297,6 +382,7 @@ export default function ForgetPasswordPage() {
                     size={13}
                     className={isRTL ? "rotate-180" : ""}
                   />
+
                   {t("backToLogin")}
                 </Link>
               </div>
