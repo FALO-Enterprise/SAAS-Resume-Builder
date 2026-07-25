@@ -398,6 +398,8 @@
       "perMonth": "/ شهرياً",
       "getStarted": "ابدأ مجاناً",
       "startPlan": "ابدأ {plan}",
+      "currentPlan": "خطتك الحالية",
+      "upgradePlan": "ترقية إلى {plan}",
       "items": {
         "free": {
           "name": "مجاني",

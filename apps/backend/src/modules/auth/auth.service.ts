@@ -2,7 +2,7 @@
 
 import { Request, Response } from "express";
 import { StringObject } from "../../common/utils/util.types";
-import { LoginDTO, LoginResponseDTO, RegisterDTO, RegisterResponseDTO } from "./types/auth.dto";
+import { AuthenticatedUserDTO, LoginDTO, LoginResponseDTO, RegisterDTO, RegisterResponseDTO } from "./types/auth.dto";
 import { createArgonHash, verifyArgonHash } from "./util/argon.util";
 import { removeFields } from "../../common/utils/object.util";
 import { userService } from "../users/users.service";
@@ -12,6 +12,38 @@ import { randomUUID } from "node:crypto";
 
 export class AuthService {
     private _userService = userService;
+
+    public async findUserForVerification(email: string) {
+        const user = await this._userService.findByEmail(email);
+        if (!user) return null;
+
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            isVerified: user.isVerified
+        };
+    }
+
+    private async attachPlan(user: Awaited<ReturnType<typeof this._userService.findByEmail>>): Promise<AuthenticatedUserDTO> {
+        if (!user) throw new Error('User not found.');
+
+        const subscription = await prisma.subscription.findUnique({
+            where: { userId: user.id },
+            select: {
+                Plan: {
+                    select: { id: true, name: true }
+                }
+            }
+        });
+
+        if (!subscription) throw new Error('Active plan not found for user.');
+
+        return {
+            ...removeFields(user, ['password']),
+            plan: subscription.Plan
+        };
+    }
 
     public async register(payload: RegisterDTO): Promise<RegisterResponseDTO> {
         const existingUser = await this._userService.findByEmail(payload.email);
@@ -42,7 +74,10 @@ export class AuthService {
             }
         });
 
-        return removeFields(userData, ['password']);
+        return {
+            ...removeFields(userData, ['password']),
+            plan: { id: freePlan.id, name: freePlan.name }
+        };
 
     }
 
@@ -64,15 +99,15 @@ export class AuthService {
 
         if (!isPasswordMatch) return null;
 
-        return removeFields(foundUser, ['password']);
+        return this.attachPlan(foundUser);
     }
 
     public async markUserAsVerified(userId: string): Promise<RegisterResponseDTO> {
         const user = await this._userService.markUserAsVerified(userId);
-        return removeFields(user, ['password']);
+        return this.attachPlan(user);
     }
 
     public logout(req: Request, res: Response) { };
 }
 
-// export const authService = new AuthService(); 
+// export const authService = new AuthService();

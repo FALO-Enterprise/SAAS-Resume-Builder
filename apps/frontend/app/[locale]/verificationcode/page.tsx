@@ -16,9 +16,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/context/AuthContext";
+import { buildBackendUrl } from "@/lib/backend";
 
 const CODE_LENGTH = 6;
-const RESEND_COOLDOWN = 60; // seconds
+const RESEND_COOLDOWN = 10; // seconds
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Single OTP digit box
@@ -202,7 +203,7 @@ export default function VerifyPage() {
       // Body:     { email, code }
       // Response: { token, user }  |  { error }
       // ────────────────────────────────────────────────────────────────────
-      const res = await fetch("http://localhost:3001/api/auth/verify", {
+      const res = await fetch(buildBackendUrl("/api/auth/verify"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailParam, code }),
@@ -221,7 +222,7 @@ export default function VerifyPage() {
       login({
         name: data.user?.name ?? emailParam.split("@")[0],
         email: data.user?.email ?? emailParam,
-        avatar: data.user?.avatar ?? null,
+        planName: data.user.plan.name,
       });
       setSuccess(true);
       setTimeout(() => router.push(`/${locale}/dashboard`), 2000);
@@ -255,7 +256,7 @@ export default function VerifyPage() {
       // Body:     { email }
       // Response: { success: true }  |  { error }
       // ────────────────────────────────────────────────────────────────────
-      const res = await fetch("http://localhost:3001/api/auth/resend-code", {
+      const res = await fetch(buildBackendUrl("/api/auth/resend-code"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailParam }),

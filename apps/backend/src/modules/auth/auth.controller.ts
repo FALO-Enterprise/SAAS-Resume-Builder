@@ -20,7 +20,7 @@ export class AuthController {
             const payloadData = zodValidation(registerDTOSchema, req.body, 'AUTH');
 
             const user = await this.authService.register(payloadData);
-            await sendVerificationCode(user.email, user.id, user.name);
+            await sendVerificationCode(user.email);
             console.log('user registered succefully');
             res.create({ user, message: 'Verification code sent' });
         } catch (err) {
@@ -44,44 +44,59 @@ export class AuthController {
 
         if (!email || !code) {
             console.log('Missing email or code');
-            res.status(HttpErrorStatus.BadRequest).json({ error: 'email and code are required' });
+            res.error({ statusCode: HttpErrorStatus.BadRequest, message: 'Email and code are required' });
             return;
         }
 
         const entry = verifyVerificationCode(email, code);
         if (!entry) {
             console.log('Invalid or expired verification code for:', email);
-            res.status(HttpErrorStatus.BadRequest).json({ error: 'Invalid or expired verification code' });
+            res.error({ statusCode: HttpErrorStatus.BadRequest, message: 'Invalid or expired verification code' });
             return;
         }
 
-        console.log('Code verified for user:', entry.userId);
-
         // Mark user as verified
         try {
-            await this.authService.markUserAsVerified(entry.userId);
-            console.log('User marked as verified:', entry.userId);
+            const verificationUser = await this.authService.findUserForVerification(email);
+            if (!verificationUser) {
+                res.error({ statusCode: HttpErrorStatus.NotFound, message: 'User not found' });
+                return;
+            }
 
-            const token = signJWT({ sub: entry.userId, name: entry.name });
-            console.log('JWT token generated for user:', entry.userId);
+            const user = await this.authService.markUserAsVerified(verificationUser.id);
+            console.log('User marked as verified:', user.id);
 
-            res.status(200).json({ token, user: { id: entry.userId, name: entry.name, email } });
+            const token = signJWT({ sub: user.id, name: user.name });
+            console.log('JWT token generated for user:', user.id);
+
+            res.status(200).json({ token, user });
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to verify user';
             console.log('Error during verification:', message);
-            res.error({ message: 'Error during verification:', statusCode: HttpErrorStatus.InternalServerError })
+            res.error({ message, statusCode: HttpErrorStatus.InternalServerError })
         }
     }
 
     public async resendCode(req: Request, res: Response) {
-        const { email, userId, name } = req.body as { email?: string; userId?: string; name?: string };
+        const { email } = req.body as { email?: string };
 
         if (!email) {
-            res.error({ message: 'email is required', statusCode: HttpErrorStatus.BadRequest })
+            res.error({ message: 'Email is required', statusCode: HttpErrorStatus.BadRequest })
             return;
         }
 
-        await resendVerificationCode(email, userId || 'unknown', name || 'User');
+        const user = await this.authService.findUserForVerification(email);
+        if (!user) {
+            res.error({ message: 'User not found', statusCode: HttpErrorStatus.NotFound });
+            return;
+        }
+
+        if (user.isVerified) {
+            res.error({ message: 'Account is already verified', statusCode: HttpErrorStatus.BadRequest });
+            return;
+        }
+
+        await resendVerificationCode(user.email);
         res.status(200).json({ success: true, message: 'Verification code resent' });
     }
 
@@ -93,7 +108,7 @@ export class AuthController {
         const payloadData = zodValidation(loginDTOSchema, req.body, 'AUTH');
         const userData = await this.authService.login(payloadData);
         if (!userData) {
-            res.status(HttpErrorStatus.BadRequest).send('wrong credentials');
+            res.error({ statusCode: HttpErrorStatus.BadRequest, message: 'Wrong credentials' });
             return;
         }
         console.log(req.session, 'before i set the req.session');
@@ -114,7 +129,7 @@ export class AuthController {
         const payloadData = zodValidation(loginDTOSchema, req.body, 'AUTH');
         const userData = await this.authService.login(payloadData);
         if (!userData) {
-            res.status(HttpErrorStatus.BadRequest).send('wrong credentials');
+            res.error({ statusCode: HttpErrorStatus.BadRequest, message: 'Wrong credentials' });
             return;
         }
         const token = signJWT({ sub: userData.id, name: userData.name });

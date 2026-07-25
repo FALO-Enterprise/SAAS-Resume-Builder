@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, LogOut, ChevronDown } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 function getInitials(name?: string) {
@@ -29,17 +28,7 @@ export default function UserAvatarMenu() {
         className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-transparent border border-edge cursor-pointer transition-all delay-200"
       >
         <div className="flex items-center justify-center h-6 w-6 rounded-full bg-gold text-ink font-bold text-[10px] overflow-hidden shrink-0">
-          {user?.avatar ? (
-            <Image
-              src={user.avatar}
-              alt={user.name}
-              width={24}
-              height={24}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            getInitials(user?.name)
-          )}
+          {getInitials(user?.name)}
         </div>
         <ChevronDown
           size={11}
@@ -62,9 +51,16 @@ export default function UserAvatarMenu() {
               className="absolute top-[calc(100%+8px)] inset-e-0 bg-elevated border border-edge rounded-xl overflow-hidden min-w-52 z-100 shadow-[0_20px_60px_var(--shadow-color)]"
             >
               <div className="px-4 py-3 border-b border-edge">
-                <p className="text-sm font-semibold text-primary truncate">
-                  {user?.name}
-                </p>
+                <div className="flex min-w-0 items-center gap-2">
+                  <p className="min-w-0 truncate text-sm font-semibold text-primary">
+                    {user?.name}
+                  </p>
+                  {user?.planName && (
+                    <span className="shrink-0 rounded-full border border-gold/20 bg-gold/10 px-2 py-0.5 text-[9px] font-bold tracking-wide text-gold">
+                      {user.planName}
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-secondary truncate">
                   {user?.email}
                 </p>

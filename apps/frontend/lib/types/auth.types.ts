@@ -27,10 +27,12 @@ export type FieldError = {
 }
 
 // Auth user type
+export type PlanName = 'FREE' | 'PRO' | 'ENTERPRISE';
+
 export type AuthUser = {
   name: string;
   email: string;
-  avatar?: string | null;
+  planName: PlanName;
 }
 
 // Auth context type

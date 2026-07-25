@@ -10,6 +10,7 @@ import Logo from '@/components/ui/Logo';
 import type { RegisterData, FormErrors } from '@/lib/types/auth.types';
 import { PROVIDERS } from '@/lib/placeholder-data/providors.placeholder';
 import AuthInput from '@/components/ui/AuthInput';
+import { buildBackendUrl } from '@/lib/backend';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared — Password strength
@@ -183,7 +184,7 @@ export default function RegisterPage() {
       // Body: { name, email, password }
       // Response: { token, user }  |  { error }
       // ─────────────────────────────────────────────────────────────────────
-      const res = await fetch('http://localhost:3001/api/auth/register', {
+      const res = await fetch(buildBackendUrl('/api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: data.name, email: data.email, password: data.password }),

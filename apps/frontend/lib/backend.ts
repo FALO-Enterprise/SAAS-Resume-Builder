@@ -16,7 +16,15 @@ export async function proxyToBackend(path: string, init?: RequestInit) {
     });
 
     const payload = await response.text();
-    const parsedPayload = payload ? JSON.parse(payload) : null;
+    let parsedPayload: unknown = null;
+
+    if (payload) {
+        try {
+            parsedPayload = JSON.parse(payload);
+        } catch {
+            parsedPayload = payload;
+        }
+    }
 
     return { response, payload: parsedPayload };
 }
@@ -41,31 +49,39 @@ export function normalizeBackendPayload<T>(payload: unknown): T | { error: strin
     return payload as T
 }
 
-export interface AuthSession {
-    token: string;
-    user: {
-        id: string;
-        name: string;
-        email: string;
-        locale: 'en' | 'ar';
-        activePlanId: 'free' | 'pro' | 'enterprise';
-        role: 'USER' | 'ADMIN';
-        isVerified: boolean;
+interface BackendAuthUser {
+    name: string;
+    email: string;
+    plan: {
+        name: 'FREE' | 'PRO' | 'ENTERPRISE';
     };
 }
 
+export interface AuthSession {
+    token: string;
+    user: BackendAuthUser;
+}
+
+export interface RegistrationResponse {
+    user: BackendAuthUser;
+    message: string;
+}
+
+function backendErrorMessage(payload: unknown, fallback: string) {
+    if (typeof payload === 'string') return payload;
+
+    const normalized = normalizeBackendPayload<{ error: string }>(payload)
+    return normalized && 'error' in normalized ? normalized.error : fallback
+}
+
 export async function loginWithBackend(input: { email: string; password: string }) {
-    const { response, payload } = await proxyToBackend('/api/auth/login', {
+    const { response, payload } = await proxyToBackend('/api/auth/login-jwt', {
         method: 'POST',
         body: JSON.stringify(input),
     });
 
     if (!response.ok) {
-        const normalized = normalizeBackendPayload<{ error: string }>(payload)
-        const errorMessage = normalized && 'error' in normalized
-            ? normalized.error
-            : 'Login failed'
-        throw new Error(errorMessage)
+        throw new Error(backendErrorMessage(payload, 'Login failed'))
     }
 
     return normalizeBackendPayload<AuthSession>(payload);
@@ -77,13 +93,9 @@ export async function registerWithBackend(input: { name: string; email: string; 
         body: JSON.stringify(input),
     });
     if (!response.ok) {
-        const normalized = normalizeBackendPayload<{ error: string }>(payload)
-        const errorMessage = normalized && 'error' in normalized
-            ? normalized.error
-            : 'Registration failed'
-        throw new Error(errorMessage)
+        throw new Error(backendErrorMessage(payload, 'Registration failed'))
     }
 
-    return normalizeBackendPayload<AuthSession>(payload);
+    return normalizeBackendPayload<RegistrationResponse>(payload);
 }
 
