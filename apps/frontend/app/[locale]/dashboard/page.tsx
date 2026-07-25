@@ -18,9 +18,8 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import HintTooltip from '@/components/ui/HintTooltip';
 import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem } from '@/lib/types/dashborad.types';
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
-import { emptyRole, emptyEdu, emptyCert } from '@/lib/resume';
+import { emptyRole, emptyEdu, emptyCert } from '@/lib/utilities/resume';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-
 function FieldCard({
   label, icon: Icon, type = 'text', placeholder, value, onChange, error, hint, optional,
 }: {
