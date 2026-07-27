@@ -50,7 +50,10 @@ export function normalizeBackendPayload<T>(payload: unknown): T | { error: strin
 }
 
 interface BackendAuthUser {
+    id: string;
     name: string;
+    avatar: string;
+    role: string;
     email: string;
     plan: {
         name: 'FREE' | 'PRO' | 'ENTERPRISE';

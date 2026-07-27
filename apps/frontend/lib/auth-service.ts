@@ -1,10 +1,10 @@
 import 'dotenv/config'
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
-import { SessionUser, RegisterInput, LoginInput } from "./types/auth.types"
+import { RegisterData, LoginData } from "./types/auth.types"
 
 export const authService = {
-    register: async (input: RegisterInput) => {
+    register: async (input: RegisterData) => {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -19,7 +19,7 @@ export const authService = {
         return response.json()  // { user, token }
     },
 
-    login: async (input: LoginInput) => {
+    login: async (input: LoginData) => {
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

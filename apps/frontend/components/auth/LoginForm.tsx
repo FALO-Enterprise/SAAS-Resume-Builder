@@ -6,7 +6,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/context/AuthContext";
 import AuthInput from "@/components/ui/AuthInput";
-import type { FormState, FieldError } from "@/lib/types/auth.types";
+import type { LoginData, FieldError } from "@/lib/types/auth.types";
 import { PROVIDERS } from "@/lib/placeholder-data/providors.placeholder";
 import { loginWithBackend } from "@/lib/backend";
 import Link from "next/link";
@@ -17,7 +17,7 @@ export default function LoginForm() {
   const locale = useLocale();
   const t = useTranslations("auth");
   const isRTL = locale === "ar";
-  const [form, setForm] = useState<FormState>({ email: "", password: "" });
+  const [form, setForm] = useState<LoginData>({ email: "", password: "" });
   const [errors, setErrors] = useState<FieldError>({});
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -60,8 +60,11 @@ export default function LoginForm() {
       localStorage.setItem("resumax_token", data.token);
       document.cookie = `resumax_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
       login({
+        id: data.user.id,
         name: data.user.name,
         email: data.user.email,
+        avatar: data.user.avatar,
+        role: data.user.role,
         planName: data.user.plan.name,
       });
       setSuccess(true);

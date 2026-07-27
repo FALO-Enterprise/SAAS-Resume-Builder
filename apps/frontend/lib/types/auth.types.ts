@@ -4,6 +4,7 @@ export type RegisterData = {
   email: string;
   password: string;
   confirm: string;
+  avatar?: string;
 }
 
 export type FormErrors = {
@@ -15,7 +16,7 @@ export type FormErrors = {
 
 // Login form state and error types
 
-export type FormState = {
+export type LoginData = {
   email: string;
   password: string;
 }
@@ -30,8 +31,11 @@ export type FieldError = {
 export type PlanName = 'FREE' | 'PRO' | 'ENTERPRISE';
 
 export type AuthUser = {
+  id: string;
   name: string;
   email: string;
+  avatar: string;
+  role: string;
   planName: PlanName;
 }
 
@@ -44,6 +48,7 @@ export type AuthContextType = {
   closeModal: () => void;
   login: (user: AuthUser) => void;
   logout: () => void;
+  updateUser: (user: AuthUser) => void;
 }
 
 
@@ -54,16 +59,4 @@ export type SessionUser = {
   name: string
   email: string
   role: string
-}
-
-export type RegisterInput = {
-  name: string
-  email: string
-  password: string
-  avatar?: string
-}
-
-export type LoginInput = {
-  email: string
-  password: string
 }
