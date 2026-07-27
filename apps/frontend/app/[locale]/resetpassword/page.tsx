@@ -17,44 +17,8 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import AuthInput from "@/components/ui/AuthInput";
+import PasswordStrength from "@/lib/utilities/PasswordStrength"
 import Logo from "@/components/ui/Logo";
-
-function PasswordChecks({ password }: { password: string }) {
-  const t = useTranslations("auth.resetPassword");
-
-  const checks = [
-    { label: t("checks.length"), pass: password.length >= 8 },
-    { label: t("checks.uppercase"), pass: /[A-Z]/.test(password) },
-    { label: t("checks.number"), pass: /\d/.test(password) },
-    { label: t("checks.special"), pass: /[^A-Za-z0-9]/.test(password) },
-  ];
-
-  if (!password) return null;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
-      className="flex flex-wrap gap-x-4 gap-y-1.5"
-    >
-      {checks.map((check) => (
-        <div key={check.label} className="flex items-center gap-1">
-          <Check
-            size={11}
-            className={check.pass ? "text-green" : "text-muted"}
-          />
-          <span
-            className={`text-[11px] ${
-              check.pass ? "text-secondary" : "text-muted"
-            }`}
-          >
-            {check.label}
-          </span>
-        </div>
-      ))}
-    </motion.div>
-  );
-}
 
 function ResetPasswordContent() {
   const locale = useLocale();
@@ -149,7 +113,6 @@ function ResetPasswordContent() {
 
   return (
     <main
-      dir={isRTL ? "rtl" : "ltr"}
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base px-6 py-10 text-primary"
     >
       <div className="pointer-events-none fixed left-[6%] top-[12%] h-125 w-125nded-full bg-gold/5 blur-[120px]" />
@@ -284,7 +247,7 @@ function ResetPasswordContent() {
                   )}
                 />
 
-                <PasswordChecks password={password} />
+                <PasswordStrength password={password} />
               </div>
 
               <div className="mb-8">
