@@ -1,7 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -16,12 +16,10 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import AuthInput from "@/components/ui/AuthInput";
 import Logo from "@/components/ui/Logo";
+import { useCountdown } from "@/hooks/useCountdown";
+import type { FieldError } from "@/lib/types/auth.types";
 
 const RESEND_COOLDOWN = 60;
-
-function isValidEmail(value: string) {
-  return /\S+@\S+\.\S+/.test(value);
-}
 
 export default function ForgetPasswordPage() {
   const locale = useLocale();
@@ -32,104 +30,132 @@ export default function ForgetPasswordPage() {
   const isRTL = locale === "ar";
 
   const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
+  const [errors, setErrors] = useState<FieldError>({});
 
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
+
+  const { count, expired, restart } = useCountdown(RESEND_COOLDOWN);
 
   const normalizedEmail = useMemo(
     () => email.trim().toLowerCase(),
     [email],
   );
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-
-    const timer = window.setTimeout(() => {
-      setCooldown((current) => Math.max(current - 1, 0));
-    }, 1000);
-
-    return () => window.clearTimeout(timer);
-  }, [cooldown]);
-
   const validateEmail = () => {
-    if (!normalizedEmail) {
-      setEmailError(t("errors.emailRequired"));
-      return false;
-    }
+    const e: FieldError = {};
 
-    if (!isValidEmail(normalizedEmail)) {
-      setEmailError(t("errors.invalidEmail"));
-      return false;
-    }
+    setErrors(e);
 
-    setEmailError("");
-    return true;
+    return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateEmail()) return;
 
     setLoading(true);
+    setErrors({});
     setResendSuccess(false);
 
-    /*
-      Backend connection:
+    try {
+      const response = await fetch(
+        `/api/auth/forgot-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: normalizedEmail,
+            locale,
+          }),
+        },
+      );
 
-      POST /api/auth/forgot-password
+      const data = await response.json();
 
-      Body:
-      {
-        email: normalizedEmail,
-        locale
+      if ("error" in data) {
+        setErrors({
+          general: data.error,
+        });
+        return;
       }
-    */
 
-    window.setTimeout(() => {
-      setLoading(false);
       setSent(true);
-      setCooldown(RESEND_COOLDOWN);
-    }, 700);
+      restart();
+    } catch (error) {
+      setErrors({
+        general:
+          error instanceof Error
+            ? error.message
+            : t("errors.network"),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleResend = () => {
-    if (cooldown > 0 || resending || !validateEmail()) return;
+  const handleResend = async () => {
+    if (!expired || resending || !validateEmail()) return;
 
     setResending(true);
+
+    setErrors((prev) => ({
+      ...prev,
+      general: undefined,
+    }));
+
     setResendSuccess(false);
 
-    /*
-      Backend connection:
+    try {
+      const response = await fetch(
+        `/api/auth/forgot-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: normalizedEmail,
+            locale,
+          }),
+        },
+      );
 
-      POST /api/auth/forgot-password
+      const data = await response.json();
 
-      Body:
-      {
-        email: normalizedEmail,
-        locale
+      if ("error" in data) {
+        setErrors({
+          general: data.error,
+        });
+        return;
       }
-    */
 
-    window.setTimeout(() => {
-      setResending(false);
       setResendSuccess(true);
-      setCooldown(RESEND_COOLDOWN);
+      restart();
 
-      window.setTimeout(() => {
+      setTimeout(() => {
         setResendSuccess(false);
       }, 2500);
-    }, 700);
+    } catch (error) {
+      setErrors({
+        general:
+          error instanceof Error
+            ? error.message
+            : t("errors.network"),
+      });
+    } finally {
+      setResending(false);
+    }
   };
 
   return (
     <main
-      dir={isRTL ? "rtl" : "ltr"}
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base px-6 py-10"
     >
       {/* Background glows */}
@@ -155,10 +181,21 @@ export default function ForgetPasswordPage() {
           </Link>
         </div>
 
+        {errors.general && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
+          >
+            {errors.general}
+          </motion.div>
+        )}
+
         <AnimatePresence mode="wait">
           {!sent ? (
             <motion.form
               key="email-form"
+              noValidate
               onSubmit={handleSubmit}
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -194,9 +231,14 @@ export default function ForgetPasswordPage() {
                   value={email}
                   onChange={(value) => {
                     setEmail(value);
-                    setEmailError("");
+
+                    setErrors((prev) => ({
+                      ...prev,
+                      email: undefined,
+                      general: undefined,
+                    }));
                   }}
-                  error={emailError}
+                  error={errors.email}
                 />
               </div>
 
@@ -328,12 +370,11 @@ export default function ForgetPasswordPage() {
                 <button
                   type="button"
                   onClick={handleResend}
-                  disabled={cooldown > 0 || resending}
-                  className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${
-                    cooldown === 0 && !resending
-                      ? "cursor-pointer text-gold"
-                      : "cursor-default text-muted"
-                  }`}
+                  disabled={!expired || resending}
+                  className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${expired && !resending
+                    ? "cursor-pointer text-gold"
+                    : "cursor-default text-muted"
+                    }`}
                 >
                   {resending ? (
                     <>
@@ -352,21 +393,20 @@ export default function ForgetPasswordPage() {
                   )}
                 </button>
 
-                {cooldown > 0 && (
+                {!expired && (
                   <span className="text-[13px] text-muted">
                     {verifyT("resendIn")}{" "}
                     <span
-                      className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${
-                        cooldown <= 10
-                          ? "text-pink-light"
-                          : "text-faint"
-                      }`}
+                      className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${count <= 10
+                        ? "text-pink-light"
+                        : "text-faint"
+                        }`}
                     >
                       {String(
-                        Math.floor(cooldown / 60),
+                        Math.floor(count / 60),
                       ).padStart(2, "0")}
                       :
-                      {String(cooldown % 60).padStart(2, "0")}
+                      {String(count % 60).padStart(2, "0")}
                     </span>
                   </span>
                 )}

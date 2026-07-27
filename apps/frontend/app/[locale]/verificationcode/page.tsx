@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShieldCheck,
@@ -17,9 +17,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/context/AuthContext";
 import { buildBackendUrl } from "@/lib/backend";
+import { useCountdown } from "@/hooks/useCountdown";
 
 const CODE_LENGTH = 6;
-const RESEND_COOLDOWN = 10; // seconds
+const RESEND_COOLDOWN = 60; // seconds
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Single OTP digit box
@@ -80,24 +81,6 @@ function OtpBox({
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Countdown timer hook
-// ─────────────────────────────────────────────────────────────────────────────
-function useCountdown(initial: number) {
-  const [count, setCount] = useState(initial);
-
-  useEffect(() => {
-    if (count <= 0) return;
-    const id = setTimeout(() => setCount((c) => c - 1), 1000);
-    return () => clearTimeout(id);
-  }, [count]);
-
-  const restart = useCallback(() => {
-    setCount(initial);
-  }, [initial]);
-
-  return { count, expired: count <= 0, restart };
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main page
@@ -220,14 +203,23 @@ export default function VerifyPage() {
 
       if (data.token) localStorage.setItem("resumax_token", data.token);
       login({
+        id: data.user?.id,
         name: data.user?.name ?? emailParam.split("@")[0],
         email: data.user?.email ?? emailParam,
+        avatar: data.user?.avatar,
+        role: data.user?.role,
         planName: data.user.plan.name,
       });
       setSuccess(true);
       setTimeout(() => router.push(`/${locale}/dashboard`), 2000);
-    } catch {
-      setError(t("errors.network"));
+    } catch (error) {
+      const message =
+        typeof error === "object" && error && "message" in error
+          ? String(
+              (error as { message?: string }).message ?? t("errors.network"),
+            )
+          : t("errors.network");
+      setError(message);
       setDigits(Array(CODE_LENGTH).fill(""));
       setTimeout(() => inputRefs.current[0]?.focus(), 50);
     } finally {
