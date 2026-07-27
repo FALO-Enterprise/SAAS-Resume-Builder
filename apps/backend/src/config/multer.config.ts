@@ -3,7 +3,7 @@ import multer from 'multer';
 
 import path from 'path'
 
-const destDirectory = path.join(__dirname, '../uploads');
+const destDirectory = path.join(process.cwd(), 'uploads');
 
 export const multerUpload = multer({
     storage: multer.diskStorage({

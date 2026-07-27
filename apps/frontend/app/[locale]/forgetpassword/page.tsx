@@ -63,28 +63,28 @@ export default function ForgetPasswordPage() {
     setResendSuccess(false);
 
     try {
-      const response = await fetch(
-        `/api/auth/forgot-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: normalizedEmail,
-            locale,
-          }),
-        },
-      );
+      // const response = await fetch(
+      //   `/api/auth/forgot-password`,
+      //   {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify({
+      //       email: normalizedEmail,
+      //       locale,
+      //     }),
+      //   },
+      // );
 
-      const data = await response.json();
+      // const data = await response.json();
 
-      if ("error" in data) {
-        setErrors({
-          general: data.error,
-        });
-        return;
-      }
+      // if ("error" in data) {
+      //   setErrors({
+      //     general: data.error,
+      //   });
+      //   return;
+      // }
 
       setSent(true);
       restart();
@@ -113,28 +113,28 @@ export default function ForgetPasswordPage() {
     setResendSuccess(false);
 
     try {
-      const response = await fetch(
-        `/api/auth/forgot-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: normalizedEmail,
-            locale,
-          }),
-        },
-      );
+      // const response = await fetch(
+      //   `/api/auth/forgot-password`,
+      //   {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify({
+      //       email: normalizedEmail,
+      //       locale,
+      //     }),
+      //   },
+      // );
 
-      const data = await response.json();
+      // const data = await response.json();
 
-      if ("error" in data) {
-        setErrors({
-          general: data.error,
-        });
-        return;
-      }
+      // if ("error" in data) {
+      //   setErrors({
+      //     general: data.error,
+      //   });
+      //   return;
+      // }
 
       setResendSuccess(true);
       restart();

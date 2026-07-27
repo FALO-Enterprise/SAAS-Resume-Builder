@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import { userService } from "./users.service";
 import { HttpErrorStatus } from "../../common/utils/util.types";
 
+const BACKEND_URL = process.env.BACKEND_PUBLIC_URL || "http://localhost:3001";
 
 export class UserController {
     private service = userService;
@@ -28,7 +29,7 @@ export class UserController {
 
     createUser = async (req: Request, res: Response) => {
         const { name, email, password } = req.body;
-        const avatar = req.file ? `/uploads/${req.file.filename}` : undefined;
+        const avatar = req.file ? `${BACKEND_URL}/uploads/${req.file.filename}` : undefined;
 
         const user = await this.service.createUser(name, email, password, avatar);
         res.create(user);
@@ -40,7 +41,7 @@ export class UserController {
             status(400).json({ error: 'ID required' });
 
         const { name, email } = req.body;
-        const avatar = req.file ? `/uploads/${req.file.filename}` : undefined;
+        const avatar = req.file ? `${BACKEND_URL}/uploads/${req.file.filename}` : undefined;
         const user = await this.service.updateUser(String(id), name, email, avatar);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -58,6 +59,4 @@ export class UserController {
         }
         res.ok({});
     };
-
-
 }

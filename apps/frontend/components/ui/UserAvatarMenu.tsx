@@ -39,7 +39,17 @@ export default function UserAvatarMenu() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const activePlanId = user?.planName.toLowerCase() as keyof typeof PLAN_BADGES;
+  const getAvatarUrl = (path?: string) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    const finalPath = cleanPath.startsWith("/uploads/") ? cleanPath : `/uploads${cleanPath}`;
+
+    return `http://localhost:3001${finalPath}`;
+  };
+
+  const activePlanId = (user?.planName?.toLowerCase() || "free") as keyof typeof PLAN_BADGES;
 
   return (
     <>
@@ -53,19 +63,24 @@ export default function UserAvatarMenu() {
               <TriangleAlert size={12} />
             </div>
           ) : null}
+
+          {/* تم تصليح الوسم المكرر هنا */}
           <div className="flex items-center justify-center h-6 w-6 rounded-full bg-gold text-ink font-bold text-[10px] overflow-hidden shrink-0">
-          {user?.avatar ? (
-            <Image
-              src={user.avatar}
-              alt={user.name}
-              width={24}
-              height={24}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            getInitials(user?.name)
-          )}
+            {user?.avatar ? (
+              <Image
+                src={getAvatarUrl(user.avatar)}
+                alt={user?.name || "User Avatar"}
+                width={24}
+                height={24}
+                key={user.avatar}
+                className="h-full w-full object-cover"
+                unoptimized
+              />
+            ) : (
+              getInitials(user?.name)
+            )}
           </div>
+
           <ChevronDown
             size={11}
             className={`text-secondary transition-transform duration-200 ${open ? "rotate-180" : "rotate-0"}`}
