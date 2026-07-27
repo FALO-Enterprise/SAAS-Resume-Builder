@@ -1,17 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Briefcase, GraduationCap, Zap,
   Mail, Phone, MapPin, Link2, ArrowRight,
-  ArrowLeft, Save, Sparkles, Check,
-  LayoutDashboard, ChevronRight, FileText, Menu, X,
+  ArrowLeft, Sparkles, Check,
+  LayoutDashboard, ChevronRight, Menu, X,
   Plus, Trash2, Building2, Calendar, Info,
   Award, Lightbulb, PlusCircle, Search,
+  Pencil, Loader2,
 } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
 import UserAvatarMenu from '@/components/ui/UserAvatarMenu';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
@@ -19,12 +21,22 @@ import HintTooltip from '@/components/ui/HintTooltip';
 import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem } from '@/lib/types/dashborad.types';
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
 import { emptyRole, emptyEdu, emptyCert } from '@/lib/utilities/resume';
+import { formatPhoneNumber } from "@/lib/utilities/phone";
 import ThemeToggle from '@/components/ui/ThemeToggle';
+
+
+function getInitials(name?: string) {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  const initials = parts.length > 1 ? parts[0][0] + parts[1][0] : parts[0].slice(0, 2);
+  return initials.toUpperCase();
+}
+
 function FieldCard({
   label, icon: Icon, type = 'text', placeholder, value, onChange, error, hint, optional,
 }: {
   label: string; icon: React.ElementType; type?: string; placeholder: string;
-  value: string; onChange: (v: string) => void; error?: string; hint?: string; optional?: boolean;
+  value: string; onChange: (v: string) => void; error?: string; hint?: string; optional?: boolean; maxLength?: number;
 }) {
   const [focused, setFocused] = useState(false);
   const filled = value.length > 0;
@@ -32,16 +44,16 @@ function FieldCard({
   const wrapState = error
     ? 'border-pink-light/50 bg-card shadow-[0_0_0_3px_rgba(248,113,113,0.08)]'
     : focused
-    ? 'border-gold/60 bg-gold/4 shadow-[0_0_0_3px_rgba(245,166,35,0.1),0_8px_32px_var(--shadow-color)]'
-    : filled
-    ? 'border-gold/20 bg-card shadow-[0_2px_8px_var(--shadow-color)]'
-    : 'border-edge bg-card shadow-[0_2px_8px_var(--shadow-color)]';
+      ? 'border-gold/60 bg-gold/4 shadow-[0_0_0_3px_rgba(245,166,35,0.1),0_8px_32px_var(--shadow-color)]'
+      : filled
+        ? 'border-gold/20 bg-card shadow-[0_2px_8px_var(--shadow-color)]'
+        : 'border-edge bg-card shadow-[0_2px_8px_var(--shadow-color)]';
 
   const iconBox = focused
     ? 'bg-gold/15'
     : filled
-    ? 'bg-gold/8'
-    : 'bg-card-hover';
+      ? 'bg-gold/8'
+      : 'bg-card-hover';
 
   const iconColor = focused ? 'text-gold' : filled ? 'text-gold/70' : 'text-muted';
   const labelColor = focused ? 'text-gold' : filled ? 'text-gold/70' : 'text-faint';
@@ -97,10 +109,190 @@ function FieldCard({
           </motion.p>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
 
-      {hint && !error && (
-        <p className="mt-1.25 ps-1 text-[11px] text-muted">{hint}</p>
-      )}
+// ── Email field with in-place edit → save/cancel flow ────────────────────────
+// The email is pre-filled from the signed-in account and stays read-only until
+// the user explicitly enters edit mode; saving persists the change to the DB.
+function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, onSave }: {
+  label: string; icon: React.ElementType; placeholder: string;
+  value: string; error?: string; hint?: string;
+  onSave: (email: string) => Promise<{ requiresVerification: boolean }>;
+}) {
+  const locale = useLocale();
+  const [focused, setFocused] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedOk, setSavedOk] = useState(false);
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const editBtnRef = useRef<HTMLButtonElement>(null);
+
+  const shown = editing ? draft : value;
+  const filled = shown.length > 0;
+  const trimmed = draft.trim();
+  const dirty = trimmed !== value;
+  const validDraft = /\S+@\S+\.\S+/.test(trimmed);
+  const canSave = editing && dirty && validDraft && !saving;
+
+  const displayError = saveError
+    ?? (editing && dirty && trimmed.length > 0 && !validDraft ? 'Enter a valid email address' : undefined)
+    ?? error;
+
+  const startEdit = () => {
+    setDraft(value);
+    setSaveError(null);
+    setSavedOk(false);
+    setEditing(true);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const cancelEdit = () => {
+    if (saving) return;
+    setEditing(false);
+    setDraft(value);
+    setSaveError(null);
+    setTimeout(() => editBtnRef.current?.focus(), 0);
+  };
+
+  const saveEdit = async () => {
+    if (!canSave) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const { requiresVerification } = await onSave(trimmed);
+      setEditing(false);
+      setVerifyEmail(requiresVerification ? trimmed : null);
+      setSavedOk(true);
+      setTimeout(() => editBtnRef.current?.focus(), 0);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Could not save your email. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const active = focused || editing;
+  const wrapState = displayError
+    ? 'border-pink-light/50 bg-card shadow-[0_0_0_3px_rgba(248,113,113,0.08)]'
+    : active
+      ? 'border-gold/60 bg-gold/4 shadow-[0_0_0_3px_rgba(245,166,35,0.1),0_8px_32px_var(--shadow-color)]'
+      : filled
+        ? 'border-gold/20 bg-card shadow-[0_2px_8px_var(--shadow-color)]'
+        : 'border-edge bg-card shadow-[0_2px_8px_var(--shadow-color)]';
+
+  const iconBox = active ? 'bg-gold/15' : filled ? 'bg-gold/8' : 'bg-card-hover';
+  const iconColor = active ? 'text-gold' : filled ? 'text-gold/70' : 'text-muted';
+  const labelColor = active ? 'text-gold' : filled ? 'text-gold/70' : 'text-faint';
+
+  return (
+    <div className="relative flex flex-col">
+      <div className={`relative overflow-hidden rounded-[14px] border px-5 py-4.5 transition-all duration-200 ${wrapState}`}>
+        <AnimatePresence>
+          {active && (
+            <motion.div
+              initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }}
+              transition={{ duration: 0.25 }}
+              className="absolute inset-x-0 top-0 h-0.5 origin-left bg-[linear-gradient(to_right,transparent,var(--color-gold),transparent)]"
+            />
+          )}
+        </AnimatePresence>
+
+        <div className={`mb-2.5 flex items-center gap-2 ${hint ? 'pe-9' : ''}`}>
+          <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${iconBox}`}>
+            <Icon size={14} className={`transition-colors ${iconColor}`} />
+          </div>
+          <span className={`font-syne text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
+            {label}
+          </span>
+          {filled && !active && (
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
+              className="ms-auto flex h-4 w-4 items-center justify-center rounded-full border border-green/30 bg-green/15">
+              <Check size={9} className="text-green" />
+            </motion.div>
+          )}
+        </div>
+
+        <div className="relative flex items-center">
+          <input
+            ref={inputRef}
+            type="email" placeholder={placeholder} value={shown}
+            readOnly={!editing}
+            aria-label={label}
+            onChange={e => { setDraft(e.target.value); if (saveError) setSaveError(null); }}
+            onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+            onKeyDown={e => {
+              if (!editing) return;
+              if (e.key === 'Enter') { e.preventDefault(); saveEdit(); }
+              if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
+            }}
+            className={`w-full border-none bg-transparent ps-9 font-syne text-[15px] font-medium text-primary outline-none placeholder:text-muted ${editing ? 'pe-20' : 'cursor-default pe-11'}`}
+          />
+          <div className="absolute inset-e-0 flex items-center gap-1.5">
+            {editing ? (
+              <>
+                <button
+                  type="button" onClick={saveEdit} disabled={!canSave}
+                  aria-label="Save email address"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-green/30 bg-green/15 text-green transition-all hover:bg-green/25 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {saving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+                </button>
+                <button
+                  type="button" onClick={cancelEdit} disabled={saving}
+                  aria-label="Cancel editing email"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <X size={13} />
+                </button>
+              </>
+            ) : (
+              <button
+                ref={editBtnRef}
+                type="button" onClick={startEdit}
+                aria-label="Edit email address"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-edge bg-card text-muted transition-all hover:border-gold/40 hover:bg-gold/10 hover:text-gold"
+              >
+                <Pencil size={13} />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {hint && <HintTooltip hint={hint} className="absolute inset-e-4 top-4.5" />}
+
+      <AnimatePresence>
+        {displayError && (
+          <motion.p initial={{ opacity: 0, height: 0, y: -4 }} animate={{ opacity: 1, height: 'auto', y: 0 }} exit={{ opacity: 0, height: 0 }}
+            className="mt-1.5 ps-1 text-[11.5px] font-medium text-pink-light">
+            {displayError}
+          </motion.p>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {savedOk && !editing && !displayError && (
+          <motion.p initial={{ opacity: 0, height: 0, y: -4 }} animate={{ opacity: 1, height: 'auto', y: 0 }} exit={{ opacity: 0, height: 0 }}
+            className="mt-1.5 ps-1 text-[11.5px] font-medium text-green">
+            {verifyEmail ? (
+              <>
+                Email updated — we sent a verification code to your new address.{' '}
+                <Link href={`/${locale}/verificationcode?email=${encodeURIComponent(verifyEmail)}`}
+                  className="font-semibold text-green underline underline-offset-2 hover:text-green-light">
+                  Verify now
+                </Link>
+              </>
+            ) : (
+              'Email updated.'
+            )}
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -264,9 +456,8 @@ function ExperienceStep({ items, onChange }: {
                           <label className="flex cursor-pointer items-center gap-2.5 py-3">
                             <button type="button" role="checkbox" aria-checked={role.current}
                               onClick={() => update(role.id, { current: !role.current, endMonth: '', endYear: '' })}
-                              className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${
-                                role.current ? 'border-gold bg-gold' : 'border-edge-strong bg-transparent'
-                              }`}>
+                              className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${role.current ? 'border-gold bg-gold' : 'border-edge-strong bg-transparent'
+                                }`}>
                               {role.current && <Check size={12} className="text-ink" />}
                             </button>
                             <span className="text-[14px] text-secondary">I currently work here</span>
@@ -669,14 +860,21 @@ function SkillsStep({ skills, onChange, onFinish }: {
   );
 }
 
-function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving, savedAt, open, onClose }: {
+function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
   currentStep: StepId; completedSteps: Set<StepId>;
-  onStepClick: (id: StepId) => void; onSaveDraft: () => void;
-  saving: boolean; savedAt: string | null;
+  onStepClick: (id: StepId) => void;
   open: boolean; onClose: () => void;
 }) {
   const currentNum = STEPS.find(s => s.id === currentStep)?.num ?? 1;
   const locale = useLocale();
+  const { user } = useAuth();
+  const activePlanId = user?.planName ?? 'FREE';
+  const planLabel: Record<'FREE' | 'PRO' | 'ENTERPRISE', string> = {
+    FREE: 'Free plan',
+    PRO: 'Pro plan',
+    ENTERPRISE: 'Enterprise plan',
+  };
+  const ctaLabel = activePlanId === 'FREE' ? 'Upgrade' : 'Manage plan';
 
   return (
     <aside className={`fixed inset-y-0 inset-s-0 z-50 flex h-screen w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -724,26 +922,23 @@ function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3 px-3">
         {STEPS.map(step => {
           const Icon = step.icon;
-          const isActive   = step.id === currentStep;
+          const isActive = step.id === currentStep;
           const isComplete = completedSteps.has(step.id);
-          const isLocked   = !isActive && !isComplete && step.num > currentNum;
+          const isLocked = !isActive && !isComplete && step.num > currentNum;
           return (
             <motion.button key={step.id}
               onClick={() => !isLocked && onStepClick(step.id)}
               whileHover={!isLocked ? { x: 2 } : {}}
-              className={`flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${
-                isActive ? 'border-gold/15 bg-gold/10' : 'border-gold/10 bg-transparent'
-              } ${isLocked ? 'cursor-default opacity-35' : 'cursor-pointer'}`}
+              className={`flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${isActive ? 'border-gold/15 bg-gold/10' : 'border-gold/10 bg-transparent'
+                } ${isLocked ? 'cursor-default opacity-35' : 'cursor-pointer'}`}
             >
-              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-all ${
-                isActive ? 'border-gold/30 bg-gold/15' : isComplete ? 'border-green/20 bg-green/10' : 'border-edge bg-card'
-              }`}>
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-all ${isActive ? 'border-gold/30 bg-gold/15' : isComplete ? 'border-green/20 bg-green/10' : 'border-edge bg-card'
+                }`}>
                 {isComplete ? <Check size={15} className="text-green" /> : <Icon size={15} className={isActive ? 'text-gold' : 'text-muted'} />}
               </div>
               <div className="min-w-0 flex-1">
-                <div className={`text-[13px] transition-colors ${
-                  isActive ? 'font-bold text-primary' : isComplete ? 'font-medium text-secondary' : 'font-medium text-secondary'
-                }`}>
+                <div className={`text-[13px] transition-colors ${isActive ? 'font-bold text-primary' : isComplete ? 'font-medium text-secondary' : 'font-medium text-secondary'
+                  }`}>
                   {step.label}
                 </div>
                 <div className="mt-0.5 truncate text-[11px] text-faint">
@@ -758,35 +953,62 @@ function Sidebar({ currentStep, completedSteps, onStepClick, onSaveDraft, saving
 
       <div className="mx-6 h-px bg-edge" />
 
-      <div className="px-6 py-5">
-        {savedAt && (
-          <div className="mb-2.5 flex items-center justify-center gap-1.5">
-            <Check size={11} className="text-green" />
-            <span className="text-[11px] text-muted">Saved {savedAt}</span>
+      <div className="px-4 py-4">
+        <div className="flex items-center justify-between rounded-xl px-2 py-2 transition-colors hover:bg-card-hover">
+          {/* Left */}
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold text-[12px] font-bold text-ink">
+              {getInitials(user?.name)}
+            </div>
+
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-semibold text-primary">
+                {user?.name ?? "Your account"}
+              </p>
+
+              <p
+                className={`text-[11px] ${activePlanId === "FREE"
+                  ? "text-muted"
+                  : activePlanId === "PRO"
+                    ? "text-gold"
+                    : "text-violet-300"
+                  }`}
+              >
+                {planLabel[activePlanId]}
+              </p>
+            </div>
           </div>
-        )}
-        <button onClick={onSaveDraft} disabled={saving}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-edge bg-card py-3 text-[13px] font-semibold text-secondary transition-all hover:border-gold/20 hover:bg-gold/8 hover:text-gold disabled:cursor-not-allowed"
-        >
-          {saving ? <><FileText size={13} className="animate-spin" /> Saving…</> : <><Save size={13} /> Save Draft</>}
-        </button>
+
+          {/* Right */}
+          <Link
+            href={`/${locale}/pricing`}
+            className="group flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold text-gold transition-colors hover:bg-gold/10"
+          >
+            {ctaLabel}
+            <ArrowRight
+              size={13}
+              className="transition-transform group-hover:translate-x-0.5"
+            />
+          </Link>
+        </div>
       </div>
     </aside>
   );
 }
 
-function ContactStep({ data, onChange, errors }: {
+function ContactStep({ data, onChange, errors, onSaveEmail }: {
   data: ContactData;
   onChange: (f: keyof ContactData, v: string) => void;
   errors: Partial<Record<keyof ContactData, string>>;
+  onSaveEmail: (email: string) => Promise<{ requiresVerification: boolean }>;
 }) {
   const fields: { key: keyof ContactData; label: string; icon: React.ElementType; placeholder: string; type?: string; hint?: string; optional?: boolean; }[] = [
-    { key: 'fullName', label: 'Full Name',            icon: User,     placeholder: 'e.g. Alex Sterling',                hint: 'Use your real name as it appears on official documents' },
-    { key: 'title',    label: 'Professional Title',   icon: Briefcase,placeholder: 'e.g. Senior UX Designer',           hint: "Your current role or the role you're targeting" },
-    { key: 'email',    label: 'Email Address',        icon: Mail,     placeholder: 'alex.sterling@example.com', type: 'email', hint: 'Use a professional email address' },
-    { key: 'phone',    label: 'Phone Number',         icon: Phone,    placeholder: '+1 (555) 000-0000',         type: 'tel', optional: true },
-    { key: 'location', label: 'Location',             icon: MapPin,   placeholder: 'San Francisco, CA',                 hint: 'City and country is enough — no full address needed', optional: true },
-    { key: 'linkedin', label: 'LinkedIn Profile URL', icon: Link2,    placeholder: 'linkedin.com/in/alexsterling',       hint: 'Increases your callback rate by up to 40%', optional: true },
+    { key: 'fullName', label: 'Full Name', icon: User, placeholder: 'e.g. Alex Sterling', hint: 'Use your real name as it appears on official documents' },
+    { key: 'title', label: 'Professional Title', icon: Briefcase, placeholder: 'e.g. Senior UX Designer', hint: "Your current role or the role you're targeting" },
+    { key: 'email', label: 'Email Address', icon: Mail, placeholder: 'alex.sterling@example.com', type: 'email', hint: 'Use a professional email address' },
+    { key: 'phone', label: 'Phone Number', icon: Phone, placeholder: '+1 (555) 000-0000', type: 'tel', optional: true },
+    { key: 'location', label: 'Location', icon: MapPin, placeholder: 'San Francisco, CA', hint: 'City and country is enough — no full address needed', optional: true },
+    { key: 'linkedin', label: 'LinkedIn Profile URL', icon: Link2, placeholder: 'linkedin.com/in/alexsterling', hint: 'Increases your callback rate by up to 40%', optional: true },
   ];
   const filledCount = Object.values(data).filter(v => v.trim()).length;
 
@@ -823,8 +1045,20 @@ function ContactStep({ data, onChange, errors }: {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3.5">
         {fields.map((f, i) => (
           <motion.div key={f.key} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.12 + i * 0.06 }}>
+            {f.key === 'email' ? (
+              <EmailFieldCard label={f.label} icon={f.icon} placeholder={f.placeholder}
+                value={data.email} error={errors.email} hint={f.hint} onSave={onSaveEmail} />
+            ) : f.key === 'phone' ? (
+            <FieldCard label={f.label} icon={f.icon} type={f.type} placeholder={f.placeholder}
+              value={data.phone}
+              onChange={v => onChange('phone', formatPhoneNumber(v))}
+              error={errors.phone} hint={f.hint} optional={f.optional}
+              maxLength={12} 
+            />
+            ) : (
             <FieldCard label={f.label} icon={f.icon} type={f.type} placeholder={f.placeholder}
               value={data[f.key]} onChange={v => onChange(f.key, v)} error={errors[f.key]} hint={f.hint} optional={f.optional} />
+            )}
           </motion.div>
         ))}
       </div>
@@ -848,44 +1082,62 @@ function ContactStep({ data, onChange, errors }: {
 
 export default function DashboardPage() {
   const locale = useLocale();
-  const [currentStep, setCurrentStep]  = useState<StepId>('contact');
+  const { user } = useAuth();
+  const [currentStep, setCurrentStep] = useState<StepId>('contact');
   const [completedSteps, setCompleted] = useState<Set<StepId>>(new Set());
-  const [saving, setSaving]            = useState(false);
-  const [savedAt, setSavedAt]          = useState<string | null>(null);
-  const [contact, setContact]          = useState<ContactData>({ fullName: '', title: '', email: '', phone: '', location: '', linkedin: '' });
-  const [experience, setExperience]    = useState<ExperienceItem[]>([emptyRole()]);
-  const [education, setEducation]      = useState<EducationItem[]>([emptyEdu()]);
-  const [certs, setCerts]              = useState<CertItem[]>([emptyCert()]);
-  const [skills, setSkills]            = useState<string[]>(['Strategic Planning', 'React.js', 'Team Leadership']);
-  const [errors, setErrors]            = useState<Partial<Record<keyof ContactData, string>>>({});
-  const [navOpen, setNavOpen]          = useState(false);
+  const [contact, setContact] = useState<ContactData>({ fullName: '', title: '', email: '', phone: '', location: '', linkedin: '' });
+  const [experience, setExperience] = useState<ExperienceItem[]>([emptyRole()]);
+  const [education, setEducation] = useState<EducationItem[]>([emptyEdu()]);
+  const [certs, setCerts] = useState<CertItem[]>([emptyCert()]);
+  const [skills, setSkills] = useState<string[]>(['Strategic Planning', 'React.js', 'Team Leadership']);
+  const [errors, setErrors] = useState<Partial<Record<keyof ContactData, string>>>({});
+  const [navOpen, setNavOpen] = useState(false);
+
+  // Auto-fill name/email from the signed-in account. Only empty fields are
+  // filled so a user's manual edits are never overwritten.
+  useEffect(() => {
+    if (!user) return;
+    const timer = window.setTimeout(() => {
+      setContact(c => ({
+        ...c,
+        fullName: c.fullName || user.name || '',
+        email: c.email || user.email || '',
+      }));
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [user]);
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
-  const nextStep     = STEPS[currentIndex + 1];
-  const prevStep     = STEPS[currentIndex - 1];
+  const nextStep = STEPS[currentIndex + 1];
+  const prevStep = STEPS[currentIndex - 1];
 
   const validateContact = (): boolean => {
     const e: Partial<Record<keyof ContactData, string>> = {};
-    if (!contact.fullName.trim())                  e.fullName = 'Full name is required';
-    if (!contact.title.trim())                     e.title    = 'Professional title is required';
-    if (!contact.email)                            e.email    = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(contact.email)) e.email    = 'Enter a valid email address';
+    if (!contact.fullName.trim()) e.fullName = 'Full name is required';
+    if (!contact.title.trim()) e.title = 'Professional title is required';
+    if (!contact.email) e.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(contact.email)) e.email = 'Enter a valid email address';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const handleSaveDraft = async () => {
-    setSaving(true);
-    try {
-      await fetch('/api/resume/draft', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${typeof window !== 'undefined' ? localStorage.getItem('resumax_token') : ''}` },
-        body: JSON.stringify({ step: currentStep, contact, experience, education, certs, skills }),
-      });
-      const now = new Date();
-      setSavedAt(`${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`);
-    } catch { /* silent */ }
-    finally { setSaving(false); }
+  const handleSaveEmail = async (newEmail: string) => {
+    setContact((prev) => ({
+      ...prev,
+      email: newEmail,
+    }));
+
+    if (errors.email) {
+      setErrors((prev) => ({
+        ...prev,
+        email: undefined,
+      }));
+    }
+
+    return {
+      requiresVerification: false,
+    };
   };
 
   const handleNext = () => {
@@ -917,7 +1169,7 @@ export default function DashboardPage() {
 
   const nextLabel: Record<StepId, string> = {
     contact: 'Next: Experience', experience: 'Next: Education',
-    education: 'Next: Skills',  skills: 'Finish & Preview',
+    education: 'Next: Skills', skills: 'Finish & Preview',
   };
 
   return (
@@ -929,9 +1181,6 @@ export default function DashboardPage() {
         currentStep={currentStep}
         completedSteps={completedSteps}
         onStepClick={handleSidebarStep}
-        onSaveDraft={handleSaveDraft}
-        saving={saving}
-        savedAt={savedAt}
         open={navOpen}
         onClose={() => setNavOpen(false)}
       />
@@ -952,10 +1201,13 @@ export default function DashboardPage() {
           <span className="w-5.5" />
         </div>
 
-        <div className="fixed inset-x-0 top-0 z-30 hidden h-16 items-center justify-end gap-3 border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent px-8 backdrop-blur-xl md:flex lg:inset-s-65 lg:px-15">
-          <ThemeToggle />
-          <LanguageSwitcher />
-          <UserAvatarMenu />
+        <div className="fixed inset-x-0 top-0 z-30 hidden h-16 md:flex lg:inset-s-65">
+          <div className="absolute inset-0 -z-10 border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent backdrop-blur-xl" />
+          <div className="flex w-full items-center justify-end gap-3 px-8 lg:px-15">
+            <ThemeToggle />
+            <LanguageSwitcher />
+            <UserAvatarMenu />
+          </div>
         </div>
         <div className="hidden h-16 shrink-0 md:block" aria-hidden />
 
@@ -966,7 +1218,7 @@ export default function DashboardPage() {
                 {currentStep === 'contact' && (
                   <ContactStep data={contact}
                     onChange={(field, value) => { setContact(c => ({ ...c, [field]: value })); if (errors[field]) setErrors(e => ({ ...e, [field]: undefined })); }}
-                    errors={errors} />
+                    errors={errors} onSaveEmail={handleSaveEmail} />
                 )}
                 {currentStep === 'experience' && (
                   <ExperienceStep items={experience} onChange={setExperience} />
