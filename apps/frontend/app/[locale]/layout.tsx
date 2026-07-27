@@ -7,6 +7,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import AuthModal from "@/components/auth/AuthModal";
 import HtmlDirSync from "@/components/ui/HtmlDirSync";
+import { Toaster } from "sonner";
+import RouteNotification from "@/components/ui/Notifications";
 
 export const metadata: Metadata = {
   title: "ResuMax — Trusted. Global. Effortless.",
@@ -34,6 +36,12 @@ export default async function LocaleLayout({
       <HtmlDirSync />
       <ThemeProvider>
         <AuthProvider>
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+          />
+          <RouteNotification />
           {children}
           <AuthModal />
         </AuthProvider>
