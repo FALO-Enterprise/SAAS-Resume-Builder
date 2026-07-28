@@ -49,14 +49,8 @@ export function AuthProvider({
     getStoredUser()
   );
 
-  // Derived directly from `user` — no separate state, no effect needed.
   const isVerified = !!user;
 
-  /**
-   * Keep localStorage synchronized.
-   * This is a genuine external-system sync (writing to localStorage),
-   * so it's fine to keep in an effect — it just no longer calls setState.
-   */
   useEffect(() => {
     if (user) {
       localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -79,7 +73,7 @@ export function AuthProvider({
     setUser(null);
 
     localStorage.removeItem("resumax_token");
-
+    document.cookie = "resumax_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     router.push(`/${locale}`);
   };
 
