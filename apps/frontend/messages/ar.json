@@ -509,6 +509,126 @@
       "secondaryButton": "جرّب Pro — $9/شهر"
     }
   },
+  "dashboard": {
+    "backToHome": "العودة إلى الرئيسية",
+    "onboarding": "الإعداد الأولي",
+    "stepOf": "الخطوة {current} من {total}",
+    "aiAssistant": "مساعد السيرة الذاتية بالذكاء الاصطناعي",
+    "plans": { "free": "الباقة المجانية", "pro": "باقة Pro", "enterprise": "باقة Enterprise" },
+    "upgrade": "الترقية",
+    "managePlan": "إدارة الباقة",
+    "yourAccount": "حسابك",
+    "steps": {
+      "contact": { "label": "التواصل", "desc": "المعلومات الشخصية وبيانات التواصل" },
+      "experience": { "label": "الخبرة", "desc": "تاريخ العمل والأدوار الوظيفية" },
+      "education": { "label": "التعليم", "desc": "الشهادات والدرجات العلمية" },
+      "skills": { "label": "المهارات", "desc": "المهارات التقنية والشخصية" }
+    },
+    "nextLabel": {
+      "contact": "التالي: الخبرة",
+      "experience": "التالي: التعليم",
+      "education": "التالي: المهارات",
+      "skills": "إنهاء ومعاينة"
+    },
+    "back": "رجوع",
+    "exitToHome": "الخروج إلى الرئيسية",
+
+    "contact": {
+      "badge": "الخطوة 1 — معلومات التواصل",
+      "titleLine1": "أخبرنا",
+      "titleHighlight": "عن نفسك",
+      "subtitle": "الانطباع الأول مهم. سنستخدم هذه المعلومات لبناء ترويسة سيرتك الذاتية وتحسين بيانات التواصل لأنظمة تتبع المتقدمين.",
+      "sectionCompletion": "نسبة اكتمال القسم",
+      "fieldsCount": "{count}/6 حقول",
+      "optional": "اختياري",
+      "atsTipLabel": "نصيحة ATS",
+      "atsTipText": "يقضي المسؤولون عن التوظيف بالمتوسط <b>6 ثوانٍ</b> على الترويسة. اكتمال قسم التواصل يرفع معدل التواصل معك بنسبة تصل إلى <gold>60%</gold>.",
+      "fields": {
+        "fullName": { "label": "الاسم الكامل", "placeholder": "مثال: أليكس ستيرلينغ", "hint": "استخدم اسمك الحقيقي كما يظهر في الوثائق الرسمية" },
+        "title": { "label": "المسمى الوظيفي", "placeholder": "مثال: مصمم UX أول", "hint": "دورك الحالي أو الدور الذي تستهدفه" },
+        "email": { "label": "البريد الإلكتروني", "placeholder": "alex.sterling@example.com", "hint": "استخدم بريدًا إلكترونيًا مهنيًا" },
+        "phone": { "label": "رقم الهاتف", "placeholder": "+1 (555) 000-0000" },
+        "location": { "label": "الموقع", "placeholder": "سان فرانسيسكو، كاليفورنيا", "hint": "المدينة والدولة كافيتان — لا حاجة للعنوان الكامل" },
+        "linkedin": { "label": "رابط ملف لينكدإن", "placeholder": "linkedin.com/in/alexsterling", "hint": "يرفع معدل التواصل معك بنسبة تصل إلى 40%" }
+      },
+      "errors": {
+        "fullNameRequired": "الاسم الكامل مطلوب",
+        "titleRequired": "المسمى الوظيفي مطلوب",
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "emailInvalid": "أدخل بريدًا إلكترونيًا صحيحًا"
+      },
+      "email": {
+        "edit": "تعديل البريد الإلكتروني",
+        "save": "حفظ البريد الإلكتروني",
+        "cancel": "إلغاء تعديل البريد الإلكتروني",
+        "updated": "تم تحديث البريد الإلكتروني.",
+        "updatedVerify": "تم تحديث البريد الإلكتروني — أرسلنا رمز تحقّق إلى عنوانك الجديد.",
+        "verifyNow": "تحقّق الآن",
+        "invalidEmail": "أدخل بريدًا إلكترونيًا صحيحًا",
+        "saveFailed": "تعذّر حفظ بريدك الإلكتروني. حاول مرة أخرى."
+      }
+    },
+
+    "experience": {
+      "badge": "الخطوة 2 — الخبرة",
+      "title": "الخبرة العملية",
+      "subtitle": "فصّل تاريخك المهني لإبراز تأثيرك وقدراتك القيادية.",
+      "roleFallback": "الوظيفة {n}",
+      "removeRole": "حذف الوظيفة",
+      "jobTitle": { "label": "المسمى الوظيفي", "placeholder": "مثال: مهندس برمجيات أول" },
+      "company": { "label": "اسم الشركة", "placeholder": "مثال: Global Tech Solutions" },
+      "location": { "label": "الموقع", "placeholder": "مثال: نيويورك أو عن بُعد" },
+      "currentlyWorkHere": "أعمل هنا حاليًا",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء",
+      "month": "الشهر",
+      "year": "السنة",
+      "descriptionLabel": "الوصف / أبرز الإنجازات",
+      "atsTipsAvailable": "نصائح متوافقة مع ATS متاحة",
+      "descriptionPlaceholder": "• قدت تطوير منصة سحابية أصلية، ما رفع سرعة النشر بنسبة 40%…",
+      "descriptionHint": "استخدم أفعالًا فعّالة وحدد النتائج بأرقام كلما أمكن.",
+      "addAnotherRole": "إضافة وظيفة أخرى"
+    },
+
+    "education": {
+      "badge": "الملف الأكاديمي",
+      "title": "التعليم والشهادات",
+      "subtitle": "أبرز أساسك الأكاديمي وشهاداتك المهنية. يساعدك ResuMax على مواءمتها مع معايير الصناعة لتحسين ترتيبك في أنظمة ATS.",
+      "formalEducation": "التعليم الرسمي",
+      "addInstitution": "إضافة مؤسسة تعليمية",
+      "institutionFallback": "المؤسسة {n}",
+      "removeInstitution": "حذف المؤسسة",
+      "institutionName": { "label": "اسم المؤسسة", "placeholder": "مثال: جامعة ستانفورد" },
+      "degree": { "label": "الدرجة العلمية", "placeholder": "مثال: بكالوريوس علوم حاسوب" },
+      "fieldOfStudy": { "label": "التخصص", "placeholder": "مثال: الذكاء الاصطناعي" },
+      "gradYear": { "label": "سنة التخرج", "placeholder": "2023" },
+      "professionalCertifications": "الشهادات المهنية",
+      "certificateName": { "label": "اسم الشهادة", "placeholder": "مثال: AWS Certified Solutions Architect" },
+      "issuingOrg": { "label": "الجهة المانحة", "placeholder": "مثال: Amazon Web Services" },
+      "removeCertificate": "حذف الشهادة",
+      "addCertificate": "إضافة شهادة",
+      "proTip": "نصيحة احترافية",
+      "proTipText": "إدراج المقررات الدراسية ذات الصلة يمكن أن يرفع نتيجة ATS بشكل ملحوظ للأدوار المبتدئة والمتوسطة. احرص على استخدام كلمات مفتاحية خاصة بالصناعة.",
+      "atsScoreRank": "تصنيف نتيجة ATS",
+      "profileCompletion": "تقدّم اكتمال الملف الشخصي"
+    },
+
+    "skills": {
+      "title": "المهارات والخبرات",
+      "subtitle": "حلل ResuMax بالذكاء الاصطناعي تاريخك الوظيفي. أضف مهارات محددة لتجاوز فلاتر ATS والتميّز أمام المسؤولين عن التوظيف.",
+      "addManually": "إضافة يدويًا",
+      "inputPlaceholder": "مثال: Python، إدارة المشاريع…",
+      "noneAdded": "لم تُضف أي مهارات بعد — اكتب أعلاه أو اختر اقتراحًا.",
+      "suggestedForRole": "مقترحة لدورك الوظيفي",
+      "viewMore": "عرض {count}+ المزيد",
+      "estimatedAtsScore": "نتيجة ATS المتوقعة",
+      "atsQuote": "أضف 3 مهارات تقنية أخرى لزيادة ظهورك في أدوار المطورين المتقدمين.",
+      "proTip": "نصيحة احترافية",
+      "proTipText": "مهارات مثل \"التحدث أمام الجمهور\" أو \"التفكير النقدي\" رائعة، لكن ركّز أولًا على البرمجيات والأدوات المعيارية في الصناعة.",
+      "finishButton": "إنهاء وإنشاء السيرة الذاتية",
+      "noCreditCard": "لا حاجة لبطاقة ائتمان • إنشاء مدعوم بالذكاء الاصطناعي"
+    }
+  },
   "templatesPage": {
     "hero": {
       "badge": "محلية ومتجاوبة",

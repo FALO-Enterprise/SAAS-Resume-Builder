@@ -509,6 +509,126 @@
       "secondaryButton": "Try Pro — $9/mo"
     }
   },
+  "dashboard": {
+    "backToHome": "Back to home",
+    "onboarding": "Onboarding",
+    "stepOf": "Step {current} of {total}",
+    "aiAssistant": "AI Resume Assistant",
+    "plans": { "free": "Free plan", "pro": "Pro plan", "enterprise": "Enterprise plan" },
+    "upgrade": "Upgrade",
+    "managePlan": "Manage plan",
+    "yourAccount": "Your account",
+    "steps": {
+      "contact": { "label": "Contact", "desc": "Personal & contact info" },
+      "experience": { "label": "Experience", "desc": "Work history & roles" },
+      "education": { "label": "Education", "desc": "Degrees & certifications" },
+      "skills": { "label": "Skills", "desc": "Technical & soft skills" }
+    },
+    "nextLabel": {
+      "contact": "Next: Experience",
+      "experience": "Next: Education",
+      "education": "Next: Skills",
+      "skills": "Finish & Preview"
+    },
+    "back": "Back",
+    "exitToHome": "Exit to home",
+
+    "contact": {
+      "badge": "Step 1 — Contact Info",
+      "titleLine1": "Tell us about",
+      "titleHighlight": "yourself",
+      "subtitle": "First impressions matter. We'll use this information to build your resume header and optimize your contact details for ATS screening.",
+      "sectionCompletion": "Section completion",
+      "fieldsCount": "{count}/6 fields",
+      "optional": "Optional",
+      "atsTipLabel": "ATS Tip",
+      "atsTipText": "Recruiters spend an average of <b>6 seconds</b> on the header. A complete contact section increases your callback rate by up to <gold>60%</gold>.",
+      "fields": {
+        "fullName": { "label": "Full Name", "placeholder": "e.g. Alex Sterling", "hint": "Use your real name as it appears on official documents" },
+        "title": { "label": "Professional Title", "placeholder": "e.g. Senior UX Designer", "hint": "Your current role or the role you're targeting" },
+        "email": { "label": "Email Address", "placeholder": "alex.sterling@example.com", "hint": "Use a professional email address" },
+        "phone": { "label": "Phone Number", "placeholder": "+1 (555) 000-0000" },
+        "location": { "label": "Location", "placeholder": "San Francisco, CA", "hint": "City and country is enough — no full address needed" },
+        "linkedin": { "label": "LinkedIn Profile URL", "placeholder": "linkedin.com/in/alexsterling", "hint": "Increases your callback rate by up to 40%" }
+      },
+      "errors": {
+        "fullNameRequired": "Full name is required",
+        "titleRequired": "Professional title is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address"
+      },
+      "email": {
+        "edit": "Edit email address",
+        "save": "Save email address",
+        "cancel": "Cancel editing email",
+        "updated": "Email updated.",
+        "updatedVerify": "Email updated — we sent a verification code to your new address.",
+        "verifyNow": "Verify now",
+        "invalidEmail": "Enter a valid email address",
+        "saveFailed": "Could not save your email. Please try again."
+      }
+    },
+
+    "experience": {
+      "badge": "Step 2 — Experience",
+      "title": "Work Experience",
+      "subtitle": "Detail your career history to highlight your impact and leadership.",
+      "roleFallback": "Role {n}",
+      "removeRole": "Remove role",
+      "jobTitle": { "label": "Job Title", "placeholder": "e.g. Senior Software Engineer" },
+      "company": { "label": "Company Name", "placeholder": "e.g. Global Tech Solutions" },
+      "location": { "label": "Location", "placeholder": "e.g. New York, NY or Remote" },
+      "currentlyWorkHere": "I currently work here",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "month": "Month",
+      "year": "Year",
+      "descriptionLabel": "Description / Key Achievements",
+      "atsTipsAvailable": "ATS Optimized Tips Available",
+      "descriptionPlaceholder": "• Spearheaded the development of a cloud-native platform, increasing deployment speed by 40%…",
+      "descriptionHint": "Use action verbs and quantify results where possible.",
+      "addAnotherRole": "Add Another Role"
+    },
+
+    "education": {
+      "badge": "Academic Portfolio",
+      "title": "Education & Certifications",
+      "subtitle": "Showcase your academic foundations and professional credentials. ResuMax helps align these with industry standards for better ATS ranking.",
+      "formalEducation": "Formal Education",
+      "addInstitution": "Add Institution",
+      "institutionFallback": "Institution {n}",
+      "removeInstitution": "Remove institution",
+      "institutionName": { "label": "Institution Name", "placeholder": "e.g. Stanford University" },
+      "degree": { "label": "Degree", "placeholder": "e.g. B.S. Computer Science" },
+      "fieldOfStudy": { "label": "Field of Study", "placeholder": "e.g. Artificial Intelligence" },
+      "gradYear": { "label": "Graduation Year", "placeholder": "2023" },
+      "professionalCertifications": "Professional Certifications",
+      "certificateName": { "label": "Certificate Name", "placeholder": "e.g. AWS Certified Solutions Architect" },
+      "issuingOrg": { "label": "Issuing Organization", "placeholder": "e.g. Amazon Web Services" },
+      "removeCertificate": "Remove certificate",
+      "addCertificate": "Add Certificate",
+      "proTip": "Pro Tip",
+      "proTipText": "Listing relevant coursework can significantly boost your ATS score for entry-level and mid-level roles. Ensure you use industry keywords.",
+      "atsScoreRank": "ATS Score Rank",
+      "profileCompletion": "Profile completion progress"
+    },
+
+    "skills": {
+      "title": "Skills & Expertise",
+      "subtitle": "ResuMax AI has analyzed your job history. Add specific skills to pass ATS filters and stand out to recruiters.",
+      "addManually": "Add Manually",
+      "inputPlaceholder": "e.g., Python, Project Management…",
+      "noneAdded": "No skills added yet — type above or pick a suggestion.",
+      "suggestedForRole": "Suggested for your role",
+      "viewMore": "View {count}+ more",
+      "estimatedAtsScore": "Estimated ATS Score",
+      "atsQuote": "Add 3 more technical skills to increase visibility for Senior Developer roles.",
+      "proTip": "Pro Tip",
+      "proTipText": "Skills like 'Public Speaking' or 'Critical Thinking' are great, but focus on industry-standard software and tools first.",
+      "finishButton": "Finish & Generate Resume",
+      "noCreditCard": "No credit card required • AI powered generation"
+    }
+  },
   "templatesPage": {
     "hero": {
       "badge": "Localized & Responsive",

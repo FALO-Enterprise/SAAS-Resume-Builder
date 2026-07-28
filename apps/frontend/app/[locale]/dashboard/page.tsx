@@ -11,7 +11,8 @@ import {
   Award, Lightbulb, PlusCircle, Search,
   Pencil, Loader2,
 } from 'lucide-react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
@@ -24,6 +25,16 @@ import { emptyRole, emptyEdu, emptyCert } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
+
+const getAvatarUrl = (path?: string) => {
+  if (!path) return "";
+  if (path.startsWith("http")) return path;
+
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  const finalPath = cleanPath.startsWith("/uploads/") ? cleanPath : `/uploads${cleanPath}`;
+
+  return `http://localhost:3001${finalPath}`;
+};
 
 function getInitials(name?: string) {
   if (!name) return '?';
@@ -38,6 +49,7 @@ function FieldCard({
   label: string; icon: React.ElementType; type?: string; placeholder: string;
   value: string; onChange: (v: string) => void; error?: string; hint?: string; optional?: boolean; maxLength?: number;
 }) {
+  const t = useTranslations('dashboard.contact');
   const [focused, setFocused] = useState(false);
   const filled = value.length > 0;
 
@@ -60,7 +72,7 @@ function FieldCard({
 
   return (
     <div className="relative flex flex-col">
-      <div className={`relative overflow-hidden rounded-[14px] border px-5 py-4.5 transition-all duration-200 ${wrapState}`}>
+      <div className={`relative overflow-visible rounded-[14px] border px-5 py-4.5 transition-all duration-200 ${wrapState}`}>
         <AnimatePresence>
           {focused && (
             <motion.div
@@ -71,7 +83,7 @@ function FieldCard({
           )}
         </AnimatePresence>
 
-        <div className={`mb-2.5 flex items-center gap-2 ${hint ? 'pe-9' : ''}`}>
+        <div className="mb-2.5 flex items-center gap-2">
           <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${iconBox}`}>
             <Icon size={14} className={`transition-colors ${iconColor}`} />
           </div>
@@ -80,15 +92,22 @@ function FieldCard({
           </span>
           {optional && (
             <span className="rounded-full border border-edge bg-card px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.06em] text-gold">
-              Optional
+              {t('optional')}
             </span>
           )}
-          {filled && !focused && (
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-              className="ms-auto flex h-4 w-4 items-center justify-center rounded-full border border-green/30 bg-green/15">
-              <Check size={9} className="text-green" />
-            </motion.div>
-          )}
+          <div className="absolute inset-e-5 top-5 flex items-center gap-2">
+            {filled && !focused && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex h-4 w-4 items-center justify-center rounded-full border border-green/30 bg-green/15"
+              >
+                <Check size={9} className="text-green" />
+              </motion.div>
+            )}
+
+            {hint && <HintTooltip hint={hint} />}
+          </div>
         </div>
 
         <input
@@ -98,8 +117,6 @@ function FieldCard({
           className="w-full border-none bg-transparent ps-9 font-syne text-[15px] font-medium text-primary outline-none placeholder:text-muted"
         />
       </div>
-
-      {hint && <HintTooltip hint={hint} className="absolute inset-e-4 top-4.5" />}
 
       <AnimatePresence>
         {error && (
@@ -114,14 +131,13 @@ function FieldCard({
 }
 
 // ── Email field with in-place edit → save/cancel flow ────────────────────────
-// The email is pre-filled from the signed-in account and stays read-only until
-// the user explicitly enters edit mode; saving persists the change to the DB.
 function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, onSave }: {
   label: string; icon: React.ElementType; placeholder: string;
   value: string; error?: string; hint?: string;
   onSave: (email: string) => Promise<{ requiresVerification: boolean }>;
 }) {
   const locale = useLocale();
+  const t = useTranslations('dashboard.contact.email');
   const [focused, setFocused] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -140,7 +156,7 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
   const canSave = editing && dirty && validDraft && !saving;
 
   const displayError = saveError
-    ?? (editing && dirty && trimmed.length > 0 && !validDraft ? 'Enter a valid email address' : undefined)
+    ?? (editing && dirty && trimmed.length > 0 && !validDraft ? t('invalidEmail') : undefined)
     ?? error;
 
   const startEdit = () => {
@@ -170,7 +186,7 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
       setSavedOk(true);
       setTimeout(() => editBtnRef.current?.focus(), 0);
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Could not save your email. Please try again.');
+      setSaveError(err instanceof Error ? err.message : t('saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -237,14 +253,14 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
               <>
                 <button
                   type="button" onClick={saveEdit} disabled={!canSave}
-                  aria-label="Save email address"
+                  aria-label={t('save')}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-green/30 bg-green/15 text-green transition-all hover:bg-green/25 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {saving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
                 </button>
                 <button
                   type="button" onClick={cancelEdit} disabled={saving}
-                  aria-label="Cancel editing email"
+                  aria-label={t('cancel')}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <X size={13} />
@@ -254,7 +270,7 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
               <button
                 ref={editBtnRef}
                 type="button" onClick={startEdit}
-                aria-label="Edit email address"
+                aria-label={t('edit')}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-edge bg-card text-muted transition-all hover:border-gold/40 hover:bg-gold/10 hover:text-gold"
               >
                 <Pencil size={13} />
@@ -281,14 +297,14 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
             className="mt-1.5 ps-1 text-[11.5px] font-medium text-green">
             {verifyEmail ? (
               <>
-                Email updated — we sent a verification code to your new address.{' '}
+                {t('updatedVerify')}{' '}
                 <Link href={`/${locale}/verificationcode?email=${encodeURIComponent(verifyEmail)}`}
                   className="font-semibold text-green underline underline-offset-2 hover:text-green-light">
-                  Verify now
+                  {t('verifyNow')}
                 </Link>
               </>
             ) : (
-              'Email updated.'
+              t('updated')
             )}
           </motion.p>
         )}
@@ -361,6 +377,7 @@ function ExperienceStep({ items, onChange }: {
   items: ExperienceItem[];
   onChange: (items: ExperienceItem[]) => void;
 }) {
+  const t = useTranslations('dashboard.experience');
   const [expandedId, setExpandedId] = useState<string>(items[0]?.id ?? '');
 
   const update = (id: string, patch: Partial<ExperienceItem>) =>
@@ -385,23 +402,23 @@ function ExperienceStep({ items, onChange }: {
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
         className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
         <span className="inline-block h-1.25 w-1.25 rounded-full bg-gold" />
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">Step 2 — Experience</span>
+        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
       </motion.div>
 
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
         className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
-        Work Experience
+        {t('title')}
       </motion.h1>
 
       <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
         className="mb-9 max-w-130 text-[15px] leading-[1.7] text-faint">
-        Detail your career history to highlight your impact and leadership.
+        {t('subtitle')}
       </motion.p>
 
       <div className="flex flex-col gap-4">
         {items.map((role, idx) => {
           const isOpen = expandedId === role.id;
-          const title = role.jobTitle || `Role ${idx + 1}`;
+          const title = role.jobTitle || t('roleFallback', { n: idx + 1 });
           const subtitle = [role.company, role.location].filter(Boolean).join(' · ');
 
           return (
@@ -424,7 +441,7 @@ function ExperienceStep({ items, onChange }: {
                     tabIndex={0}
                     onClick={(e) => { e.stopPropagation(); removeRole(role.id); }}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); removeRole(role.id); } }}
-                    aria-label="Remove role"
+                    aria-label={t('removeRole')}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light"
                   >
                     <Trash2 size={14} />
@@ -444,12 +461,12 @@ function ExperienceStep({ items, onChange }: {
                   >
                     <div className="border-t border-edge px-5 pb-6 pt-5 sm:px-7">
                       <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
-                        <ExpField label="Job Title" placeholder="e.g. Senior Software Engineer"
+                        <ExpField label={t('jobTitle.label')} placeholder={t('jobTitle.placeholder')}
                           value={role.jobTitle} onChange={v => update(role.id, { jobTitle: v })} />
-                        <ExpField label="Company Name" icon={Building2} placeholder="e.g. Global Tech Solutions"
+                        <ExpField label={t('company.label')} icon={Building2} placeholder={t('company.placeholder')}
                           value={role.company} onChange={v => update(role.id, { company: v })} />
 
-                        <ExpField label="Location" icon={MapPin} placeholder="e.g. New York, NY or Remote"
+                        <ExpField label={t('location.label')} icon={MapPin} placeholder={t('location.placeholder')}
                           value={role.location} onChange={v => update(role.id, { location: v })} />
 
                         <div className="flex items-end">
@@ -460,27 +477,27 @@ function ExperienceStep({ items, onChange }: {
                                 }`}>
                               {role.current && <Check size={12} className="text-ink" />}
                             </button>
-                            <span className="text-[14px] text-secondary">I currently work here</span>
+                            <span className="text-[14px] text-secondary">{t('currentlyWorkHere')}</span>
                           </label>
                         </div>
 
                         <div className="flex flex-col gap-2">
                           <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
-                            <Calendar size={12} /> Start Date
+                            <Calendar size={12} /> {t('startDate')}
                           </label>
                           <div className="flex gap-2.5">
-                            <ExpSelect value={role.startMonth} onChange={v => update(role.id, { startMonth: v })} options={MONTHS} placeholder="Month" />
-                            <ExpSelect value={role.startYear} onChange={v => update(role.id, { startYear: v })} options={YEARS} placeholder="Year" />
+                            <ExpSelect value={role.startMonth} onChange={v => update(role.id, { startMonth: v })} options={MONTHS} placeholder={t('month')} />
+                            <ExpSelect value={role.startYear} onChange={v => update(role.id, { startYear: v })} options={YEARS} placeholder={t('year')} />
                           </div>
                         </div>
 
                         <div className="flex flex-col gap-2">
                           <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
-                            <Calendar size={12} /> End Date
+                            <Calendar size={12} /> {t('endDate')}
                           </label>
                           <div className="flex gap-2.5">
-                            <ExpSelect value={role.endMonth} onChange={v => update(role.id, { endMonth: v })} options={MONTHS} placeholder="Month" disabled={role.current} />
-                            <ExpSelect value={role.endYear} onChange={v => update(role.id, { endYear: v })} options={YEARS} placeholder="Year" disabled={role.current} />
+                            <ExpSelect value={role.endMonth} onChange={v => update(role.id, { endMonth: v })} options={MONTHS} placeholder={t('month')} disabled={role.current} />
+                            <ExpSelect value={role.endYear} onChange={v => update(role.id, { endYear: v })} options={YEARS} placeholder={t('year')} disabled={role.current} />
                           </div>
                         </div>
                       </div>
@@ -488,19 +505,19 @@ function ExperienceStep({ items, onChange }: {
                       <div className="mt-5 flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-3">
                           <label className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
-                            Description / Key Achievements
+                            {t('descriptionLabel')}
                           </label>
                           <span className="rounded-md border border-azure-light/20 bg-azure-light/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.06em] text-faint">
-                            ATS Optimized Tips Available
+                            {t('atsTipsAvailable')}
                           </span>
                         </div>
                         <textarea
-                          rows={5} placeholder="• Spearheaded the development of a cloud-native platform, increasing deployment speed by 40%…"
+                          rows={5} placeholder={t('descriptionPlaceholder')}
                           value={role.description} onChange={e => update(role.id, { description: e.target.value })}
                           className="w-full resize-none rounded-xl border border-edge bg-base/40 px-4 py-3.5 text-[14px] leading-[1.6] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4 focus:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]"
                         />
                         <p className="flex items-center gap-1.5 text-[12px] text-muted">
-                          <Info size={12} /> Use action verbs and quantify results where possible.
+                          <Info size={12} /> {t('descriptionHint')}
                         </p>
                       </div>
                     </div>
@@ -514,7 +531,7 @@ function ExperienceStep({ items, onChange }: {
 
       <button onClick={addRole}
         className="mx-auto mt-6 flex items-center gap-2 rounded-xl border border-dashed border-azure-light/40 bg-azure-light/4 px-6 py-3.5 text-[14px] font-semibold text-faint transition-all hover:border-azure-light/60 hover:bg-azure-light/8">
-        <Plus size={16} /> Add Another Role
+        <Plus size={16} /> {t('addAnotherRole')}
       </button>
     </div>
   );
@@ -527,6 +544,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
   certs: CertItem[];
   onCertsChange: (items: CertItem[]) => void;
 }) {
+  const t = useTranslations('dashboard.education');
   const [expandedId, setExpandedId] = useState<string>(education[0]?.id ?? '');
 
   const updateEdu = (id: string, patch: Partial<EducationItem>) =>
@@ -563,34 +581,34 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
         className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
         <span className="inline-block h-1.25 w-1.25 rounded-full bg-gold" />
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">Academic Portfolio</span>
+        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
       </motion.div>
 
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
         className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
-        Education &amp; Certifications
+        {t('title')}
       </motion.h1>
 
       <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
         className="mb-9 max-w-150 text-[15px] leading-[1.7] text-faint">
-        Showcase your academic foundations and professional credentials. ResuMax helps align these with industry standards for better ATS ranking.
+        {t('subtitle')}
       </motion.p>
 
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <GraduationCap size={20} className="text-gold" />
-          <h2 className="text-[20px] font-bold text-primary">Formal Education</h2>
+          <h2 className="text-[20px] font-bold text-primary">{t('formalEducation')}</h2>
         </div>
         <button onClick={addEdu}
           className="flex items-center gap-1.5 text-[14px] font-semibold text-faint transition-colors hover:text-azure">
-          <PlusCircle size={16} /> Add Institution
+          <PlusCircle size={16} /> {t('addInstitution')}
         </button>
       </div>
 
       <div className="mb-10 flex flex-col gap-4">
         {education.map((edu, idx) => {
           const isOpen = expandedId === edu.id;
-          const title = edu.institution || `Institution ${idx + 1}`;
+          const title = edu.institution || t('institutionFallback', { n: idx + 1 });
           const subtitle = [edu.degree, edu.gradYear].filter(Boolean).join(' · ');
 
           return (
@@ -613,7 +631,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                     tabIndex={0}
                     onClick={(e) => { e.stopPropagation(); removeEdu(edu.id); }}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); removeEdu(edu.id); } }}
-                    aria-label="Remove institution"
+                    aria-label={t('removeInstitution')}
                     className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light"
                   >
                     <Trash2 size={14} />
@@ -633,13 +651,13 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                   >
                     <div className="border-t border-edge px-5 pb-6 pt-5 sm:px-7">
                       <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
-                        <ExpField label="Institution Name" placeholder="e.g. Stanford University"
+                        <ExpField label={t('institutionName.label')} placeholder={t('institutionName.placeholder')}
                           value={edu.institution} onChange={v => updateEdu(edu.id, { institution: v })} />
-                        <ExpField label="Degree" placeholder="e.g. B.S. Computer Science"
+                        <ExpField label={t('degree.label')} placeholder={t('degree.placeholder')}
                           value={edu.degree} onChange={v => updateEdu(edu.id, { degree: v })} />
-                        <ExpField label="Field of Study" placeholder="e.g. Artificial Intelligence"
+                        <ExpField label={t('fieldOfStudy.label')} placeholder={t('fieldOfStudy.placeholder')}
                           value={edu.field} onChange={v => updateEdu(edu.id, { field: v })} />
-                        <ExpField label="Graduation Year" placeholder="2023" rightIcon={Calendar}
+                        <ExpField label={t('gradYear.label')} placeholder={t('gradYear.placeholder')} rightIcon={Calendar}
                           value={edu.gradYear} onChange={v => updateEdu(edu.id, { gradYear: v })} />
                       </div>
                     </div>
@@ -653,7 +671,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
 
       <div className="mb-4 flex items-center gap-2.5">
         <Award size={20} className="text-gold" />
-        <h2 className="text-[20px] font-bold text-primary">Professional Certifications</h2>
+        <h2 className="text-[20px] font-bold text-primary">{t('professionalCertifications')}</h2>
       </div>
 
       <div className="mb-10 rounded-2xl border border-edge bg-card p-5 sm:p-7">
@@ -663,15 +681,15 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
               initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
               className="relative grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2"
             >
-              <ExpField label="Certificate Name" placeholder="e.g. AWS Certified Solutions Architect"
+              <ExpField label={t('certificateName.label')} placeholder={t('certificateName.placeholder')}
                 value={cert.name} onChange={v => updateCert(cert.id, { name: v })} />
               <div className="flex items-end gap-2">
                 <div className="flex-1">
-                  <ExpField label="Issuing Organization" placeholder="e.g. Amazon Web Services"
+                  <ExpField label={t('issuingOrg.label')} placeholder={t('issuingOrg.placeholder')}
                     value={cert.org} onChange={v => updateCert(cert.id, { org: v })} />
                 </div>
                 {certs.length > 1 && (
-                  <button onClick={() => removeCert(cert.id)} aria-label="Remove certificate"
+                  <button onClick={() => removeCert(cert.id)} aria-label={t('removeCertificate')}
                     className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light">
                     <Trash2 size={15} />
                   </button>
@@ -684,7 +702,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
         <div className="mt-6 flex justify-end">
           <button onClick={addCert}
             className="flex items-center gap-2 rounded-xl border border-azure-light/25 bg-azure-light/10 px-4 py-2.5 text-[13px] font-semibold text-faint transition-all hover:border-azure-light/40 hover:bg-azure-light/15">
-            <Plus size={15} /> Add Certificate
+            <Plus size={15} /> {t('addCertificate')}
           </button>
         </div>
       </div>
@@ -693,9 +711,9 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
           className="relative overflow-hidden rounded-2xl border border-gold/50 bg-gold/4 p-6">
           <div className="relative z-10">
-            <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-gold">Pro Tip</div>
+            <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-gold">{t('proTip')}</div>
             <p className="max-w-[90%] text-[14px] leading-[1.7] text-secondary">
-              Listing relevant coursework can significantly boost your ATS score for entry-level and mid-level roles. Ensure you use industry keywords.
+              {t('proTipText')}
             </p>
           </div>
           <Lightbulb size={90} className="pointer-events-none absolute -bottom-3 i-2 text-gold/10" />
@@ -707,8 +725,8 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
             <AtsRing percent={percent} />
             <span className="absolute text-[22px] font-black text-primary">{percent}%</span>
           </div>
-          <div className="mt-3 text-[14px] font-bold text-primary">ATS Score Rank</div>
-          <div className="text-[12px] text-faint">Profile completion progress</div>
+          <div className="mt-3 text-[14px] font-bold text-primary">{t('atsScoreRank')}</div>
+          <div className="text-[12px] text-faint">{t('profileCompletion')}</div>
         </motion.div>
       </div>
     </div>
@@ -721,6 +739,7 @@ function SkillsStep({ skills, onChange, onFinish }: {
   onChange: (skills: string[]) => void;
   onFinish: () => void;
 }) {
+  const t = useTranslations('dashboard.skills');
   const [input, setInput] = useState('');
   const [showAll, setShowAll] = useState(false);
 
@@ -746,26 +765,26 @@ function SkillsStep({ skills, onChange, onFinish }: {
     <div>
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
         className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
-        Skills &amp; Expertise
+        {t('title')}
       </motion.h1>
 
       <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
         className="mb-9 max-w-150 text-[15px] leading-[1.7] text-faint">
-        ResuMax AI has analyzed your job history. Add specific skills to pass ATS filters and stand out to recruiters.
+        {t('subtitle')}
       </motion.p>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]">
         {/* Left column */}
         <div>
           <div className="rounded-2xl border border-edge bg-card p-5 sm:p-6">
-            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">Add Manually</div>
+            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">{t('addManually')}</div>
             <div className="relative mb-5">
               <Search size={16} className="pointer-events-none absolute inset-s-4 top-1/2 -translate-y-1/2 text-muted" />
               <input
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
-                placeholder="e.g., Python, Project Management…"
+                placeholder={t('inputPlaceholder')}
                 className="w-full rounded-xl border border-edge bg-base/40 py-3.5 ps-11 pe-4 text-[14px] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4 focus:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]"
               />
             </div>
@@ -788,13 +807,13 @@ function SkillsStep({ skills, onChange, onFinish }: {
                 ))}
               </AnimatePresence>
               {skills.length === 0 && (
-                <span className="py-2 text-[13px] text-muted">No skills added yet — type above or pick a suggestion.</span>
+                <span className="py-2 text-[13px] text-muted">{t('noneAdded')}</span>
               )}
             </div>
           </div>
 
           <div className="mt-8">
-            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">Suggested for your role</div>
+            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">{t('suggestedForRole')}</div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {visible.map(s => (
                 <button
@@ -811,7 +830,7 @@ function SkillsStep({ skills, onChange, onFinish }: {
                   onClick={() => setShowAll(true)}
                   className="flex min-h-24 items-center justify-center rounded-xl border border-edge bg-card-hover p-4 text-[14px] font-medium text-faint transition-colors hover:text-primary"
                 >
-                  View {remaining}+ more
+                  {t('viewMore', { count: remaining })}
                 </button>
               )}
             </div>
@@ -821,13 +840,13 @@ function SkillsStep({ skills, onChange, onFinish }: {
         {/* Right column */}
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl border border-azure/20 bg-azure/6 p-6 text-center">
-            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">Estimated ATS Score</div>
+            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">{t('estimatedAtsScore')}</div>
             <div className="relative mx-auto flex w-fit items-center justify-center">
               <AtsRing percent={percent} />
               <span className="absolute text-[26px] font-black text-gold">{percent}%</span>
             </div>
             <p className="mt-5 text-[13px] italic leading-[1.6] text-secondary">
-              &quot;Add 3 more technical skills to increase visibility for Senior Developer roles.&quot;
+              &quot;{t('atsQuote')}&quot;
             </p>
           </div>
 
@@ -836,9 +855,9 @@ function SkillsStep({ skills, onChange, onFinish }: {
               <Sparkles size={15} className="text-faint" />
             </div>
             <div>
-              <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-faint">Pro Tip</div>
+              <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-faint">{t('proTip')}</div>
               <p className="text-[13px] leading-[1.6] text-faint">
-                Skills like &apos;Public Speaking&apos; or &apos;Critical Thinking&apos; are great, but focus on industry-standard software and tools first.
+                {t('proTipText')}
               </p>
             </div>
           </div>
@@ -848,10 +867,10 @@ function SkillsStep({ skills, onChange, onFinish }: {
               onClick={onFinish}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_30px_rgba(245,166,35,0.4)] transition-all hover:-translate-y-px hover:bg-gold-light"
             >
-              Finish &amp; Generate Resume <Zap size={16} />
+              {t('finishButton')} <Zap size={16} />
             </button>
             <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.08em] text-muted">
-              No credit card required • AI powered generation
+              {t('noCreditCard')}
             </p>
           </div>
         </div>
@@ -865,16 +884,18 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
   onStepClick: (id: StepId) => void;
   open: boolean; onClose: () => void;
 }) {
+  const t = useTranslations('dashboard');
   const currentNum = STEPS.find(s => s.id === currentStep)?.num ?? 1;
   const locale = useLocale();
+  const isRTL = locale === "ar";
   const { user } = useAuth();
   const activePlanId = user?.planName ?? 'FREE';
   const planLabel: Record<'FREE' | 'PRO' | 'ENTERPRISE', string> = {
-    FREE: 'Free plan',
-    PRO: 'Pro plan',
-    ENTERPRISE: 'Enterprise plan',
+    FREE: t('plans.free'),
+    PRO: t('plans.pro'),
+    ENTERPRISE: t('plans.enterprise'),
   };
-  const ctaLabel = activePlanId === 'FREE' ? 'Upgrade' : 'Manage plan';
+  const ctaLabel = activePlanId === 'FREE' ? t('upgrade') : t('managePlan');
 
   return (
     <aside className={`fixed inset-y-0 inset-s-0 z-50 flex h-screen w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -890,7 +911,7 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
         <Link href={`/${locale}`}
           className="mt-5 inline-flex items-center gap-1.5 text-xs font-medium text-muted no-underline transition-colors hover:text-secondary"
         >
-          <LayoutDashboard size={12} /> Back to home
+          <LayoutDashboard size={12} /> {t('backToHome')}
         </Link>
       </div>
 
@@ -898,8 +919,8 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
         <div className="rounded-[14px] border border-gold/12 bg-gold/6 px-4.5 py-4">
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <div className="text-[15px] font-bold text-primary">Onboarding</div>
-              <div className="mt-0.5 text-xs text-faint">Step {currentNum} of {STEPS.length}</div>
+              <div className="text-[15px] font-bold text-primary">{t('onboarding')}</div>
+              <div className="mt-0.5 text-xs text-faint">{t('stepOf', { current: currentNum, total: STEPS.length })}</div>
             </div>
             <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-gold/25 bg-gold/12">
               <span className="text-[13px] font-extrabold text-gold">{currentNum}/{STEPS.length}</span>
@@ -939,13 +960,13 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
               <div className="min-w-0 flex-1">
                 <div className={`text-[13px] transition-colors ${isActive ? 'font-bold text-primary' : isComplete ? 'font-medium text-secondary' : 'font-medium text-secondary'
                   }`}>
-                  {step.label}
+                  {t(`steps.${step.id}.label`)}
                 </div>
                 <div className="mt-0.5 truncate text-[11px] text-faint">
-                  {step.desc}
+                  {t(`steps.${step.id}.desc`)}
                 </div>
               </div>
-              {isActive && <ChevronRight size={14} className="text-gold/60" />}
+              {isActive && <ChevronRight size={14} className={`text-gold/60 ${isRTL ? "rotate-180" : ""}`} />}
             </motion.button>
           );
         })}
@@ -958,12 +979,24 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
           {/* Left */}
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold text-[12px] font-bold text-ink">
-              {getInitials(user?.name)}
+              {user?.avatar ? (
+                <Image
+                  src={getAvatarUrl(user.avatar)}
+                  alt={user?.name || t('yourAccount')}
+                  width={24}
+                  height={24}
+                  key={user.avatar}
+                  className="h-full w-full object-cover rounded-full"
+                  unoptimized
+                />
+              ) : (
+                getInitials(user?.name)
+              )}
             </div>
 
             <div className="min-w-0">
               <p className="truncate text-[13px] font-semibold text-primary">
-                {user?.name ?? "Your account"}
+                {user?.name ?? t('yourAccount')}
               </p>
 
               <p
@@ -987,7 +1020,8 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
             {ctaLabel}
             <ArrowRight
               size={13}
-              className="transition-transform group-hover:translate-x-0.5"
+              className={`transition-transform group-hover:translate-x-0.5 ${isRTL ? "-rotate-180" : ""}`}
+              
             />
           </Link>
         </div>
@@ -1002,13 +1036,15 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
   errors: Partial<Record<keyof ContactData, string>>;
   onSaveEmail: (email: string) => Promise<{ requiresVerification: boolean }>;
 }) {
+  const t = useTranslations('dashboard.contact');
+
   const fields: { key: keyof ContactData; label: string; icon: React.ElementType; placeholder: string; type?: string; hint?: string; optional?: boolean; }[] = [
-    { key: 'fullName', label: 'Full Name', icon: User, placeholder: 'e.g. Alex Sterling', hint: 'Use your real name as it appears on official documents' },
-    { key: 'title', label: 'Professional Title', icon: Briefcase, placeholder: 'e.g. Senior UX Designer', hint: "Your current role or the role you're targeting" },
-    { key: 'email', label: 'Email Address', icon: Mail, placeholder: 'alex.sterling@example.com', type: 'email', hint: 'Use a professional email address' },
-    { key: 'phone', label: 'Phone Number', icon: Phone, placeholder: '+1 (555) 000-0000', type: 'tel', optional: true },
-    { key: 'location', label: 'Location', icon: MapPin, placeholder: 'San Francisco, CA', hint: 'City and country is enough — no full address needed', optional: true },
-    { key: 'linkedin', label: 'LinkedIn Profile URL', icon: Link2, placeholder: 'linkedin.com/in/alexsterling', hint: 'Increases your callback rate by up to 40%', optional: true },
+    { key: 'fullName', label: t('fields.fullName.label'), icon: User, placeholder: t('fields.fullName.placeholder'), hint: t('fields.fullName.hint') },
+    { key: 'title', label: t('fields.title.label'), icon: Briefcase, placeholder: t('fields.title.placeholder'), hint: t('fields.title.hint') },
+    { key: 'email', label: t('fields.email.label'), icon: Mail, placeholder: t('fields.email.placeholder'), type: 'email', hint: t('fields.email.hint') },
+    { key: 'phone', label: t('fields.phone.label'), icon: Phone, placeholder: t('fields.phone.placeholder'), type: 'tel', optional: true },
+    { key: 'location', label: t('fields.location.label'), icon: MapPin, placeholder: t('fields.location.placeholder'), hint: t('fields.location.hint'), optional: true },
+    { key: 'linkedin', label: t('fields.linkedin.label'), icon: Link2, placeholder: t('fields.linkedin.placeholder'), hint: t('fields.linkedin.hint'), optional: true },
   ];
   const filledCount = Object.values(data).filter(v => v.trim()).length;
 
@@ -1017,24 +1053,24 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
         className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
         <span className="inline-block h-1.25 w-1.25 rounded-full bg-gold" />
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">Step 1 — Contact Info</span>
+        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
       </motion.div>
 
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
         className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
-        Tell us about
-        <span className="block text-gradient-gold">yourself</span>
+        {t('titleLine1')}
+        <span className="block text-gradient-gold">{t('titleHighlight')}</span>
       </motion.h1>
 
       <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
         className="mb-9 max-w-130 text-[15px] leading-[1.7] text-faint">
-        First impressions matter. We&apos;ll use this information to build your resume header and optimize your contact details for ATS screening.
+        {t('subtitle')}
       </motion.p>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mb-8">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-medium text-muted">Section completion</span>
-          <span className={`text-xs font-bold ${filledCount === 6 ? 'text-green' : 'text-gold'}`}>{filledCount}/6 fields</span>
+          <span className="text-xs font-medium text-muted">{t('sectionCompletion')}</span>
+          <span className={`text-xs font-bold ${filledCount === 6 ? 'text-green' : 'text-gold'}`}>{t('fieldsCount', { count: filledCount })}</span>
         </div>
         <div className="h-1 overflow-hidden rounded-full bg-card">
           <motion.div animate={{ width: `${(filledCount / 6) * 100}%` }} transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -1049,15 +1085,15 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
               <EmailFieldCard label={f.label} icon={f.icon} placeholder={f.placeholder}
                 value={data.email} error={errors.email} hint={f.hint} onSave={onSaveEmail} />
             ) : f.key === 'phone' ? (
-            <FieldCard label={f.label} icon={f.icon} type={f.type} placeholder={f.placeholder}
-              value={data.phone}
-              onChange={v => onChange('phone', formatPhoneNumber(v))}
-              error={errors.phone} hint={f.hint} optional={f.optional}
-              maxLength={12} 
-            />
+              <FieldCard label={f.label} icon={f.icon} type={f.type} placeholder={f.placeholder}
+                value={data.phone}
+                onChange={v => onChange('phone', formatPhoneNumber(v))}
+                error={errors.phone} hint={f.hint} optional={f.optional}
+                maxLength={12}
+              />
             ) : (
-            <FieldCard label={f.label} icon={f.icon} type={f.type} placeholder={f.placeholder}
-              value={data[f.key]} onChange={v => onChange(f.key, v)} error={errors[f.key]} hint={f.hint} optional={f.optional} />
+              <FieldCard label={f.label} icon={f.icon} type={f.type} placeholder={f.placeholder}
+                value={data[f.key]} onChange={v => onChange(f.key, v)} error={errors[f.key]} hint={f.hint} optional={f.optional} />
             )}
           </motion.div>
         ))}
@@ -1069,10 +1105,12 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
           <Sparkles size={15} className="text-faint" />
         </div>
         <div>
-          <div className="mb-1 text-xs font-bold uppercase tracking-[0.08em] text-[#93c5fd]">ATS Tip</div>
+          <div className="mb-1 text-xs font-bold uppercase tracking-[0.08em] text-[#93c5fd]">{t('atsTipLabel')}</div>
           <p className="text-[13px] leading-[1.6] text-faint">
-            Recruiters spend an average of <span className="font-semibold text-secondary">6 seconds</span> on the header.
-            A complete contact section increases your callback rate by up to <span className="font-semibold text-gold">60%</span>.
+            {t.rich('atsTipText', {
+              b: (chunks) => <span className="font-semibold text-secondary">{chunks}</span>,
+              gold: (chunks) => <span className="font-semibold text-gold">{chunks}</span>,
+            })}
           </p>
         </div>
       </motion.div>
@@ -1081,7 +1119,10 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
 }
 
 export default function DashboardPage() {
+  const t = useTranslations('dashboard');
+  const tContact = useTranslations('dashboard.contact');
   const locale = useLocale();
+  const isRTL = locale === "ar";
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState<StepId>('contact');
   const [completedSteps, setCompleted] = useState<Set<StepId>>(new Set());
@@ -1093,8 +1134,6 @@ export default function DashboardPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof ContactData, string>>>({});
   const [navOpen, setNavOpen] = useState(false);
 
-  // Auto-fill name/email from the signed-in account. Only empty fields are
-  // filled so a user's manual edits are never overwritten.
   useEffect(() => {
     if (!user) return;
     const timer = window.setTimeout(() => {
@@ -1114,10 +1153,10 @@ export default function DashboardPage() {
 
   const validateContact = (): boolean => {
     const e: Partial<Record<keyof ContactData, string>> = {};
-    if (!contact.fullName.trim()) e.fullName = 'Full name is required';
-    if (!contact.title.trim()) e.title = 'Professional title is required';
-    if (!contact.email) e.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(contact.email)) e.email = 'Enter a valid email address';
+    if (!contact.fullName.trim()) e.fullName = tContact('errors.fullNameRequired');
+    if (!contact.title.trim()) e.title = tContact('errors.titleRequired');
+    if (!contact.email) e.email = tContact('errors.emailRequired');
+    else if (!/\S+@\S+\.\S+/.test(contact.email)) e.email = tContact('errors.emailInvalid');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -1168,8 +1207,10 @@ export default function DashboardPage() {
   };
 
   const nextLabel: Record<StepId, string> = {
-    contact: 'Next: Experience', experience: 'Next: Education',
-    education: 'Next: Skills', skills: 'Finish & Preview',
+    contact: t('nextLabel.contact'),
+    experience: t('nextLabel.experience'),
+    education: t('nextLabel.education'),
+    skills: t('nextLabel.skills'),
   };
 
   return (
@@ -1238,12 +1279,12 @@ export default function DashboardPage() {
           {prevStep ? (
             <button onClick={() => setCurrentStep(prevStep.id)}
               className="flex items-center gap-2 border-none bg-transparent py-2.5 text-sm font-semibold text-muted transition-colors hover:text-secondary">
-              <ArrowLeft size={16} /> Back
+              <ArrowLeft size={16} className={isRTL ? "rotate-180" : ""} /> {t('back')}
             </button>
           ) : (
             <Link href={`/${locale}`}
               className="flex items-center gap-2 text-sm font-semibold text-muted no-underline transition-colors hover:text-secondary">
-              <ArrowLeft size={16} /> Exit to home
+              <ArrowLeft size={16} className={isRTL ? "rotate-180" : ""} /> {t('exitToHome')}
             </Link>
           )}
 
@@ -1258,7 +1299,7 @@ export default function DashboardPage() {
           {currentStep !== 'skills' ? (
             <button onClick={handleNext}
               className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-3.25 text-[13px] font-bold text-ink shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light hover:shadow-[0_10px_28px_rgba(245,166,35,0.5)] sm:px-6.5 sm:text-sm">
-              {nextLabel[currentStep]} <ArrowRight size={15} />
+              {nextLabel[currentStep]} <ArrowRight size={15} className={isRTL ? "rotate-180" : ""} />
             </button>
           ) : (
             <span className="w-px" />
@@ -1269,8 +1310,8 @@ export default function DashboardPage() {
       <motion.button
         initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1, type: 'spring', stiffness: 260, damping: 18 }}
         whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}
-        title="AI Resume Assistant"
-        className="fixed bottom-22 right-5 z-50 flex h-13 w-13 items-center justify-center rounded-full border border-gold/25 bg-linear-to-br from-elevated to-ink-muted shadow-[0_8px_30px_var(--shadow-color)] lg:right-7"
+        title={t('aiAssistant')}
+        className={`fixed bottom-22 z-50 flex h-13 w-13 items-center justify-center rounded-full border border-gold/25 bg-linear-to-br from-elevated to-ink-muted shadow-[0_8px_30px_var(--shadow-color)]  ${isRTL ? "left-5 lg:left-7" : "right-5  lg:right-7"}`}
       >
         <Sparkles size={20} className="text-gold" />
       </motion.button>
