@@ -4,10 +4,17 @@ import { motion } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CTASection() {
   const t = useTranslations("cta");
   const locale = useLocale();
+  const isRTL = locale === "ar";
+  const { isVerified, user } = useAuth();
+
+
+  const currentPlanId = user?.planName?.toLowerCase() ?? "free";
+  const isPaidUser = isVerified && currentPlanId !== "free";
 
   return (
     <section
@@ -76,10 +83,10 @@ export default function CTASection() {
             href={`/${locale}/createaccount`}
             className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-bold px-8 py-5 rounded-full text-lg transition-all duration-200 hover:scale-105 hover:shadow-[0_0_40px_rgba(245,166,35,0.5)] w-full sm:w-auto justify-center"
           >
-            {t("button")}
+            {isPaidUser ? t("buttonPaid") || "Start Building Now" : t("button")}
             <ArrowRight
               size={20}
-              className="group-hover:translate-x-1 transition-transform"
+              className={`group-hover:translate-x-1 transition-transform ${isRTL ? "rotate-180" : ""}`}
             />
           </Link>
         </motion.div>
@@ -91,7 +98,7 @@ export default function CTASection() {
           transition={{ delay: 0.5 }}
           className="text-muted text-sm mt-5"
         >
-          {t("note")}
+          {isPaidUser ? t("notePaid") || "Unlimited access with your plan" : t("note")}
         </motion.p>
 
         {/* FALO branding */}

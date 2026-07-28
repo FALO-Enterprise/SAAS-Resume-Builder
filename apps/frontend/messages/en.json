@@ -15,6 +15,7 @@
     "titleHighlight": "Open Doors",
     "subtitle": "World-class resumes & CVs following global standards. Trusted by professionals across every industry, from Silicon Valley to the Gulf.",
     "cta": "Start Building Free",
+    "ctaPaid": "Start Building",
     "ctaSecondary": "View Templates",
     "stats": {
       "resumes": "50K+",
@@ -216,8 +217,10 @@
     "title": "Ready to Build Your",
     "titleHighlight": "Best Resume?",
     "subtitle": "Join thousands of professionals who trust ResuMax to represent them with clarity, honesty, and global standards.",
-    "button": "Start Building — It's Free",
-    "note": "No credit card required · Available in Arabic & English"
+    "button": "Start Building Free",
+    "buttonPaid": "Start Building Now",
+    "note": "No credit card required • Free forever plan available",
+    "notePaid": "Full access enabled with your current subscription"
   },
   "auth": {
     "tabs": {
