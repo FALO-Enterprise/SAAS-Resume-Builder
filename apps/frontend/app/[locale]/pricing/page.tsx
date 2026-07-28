@@ -104,9 +104,10 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export default function PricingPage() {
   const t = useTranslations();
   const locale = useLocale();
+  const isRTL = locale === "ar";
   const router = useRouter();
   const { isVerified, user } = useAuth();
-  const currentPlanId = user?.planName.toLowerCase() ?? "free";
+  const currentPlanId = (user?.planName.toLowerCase() ?? "free") as PlanId;
 
   const goToRegister = (planId: PlanId) => {
     router.push(`/${locale}/createaccount?plan=${planId}`);
@@ -168,14 +169,25 @@ export default function PricingPage() {
             const planFeatures = t.raw(
               `pricing.plans.items.${plan.id}.features`,
             ) as string[];
+
             const isCurrentPlan = isVerified && currentPlanId === plan.id;
-            const ctaLabel = isVerified
-              ? isCurrentPlan
-                ? t("pricing.plans.currentPlan")
-                : t("pricing.plans.upgradePlan", { plan: planName })
-              : isFree
+            const isDowngradeToFree = isVerified && currentPlanId !== "free" && isFree;
+
+            let ctaLabel = "";
+            if (isVerified) {
+              if (isCurrentPlan) {
+                ctaLabel = t("pricing.plans.currentPlan");
+              } else if (isDowngradeToFree) {
+                ctaLabel =
+                  t("pricing.plans.downgradeToFree") || "Downgrade to Free";
+              } else {
+                ctaLabel = t("pricing.plans.upgradePlan", { plan: planName });
+              }
+            } else {
+              ctaLabel = isFree
                 ? t("pricing.plans.getStarted")
                 : t("pricing.plans.startPlan", { plan: planName });
+            }
 
             return (
               <motion.div
@@ -242,19 +254,16 @@ export default function PricingPage() {
                   }}
                   disabled={isVerified && isCurrentPlan}
                   aria-disabled={isVerified && isCurrentPlan}
-                  className={`mb-7 w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none ${
-                    isVerified
-                      ? isCurrentPlan
-                        ? "pointer-events-none border border-edge bg-primary/5 text-primary/55"
+                  className={`mb-7 w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none ${isVerified && isCurrentPlan
+                      ? "pointer-events-none border border-edge bg-primary/5 text-primary/55"
+                      : isDowngradeToFree
+                        ? "border border-edge-strong bg-primary/5 text-secondary hover:bg-primary/10 hover:text-primary"
                         : "bg-gold text-ink shadow-[0_8px_24px_rgba(245,166,35,0.3)] hover:bg-gold-light hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)]"
-                      : isPopular
-                        ? "bg-gold text-ink shadow-[0_8px_24px_rgba(245,166,35,0.3)] hover:bg-gold-light hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)]"
-                        : "bg-primary/[0.07] text-primary/80 hover:bg-primary/12 hover:text-primary"
-                  }`}
+                    }`}
                 >
                   <span className="inline-flex items-center gap-1">
                     <span>{ctaLabel}</span>
-                    {!isCurrentPlan && <ArrowRight size={16} />}
+                    {!isCurrentPlan && <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />}
                   </span>
                 </button>
 
@@ -375,42 +384,44 @@ export default function PricingPage() {
               (faq) => (
                 <FaqItem key={faq.q} q={faq.q} a={faq.a} />
               ),
-            )}{" "}
+            )}
           </div>
         </motion.div>
 
-        {/* ── Bottom CTA ────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative mb-20 overflow-hidden rounded-3xl border border-gold/15 bg-gold/5 px-8 py-15 text-center"
-        >
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-50 w-100 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/6 blur-[60px]" />
-          <div className="relative z-1">
-            <h2 className="mb-3 font-playfair text-[clamp(26px,4vw,40px)] font-extrabold text-primary">
-              {t("pricing.ctaBottom.title")}
-            </h2>
-            <p className="mx-auto mb-8 max-w-110 text-[15px] text-secondary">
-              {t("pricing.ctaBottom.subtitle")}
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <button
-                onClick={() => goToRegister("free")}
-                className="inline-flex items-center gap-2 rounded-xl bg-gold px-8 py-4 text-[15px] font-bold text-ink shadow-[0_8px_28px_rgba(245,166,35,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-light"
-              >
-                {t("pricing.ctaBottom.primaryButton")} <ArrowRight size={16} />
-              </button>
-              <button
-                onClick={() => goToRegister("pro")}
-                className="inline-flex items-center gap-2 rounded-xl border border-edge-strong bg-primary/6 px-8 py-4 text-[15px] font-semibold text-primary/80 transition-all duration-200 hover:bg-primary/10 hover:text-primary"
-              >
-                {t("pricing.ctaBottom.secondaryButton")}
-              </button>
+        {currentPlanId === "free" && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative mb-20 overflow-hidden rounded-3xl border border-gold/15 bg-gold/5 px-8 py-15 text-center"
+          >
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-50 w-100 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/6 blur-[60px]" />
+            <div className="relative z-1">
+              <h2 className="mb-3 font-playfair text-[clamp(26px,4vw,40px)] font-extrabold text-primary">
+                {t("pricing.ctaBottom.title")}
+              </h2>
+              <p className="mx-auto mb-8 max-w-110 text-[15px] text-secondary">
+                {t("pricing.ctaBottom.subtitle")}
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <button
+                  onClick={() => goToRegister("free")}
+                  className="inline-flex items-center gap-2 rounded-xl bg-gold px-8 py-4 text-[15px] font-bold text-ink shadow-[0_8px_28px_rgba(245,166,35,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-light"
+                >
+                  {t("pricing.ctaBottom.primaryButton")}{" "}
+                  <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />
+                </button>
+                <button
+                  onClick={() => goToRegister("pro")}
+                  className="inline-flex items-center gap-2 rounded-xl border border-edge-strong bg-primary/6 px-8 py-4 text-[15px] font-semibold text-primary/80 transition-all duration-200 hover:bg-primary/10 hover:text-primary"
+                >
+                  {t("pricing.ctaBottom.secondaryButton")}
+                </button>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </div>
 
       <Footer />

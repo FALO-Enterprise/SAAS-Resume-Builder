@@ -397,6 +397,7 @@
       "billedMonthly": "Billed monthly",
       "perMonth": "/ mo",
       "getStarted": "Get started free",
+      "downgradeToFree": "Downgrade to Free",
       "startPlan": "Start {plan}",
       "currentPlan": "Current plan",
       "upgradePlan": "Upgrade to {plan}",

@@ -397,6 +397,7 @@
       "billedMonthly": "يتم الدفع شهرياً",
       "perMonth": "/ شهرياً",
       "getStarted": "ابدأ مجاناً",
+      "downgradeToFree": "الرجوع للخطة المجانية",
       "startPlan": "ابدأ {plan}",
       "currentPlan": "خطتك الحالية",
       "upgradePlan": "ترقية إلى {plan}",
