@@ -102,3 +102,48 @@ export async function registerWithBackend(input: { name: string; email: string; 
     return normalizeBackendPayload<RegistrationResponse>(payload);
 }
 
+export async function requestPasswordReset(input: {
+    email: string;
+    locale: 'en' | 'ar';
+}) {
+    const { response, payload } = await proxyToBackend('/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+        throw new Error(backendErrorMessage(payload, 'Could not send the reset email'));
+    }
+
+    return normalizeBackendPayload<{ message: string }>(payload);
+}
+
+export async function validatePasswordResetToken(token: string) {
+    const { response, payload } = await proxyToBackend('/api/auth/validate-reset-token', {
+        method: 'POST',
+        body: JSON.stringify({ token }),
+    });
+
+    if (!response.ok) {
+        throw new Error(backendErrorMessage(payload, 'Could not validate the reset link'));
+    }
+
+    return normalizeBackendPayload<{ valid: boolean }>(payload);
+}
+
+export async function resetPasswordWithBackend(input: {
+    token: string;
+    password: string;
+}) {
+    const { response, payload } = await proxyToBackend('/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+        throw new Error(backendErrorMessage(payload, 'Could not reset the password'));
+    }
+
+    return normalizeBackendPayload<{ message: string }>(payload);
+}
+

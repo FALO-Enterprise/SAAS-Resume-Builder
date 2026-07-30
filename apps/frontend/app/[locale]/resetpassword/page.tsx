@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -19,6 +19,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import AuthInput from "@/components/ui/AuthInput";
 import PasswordStrength from "@/lib/utilities/PasswordStrength"
 import Logo from "@/components/ui/Logo";
+import {
+  resetPasswordWithBackend,
+  validatePasswordResetToken,
+} from "@/lib/backend";
 
 function ResetPasswordContent() {
   const locale = useLocale();
@@ -38,10 +42,46 @@ function ResetPasswordContent() {
   const [errors, setErrors] = useState<{
     password?: string;
     confirmPassword?: string;
+    general?: string;
   }>({});
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [tokenStatus, setTokenStatus] = useState<
+    "checking" | "valid" | "invalid"
+  >(token ? "checking" : "invalid");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!token) {
+      return;
+    }
+
+    validatePasswordResetToken(token)
+      .then((result) => {
+        if (cancelled) return;
+
+        setTokenStatus(
+          "valid" in result && result.valid ? "valid" : "invalid",
+        );
+      })
+      .catch(() => {
+        if (cancelled) return;
+
+        // Keep the form usable during a temporary validation outage; the
+        // reset endpoint still performs the authoritative token check.
+        setErrors((current) => ({
+          ...current,
+          general: t("errors.network"),
+        }));
+        setTokenStatus("valid");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [t, token]);
 
   const isValidPassword = useMemo(() => {
     return (
@@ -74,26 +114,39 @@ function ResetPasswordContent() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!token || !validate()) return;
+    if (!token || tokenStatus !== "valid" || !validate()) return;
 
     setLoading(true);
+    setErrors((current) => ({ ...current, general: undefined }));
 
-    // Frontend only for now.
-    // Later backend can use:
-    // POST /api/auth/reset-password
-    // body: { token, password }
-
-    window.setTimeout(() => {
+    try {
+      await resetPasswordWithBackend({ token, password });
       setSuccess(true);
-      setLoading(false);
 
       window.setTimeout(() => {
         router.push(`/${locale}`);
       }, 1500);
-    }, 800);
+    } catch (error) {
+      const message = error instanceof Error ? error.message.toLowerCase() : "";
+
+      if (
+        message.includes("reset link")
+        || message.includes("expired")
+        || message.includes("invalid")
+      ) {
+        setTokenStatus("invalid");
+      } else {
+        setErrors((current) => ({
+          ...current,
+          general: t("errors.resetFailed"),
+        }));
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const eyeButton = (shown: boolean, toggle: () => void) => (
@@ -115,8 +168,8 @@ function ResetPasswordContent() {
     <main
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base px-6 py-10 text-primary"
     >
-      <div className="pointer-events-none fixed left-[6%] top-[12%] h-125 w-125nded-full bg-gold/5 blur-[120px]" />
-      <div className="pointer-events-none fixed bottom-[8%] right-[6%] h-107.5-107.5 rounded-full bg-azure/5 blur-[110px]" />
+      <div className="pointer-events-none fixed left-[6%] top-[12%] h-125 w-125 rounded-full bg-gold/5 blur-[120px]" />
+      <div className="pointer-events-none fixed bottom-[8%] right-[6%] h-107.5 w-107.5 rounded-full bg-azure/5 blur-[110px]" />
 
       <motion.div
         initial={{ opacity: 0, y: 35 }}
@@ -134,7 +187,17 @@ function ResetPasswordContent() {
         </div>
 
         <AnimatePresence mode="wait">
-          {!token ? (
+          {tokenStatus === "checking" ? (
+            <motion.div
+              key="checking-token"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="relative z-10 flex justify-center py-16"
+            >
+              <Loader2 size={30} className="animate-spin text-gold" />
+            </motion.div>
+          ) : tokenStatus === "invalid" ? (
             <motion.div
               key="invalid-token"
               initial={{ opacity: 0, y: 18 }}
@@ -226,6 +289,16 @@ function ResetPasswordContent() {
                   {t("subtitle")}
                 </p>
               </div>
+
+              {errors.general && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
+                >
+                  {errors.general}
+                </motion.div>
+              )}
 
               <div className="mb-5 flex flex-col gap-2">
                 <AuthInput

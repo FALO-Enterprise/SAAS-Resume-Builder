@@ -7,7 +7,13 @@ import { createArgonHash, verifyArgonHash } from "./util/argon.util";
 import { removeFields } from "../../common/utils/object.util";
 import { userService } from "../users/users.service";
 import prisma from "../../prisma/prisma.service";
-import { randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+
+const PASSWORD_RESET_TTL_MS = 15 * 60 * 1000;
+
+function hashResetToken(token: string) {
+    return createHash('sha256').update(token).digest('hex');
+}
 
 
 export class AuthService {
@@ -105,6 +111,106 @@ export class AuthService {
     public async markUserAsVerified(userId: string): Promise<RegisterResponseDTO> {
         const user = await this._userService.markUserAsVerified(userId);
         return this.attachPlan(user);
+    }
+
+    public async createPasswordResetToken(email: string) {
+        const user = await prisma.user.findFirst({
+            where: {
+                email: {
+                    equals: email.trim(),
+                    mode: 'insensitive',
+                },
+            },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+            },
+        });
+
+        if (!user) return null;
+
+        const token = randomBytes(32).toString('base64url');
+        const tokenHash = hashResetToken(token);
+        const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS);
+
+        await prisma.$transaction([
+            prisma.passwordResetToken.deleteMany({
+                where: {
+                    userId: user.id,
+                    usedAt: null,
+                },
+            }),
+            prisma.passwordResetToken.create({
+                data: {
+                    tokenHash,
+                    userId: user.id,
+                    expiresAt,
+                },
+            }),
+        ]);
+
+        return { token, user };
+    }
+
+    public async isPasswordResetTokenValid(token: string) {
+        const resetToken = await prisma.passwordResetToken.findUnique({
+            where: { tokenHash: hashResetToken(token) },
+            select: {
+                expiresAt: true,
+                usedAt: true,
+            },
+        });
+
+        return Boolean(
+            resetToken
+            && !resetToken.usedAt
+            && resetToken.expiresAt.getTime() > Date.now()
+        );
+    }
+
+    public async resetPassword(token: string, password: string) {
+        const tokenHash = hashResetToken(token);
+        const resetToken = await prisma.passwordResetToken.findUnique({
+            where: { tokenHash },
+            select: {
+                id: true,
+                userId: true,
+            },
+        });
+
+        if (!resetToken) return false;
+
+        const hashedPassword = await createArgonHash(password);
+        const usedAt = new Date();
+
+        return prisma.$transaction(async (transaction) => {
+            const consumed = await transaction.passwordResetToken.updateMany({
+                where: {
+                    id: resetToken.id,
+                    usedAt: null,
+                    expiresAt: { gt: usedAt },
+                },
+                data: { usedAt },
+            });
+
+            if (consumed.count !== 1) return false;
+
+            await transaction.user.update({
+                where: { id: resetToken.userId },
+                data: { password: hashedPassword },
+            });
+
+            await transaction.passwordResetToken.updateMany({
+                where: {
+                    userId: resetToken.userId,
+                    usedAt: null,
+                },
+                data: { usedAt },
+            });
+
+            return true;
+        });
     }
 
     public logout(req: Request, res: Response) { };

@@ -59,7 +59,30 @@ Next.js App Router app under `apps/frontend/app/[locale]`. Landing page sections
 
 ## Backend
 
-Express API under `apps/backend/src`, organized by module (`auth`, `resume`, `template`, `users`), each with its own controller/service/repository/schema. Database access is via Prisma (`apps/backend/prisma/schema.prisma`).
+Express API under `apps/backend/src`, organized by module (`auth`, `resume`, `template`, `users`), each with its own controller/service/repository/schema. Database access is via Prisma (`apps/backend/src/prisma/schema.prisma`).
+
+### Password-reset email configuration
+
+The password-reset flow uses the backend SMTP settings and builds links to the
+frontend application. Add these values to `apps/backend/.env`:
+
+```dotenv
+FRONTEND_URL=http://localhost:3000
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-smtp-user
+SMTP_PASS=your-smtp-password
+EMAIL_FROM="ResuMax <no-reply@example.com>"
+```
+
+Apply pending migrations before using the flow:
+
+```bash
+npm exec --workspace apps/backend -- prisma migrate deploy
+```
+
+When SMTP is not configured in development, the reset link is printed in the
+backend console instead of being emailed.
 
 ---
 

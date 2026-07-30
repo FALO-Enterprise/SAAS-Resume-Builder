@@ -321,7 +321,8 @@
       "backToLogin": "Back to sign in",
       "errors": {
         "emailRequired": "Email is required",
-        "invalidEmail": "Enter a valid email address"
+        "invalidEmail": "Enter a valid email address",
+        "network": "Could not send the reset email. Please try again."
       }
     },
     "resetPassword": {
@@ -347,7 +348,8 @@
         "passwordWeak": "Use a stronger password that matches all requirements",
         "confirmRequired": "Please confirm your new password",
         "confirmMismatch": "Passwords do not match",
-        "network": "Network error. Please try again."
+        "network": "Network error. Please try again.",
+        "resetFailed": "Could not update your password. Please try again."
       },
       "invalidTitle": "Invalid reset link",
       "invalidSubtitle": "This password reset link is missing or no longer valid. Please request a new reset email.",

@@ -1,5 +1,11 @@
 import z, { ZodType } from 'zod';
-import { LoginDTO, RegisterDTO } from '../types/auth.dto';
+import {
+    ForgotPasswordDTO,
+    LoginDTO,
+    RegisterDTO,
+    ResetPasswordDTO,
+    ValidateResetTokenDTO,
+} from '../types/auth.dto';
 
 export const registerDTOSchema = z.object({
     avatar: z.string().nullable().optional(),
@@ -12,3 +18,21 @@ export const loginDTOSchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
 }) satisfies ZodType<LoginDTO>;
+
+export const forgotPasswordDTOSchema = z.object({
+    email: z.string().trim().toLowerCase().email(),
+    locale: z.enum(['en', 'ar']).optional(),
+}) satisfies ZodType<ForgotPasswordDTO>;
+
+export const resetPasswordDTOSchema = z.object({
+    token: z.string().min(32),
+    password: z.string()
+        .min(8)
+        .regex(/[A-Z]/)
+        .regex(/\d/)
+        .regex(/[^A-Za-z0-9]/),
+}) satisfies ZodType<ResetPasswordDTO>;
+
+export const validateResetTokenDTOSchema = z.object({
+    token: z.string().min(32),
+}) satisfies ZodType<ValidateResetTokenDTO>;

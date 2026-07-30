@@ -3,12 +3,28 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "./auth.service";
 import { HttpErrorStatus, StringObject } from "../../common/utils/util.types";
-import { LoginDTO, LoginResponseDTO, LoginResponseDTOWithJWT, RegisterDTO, RegisterResponseDTO } from "./types/auth.dto";
+import {
+    ForgotPasswordDTO,
+    LoginDTO,
+    LoginResponseDTO,
+    LoginResponseDTOWithJWT,
+    RegisterDTO,
+    RegisterResponseDTO,
+    ResetPasswordDTO,
+    ValidateResetTokenDTO,
+} from "./types/auth.dto";
 import { zodValidation } from "../../common/utils/zod.util";
-import { loginDTOSchema, registerDTOSchema } from "./util/auth.schema";
+import {
+    forgotPasswordDTOSchema,
+    loginDTOSchema,
+    registerDTOSchema,
+    resetPasswordDTOSchema,
+    validateResetTokenDTOSchema,
+} from "./util/auth.schema";
 import { deleteUploadedAsset } from "../../common/utils/assets.util";
 import { signJWT } from "./util/jwt.util";
 import { resendVerificationCode, sendVerificationCode, verifyVerificationCode } from "./util/verification.util";
+import { sendPasswordResetEmail } from "./util/password-reset-email.util";
 
 export class AuthController {
 
@@ -98,6 +114,105 @@ export class AuthController {
 
         await resendVerificationCode(user.email);
         res.status(200).json({ success: true, message: 'Verification code resent' });
+    }
+
+    public async forgotPassword(
+        req: Request<StringObject, StringObject, ForgotPasswordDTO>,
+        res: Response,
+    ) {
+        let payloadData: ForgotPasswordDTO;
+
+        try {
+            payloadData = zodValidation(forgotPasswordDTOSchema, req.body, 'AUTH');
+        } catch {
+            res.error({
+                statusCode: HttpErrorStatus.BadRequest,
+                message: 'Enter a valid email address',
+            });
+            return;
+        }
+
+        try {
+            const result = await this.authService.createPasswordResetToken(payloadData.email);
+
+            if (result) {
+                try {
+                    await sendPasswordResetEmail(
+                        result.user.email,
+                        result.user.name,
+                        result.token,
+                        payloadData.locale ?? 'en',
+                    );
+                } catch (error) {
+                    console.error('Failed to send password reset email:', error);
+                }
+            }
+
+            // Always return the same response so this endpoint cannot reveal
+            // whether an email address is registered.
+            res.ok({
+                message: 'If an account exists for that email, a reset link has been sent.',
+            });
+        } catch (error) {
+            console.error('Failed to create password reset token:', error);
+            res.error({
+                statusCode: HttpErrorStatus.InternalServerError,
+                message: 'Unable to process the password reset request',
+            });
+        }
+    }
+
+    public async validateResetToken(
+        req: Request<StringObject, StringObject, ValidateResetTokenDTO>,
+        res: Response,
+    ) {
+        try {
+            const payloadData = zodValidation(validateResetTokenDTOSchema, req.body, 'AUTH');
+            const valid = await this.authService.isPasswordResetTokenValid(payloadData.token);
+            res.ok({ valid });
+        } catch {
+            res.ok({ valid: false });
+        }
+    }
+
+    public async resetPassword(
+        req: Request<StringObject, StringObject, ResetPasswordDTO>,
+        res: Response,
+    ) {
+        let payloadData: ResetPasswordDTO;
+
+        try {
+            payloadData = zodValidation(resetPasswordDTOSchema, req.body, 'AUTH');
+        } catch {
+            res.error({
+                statusCode: HttpErrorStatus.BadRequest,
+                message: 'The reset link or password is invalid',
+            });
+            return;
+        }
+
+        try {
+            const didReset = await this.authService.resetPassword(
+                payloadData.token,
+                payloadData.password,
+            );
+
+            if (!didReset) {
+                res.error({
+                    statusCode: HttpErrorStatus.BadRequest,
+                    message: 'This reset link is invalid or has expired',
+                });
+                return;
+            }
+
+            res.ok({ message: 'Password updated successfully' });
+        } catch (error) {
+            console.error('Failed to reset password:', error);
+            res.error({
+                statusCode: HttpErrorStatus.InternalServerError,
+                message: 'Unable to reset the password',
+            });
+        }
     }
 
     public async login(

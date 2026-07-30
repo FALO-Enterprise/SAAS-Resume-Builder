@@ -18,6 +18,7 @@ import AuthInput from "@/components/ui/AuthInput";
 import Logo from "@/components/ui/Logo";
 import { useCountdown } from "@/hooks/useCountdown";
 import type { FieldError } from "@/lib/types/auth.types";
+import { requestPasswordReset } from "@/lib/backend";
 
 const RESEND_COOLDOWN = 60;
 
@@ -48,6 +49,12 @@ export default function ForgetPasswordPage() {
   const validateEmail = () => {
     const e: FieldError = {};
 
+    if (!normalizedEmail) {
+      e.email = t("errors.emailRequired");
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      e.email = t("errors.invalidEmail");
+    }
+
     setErrors(e);
 
     return Object.keys(e).length === 0;
@@ -63,37 +70,16 @@ export default function ForgetPasswordPage() {
     setResendSuccess(false);
 
     try {
-      // const response = await fetch(
-      //   `/api/auth/forgot-password`,
-      //   {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       email: normalizedEmail,
-      //       locale,
-      //     }),
-      //   },
-      // );
-
-      // const data = await response.json();
-
-      // if ("error" in data) {
-      //   setErrors({
-      //     general: data.error,
-      //   });
-      //   return;
-      // }
+      await requestPasswordReset({
+        email: normalizedEmail,
+        locale: locale === "ar" ? "ar" : "en",
+      });
 
       setSent(true);
       restart();
-    } catch (error) {
+    } catch {
       setErrors({
-        general:
-          error instanceof Error
-            ? error.message
-            : t("errors.network"),
+        general: t("errors.network"),
       });
     } finally {
       setLoading(false);
@@ -113,28 +99,10 @@ export default function ForgetPasswordPage() {
     setResendSuccess(false);
 
     try {
-      // const response = await fetch(
-      //   `/api/auth/forgot-password`,
-      //   {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       email: normalizedEmail,
-      //       locale,
-      //     }),
-      //   },
-      // );
-
-      // const data = await response.json();
-
-      // if ("error" in data) {
-      //   setErrors({
-      //     general: data.error,
-      //   });
-      //   return;
-      // }
+      await requestPasswordReset({
+        email: normalizedEmail,
+        locale: locale === "ar" ? "ar" : "en",
+      });
 
       setResendSuccess(true);
       restart();
@@ -142,12 +110,9 @@ export default function ForgetPasswordPage() {
       setTimeout(() => {
         setResendSuccess(false);
       }, 2500);
-    } catch (error) {
+    } catch {
       setErrors({
-        general:
-          error instanceof Error
-            ? error.message
-            : t("errors.network"),
+        general: t("errors.network"),
       });
     } finally {
       setResending(false);

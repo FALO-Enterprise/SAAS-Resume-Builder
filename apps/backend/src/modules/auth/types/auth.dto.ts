@@ -20,3 +20,15 @@ export type RegisterDTO =
         avatar?: string | null;
     };
 export type RegisterResponseDTO = AuthenticatedUserDTO;
+
+export type ForgotPasswordDTO = {
+    email: string;
+    locale?: 'en' | 'ar';
+};
+
+export type ResetPasswordDTO = {
+    token: string;
+    password: string;
+};
+
+export type ValidateResetTokenDTO = Pick<ResetPasswordDTO, 'token'>;
