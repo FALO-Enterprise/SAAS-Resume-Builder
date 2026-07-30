@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useSyncExternalStore,
   ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const USER_KEY = "resumax_user";
 const VERIFIED_KEY = "resumax_isVerified";
+const subscribeToHydration = () => () => {};
 
 function getStoredUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
@@ -45,32 +47,40 @@ export function AuthProvider({
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const [user, setUser] = useState<AuthUser | null>(() =>
+  const [storedUser, setStoredUser] = useState<AuthUser | null>(() =>
     getStoredUser()
   );
+  const hasHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false
+  );
 
+  // Expose the same auth state on the server and during the browser's first
+  // render, then reveal the local session immediately after hydration.
+  const user = hasHydrated ? storedUser : null;
   const isVerified = !!user;
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    if (storedUser) {
+      localStorage.setItem(USER_KEY, JSON.stringify(storedUser));
       localStorage.setItem(VERIFIED_KEY, "true");
     } else {
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(VERIFIED_KEY);
     }
-  }, [user]);
+  }, [storedUser]);
 
   const openLogin = () => setIsOpen(true);
 
   const closeModal = () => setIsOpen(false);
 
   const login = (nextUser: AuthUser) => {
-    setUser(nextUser);
+    setStoredUser(nextUser);
   };
 
   const logout = () => {
-    setUser(null);
+    setStoredUser(null);
 
     localStorage.removeItem("resumax_token");
     document.cookie = "resumax_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
@@ -78,7 +88,7 @@ export function AuthProvider({
   };
 
   const updateUser = (nextUser: AuthUser) => {
-    setUser(nextUser);
+    setStoredUser(nextUser);
   };
 
   return (
