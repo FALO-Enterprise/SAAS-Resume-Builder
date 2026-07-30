@@ -27,6 +27,27 @@ export type FieldError = {
   general?: string;
 }
 
+// forgot password form state and error types
+export type ForgotPasswordData = {
+  email: string;
+}
+
+export type ForgotPasswordErrors = {
+  email?: string;
+  general?: string;
+}
+
+// reset password form state and error types
+export type ResetPasswordData = {
+  password: string;
+  confirm: string;
+}
+
+export type ResetPasswordErrors = {
+  password?: string;
+  confirm?: string;
+}
+
 // Auth user type
 export type PlanName = 'FREE' | 'PRO' | 'ENTERPRISE';
 

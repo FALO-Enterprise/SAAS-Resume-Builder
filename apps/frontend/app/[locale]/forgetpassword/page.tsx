@@ -1,6 +1,5 @@
 "use client";
 
-import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -17,7 +16,10 @@ import { useLocale, useTranslations } from "next-intl";
 import AuthInput from "@/components/ui/AuthInput";
 import Logo from "@/components/ui/Logo";
 import { useCountdown } from "@/hooks/useCountdown";
-import type { FieldError } from "@/lib/types/auth.types";
+import type {
+  ForgotPasswordData,
+  ForgotPasswordErrors,
+} from "@/lib/types/auth.types";
 import { requestPasswordReset } from "@/lib/backend";
 
 const RESEND_COOLDOWN = 60;
@@ -30,8 +32,8 @@ export default function ForgetPasswordPage() {
 
   const isRTL = locale === "ar";
 
-  const [email, setEmail] = useState("");
-  const [errors, setErrors] = useState<FieldError>({});
+  const [email, setEmail] = useState<ForgotPasswordData["email"]>("");
+  const [errors, setErrors] = useState<ForgotPasswordErrors>({});
 
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -41,13 +43,10 @@ export default function ForgetPasswordPage() {
 
   const { count, expired, restart } = useCountdown(RESEND_COOLDOWN);
 
-  const normalizedEmail = useMemo(
-    () => email.trim().toLowerCase(),
-    [email],
-  );
+  const normalizedEmail = useMemo(() => email.trim().toLowerCase(), [email]);
 
   const validateEmail = () => {
-    const e: FieldError = {};
+    const e: ForgotPasswordErrors = {};
 
     if (!normalizedEmail) {
       e.email = t("errors.emailRequired");
@@ -55,12 +54,14 @@ export default function ForgetPasswordPage() {
       e.email = t("errors.invalidEmail");
     }
 
+    if (!normalizedEmail) e.email = t("errors.emailRequired");
+    else if (!/\S+@\S+\.\S+/.test(normalizedEmail))
+      e.email = t("errors.invalidEmail");
     setErrors(e);
-
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateEmail()) return;
@@ -120,9 +121,7 @@ export default function ForgetPasswordPage() {
   };
 
   return (
-    <main
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base px-6 py-10"
-    >
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base px-6 py-10">
       {/* Background glows */}
       <div className="pointer-events-none fixed left-[6%] top-[12%] h-125 w-125 rounded-full bg-gold/5 blur-[120px]" />
 
@@ -194,13 +193,11 @@ export default function ForgetPasswordPage() {
                   label={t("emailLabel")}
                   placeholder={t("emailPlaceholder")}
                   value={email}
-                  onChange={(value) => {
-                    setEmail(value);
-
-                    setErrors((prev) => ({
-                      ...prev,
+                  onChange={(v) => {
+                    setEmail(v);
+                    setErrors((current) => ({
+                      ...current,
                       email: undefined,
-                      general: undefined,
                     }));
                   }}
                   error={errors.email}
@@ -234,9 +231,7 @@ export default function ForgetPasswordPage() {
               <div className="mb-7 flex items-center gap-3">
                 <div className="h-px flex-1 bg-edge" />
 
-                <span className="text-xs text-muted">
-                  {t("remembered")}
-                </span>
+                <span className="text-xs text-muted">{t("remembered")}</span>
 
                 <div className="h-px flex-1 bg-edge" />
               </div>
@@ -247,10 +242,7 @@ export default function ForgetPasswordPage() {
                   href={`/${locale}`}
                   className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-gold"
                 >
-                  <ArrowLeft
-                    size={13}
-                    className={isRTL ? "rotate-180" : ""}
-                  />
+                  <ArrowLeft size={13} className={isRTL ? "rotate-180" : ""} />
 
                   {t("signIn")}
                 </Link>
@@ -336,17 +328,15 @@ export default function ForgetPasswordPage() {
                   type="button"
                   onClick={handleResend}
                   disabled={!expired || resending}
-                  className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${expired && !resending
-                    ? "cursor-pointer text-gold"
-                    : "cursor-default text-muted"
-                    }`}
+                  className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${
+                    expired && !resending
+                      ? "cursor-pointer text-gold"
+                      : "cursor-default text-muted"
+                  }`}
                 >
                   {resending ? (
                     <>
-                      <Loader2
-                        size={13}
-                        className="animate-spin"
-                      />
+                      <Loader2 size={13} className="animate-spin" />
 
                       {t("sending")}
                     </>
@@ -362,15 +352,11 @@ export default function ForgetPasswordPage() {
                   <span className="text-[13px] text-muted">
                     {verifyT("resendIn")}{" "}
                     <span
-                      className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${count <= 10
-                        ? "text-pink-light"
-                        : "text-faint"
-                        }`}
+                      className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${
+                        count <= 10 ? "text-pink-light" : "text-faint"
+                      }`}
                     >
-                      {String(
-                        Math.floor(count / 60),
-                      ).padStart(2, "0")}
-                      :
+                      {String(Math.floor(count / 60)).padStart(2, "0")}:
                       {String(count % 60).padStart(2, "0")}
                     </span>
                   </span>
@@ -383,10 +369,7 @@ export default function ForgetPasswordPage() {
                   href={`/${locale}`}
                   className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-gold"
                 >
-                  <ArrowLeft
-                    size={13}
-                    className={isRTL ? "rotate-180" : ""}
-                  />
+                  <ArrowLeft size={13} className={isRTL ? "rotate-180" : ""} />
 
                   {t("backToLogin")}
                 </Link>
@@ -398,3 +381,4 @@ export default function ForgetPasswordPage() {
     </main>
   );
 }
+
