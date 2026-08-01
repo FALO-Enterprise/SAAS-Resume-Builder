@@ -520,15 +520,31 @@
     "onboarding": "الإعداد الأولي",
     "stepOf": "الخطوة {current} من {total}",
     "aiAssistant": "مساعد السيرة الذاتية بالذكاء الاصطناعي",
-    "plans": { "free": "الباقة المجانية", "pro": "باقة Pro", "enterprise": "باقة Enterprise" },
+    "plans": {
+      "free": "الباقة المجانية",
+      "pro": "باقة Pro",
+      "enterprise": "باقة Enterprise"
+    },
     "upgrade": "الترقية",
     "managePlan": "إدارة الباقة",
     "yourAccount": "حسابك",
     "steps": {
-      "contact": { "label": "التواصل", "desc": "المعلومات الشخصية وبيانات التواصل" },
-      "experience": { "label": "الخبرة", "desc": "تاريخ العمل والأدوار الوظيفية" },
-      "education": { "label": "التعليم", "desc": "الشهادات والدرجات العلمية" },
-      "skills": { "label": "المهارات", "desc": "المهارات التقنية والشخصية" }
+      "contact": {
+        "label": "التواصل",
+        "desc": "المعلومات الشخصية وبيانات التواصل"
+      },
+      "experience": {
+        "label": "الخبرة",
+        "desc": "تاريخ العمل والأدوار الوظيفية"
+      },
+      "education": {
+        "label": "التعليم",
+        "desc": "الشهادات والدرجات العلمية"
+      },
+      "skills": {
+        "label": "المهارات",
+        "desc": "المهارات التقنية والشخصية"
+      }
     },
     "nextLabel": {
       "contact": "التالي: الخبرة",
@@ -538,7 +554,6 @@
     },
     "back": "رجوع",
     "exitToHome": "الخروج إلى الرئيسية",
-
     "contact": {
       "badge": "الخطوة 1 — معلومات التواصل",
       "titleLine1": "أخبرنا",
@@ -550,12 +565,35 @@
       "atsTipLabel": "نصيحة ATS",
       "atsTipText": "يقضي المسؤولون عن التوظيف بالمتوسط <b>6 ثوانٍ</b> على الترويسة. اكتمال قسم التواصل يرفع معدل التواصل معك بنسبة تصل إلى <gold>60%</gold>.",
       "fields": {
-        "fullName": { "label": "الاسم الكامل", "placeholder": "مثال: أليكس ستيرلينغ", "hint": "استخدم اسمك الحقيقي كما يظهر في الوثائق الرسمية" },
-        "title": { "label": "المسمى الوظيفي", "placeholder": "مثال: مصمم UX أول", "hint": "دورك الحالي أو الدور الذي تستهدفه" },
-        "email": { "label": "البريد الإلكتروني", "placeholder": "alex.sterling@example.com", "hint": "استخدم بريدًا إلكترونيًا مهنيًا" },
-        "phone": { "label": "رقم الهاتف", "placeholder": "+1 (555) 000-0000" },
-        "location": { "label": "الموقع", "placeholder": "سان فرانسيسكو، كاليفورنيا", "hint": "المدينة والدولة كافيتان — لا حاجة للعنوان الكامل" },
-        "linkedin": { "label": "رابط ملف لينكدإن", "placeholder": "linkedin.com/in/alexsterling", "hint": "يرفع معدل التواصل معك بنسبة تصل إلى 40%" }
+        "fullName": {
+          "label": "الاسم الكامل",
+          "placeholder": "مثال: أليكس ستيرلينغ",
+          "hint": "استخدم اسمك الحقيقي كما يظهر في الوثائق الرسمية"
+        },
+        "title": {
+          "label": "المسمى الوظيفي",
+          "placeholder": "مثال: مصمم UX أول",
+          "hint": "دورك الحالي أو الدور الذي تستهدفه"
+        },
+        "email": {
+          "label": "البريد الإلكتروني",
+          "placeholder": "alex.sterling@example.com",
+          "hint": "استخدم بريدًا إلكترونيًا مهنيًا"
+        },
+        "phone": {
+          "label": "رقم الهاتف",
+          "placeholder": "+1 (555) 000-0000"
+        },
+        "location": {
+          "label": "الموقع",
+          "placeholder": "سان فرانسيسكو، كاليفورنيا",
+          "hint": "المدينة والدولة كافيتان — لا حاجة للعنوان الكامل"
+        },
+        "linkedin": {
+          "label": "رابط ملف لينكدإن",
+          "placeholder": "linkedin.com/in/alexsterling",
+          "hint": "يرفع معدل التواصل معك بنسبة تصل إلى 40%"
+        }
       },
       "errors": {
         "fullNameRequired": "الاسم الكامل مطلوب",
@@ -574,16 +612,24 @@
         "saveFailed": "تعذّر حفظ بريدك الإلكتروني. حاول مرة أخرى."
       }
     },
-
     "experience": {
       "badge": "الخطوة 2 — الخبرة",
       "title": "الخبرة العملية",
       "subtitle": "فصّل تاريخك المهني لإبراز تأثيرك وقدراتك القيادية.",
       "roleFallback": "الوظيفة {n}",
       "removeRole": "حذف الوظيفة",
-      "jobTitle": { "label": "المسمى الوظيفي", "placeholder": "مثال: مهندس برمجيات أول" },
-      "company": { "label": "اسم الشركة", "placeholder": "مثال: Global Tech Solutions" },
-      "location": { "label": "الموقع", "placeholder": "مثال: نيويورك أو عن بُعد" },
+      "jobTitle": {
+        "label": "المسمى الوظيفي",
+        "placeholder": "مثال: مهندس برمجيات أول"
+      },
+      "company": {
+        "label": "اسم الشركة",
+        "placeholder": "مثال: Global Tech Solutions"
+      },
+      "location": {
+        "label": "الموقع",
+        "placeholder": "مثال: نيويورك أو عن بُعد"
+      },
       "currentlyWorkHere": "أعمل هنا حاليًا",
       "startDate": "تاريخ البدء",
       "endDate": "تاريخ الانتهاء",
@@ -595,7 +641,6 @@
       "descriptionHint": "استخدم أفعالًا فعّالة وحدد النتائج بأرقام كلما أمكن.",
       "addAnotherRole": "إضافة وظيفة أخرى"
     },
-
     "education": {
       "badge": "الملف الأكاديمي",
       "title": "التعليم والشهادات",
@@ -604,13 +649,31 @@
       "addInstitution": "إضافة مؤسسة تعليمية",
       "institutionFallback": "المؤسسة {n}",
       "removeInstitution": "حذف المؤسسة",
-      "institutionName": { "label": "اسم المؤسسة", "placeholder": "مثال: جامعة ستانفورد" },
-      "degree": { "label": "الدرجة العلمية", "placeholder": "مثال: بكالوريوس علوم حاسوب" },
-      "fieldOfStudy": { "label": "التخصص", "placeholder": "مثال: الذكاء الاصطناعي" },
-      "gradYear": { "label": "سنة التخرج", "placeholder": "2023" },
+      "institutionName": {
+        "label": "اسم المؤسسة",
+        "placeholder": "مثال: جامعة ستانفورد"
+      },
+      "degree": {
+        "label": "الدرجة العلمية",
+        "placeholder": "مثال: بكالوريوس علوم حاسوب"
+      },
+      "fieldOfStudy": {
+        "label": "التخصص",
+        "placeholder": "مثال: الذكاء الاصطناعي"
+      },
+      "gradYear": {
+        "label": "سنة التخرج",
+        "placeholder": "2023"
+      },
       "professionalCertifications": "الشهادات المهنية",
-      "certificateName": { "label": "اسم الشهادة", "placeholder": "مثال: AWS Certified Solutions Architect" },
-      "issuingOrg": { "label": "الجهة المانحة", "placeholder": "مثال: Amazon Web Services" },
+      "certificateName": {
+        "label": "اسم الشهادة",
+        "placeholder": "مثال: AWS Certified Solutions Architect"
+      },
+      "issuingOrg": {
+        "label": "الجهة المانحة",
+        "placeholder": "مثال: Amazon Web Services"
+      },
       "removeCertificate": "حذف الشهادة",
       "addCertificate": "إضافة شهادة",
       "proTip": "نصيحة احترافية",
@@ -618,7 +681,6 @@
       "atsScoreRank": "تصنيف نتيجة ATS",
       "profileCompletion": "تقدّم اكتمال الملف الشخصي"
     },
-
     "skills": {
       "title": "المهارات والخبرات",
       "subtitle": "حلل ResuMax بالذكاء الاصطناعي تاريخك الوظيفي. أضف مهارات محددة لتجاوز فلاتر ATS والتميّز أمام المسؤولين عن التوظيف.",
@@ -752,5 +814,90 @@
     },
     "rights": "جميع الحقوق محفوظة.",
     "poweredBy": "مدعوم من FALO Enterprise"
+  },
+  "resumePreview": {
+    "badge": "السيرة الذاتية المولدة",
+    "title": "سيرتك الذاتية جاهزة",
+    "subtitle": "راجع سيرتك الذاتية المولدة، واختر القالب المناسب، ثم صدّر النسخة النهائية.",
+    "backToDashboard": "العودة إلى لوحة التحكم",
+    "preview": {
+      "title": "معاينة السيرة الذاتية",
+      "subtitle": "راجع السيرة الذاتية المولدة قبل تصديرها.",
+      "placeholderTitle": "معاينة السيرة الذاتية",
+      "placeholderText": "ستظهر السيرة الذاتية المولدة هنا في الخطوة التالية.",
+      "imageAlt": "معاينة السيرة الذاتية المولدة",
+      "zoomIn": "تكبير",
+      "zoomOut": "تصغير",
+      "resetZoom": "إعادة ضبط التكبير",
+      "imageLoading": "جاري تحميل صورة السيرة...",
+      "imageErrorTitle": "صورة المعاينة غير متاحة",
+      "imageErrorText": "تم تحميل بيانات السيرة، لكن تعذر عرض صورة المعاينة.",
+      "retryImage": "إعادة تحميل الصورة"
+    },
+    "template": {
+      "title": "القالب الحالي",
+      "subtitle": "اختر القالب الأنسب لسيرتك الذاتية.",
+      "placeholder": "ستتم إضافة القوالب لاحقًا",
+      "current": "القالب الحالي",
+      "selected": "تم الاختيار",
+      "selectAria": "اختيار قالب {template}",
+      "changeButton": "تغيير القالب",
+      "changeHint": "ارجع إلى صفحة القوالب لاختيار قالب آخر متاح ضمن خطتك."
+    },
+    "credits": {
+      "title": "رصيد التوليد",
+      "subtitle": "محاولات إنشاء السيرة الذاتية المتاحة لك.",
+      "remaining": "محاولات متبقية"
+    },
+    "export": {
+      "title": "تصدير السيرة الذاتية",
+      "subtitle": "حمّل النسخة النهائية بالتنسيق الذي تفضله."
+    },
+    "status": {
+      "loadingTitle": "جاري تحميل معاينة السيرة",
+      "loadingText": "يرجى الانتظار بينما نقوم بتجهيز سيرتك الذاتية.",
+      "errorTitle": "معاينة السيرة غير متاحة",
+      "errorText": "تعذر تحميل معاينة السيرة الذاتية.",
+      "retry": "إعادة المحاولة"
+    },
+    "configuration": {
+      "selectedTemplate": "القالب المحدد",
+      "currentTemplate": "القالب الحالي",
+      "changeTemplate": "تغيير القالب",
+      "purpose": "الغرض من السيرة",
+      "generate": "إنشاء السيرة",
+      "regenerate": "إعادة إنشاء السيرة",
+      "generating": "جاري الإنشاء...",
+      "preview": "المعاينة",
+      "zoom": "التكبير",
+      "exportAs": "تصدير بصيغة",
+      "credits": "رصيد التصدير",
+      "attemptsRemaining": "محاولات متبقية",
+      "ready": "جاهزة",
+      "lastUpdated": "آخر تحديث",
+      "generatedSuccessfully": "تم إنشاء السيرة بنجاح.",
+      "generateError": "تعذر إنشاء السيرة الذاتية.",
+      "selectPurpose": "اختر الغرض",
+      "formats": {
+        "pdf": "PDF",
+        "jpg": "JPG"
+      },
+      "purposes": {
+        "job": "التقديم لوظيفة",
+        "internship": "تدريب",
+        "scholarship": "منحة دراسية",
+        "academic": "برنامج أكاديمي",
+        "promotion": "ترقية أو انتقال وظيفي",
+        "government": "وظيفة حكومية",
+        "general": "استخدام عام"
+      },
+      "previewSections": {
+        "contact": "بيانات التواصل",
+        "summary": "الملخص المهني",
+        "details": "تفاصيل إضافية",
+        "about": "نبذة عنك",
+        "history": "التعليم والخبرات"
+      }
+    }
   }
 }
