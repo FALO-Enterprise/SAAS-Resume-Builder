@@ -7,14 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
-  Briefcase,
-  CheckCircle2,
-  Code2,
   Eye,
-  Globe2,
-  GraduationCap,
-  Languages,
-  Palette,
   ShieldCheck,
   Sparkles,
   Star,
@@ -22,92 +15,10 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import type { TemplateCard, FilterKey } from "@/lib/types/resume.types"
+import { filters, templates, qualityItems } from "@/lib/placeholder-data/templates.placeholder"
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
-
-type FilterKey =
-  | "all"
-  | "professional"
-  | "creative"
-  | "technical"
-  | "minimalist";
-
-type TemplateId =
-  | "executive"
-  | "developer"
-  | "director"
-  | "minimal"
-  | "academic"
-  | "global";
-
-type TemplateCard = {
-  id: TemplateId;
-  image: string;
-  category: Exclude<FilterKey, "all">;
-  icon: LucideIcon;
-  accent: string;
-};
-
-const filters: FilterKey[] = [
-  "all",
-  "professional",
-  "creative",
-  "technical",
-  "minimalist",
-];
-
-const templates: TemplateCard[] = [
-  {
-    id: "executive",
-    image: "https://i.imgur.com/oPsyIDT.png",
-    category: "professional",
-    icon: Briefcase,
-    accent: "from-gold/20 via-card-hover to-base",
-  },
-  {
-    id: "developer",
-    image: "https://i.imgur.com/UFjkAoq.png",
-    category: "technical",
-    icon: Code2,
-    accent: "from-gold/15 via-card-hover to-base",
-  },
-  {
-    id: "director",
-    image: "https://i.imgur.com/bIVtQW4.png",
-    category: "creative",
-    icon: Palette,
-    accent: "from-gold/15 via-card-hover to-base",
-  },
-  {
-    id: "minimal",
-    image: "https://i.imgur.com/KnsEIYe.png",
-    category: "minimalist",
-    icon: Sparkles,
-    accent: "from-gold/15 via-card-hover to-base",
-  },
-  {
-    id: "academic",
-    image: "https://i.imgur.com/cL8Rls0.png",
-    category: "professional",
-    icon: GraduationCap,
-    accent: "from-gold/15 via-card-hover to-base",
-  },
-  {
-    id: "global",
-    image: "https://i.imgur.com/uaye0sJ.png",
-    category: "technical",
-    icon: Languages,
-    accent: "from-gold/15 via-card-hover to-base",
-  },
-];
-
-const qualityItems = [
-  { key: "ats", icon: ShieldCheck },
-  { key: "global", icon: Globe2 },
-  { key: "rtl", icon: CheckCircle2 },
-  { key: "support", icon: Sparkles },
-] as const;
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -127,7 +38,7 @@ const fadeScale = {
 const MIN_ZOOM = 60;
 const MAX_ZOOM = 220;
 const ZOOM_STEP = 20;
-const DEFAULT_ZOOM = 90;
+const DEFAULT_ZOOM = 80;
 
 function RatingStars() {
   return (
@@ -726,7 +637,7 @@ export default function TemplatesPage() {
  
               <div
                 ref={previewSurfaceRef}
-                className="min-h-0 flex-1 overflow-auto rounded-2xl border border-paper-edge bg-paper p-4 overscroll-contain"
+                className="min-h-0 flex-1 overflow-auto rounded-2xl border border-edge bg-paper p-4 overscroll-contain scrollbar-none"
               >
                 <div
                   className="mx-auto transition-[width,max-width] duration-200"
