@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -18,16 +18,15 @@ import {
   Check,
   Moon,
   Sun,
-  Monitor,
   Laptop,
-  Smartphone,
-  Sparkles,
   Download,
   ExternalLink,
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { useLocale } from "next-intl";
+import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -63,14 +62,19 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [accentColor, setAccentColor] = useState("gold");
   const [compactMode, setCompactMode] = useState(false);
   const [reduceAnimations, setReduceAnimations] = useState(false);
+  const [serverError, setServerError] = useState('');
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
+  const { user, logout } = useAuth();
 
   const [selectedLang, setSelectedLang] = useState(locale);
   const [dateFormat, setDateFormat] = useState("MM/YYYY");
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const activePlanId = (user?.planName ?? 'FREE').toLocaleUpperCase() as 'FREE' | 'PRO' | 'ENTERPRISE';
 
 
   const [defaultPaperSize, setDefaultPaperSize] = useState("A4");
@@ -85,6 +89,39 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   });
 
   const [savedSuccess, setSavedSuccess] = useState(false);
+  // useEffect(() => {
+  //   if (user?.id) {
+  //     const fetchUserPlan = async () => {
+  //       try {
+  //         setPlanLoading(true);
+  //         const token = localStorage.getItem("resumax_token");
+          
+  //         const res = await fetch(`http://localhost:3001/api/users/${user.id}`, {
+  //           method: 'GET',
+  //           credentials: "include",
+  //           headers: {
+  //             ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  //           },
+  //         });
+
+  //         if (res.ok) {
+  //           const userData = await res.json();
+  //           // Assuming the user object has a 'plan' or 'subscription' field
+  //           setCurrentPlan(userData?.subscription?.plan || userData?.plan || "Free");
+  //         } else {
+  //           setCurrentPlan("Free"); // Default to Free plan
+  //         }
+  //       } catch (error) {
+  //         console.error("Failed to fetch user plan:", error);
+  //         setCurrentPlan("Free"); // Default to Free plan on error
+  //       } finally {
+  //         setPlanLoading(false);
+  //       }
+  //     };
+
+  //     fetchUserPlan();
+  //   }
+  // }, [user?.id]);
 
   const handleSave = () => {
     setSavedSuccess(true);
@@ -100,6 +137,50 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       }, 400);
     } else {
       setTimeout(() => setSavedSuccess(false), 2000);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user?.id) {
+      setServerError('User information not found');
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      setServerError('');
+
+      const token = localStorage.getItem("resumax_token");
+
+      const res = await fetch(`http://localhost:3001/api/users/${user.id}`, {
+        method: 'DELETE',
+        credentials: "include",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!res.ok) {
+        const errorBody = await res.text();
+        console.error("Server responded:", res.status, errorBody);
+        throw new Error(`Failed to delete user: ${res.status}`);
+      }
+
+      // Account deleted successfully
+      setShowDeleteConfirmation(false);
+      
+      // Sign out the user and redirect
+      if (logout) {
+        logout();
+      }
+      
+      // Redirect to home page
+      router.push('/');
+    } catch (error) {
+      console.error("Delete account error:", error);
+      setServerError(error instanceof Error ? error.message : 'Failed to delete account. Please try again.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -428,15 +509,66 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       </div>
 
                       {/* Active Plan Card */}
-                      <div className="rounded-xl border border-gold/30 bg-gold/5 p-4 space-y-3">
+                      <div className={`rounded-xl border p-4 space-y-3 ${
+                        activePlanId === "ENTERPRISE" 
+                          ? "border-violet-500/30 bg-violet-500/5"
+                          : activePlanId === "PRO"
+                          ? "border-gold/30 bg-gold/5"
+                          : "border-blue-500/30 bg-blue-500/5"
+                      }`}>
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold uppercase tracking-wider text-gold">Free Plan</span>
-                          <button className="text-xs font-semibold bg-gold text-ink px-3 py-1.5 rounded-lg hover:opacity-90 cursor-pointer transition-opacity">
-                            Upgrade to Pro
-                          </button>
+                          <div className="space-y-1">
+                            <span className={`text-xs font-bold uppercase tracking-wider ${
+                              activePlanId === "ENTERPRISE"
+                                ? "text-violet-400"
+                                : activePlanId === "PRO"
+                                ? "text-gold"
+                                : "text-blue-400"
+                            }`}>
+                              {activePlanId} Plan
+                            </span>
+                            <p className="text-[11px] text-secondary">Active Subscription</p>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            {/* Show upgrade button only for Free plan */}
+                            {activePlanId === "FREE" && (
+                              <button className="text-xs font-semibold bg-gold text-ink px-4 py-2 rounded-lg hover:opacity-90 cursor-pointer transition-opacity">
+                                Upgrade to Pro
+                              </button>
+                            )}
+
+                            {/* Show manage and upgrade buttons for Pro plan */}
+                            {activePlanId === "PRO" && (
+                              <>
+                                <button className="text-xs font-semibold bg-blue-500/20 border border-blue-500/30 text-blue-400 px-4 py-2 rounded-lg hover:bg-blue-500/30 cursor-pointer transition-colors">
+                                  Manage Plan
+                                </button>
+                                <button className="text-xs font-semibold bg-violet-500/20 border border-violet-500/30 text-violet-400 px-4 py-2 rounded-lg hover:bg-violet-500/30 cursor-pointer transition-colors">
+                                  Upgrade to Enterprise
+                                </button>
+                              </>
+                            )}
+
+                            {/* Show manage button for Enterprise plan */}
+                            {activePlanId === "ENTERPRISE" && (
+                              <Link
+                               href={`${locale}/pricing`}
+                               className="text-xs font-semibold bg-violet-500/20 border border-violet-500/30 text-violet-400 px-4 py-2 rounded-lg hover:bg-violet-500/30 cursor-pointer transition-colors">
+                                Manage Enterprise
+                              </Link>
+                            )}
+                          </div>
                         </div>
+
+                        {/* Plan Description */}
                         <p className="text-xs text-secondary">
-                          You are currently on the Free plan. Upgrade for unlimited AI resume enhancements and DOCX exports.
+                          {activePlanId === "ENTERPRISE" 
+                            ? "You are on the Enterprise plan with unlimited features, priority support, and custom integrations."
+                            : activePlanId === "PRO"
+                            ? "You are on the Pro plan with unlimited AI resume enhancements, DOCX exports, and advanced analytics."
+                            : "You are currently on the Free plan. Upgrade for unlimited AI resume enhancements and DOCX exports."
+                          }
                         </p>
                       </div>
 
@@ -528,9 +660,16 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         <p className="text-xs text-secondary">
                           Permanently delete your account and all stored resumes from ResuMax. This cannot be undone.
                         </p>
+                        {serverError && (
+                          <div className="bg-red-500/20 border border-red-500/50 rounded-lg px-3 py-2">
+                            <p className="text-xs text-red-400">{serverError}</p>
+                          </div>
+                        )}
                         <button
                           type="button"
-                          className="flex items-center gap-1.5 rounded-lg bg-red-500/20 border border-red-500/30 px-3 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-500/30 transition-colors cursor-pointer"
+                          onClick={() => setShowDeleteConfirmation(true)}
+                          disabled={isDeleting}
+                          className="flex items-center gap-1.5 rounded-lg bg-red-500/20 border border-red-500/30 px-3 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-500/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <Trash2 size={13} />
                           Delete Account
@@ -600,6 +739,82 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
             </main>
           </motion.div>
+
+          {/* Delete Account Confirmation Modal */}
+          <AnimatePresence>
+            {showDeleteConfirmation && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="fixed inset-0 z-160 flex items-center justify-center p-4"
+              >
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => !isDeleting && setShowDeleteConfirmation(false)}
+                  className="fixed inset-0 bg-black/70 backdrop-blur-md"
+                />
+
+                {/* Confirmation Dialog */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 12 }}
+                  transition={{ duration: 0.15 }}
+                  className="relative w-full max-w-sm rounded-2xl border border-edge bg-elevated shadow-2xl p-6 space-y-4 z-20"
+                >
+                  {/* Icon */}
+                  <div className="flex justify-center">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/20">
+                      <AlertTriangle size={24} className="text-red-400" />
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="text-center space-y-2">
+                    <h3 className="font-bold text-lg text-primary">Delete Account</h3>
+                    <p className="text-sm text-secondary">
+                      Are you sure you want to delete your account? This action cannot be undone. All your resumes and data will be permanently removed.
+                    </p>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteConfirmation(false)}
+                      disabled={isDeleting}
+                      className="flex-1 px-4 py-2 rounded-lg border border-edge bg-card text-secondary hover:bg-card-hover transition-colors cursor-pointer text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDeleteAccount}
+                      disabled={isDeleting}
+                      className="flex-1 px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-colors cursor-pointer text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <div className="w-3 h-3 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 size={14} />
+                          Delete Account
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
     </AnimatePresence>
