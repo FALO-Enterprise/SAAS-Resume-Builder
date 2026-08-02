@@ -13,3 +13,14 @@ export function getAvatarUrl(path?: string | null) {
 
   return buildBackendUrl(uploadPath);
 }
+
+export function isUploadedAvatar(path?: string | null) {
+  const avatarUrl = getAvatarUrl(path);
+  if (!avatarUrl) return false;
+
+  try {
+    return new URL(avatarUrl, "http://local").pathname.startsWith("/uploads/");
+  } catch {
+    return false;
+  }
+}

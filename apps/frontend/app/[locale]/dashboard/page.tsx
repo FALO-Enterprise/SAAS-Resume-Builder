@@ -23,7 +23,7 @@ import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem } fro
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
 import { emptyRole, emptyEdu, emptyCert } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
-import { getAvatarUrl } from '@/lib/utilities/avatar';
+import { getAvatarUrl, isUploadedAvatar } from '@/lib/utilities/avatar';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
 function getInitials(name?: string) {
@@ -977,6 +977,7 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
                   height={24}
                   key={user.avatar}
                   className="h-full w-full object-cover rounded-full"
+                  unoptimized={isUploadedAvatar(user.avatar)}
                 />
               ) : (
                 getInitials(user?.name)

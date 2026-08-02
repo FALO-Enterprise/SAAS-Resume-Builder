@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, User, Mail, Camera, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { getAvatarUrl } from "@/lib/utilities/avatar";
+import { buildBackendUrl } from "@/lib/backend";
+import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -83,7 +84,7 @@ function ProfileModalContent({
 
       const token = localStorage.getItem("resumax_token");
 
-      const res = await fetch(`http://localhost:3001/api/users/${user?.id}`, {
+      const res = await fetch(buildBackendUrl(`/api/users/${user?.id}`), {
         method: "PATCH", // أو POST/PUT حسب المسار
         body: formData,
         credentials: "include",
@@ -160,6 +161,7 @@ function ProfileModalContent({
                 alt="Profile preview"
                 fill
                 className="object-cover"
+                unoptimized={isUploadedAvatar(preview)}
               />
             ) : (
               <User className="h-10 w-10 text-secondary" />

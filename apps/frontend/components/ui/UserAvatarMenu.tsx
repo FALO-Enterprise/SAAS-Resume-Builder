@@ -14,7 +14,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { getAvatarUrl } from "@/lib/utilities/avatar";
+import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
 import ProfileModal from "./ProfileModal";
 import SettingsModal from "./SettingsModal";
 
@@ -65,6 +65,7 @@ export default function UserAvatarMenu() {
                 height={24}
                 key={user.avatar}
                 className="h-full w-full object-cover"
+                unoptimized={isUploadedAvatar(user.avatar)}
               />
             ) : (
               getInitials(user?.name)
