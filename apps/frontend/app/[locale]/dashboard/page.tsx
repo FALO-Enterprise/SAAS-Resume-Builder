@@ -23,18 +23,8 @@ import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem } fro
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
 import { emptyRole, emptyEdu, emptyCert } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
+import { getAvatarUrl, isUploadedAvatar } from '@/lib/utilities/avatar';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-
-
-const getAvatarUrl = (path?: string) => {
-  if (!path) return "";
-  if (path.startsWith("http")) return path;
-
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  const finalPath = cleanPath.startsWith("/uploads/") ? cleanPath : `/uploads${cleanPath}`;
-
-  return `http://localhost:3001${finalPath}`;
-};
 
 function getInitials(name?: string) {
   if (!name) return '?';
@@ -987,7 +977,7 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
                   height={24}
                   key={user.avatar}
                   className="h-full w-full object-cover rounded-full"
-                  unoptimized
+                  unoptimized={isUploadedAvatar(user.avatar)}
                 />
               ) : (
                 getInitials(user?.name)

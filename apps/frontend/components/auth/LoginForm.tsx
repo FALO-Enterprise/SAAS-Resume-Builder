@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import AuthInput from "@/components/ui/AuthInput";
 import type { LoginData, FieldError } from "@/lib/types/auth.types";
 import { PROVIDERS } from "@/lib/placeholder-data/providors.placeholder";
-import { loginWithBackend } from "@/lib/backend";
+import { getOAuthStartUrl, loginWithBackend } from "@/lib/backend";
 import Link from "next/link";
 
 // ─── Login Form ──────────────────────────────────────────────────────────────
@@ -120,9 +120,10 @@ export default function LoginForm() {
             key={id}
             type="button"
             aria-label={`Continue with ${label}`}
+            onClick={() => window.location.assign(getOAuthStartUrl(id, locale))}
             className="flex flex-1 items-center justify-center rounded-xl border border-edge bg-card py-3 transition-all hover:border-edge-strong hover:bg-card-hover"
           >
-            <Icon size={20} color={color} />
+            <Icon size={20} className={color} />
           </button>
         ))}
       </div>
