@@ -253,6 +253,16 @@
         "network": "Network error. Please try again."
       }
     },
+    "oauth": {
+      "completing": "Completing sign in",
+      "pleaseWait": "Please wait while we securely finish signing you in.",
+      "success": "Signed in successfully. Redirecting…",
+      "errorTitle": "We couldn't sign you in",
+      "accessDenied": "You cancelled the provider authorization request.",
+      "failed": "Social sign-in could not be completed. Please try again.",
+      "expired": "This sign-in request is invalid or expired. Please try again.",
+      "backHome": "Back to home"
+    },
     "signup": {
       "title": "Create your account",
       "subtitle": "Fill in your details to get started with ResuMax.",

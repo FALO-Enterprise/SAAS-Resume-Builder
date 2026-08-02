@@ -14,6 +14,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { getAvatarUrl } from "@/lib/utilities/avatar";
 import ProfileModal from "./ProfileModal";
 import SettingsModal from "./SettingsModal";
 
@@ -38,16 +39,6 @@ export default function UserAvatarMenu() {
   const [open, setOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  const getAvatarUrl = (path?: string) => {
-    if (!path) return "";
-    if (path.startsWith("http")) return path;
-
-    const cleanPath = path.startsWith("/") ? path : `/${path}`;
-    const finalPath = cleanPath.startsWith("/uploads/") ? cleanPath : `/uploads${cleanPath}`;
-
-    return `http://localhost:3001${finalPath}`;
-  };
 
   const activePlanId = (user?.planName?.toLowerCase() || "free") as keyof typeof PLAN_BADGES;
 
@@ -74,7 +65,6 @@ export default function UserAvatarMenu() {
                 height={24}
                 key={user.avatar}
                 className="h-full w-full object-cover"
-                unoptimized
               />
             ) : (
               getInitials(user?.name)

@@ -84,6 +84,46 @@ npm exec --workspace apps/backend -- prisma migrate deploy
 When SMTP is not configured in development, the reset link is printed in the
 backend console instead of being emailed.
 
+### Google, GitHub, and LinkedIn sign-in
+
+Social sign-in uses each provider's OAuth authorization-code flow. Copy the
+example environment files and configure these backend variables:
+
+```dotenv
+FRONTEND_URL=http://localhost:3000
+BACKEND_PUBLIC_URL=http://localhost:3001
+
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+LINKEDIN_CLIENT_ID=your-linkedin-client-id
+LINKEDIN_CLIENT_SECRET=your-linkedin-client-secret
+```
+
+Register these exact callback URLs in the provider dashboards:
+
+```text
+http://localhost:3001/api/auth/oauth/google/callback
+http://localhost:3001/api/auth/oauth/github/callback
+http://localhost:3001/api/auth/oauth/linkedin/callback
+```
+
+For a deployed app, replace the origin with the public HTTPS backend URL.
+LinkedIn may require an HTTPS tunnel even during local provider testing. Enable
+LinkedIn's **Sign In with LinkedIn using OpenID Connect** product so the app can
+request the `openid profile email` scopes.
+
+Apply the OAuth account migration and regenerate Prisma Client:
+
+```bash
+npm exec --workspace apps/backend -- prisma migrate deploy
+npm exec --workspace apps/backend -- prisma generate
+```
+
+The frontend can override its backend origin with
+`NEXT_PUBLIC_BACKEND_URL` as shown in `apps/frontend/.env.example`.
+
 ---
 
 Powered by **FALO Enterprise**

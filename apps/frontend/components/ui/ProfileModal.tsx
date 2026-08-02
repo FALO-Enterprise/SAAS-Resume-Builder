@@ -5,21 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, User, Mail, Camera, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { getAvatarUrl } from "@/lib/utilities/avatar";
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const getAvatarUrl = (path?: string) => {
-  if (!path) return "";
-  if (path.startsWith("http") || path.startsWith("blob:")) return path;
-
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  const finalPath = cleanPath.startsWith("/uploads/") ? cleanPath : `/uploads${cleanPath}`;
-
-  return `http://localhost:3001${finalPath}`;
-};
 
 export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { user } = useAuth();
@@ -168,7 +159,6 @@ function ProfileModalContent({
                 src={preview}
                 alt="Profile preview"
                 fill
-                unoptimized
                 className="object-cover"
               />
             ) : (

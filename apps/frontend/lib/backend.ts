@@ -1,6 +1,6 @@
-const DEFAULT_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:3001'
+const DEFAULT_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
 export function buildBackendUrl(path: string) {
-    const baseUrl = (DEFAULT_BACKEND_URL || 'http://127.0.0.1:3001').replace(/\/$/, '');
+    const baseUrl = (DEFAULT_BACKEND_URL || 'http://localhost:3001').replace(/\/$/, '');
     return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
@@ -49,10 +49,10 @@ export function normalizeBackendPayload<T>(payload: unknown): T | { error: strin
     return payload as T
 }
 
-interface BackendAuthUser {
+export interface BackendAuthUser {
     id: string;
     name: string;
-    avatar: string;
+    avatar: string | null;
     role: string;
     email: string;
     plan: {
@@ -100,6 +100,24 @@ export async function registerWithBackend(input: { name: string; email: string; 
     }
 
     return normalizeBackendPayload<RegistrationResponse>(payload);
+}
+
+export function getOAuthStartUrl(provider: 'google' | 'github' | 'linkedin', locale: string) {
+    const safeLocale = locale === 'ar' ? 'ar' : 'en';
+    return buildBackendUrl(`/api/auth/oauth/${provider}?locale=${safeLocale}`);
+}
+
+export async function exchangeOAuthCode(code: string) {
+    const { response, payload } = await proxyToBackend('/api/auth/oauth/exchange', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+    });
+
+    if (!response.ok) {
+        throw new Error(backendErrorMessage(payload, 'Social sign-in failed'));
+    }
+
+    return normalizeBackendPayload<AuthSession>(payload);
 }
 
 export async function requestPasswordReset(input: {

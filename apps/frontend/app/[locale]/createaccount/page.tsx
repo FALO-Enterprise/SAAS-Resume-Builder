@@ -11,7 +11,7 @@ import type { RegisterData, FormErrors } from '@/lib/types/auth.types';
 import { PROVIDERS } from '@/lib/placeholder-data/providors.placeholder';
 import AuthInput from '@/components/ui/AuthInput';
 import PasswordStrength from '@/lib/utilities/PasswordStrength'
-import { buildBackendUrl } from '@/lib/backend';
+import { buildBackendUrl, getOAuthStartUrl } from '@/lib/backend';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,6 +19,7 @@ import { buildBackendUrl } from '@/lib/backend';
 // ─────────────────────────────────────────────────────────────────────────────
 function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) => void; loading: boolean }) {
   const t = useTranslations('auth.signup');
+  const locale = useLocale();
   const [form, setForm] = useState<RegisterData>({ name: '', email: '', password: '', confirm: '' });
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPw, setShowPw] = useState(false);
@@ -57,9 +58,10 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
             key={id}
             type="button"
             aria-label={`Continue with ${label}`}
+            onClick={() => window.location.assign(getOAuthStartUrl(id, locale))}
             className="flex flex-1 items-center justify-center rounded-xl border border-edge bg-card py-3 transition-all hover:border-edge-strong hover:bg-card-hover"
           >
-            <Icon size={20} color={color} />
+            <Icon size={20} className={color} />
           </button>
         ))}
       </div>
