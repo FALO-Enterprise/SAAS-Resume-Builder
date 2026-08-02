@@ -530,15 +530,31 @@
     "onboarding": "Onboarding",
     "stepOf": "Step {current} of {total}",
     "aiAssistant": "AI Resume Assistant",
-    "plans": { "free": "Free plan", "pro": "Pro plan", "enterprise": "Enterprise plan" },
+    "plans": {
+      "free": "Free plan",
+      "pro": "Pro plan",
+      "enterprise": "Enterprise plan"
+    },
     "upgrade": "Upgrade",
     "managePlan": "Manage plan",
     "yourAccount": "Your account",
     "steps": {
-      "contact": { "label": "Contact", "desc": "Personal & contact info" },
-      "experience": { "label": "Experience", "desc": "Work history & roles" },
-      "education": { "label": "Education", "desc": "Degrees & certifications" },
-      "skills": { "label": "Skills", "desc": "Technical & soft skills" }
+      "contact": {
+        "label": "Contact",
+        "desc": "Personal & contact info"
+      },
+      "experience": {
+        "label": "Experience",
+        "desc": "Work history & roles"
+      },
+      "education": {
+        "label": "Education",
+        "desc": "Degrees & certifications"
+      },
+      "skills": {
+        "label": "Skills",
+        "desc": "Technical & soft skills"
+      }
     },
     "nextLabel": {
       "contact": "Next: Experience",
@@ -548,7 +564,6 @@
     },
     "back": "Back",
     "exitToHome": "Exit to home",
-
     "contact": {
       "badge": "Step 1 — Contact Info",
       "titleLine1": "Tell us about",
@@ -560,12 +575,35 @@
       "atsTipLabel": "ATS Tip",
       "atsTipText": "Recruiters spend an average of <b>6 seconds</b> on the header. A complete contact section increases your callback rate by up to <gold>60%</gold>.",
       "fields": {
-        "fullName": { "label": "Full Name", "placeholder": "e.g. Alex Sterling", "hint": "Use your real name as it appears on official documents" },
-        "title": { "label": "Professional Title", "placeholder": "e.g. Senior UX Designer", "hint": "Your current role or the role you're targeting" },
-        "email": { "label": "Email Address", "placeholder": "alex.sterling@example.com", "hint": "Use a professional email address" },
-        "phone": { "label": "Phone Number", "placeholder": "+1 (555) 000-0000" },
-        "location": { "label": "Location", "placeholder": "San Francisco, CA", "hint": "City and country is enough — no full address needed" },
-        "linkedin": { "label": "LinkedIn Profile URL", "placeholder": "linkedin.com/in/alexsterling", "hint": "Increases your callback rate by up to 40%" }
+        "fullName": {
+          "label": "Full Name",
+          "placeholder": "e.g. Alex Sterling",
+          "hint": "Use your real name as it appears on official documents"
+        },
+        "title": {
+          "label": "Professional Title",
+          "placeholder": "e.g. Senior UX Designer",
+          "hint": "Your current role or the role you're targeting"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "alex.sterling@example.com",
+          "hint": "Use a professional email address"
+        },
+        "phone": {
+          "label": "Phone Number",
+          "placeholder": "+1 (555) 000-0000"
+        },
+        "location": {
+          "label": "Location",
+          "placeholder": "San Francisco, CA",
+          "hint": "City and country is enough — no full address needed"
+        },
+        "linkedin": {
+          "label": "LinkedIn Profile URL",
+          "placeholder": "linkedin.com/in/alexsterling",
+          "hint": "Increases your callback rate by up to 40%"
+        }
       },
       "errors": {
         "fullNameRequired": "Full name is required",
@@ -584,16 +622,24 @@
         "saveFailed": "Could not save your email. Please try again."
       }
     },
-
     "experience": {
       "badge": "Step 2 — Experience",
       "title": "Work Experience",
       "subtitle": "Detail your career history to highlight your impact and leadership.",
       "roleFallback": "Role {n}",
       "removeRole": "Remove role",
-      "jobTitle": { "label": "Job Title", "placeholder": "e.g. Senior Software Engineer" },
-      "company": { "label": "Company Name", "placeholder": "e.g. Global Tech Solutions" },
-      "location": { "label": "Location", "placeholder": "e.g. New York, NY or Remote" },
+      "jobTitle": {
+        "label": "Job Title",
+        "placeholder": "e.g. Senior Software Engineer"
+      },
+      "company": {
+        "label": "Company Name",
+        "placeholder": "e.g. Global Tech Solutions"
+      },
+      "location": {
+        "label": "Location",
+        "placeholder": "e.g. New York, NY or Remote"
+      },
       "currentlyWorkHere": "I currently work here",
       "startDate": "Start Date",
       "endDate": "End Date",
@@ -605,7 +651,6 @@
       "descriptionHint": "Use action verbs and quantify results where possible.",
       "addAnotherRole": "Add Another Role"
     },
-
     "education": {
       "badge": "Academic Portfolio",
       "title": "Education & Certifications",
@@ -614,13 +659,31 @@
       "addInstitution": "Add Institution",
       "institutionFallback": "Institution {n}",
       "removeInstitution": "Remove institution",
-      "institutionName": { "label": "Institution Name", "placeholder": "e.g. Stanford University" },
-      "degree": { "label": "Degree", "placeholder": "e.g. B.S. Computer Science" },
-      "fieldOfStudy": { "label": "Field of Study", "placeholder": "e.g. Artificial Intelligence" },
-      "gradYear": { "label": "Graduation Year", "placeholder": "2023" },
+      "institutionName": {
+        "label": "Institution Name",
+        "placeholder": "e.g. Stanford University"
+      },
+      "degree": {
+        "label": "Degree",
+        "placeholder": "e.g. B.S. Computer Science"
+      },
+      "fieldOfStudy": {
+        "label": "Field of Study",
+        "placeholder": "e.g. Artificial Intelligence"
+      },
+      "gradYear": {
+        "label": "Graduation Year",
+        "placeholder": "2023"
+      },
       "professionalCertifications": "Professional Certifications",
-      "certificateName": { "label": "Certificate Name", "placeholder": "e.g. AWS Certified Solutions Architect" },
-      "issuingOrg": { "label": "Issuing Organization", "placeholder": "e.g. Amazon Web Services" },
+      "certificateName": {
+        "label": "Certificate Name",
+        "placeholder": "e.g. AWS Certified Solutions Architect"
+      },
+      "issuingOrg": {
+        "label": "Issuing Organization",
+        "placeholder": "e.g. Amazon Web Services"
+      },
       "removeCertificate": "Remove certificate",
       "addCertificate": "Add Certificate",
       "proTip": "Pro Tip",
@@ -628,7 +691,6 @@
       "atsScoreRank": "ATS Score Rank",
       "profileCompletion": "Profile completion progress"
     },
-
     "skills": {
       "title": "Skills & Expertise",
       "subtitle": "ResuMax AI has analyzed your job history. Add specific skills to pass ATS filters and stand out to recruiters.",
@@ -762,5 +824,104 @@
     },
     "rights": "All rights reserved.",
     "poweredBy": "Powered by FALO Enterprise"
+  },
+  "resumePreview": {
+    "badge": "Generated resume",
+    "title": "Your resume is ready",
+    "subtitle": "Review your generated resume, choose the right template, and export the final version.",
+    "backToDashboard": "Back to dashboard",
+    "preview": {
+      "title": "Resume preview",
+      "subtitle": "Review the generated resume before exporting it.",
+      "placeholderTitle": "Resume preview",
+      "placeholderText": "The generated resume will appear here in the next step.",
+      "imageAlt": "Generated resume preview",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "resetZoom": "Reset zoom",
+      "imageLoading": "Loading resume image...",
+      "imageErrorTitle": "Preview image unavailable",
+      "imageErrorText": "The resume data was loaded, but the preview image could not be displayed.",
+      "retryImage": "Reload image"
+    },
+    "template": {
+      "title": "Current template",
+      "subtitle": "Choose the template that best fits your resume.",
+      "placeholder": "Templates will be added later",
+      "current": "Current template",
+      "selected": "Selected",
+      "selectAria": "Select {template} template",
+      "changeButton": "Change template",
+      "changeHint": "Return to the templates page to choose another template available in your plan."
+    },
+    "credits": {
+      "title": "Generation credits",
+      "subtitle": "Your available resume generation attempts.",
+      "remaining": "attempts remaining"
+    },
+    "export": {
+      "title": "Export resume",
+      "subtitle": "Download your final resume in your preferred format."
+    },
+    "status": {
+      "loadingTitle": "Loading resume preview",
+      "loadingText": "Please wait while we prepare your resume.",
+      "errorTitle": "Resume preview unavailable",
+      "errorText": "The resume preview could not be loaded.",
+      "retry": "Try again"
+    },
+    "configuration": {
+      "selectedTemplate": "Selected template",
+      "currentTemplate": "Current template",
+      "changeTemplate": "Change template",
+      "purpose": "Purpose",
+      "generate": "Generate resume",
+      "regenerate": "Regenerate resume",
+      "generating": "Generating...",
+      "preview": "Preview",
+      "zoom": "Zoom",
+      "exportAs": "Export as",
+      "credits": "Export credits",
+      "attemptsRemaining": "attempts remaining",
+      "ready": "Ready",
+      "lastUpdated": "Last updated",
+      "generatedSuccessfully": "Resume generated successfully.",
+      "generateError": "The resume could not be generated.",
+      "selectPurpose": "Select a purpose",
+      "formats": {
+        "pdf": "PDF",
+        "jpg": "JPG"
+      },
+      "purposes": {
+        "job": "Job application",
+        "internship": "Internship",
+        "scholarship": "Scholarship",
+        "academic": "Academic program",
+        "promotion": "Promotion or career move",
+        "government": "Government position",
+        "general": "General use"
+      },
+      "previewSections": {
+        "contact": "Contact details",
+        "summary": "Professional summary",
+        "details": "More details",
+        "about": "More about you",
+        "history": "Education and experience"
+      },
+      "upgrade": {
+        "eyebrow": "Upgrade plan",
+        "availableTitle": "Need more exports?",
+        "limitTitle": "You've reached your free limit",
+        "availableDescription": "You have {remaining} export attempts left. Upgrade to Pro for unlimited exports and access to premium templates.",
+        "limitDescription": "Upgrade to Pro to continue exporting your resume, unlock premium templates, and access more features.",
+        "benefits": {
+          "unlimitedExports": "Unlimited exports",
+          "premiumTemplates": "Access to premium templates",
+          "moreOptions": "More export and customization options"
+        },
+        "button": "Upgrade to Pro",
+        "note": "Upgrade anytime without losing your current resume."
+      }
+    }
   }
 }
