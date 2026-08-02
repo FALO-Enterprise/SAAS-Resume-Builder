@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   Check,
@@ -667,8 +668,7 @@ export default function ResumePreviewPage() {
 
               <div className="mt-5 flex items-center gap-4 rounded-2xl border border-gold/30 bg-gold/10 p-4">
                 <div className="h-26 w-18.5 shrink-0 overflow-hidden rounded-xl border border-edge bg-white shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={
                       selectedTemplate.thumbnailUrl
                     }
@@ -1262,8 +1262,7 @@ export default function ResumePreviewPage() {
               )}
 
               <div className="flex w-full max-w-190 shrink-0 justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   key={imageReloadKey}
                   src={previewImageUrl}
                   alt={`${t(
