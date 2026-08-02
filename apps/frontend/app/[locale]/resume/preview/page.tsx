@@ -90,6 +90,12 @@ const FORMAT_TRANSLATION_KEYS: Record<
   jpg: "formats.jpg",
 };
 
+const UPGRADE_BENEFIT_KEYS = [
+  "benefits.unlimitedExports",
+  "benefits.premiumTemplates",
+  "benefits.moreOptions",
+] as const;
+
 type PreviewImageStatus =
   | "loading"
   | "loaded"
@@ -105,39 +111,9 @@ export default function ResumePreviewPage() {
 
   const isRTL = locale === "ar";
 
-  const upgradeCopy = isRTL
-    ? {
-        eyebrow: "ترقية الخطة",
-        availableTitle: "تحتاج مزيدًا من التصدير؟",
-        limitTitle: "لقد وصلت إلى الحد المجاني",
-        availableDescription: (remaining: number) =>
-          `لديك ${remaining} محاولة تصدير متبقية. قم بالترقية إلى Pro للحصول على تصدير غير محدود والوصول إلى القوالب المميزة.`,
-        limitDescription:
-          "قم بالترقية إلى Pro لمتابعة تصدير سيرتك الذاتية، وفتح القوالب المميزة، والاستفادة من مزايا إضافية.",
-        benefits: [
-          "تصدير غير محدود",
-          "الوصول إلى القوالب المميزة",
-          "خيارات تصدير وتخصيص إضافية",
-        ],
-        button: "الترقية إلى Pro",
-        note: "يمكنك الترقية في أي وقت دون فقدان سيرتك الحالية.",
-      }
-    : {
-        eyebrow: "Upgrade plan",
-        availableTitle: "Need more exports?",
-        limitTitle: "You’ve reached your free limit",
-        availableDescription: (remaining: number) =>
-          `You have ${remaining} export attempts left. Upgrade to Pro for unlimited exports and access to premium templates.`,
-        limitDescription:
-          "Upgrade to Pro to continue exporting your resume, unlock premium templates, and access more features.",
-        benefits: [
-          "Unlimited exports",
-          "Access to premium templates",
-          "More export and customization options",
-        ],
-        button: "Upgrade to Pro",
-        note: "Upgrade anytime without losing your current resume.",
-      };
+  const upgrade = useTranslations(
+    "resumePreview.configuration.upgrade",
+  );
 
   const purposeMenuRef =
     useRef<HTMLDivElement | null>(null);
@@ -513,7 +489,6 @@ export default function ResumePreviewPage() {
   if (isLoading) {
     return (
       <main
-        dir={isRTL ? "rtl" : "ltr"}
         className="flex min-h-screen items-center justify-center bg-base px-5 text-primary"
       >
         <div className="text-center">
@@ -534,7 +509,6 @@ export default function ResumePreviewPage() {
   if (pageError || !resumeData) {
     return (
       <main
-        dir={isRTL ? "rtl" : "ltr"}
         className="flex min-h-screen items-center justify-center bg-base px-5 text-primary"
       >
         <div className="w-full max-w-md rounded-3xl border border-edge bg-elevated p-7 text-center shadow-[0_24px_80px_var(--shadow-color)]">
@@ -624,7 +598,6 @@ export default function ResumePreviewPage() {
 
   return (
     <main
-      dir={isRTL ? "rtl" : "ltr"}
       className="min-h-screen bg-base text-primary"
     >
       <header className="sticky top-0 z-50 border-b border-edge bg-base/90 backdrop-blur-xl">
@@ -879,29 +852,30 @@ export default function ResumePreviewPage() {
 
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-secondary">
-                      {upgradeCopy.eyebrow}
+                      {upgrade("eyebrow")}
                     </p>
 
                     <h2 className="mt-1 text-sm font-black text-primary">
                       {resumeData.creditsRemaining > 0
-                        ? upgradeCopy.availableTitle
-                        : upgradeCopy.limitTitle}
+                        ? upgrade("availableTitle")
+                        : upgrade("limitTitle")}
                     </h2>
 
                     <p className="mt-2 text-xs leading-5 text-secondary">
                       {resumeData.creditsRemaining > 0
-                        ? upgradeCopy.availableDescription(
-                            resumeData.creditsRemaining,
-                          )
-                        : upgradeCopy.limitDescription}
+                        ? upgrade("availableDescription", {
+                            remaining:
+                              resumeData.creditsRemaining,
+                          })
+                        : upgrade("limitDescription")}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-4 space-y-2 rounded-2xl border border-gold/20 bg-gold/10 p-4">
-                  {upgradeCopy.benefits.map((benefit) => (
+                  {UPGRADE_BENEFIT_KEYS.map((benefitKey) => (
                     <div
-                      key={benefit}
+                      key={benefitKey}
                       className="flex items-center gap-2 text-xs font-semibold text-primary"
                     >
                       <CheckCircle2
@@ -909,7 +883,7 @@ export default function ResumePreviewPage() {
                         className="shrink-0 text-green"
                       />
 
-                      <span>{benefit}</span>
+                      <span>{upgrade(benefitKey)}</span>
                     </div>
                   ))}
                 </div>
@@ -919,11 +893,11 @@ export default function ResumePreviewPage() {
                   className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gold px-4 text-sm font-bold text-ink no-underline transition-all hover:-translate-y-0.5 hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
                 >
                   <Sparkles size={16} />
-                  {upgradeCopy.button}
+                  {upgrade("button")}
                 </Link>
 
                 <p className="mt-3 text-center text-[11px] leading-5 text-secondary">
-                  {upgradeCopy.note}
+                  {upgrade("note")}
                 </p>
               </div>
             </section>

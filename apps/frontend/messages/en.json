@@ -907,6 +907,20 @@
         "details": "More details",
         "about": "More about you",
         "history": "Education and experience"
+      },
+      "upgrade": {
+        "eyebrow": "Upgrade plan",
+        "availableTitle": "Need more exports?",
+        "limitTitle": "You've reached your free limit",
+        "availableDescription": "You have {remaining} export attempts left. Upgrade to Pro for unlimited exports and access to premium templates.",
+        "limitDescription": "Upgrade to Pro to continue exporting your resume, unlock premium templates, and access more features.",
+        "benefits": {
+          "unlimitedExports": "Unlimited exports",
+          "premiumTemplates": "Access to premium templates",
+          "moreOptions": "More export and customization options"
+        },
+        "button": "Upgrade to Pro",
+        "note": "Upgrade anytime without losing your current resume."
       }
     }
   }
