@@ -29,6 +29,21 @@ import { getAvatarUrl, isUploadedAvatar } from '@/lib/utilities/avatar';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { getDashboardDraft, saveDashboardDraft } from '@/lib/backend';
 
+const DASHBOARD_SAVE_ERROR_TOAST_ID = 'dashboard-save-error';
+
+function serializeDashboardDraft(draft: DashboardDraftData) {
+  return JSON.stringify({
+    template: draft.template,
+    currentStep: draft.currentStep,
+    completedSteps: draft.completedSteps,
+    contact: draft.contact,
+    experience: draft.experience,
+    education: draft.education,
+    certifications: draft.certifications,
+    skills: draft.skills,
+  });
+}
+
 function getInitials(name?: string) {
   if (!name) return '?';
   const parts = name.trim().split(/\s+/);
@@ -1132,6 +1147,7 @@ export default function DashboardPage() {
   const [draftLoaded, setDraftLoaded] = useState(false);
   const lastQueuedDraft = useRef('');
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
+  const saveErrorShown = useRef(false);
 
   useEffect(() => {
     if (!user) return;
@@ -1139,9 +1155,11 @@ export default function DashboardPage() {
     const token = localStorage.getItem('resumax_token');
 
     if (!token) {
-      setContact(c => ({ ...c, fullName: c.fullName || user.name, email: c.email || user.email }));
-      setDraftLoaded(true);
-      return;
+      const timer = window.setTimeout(() => {
+        setContact(c => ({ ...c, fullName: c.fullName || user.name, email: c.email || user.email }));
+        setDraftLoaded(true);
+      }, 0);
+      return () => window.clearTimeout(timer);
     }
 
     getDashboardDraft(token)
@@ -1163,6 +1181,10 @@ export default function DashboardPage() {
           skills: persisted ? draft.skills : ['Strategic Planning', 'React.js', 'Team Leadership'],
         };
 
+        // Record the server snapshot. Client-added defaults and URL template
+        // changes remain different and will still be autosaved.
+        lastQueuedDraft.current = serializeDashboardDraft(draft);
+
         setSelectedTemplate(nextDraft.template);
         setCurrentStep(nextDraft.currentStep);
         setCompleted(new Set(nextDraft.completedSteps));
@@ -1171,12 +1193,10 @@ export default function DashboardPage() {
         setEducation(nextDraft.education);
         setCerts(nextDraft.certifications);
         setSkills(nextDraft.skills);
+        setDraftLoaded(true);
       })
       .catch(() => {
         if (!cancelled) toast.error('We could not load your saved resume draft.');
-      })
-      .finally(() => {
-        if (!cancelled) setDraftLoaded(true);
       });
 
     return () => { cancelled = true; };
@@ -1198,7 +1218,7 @@ export default function DashboardPage() {
       certifications: certs,
       skills,
     };
-    const serialized = JSON.stringify(draft);
+    const serialized = serializeDashboardDraft(draft);
     if (serialized === lastQueuedDraft.current) return;
 
     const timer = window.setTimeout(() => {
@@ -1206,10 +1226,20 @@ export default function DashboardPage() {
       saveQueue.current = saveQueue.current
         .then(async () => {
           await saveDashboardDraft(token, draft);
+          saveErrorShown.current = false;
+          toast.dismiss(DASHBOARD_SAVE_ERROR_TOAST_ID);
         })
-        .catch(() => {
-          lastQueuedDraft.current = '';
-          toast.error('We could not save your latest dashboard changes.');
+        .catch((error) => {
+          console.error('Dashboard autosave failed:', error);
+          if (lastQueuedDraft.current === serialized) {
+            lastQueuedDraft.current = '';
+          }
+          if (!saveErrorShown.current) {
+            saveErrorShown.current = true;
+            toast.error('We could not save your latest dashboard changes.', {
+              id: DASHBOARD_SAVE_ERROR_TOAST_ID,
+            });
+          }
         });
     }, 800);
 
