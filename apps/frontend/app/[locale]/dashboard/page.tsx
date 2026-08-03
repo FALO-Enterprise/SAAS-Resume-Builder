@@ -14,17 +14,20 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
 import UserAvatarMenu from '@/components/ui/UserAvatarMenu';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import HintTooltip from '@/components/ui/HintTooltip';
-import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem } from '@/lib/types/dashborad.types';
+import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem, DashboardDraftData } from '@/lib/types/dashborad.types';
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
 import { emptyRole, emptyEdu, emptyCert } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
 import { getAvatarUrl, isUploadedAvatar } from '@/lib/utilities/avatar';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { getDashboardDraft, saveDashboardDraft } from '@/lib/backend';
 
 function getInitials(name?: string) {
   if (!name) return '?';
@@ -1112,6 +1115,8 @@ export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const tContact = useTranslations('dashboard.contact');
   const locale = useLocale();
+  const searchParams = useSearchParams();
+  const templateFromQuery = searchParams.get('template');
   const isRTL = locale === "ar";
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState<StepId>('contact');
@@ -1123,19 +1128,93 @@ export default function DashboardPage() {
   const [skills, setSkills] = useState<string[]>(['Strategic Planning', 'React.js', 'Team Leadership']);
   const [errors, setErrors] = useState<Partial<Record<keyof ContactData, string>>>({});
   const [navOpen, setNavOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(templateFromQuery);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  const lastQueuedDraft = useRef('');
+  const saveQueue = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
+    const token = localStorage.getItem('resumax_token');
+
+    if (!token) {
+      setContact(c => ({ ...c, fullName: c.fullName || user.name, email: c.email || user.email }));
+      setDraftLoaded(true);
+      return;
+    }
+
+    getDashboardDraft(token)
+      .then((draft) => {
+        if (cancelled) return;
+
+        const persisted = Boolean(draft.id);
+        const nextDraft: DashboardDraftData = {
+          ...draft,
+          template: templateFromQuery ?? draft.template,
+          contact: {
+            ...draft.contact,
+            fullName: draft.contact.fullName || user.name,
+            email: draft.contact.email || user.email,
+          },
+          experience: persisted ? draft.experience : [emptyRole()],
+          education: persisted ? draft.education : [emptyEdu()],
+          certifications: persisted ? draft.certifications : [emptyCert()],
+          skills: persisted ? draft.skills : ['Strategic Planning', 'React.js', 'Team Leadership'],
+        };
+
+        setSelectedTemplate(nextDraft.template);
+        setCurrentStep(nextDraft.currentStep);
+        setCompleted(new Set(nextDraft.completedSteps));
+        setContact(nextDraft.contact);
+        setExperience(nextDraft.experience);
+        setEducation(nextDraft.education);
+        setCerts(nextDraft.certifications);
+        setSkills(nextDraft.skills);
+      })
+      .catch(() => {
+        if (!cancelled) toast.error('We could not load your saved resume draft.');
+      })
+      .finally(() => {
+        if (!cancelled) setDraftLoaded(true);
+      });
+
+    return () => { cancelled = true; };
+  }, [templateFromQuery, user]);
+
+  useEffect(() => {
+    if (!draftLoaded) return;
+
+    const token = localStorage.getItem('resumax_token');
+    if (!token) return;
+
+    const draft: DashboardDraftData = {
+      template: selectedTemplate,
+      currentStep,
+      completedSteps: [...completedSteps],
+      contact,
+      experience,
+      education,
+      certifications: certs,
+      skills,
+    };
+    const serialized = JSON.stringify(draft);
+    if (serialized === lastQueuedDraft.current) return;
+
     const timer = window.setTimeout(() => {
-      setContact(c => ({
-        ...c,
-        fullName: c.fullName || user.name || '',
-        email: c.email || user.email || '',
-      }));
-    }, 0);
+      lastQueuedDraft.current = serialized;
+      saveQueue.current = saveQueue.current
+        .then(async () => {
+          await saveDashboardDraft(token, draft);
+        })
+        .catch(() => {
+          lastQueuedDraft.current = '';
+          toast.error('We could not save your latest dashboard changes.');
+        });
+    }, 800);
 
     return () => window.clearTimeout(timer);
-  }, [user]);
+  }, [certs, completedSteps, contact, currentStep, draftLoaded, education, experience, selectedTemplate, skills]);
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
   const nextStep = STEPS[currentIndex + 1];

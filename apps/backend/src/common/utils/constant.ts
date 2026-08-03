@@ -5,6 +5,7 @@ export const MODULES_NAMES = {
     template: 'TEMPLATE',
     plan: "PLAN",
     subscription: 'SUBSCRIPTION',
+    dashboard: 'DASHBOARD',
 } as const;
 
 export type ModuleNameType = typeof MODULES_NAMES[keyof typeof MODULES_NAMES];

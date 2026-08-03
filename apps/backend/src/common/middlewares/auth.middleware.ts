@@ -10,9 +10,10 @@ import { userService } from '../../modules/users/users.service';
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
     if (req.session.userId) {
-        const isUserStillExist = await userService.isUserIdExist(req.session.userId);
+        const user = await userService.getUser(req.session.userId);
 
-        if (isUserStillExist) {
+        if (user) {
+            req.user = { id: user.id, email: user.email, role: user.role };
             next();
             return;
         }
@@ -32,7 +33,21 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
 
     const jwt = authHeader.replace('Bearer ', '');
     try {
-        verifyJWT(jwt);
+        const payload = verifyJWT(jwt);
+        const user = await userService.getUser(payload.sub);
+
+        if (!user) {
+            next(
+                new CustomError(
+                    'User no longer exists',
+                    'AUTH',
+                    HttpErrorStatus.Unauthorized
+                )
+            );
+            return;
+        }
+
+        req.user = { id: user.id, email: user.email, role: user.role };
         next();
     } catch {
         next(

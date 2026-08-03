@@ -35,3 +35,16 @@ export type CertItem = {
   name: string;
   org: string;
 }
+
+export type DashboardDraftData = {
+  id?: string;
+  template: string | null;
+  currentStep: StepId;
+  completedSteps: StepId[];
+  contact: ContactData;
+  experience: ExperienceItem[];
+  education: EducationItem[];
+  certifications: CertItem[];
+  skills: string[];
+  updatedAt?: string;
+}

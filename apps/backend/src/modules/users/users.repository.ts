@@ -11,7 +11,7 @@ export class UserRepository {
     }
 
     findById(id: string): Promise<User | null> {
-        return this.prismaUser.findUniqueOrThrow({
+        return this.prismaUser.findUnique({
             where: {
                 id
             }

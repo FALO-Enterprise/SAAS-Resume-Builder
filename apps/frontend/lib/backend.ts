@@ -1,3 +1,5 @@
+import type { DashboardDraftData } from './types/dashborad.types';
+
 const DEFAULT_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
 export function buildBackendUrl(path: string) {
     const baseUrl = (DEFAULT_BACKEND_URL || 'http://localhost:3001').replace(/\/$/, '');
@@ -163,5 +165,43 @@ export async function resetPasswordWithBackend(input: {
     }
 
     return normalizeBackendPayload<{ message: string }>(payload);
+}
+
+async function dashboardRequest(token: string, init?: RequestInit) {
+    const { response, payload } = await proxyToBackend('/api/dashboard', {
+        ...init,
+        headers: {
+            Authorization: `Bearer ${token}`,
+            ...(init?.headers ?? {}),
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(backendErrorMessage(payload, 'Could not save your dashboard'));
+    }
+
+    const normalized = normalizeBackendPayload<DashboardDraftData>(payload);
+    if ('error' in normalized) throw new Error(normalized.error);
+    return normalized;
+}
+
+export function getDashboardDraft(token: string) {
+    return dashboardRequest(token);
+}
+
+export function saveDashboardDraft(token: string, draft: DashboardDraftData) {
+    return dashboardRequest(token, {
+        method: 'PUT',
+        body: JSON.stringify({
+            template: draft.template,
+            currentStep: draft.currentStep,
+            completedSteps: draft.completedSteps,
+            contact: draft.contact,
+            experience: draft.experience,
+            education: draft.education,
+            certifications: draft.certifications,
+            skills: draft.skills,
+        }),
+    });
 }
 

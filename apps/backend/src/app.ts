@@ -6,6 +6,7 @@ import { resumeRouter } from './modules/resume/resume.routes'
 import { authRouter } from './modules/auth/auth.routes'
 import { userRouter } from './modules/users/users.routes'
 import { templateRouter } from './modules/template/template.routes'
+import { dashboardRouter } from './modules/dashboard/dashboard.routes'
 import session from 'express-session'
 import { responseEnhancer } from './common/middlewares/response.middleware'
 import path from 'path'
@@ -48,5 +49,6 @@ app.use('/api/auth', authRouter)
 app.use('/api/users', userRouter)
 app.use('/api/resumes', resumeRouter)
 app.use('/api/templates', templateRouter)
+app.use('/api/dashboard', dashboardRouter)
 
 export default app
