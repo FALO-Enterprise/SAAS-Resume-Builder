@@ -923,5 +923,39 @@
         "note": "Upgrade anytime without losing your current resume."
       }
     }
+  },
+  "resumeStart": {
+    "badge": "Choose how to begin",
+    "title": "How would you like to",
+    "titleHighlight": "build your resume?",
+    "subtitle": "Start a new resume with guided AI assistance, or upload your existing resume and improve it with ResuMax.",
+    "scratch": {
+      "badge": "Recommended",
+      "title": "Create a new resume",
+      "description": "Build your resume from scratch with guided steps, professional templates, and AI-powered suggestions.",
+      "button": "Start from scratch",
+      "features": {
+        "guided": "Guided resume-building experience",
+        "templates": "Professional and ATS-friendly templates",
+        "ai": "AI-assisted writing and improvements"
+      }
+    },
+    "upload": {
+      "title": "Upload an existing resume",
+      "description": "Upload your current resume to reformat, improve, and update it without entering all your information again.",
+      "button": "Upload resume",
+      "changeButton": "Choose another file",
+      "accepted": "PDF, DOC, or DOCX — maximum 10 MB",
+      "selected": "Selected file",
+      "ready": "Your file is ready to upload",
+      "remove": "Remove selected file",
+      "invalidType": "Please select a PDF, DOC, or DOCX file.",
+      "tooLarge": "The selected file must be smaller than 10 MB."
+    },
+    "trust": {
+      "secure": "Secure file handling",
+      "preserve": "Your original information is preserved",
+      "fast": "Continue without starting over"
+    }
   }
 }
