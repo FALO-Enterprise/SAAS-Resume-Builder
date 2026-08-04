@@ -80,7 +80,7 @@ export default function CTASection() {
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
           <Link
-            href={`/${locale}/createaccount`}
+            href={`/${locale}/resume/get-started`}
             className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-bold px-8 py-5 rounded-full text-lg transition-all duration-200 hover:scale-105 hover:shadow-[0_0_40px_rgba(245,166,35,0.5)] w-full sm:w-auto justify-center"
           >
             {isPaidUser ? t("buttonPaid") || "Start Building Now" : t("button")}
