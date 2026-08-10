@@ -52,4 +52,12 @@ export const dashboardDraftSchema = z.object({
     skills: z.array(shortText).max(100),
 });
 
+export const resumeContentSchema = dashboardDraftSchema.pick({
+    contact: true,
+    experience: true,
+    education: true,
+    certifications: true,
+    skills: true,
+});
+
 export type DashboardDraftDTO = z.infer<typeof dashboardDraftSchema>;

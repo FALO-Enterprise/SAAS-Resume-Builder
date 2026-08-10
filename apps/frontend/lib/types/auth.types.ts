@@ -58,6 +58,7 @@ export type AuthUser = {
   avatar: string | null;
   role: string;
   planName: PlanName;
+  isVerified: boolean;
 }
 
 // Auth context type

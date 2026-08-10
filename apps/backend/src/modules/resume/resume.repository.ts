@@ -16,6 +16,10 @@ export class ResumeRepository {
         });
     }
 
+    findOwnedById(id: string, userId: string): Promise<Resume | null> {
+        return this.prismaResume.findFirst({ where: { id, userId } });
+    }
+
     create(title: string, templateId: string, userId: string): Promise<Resume> {
         return this.prismaResume.create({
             data: {
@@ -23,6 +27,20 @@ export class ResumeRepository {
                 templateId,
                 userId,
             },
+        });
+    }
+
+    async upsertForUser(title: string, templateId: string, templateName: string, userId: string): Promise<Resume> {
+        await prisma.template.upsert({
+            where: { id: templateId },
+            create: { id: templateId, name: templateName, isPremium: false },
+            update: { name: templateName },
+        });
+
+        return this.prismaResume.upsert({
+            where: { userId },
+            create: { title, templateId, userId },
+            update: { title, templateId },
         });
     }
 

@@ -20,6 +20,7 @@ export default async function RootLayout({
       lang={locale}
       dir={isArabic ? "rtl" : "ltr"}
       className="scroll-smooth"
+      suppressHydrationWarning
     >
       <body className={isArabic ? "font-arabic" : ""}>{children}</body>
     </html>

@@ -30,6 +30,9 @@ export type MyEnvs = {
   DATABASE_URL: string;
   FRONTEND_URL: string;
   BACKEND_PUBLIC_URL: string;
+  GEMINI_API_KEY?: string;
+  GEMINI_MODEL?: string;
+  GOOGLE_API_KEY?: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   GITHUB_CLIENT_ID: string;

@@ -1,3 +1,4 @@
+import type { PlanName } from './types/auth.types';
 import type { DashboardDraftData } from './types/dashborad.types';
 
 const DEFAULT_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
@@ -57,8 +58,9 @@ export interface BackendAuthUser {
     avatar: string | null;
     role: string;
     email: string;
+    isVerified: boolean;
     plan: {
-        name: 'FREE' | 'PRO' | 'ENTERPRISE';
+        name: PlanName;
     };
 }
 
@@ -205,3 +207,30 @@ export function saveDashboardDraft(token: string, draft: DashboardDraftData) {
     });
 }
 
+export type GeneratedResume = {
+    id: string;
+    title: string;
+    templateId: string;
+    userId: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
+export async function generateCurrentResume(
+    token: string,
+    input: { title: string; templateId: 'minimal' },
+) {
+    const { response, payload } = await proxyToBackend('/api/resumes/current/generate', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+        throw new Error(backendErrorMessage(payload, 'Could not generate your resume'));
+    }
+
+    const normalized = normalizeBackendPayload<GeneratedResume>(payload);
+    if ('error' in normalized) throw new Error(normalized.error);
+    return normalized;
+}

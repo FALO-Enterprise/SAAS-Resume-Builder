@@ -1,6 +1,8 @@
 // Export all shared type definitions
 // This file will barrel-export DTOs used by both frontend and backend
 
+export * from './resume';
+
 // Example: Auth DTOs
 export interface LoginDTO {
   email: string;

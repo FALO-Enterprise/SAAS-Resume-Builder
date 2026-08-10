@@ -9,6 +9,7 @@ import AuthInput from "@/components/ui/AuthInput";
 import type { LoginData, FieldError } from "@/lib/types/auth.types";
 import { PROVIDERS } from "@/lib/placeholder-data/providors.placeholder";
 import { getOAuthStartUrl, loginWithBackend } from "@/lib/backend";
+import { persistAuthToken } from "@/lib/auth-session";
 import Link from "next/link";
 
 // ─── Login Form ──────────────────────────────────────────────────────────────
@@ -56,9 +57,7 @@ export default function LoginForm() {
         return;
       }
 
-      // in your login handler / AuthContext, alongside the existing localStorage line:
-      localStorage.setItem("resumax_token", data.token);
-      document.cookie = `resumax_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+      persistAuthToken(data.token);
       login({
         id: data.user.id,
         name: data.user.name,
@@ -66,6 +65,7 @@ export default function LoginForm() {
         avatar: data.user.avatar,
         role: data.user.role,
         planName: data.user.plan.name,
+        isVerified: data.user.isVerified,
       });
       setSuccess(true);
       setTimeout(() => closeModal(), 800);

@@ -4,6 +4,20 @@ import prisma from "./prisma.service"
 
 async function main() {
 
+    await prisma.template.upsert({
+        where: { id: 'minimal' },
+        create: {
+            id: 'minimal',
+            name: 'Professional ATS',
+            thumbnail: null,
+            isPremium: false,
+        },
+        update: {
+            name: 'Professional ATS',
+            isPremium: false,
+        },
+    })
+
     // create the plans
     await prisma.plan.createMany({
         data: [

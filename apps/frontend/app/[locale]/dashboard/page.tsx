@@ -14,7 +14,7 @@ import {
 import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
@@ -27,7 +27,7 @@ import { emptyRole, emptyEdu, emptyCert } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
 import { getAvatarUrl, isUploadedAvatar } from '@/lib/utilities/avatar';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import { getDashboardDraft, saveDashboardDraft } from '@/lib/backend';
+import { generateCurrentResume, getDashboardDraft, saveDashboardDraft } from '@/lib/backend';
 
 const DASHBOARD_SAVE_ERROR_TOAST_ID = 'dashboard-save-error';
 
@@ -742,10 +742,11 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
 }
 
 // ── Skills step ──────────────────────────────────────────────────────────────
-function SkillsStep({ skills, onChange, onFinish }: {
+function SkillsStep({ skills, onChange, onFinish, isFinishing = false }: {
   skills: string[];
   onChange: (skills: string[]) => void;
   onFinish: () => void;
+  isFinishing?: boolean;
 }) {
   const t = useTranslations('dashboard.skills');
   const [input, setInput] = useState('');
@@ -873,9 +874,11 @@ function SkillsStep({ skills, onChange, onFinish }: {
           <div>
             <button
               onClick={onFinish}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_30px_rgba(245,166,35,0.4)] transition-all hover:-translate-y-px hover:bg-gold-light"
+              disabled={isFinishing}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_30px_rgba(245,166,35,0.4)] transition-all hover:-translate-y-px hover:bg-gold-light disabled:cursor-wait disabled:translate-y-0 disabled:opacity-70"
             >
-              {t('finishButton')} <Zap size={16} />
+              {t('finishButton')}
+              {isFinishing ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />}
             </button>
             <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.08em] text-muted">
               {t('noCreditCard')}
@@ -1130,6 +1133,7 @@ export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const tContact = useTranslations('dashboard.contact');
   const locale = useLocale();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const templateFromQuery = searchParams.get('template');
   const isRTL = locale === "ar";
@@ -1145,9 +1149,11 @@ export default function DashboardPage() {
   const [navOpen, setNavOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(templateFromQuery);
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
   const lastQueuedDraft = useRef('');
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
   const saveErrorShown = useRef(false);
+  const autosaveTimer = useRef<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -1222,6 +1228,7 @@ export default function DashboardPage() {
     if (serialized === lastQueuedDraft.current) return;
 
     const timer = window.setTimeout(() => {
+      if (autosaveTimer.current === timer) autosaveTimer.current = null;
       lastQueuedDraft.current = serialized;
       saveQueue.current = saveQueue.current
         .then(async () => {
@@ -1242,8 +1249,12 @@ export default function DashboardPage() {
           }
         });
     }, 800);
+    autosaveTimer.current = timer;
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      if (autosaveTimer.current === timer) autosaveTimer.current = null;
+    };
   }, [certs, completedSteps, contact, currentStep, draftLoaded, education, experience, selectedTemplate, skills]);
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
@@ -1284,10 +1295,57 @@ export default function DashboardPage() {
     if (nextStep) setCurrentStep(nextStep.id);
   };
 
-  const handleFinish = () => {
-    setCompleted(prev => new Set(prev).add('skills'));
-    // ── BACKEND: generate resume / navigate to preview ──
-    // router.push(`/${locale}/resume/preview`);
+  const handleFinish = async () => {
+    if (isFinishing) return;
+    if (!validateContact()) {
+      setCurrentStep('contact');
+      return;
+    }
+
+    const token = localStorage.getItem('resumax_token');
+    if (!token) {
+      toast.error('Please sign in before generating your resume.');
+      return;
+    }
+
+    const finalCompletedSteps = new Set(completedSteps);
+    finalCompletedSteps.add('skills');
+    const finalDraft: DashboardDraftData = {
+      template: 'minimal',
+      currentStep: 'skills',
+      completedSteps: [...finalCompletedSteps],
+      contact,
+      experience,
+      education,
+      certifications: certs,
+      skills,
+    };
+
+    setIsFinishing(true);
+    setCompleted(finalCompletedSteps);
+    setSelectedTemplate('minimal');
+
+    if (autosaveTimer.current !== null) {
+      window.clearTimeout(autosaveTimer.current);
+      autosaveTimer.current = null;
+    }
+
+    try {
+      await saveQueue.current;
+      await saveDashboardDraft(token, finalDraft);
+      lastQueuedDraft.current = serializeDashboardDraft(finalDraft);
+
+      const resume = await generateCurrentResume(token, {
+        title: `${contact.fullName.trim()} Resume`,
+        templateId: 'minimal',
+      });
+
+      router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resume.id)}`);
+    } catch (error) {
+      console.error('Resume generation failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Could not generate your resume.');
+      setIsFinishing(false);
+    }
   };
 
   const handleStepClick = (id: StepId) => {
@@ -1367,7 +1425,12 @@ export default function DashboardPage() {
                   <EducationStep education={education} onEducationChange={setEducation} certs={certs} onCertsChange={setCerts} />
                 )}
                 {currentStep === 'skills' && (
-                  <SkillsStep skills={skills} onChange={setSkills} onFinish={handleFinish} />
+                  <SkillsStep
+                    skills={skills}
+                    onChange={setSkills}
+                    onFinish={() => { void handleFinish(); }}
+                    isFinishing={isFinishing}
+                  />
                 )}
               </motion.div>
             </AnimatePresence>

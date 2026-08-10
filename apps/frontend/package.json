@@ -7,12 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "tsx --test components/**/*.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.17",
     "@types/three": "^0.184.1",
     "framer-motion": "^12.40.0",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^1.17.0",
     "next": "16.2.7",
     "next-intl": "^4.13.0",
@@ -30,6 +32,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
     "tailwindcss": "^4",
+    "tsx": "^4.23.0",
     "typescript": "^5"
   }
 }

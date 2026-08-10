@@ -15,6 +15,7 @@ import {
   AuthContextType,
   AuthUser,
 } from "@/lib/types/auth.types";
+import { clearAuthToken, hasActiveAuthToken } from "@/lib/auth-session";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -28,11 +29,37 @@ function getStoredUser(): AuthUser | null {
   try {
     const stored = localStorage.getItem(USER_KEY);
 
-    if (!stored) return null;
+    if (!stored) {
+      clearAuthToken();
+      localStorage.removeItem(VERIFIED_KEY);
+      return null;
+    }
 
-    return JSON.parse(stored);
+    // The navbar and the protected routes must agree on whether a browser
+    // session exists. A user record without both JWT copies is stale state.
+    if (!hasActiveAuthToken()) {
+      clearAuthToken();
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(VERIFIED_KEY);
+      return null;
+    }
+
+    const parsed = JSON.parse(stored) as Omit<AuthUser, "isVerified"> & {
+      isVerified?: boolean;
+    };
+
+    return {
+      ...parsed,
+      // Sessions stored before isVerified became part of AuthUser were only
+      // created after a successful verified login.
+      isVerified:
+        parsed.isVerified ??
+        localStorage.getItem(VERIFIED_KEY) === "true",
+    };
   } catch {
+    clearAuthToken();
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(VERIFIED_KEY);
     return null;
   }
 }
@@ -59,12 +86,18 @@ export function AuthProvider({
   // Expose the same auth state on the server and during the browser's first
   // render, then reveal the local session immediately after hydration.
   const user = hasHydrated ? storedUser : null;
-  const isVerified = !!user;
+  const isVerified = Boolean(
+    user?.isVerified && hasActiveAuthToken(),
+  );
 
   useEffect(() => {
     if (storedUser) {
       localStorage.setItem(USER_KEY, JSON.stringify(storedUser));
-      localStorage.setItem(VERIFIED_KEY, "true");
+      if (storedUser.isVerified) {
+        localStorage.setItem(VERIFIED_KEY, "true");
+      } else {
+        localStorage.removeItem(VERIFIED_KEY);
+      }
     } else {
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(VERIFIED_KEY);
@@ -80,10 +113,10 @@ export function AuthProvider({
   };
 
   const logout = () => {
+    clearAuthToken();
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(VERIFIED_KEY);
     setStoredUser(null);
-
-    localStorage.removeItem("resumax_token");
-    document.cookie = "resumax_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     router.push(`/${locale}`);
   };
 

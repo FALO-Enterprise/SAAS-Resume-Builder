@@ -842,7 +842,11 @@
       "imageLoading": "Loading resume image...",
       "imageErrorTitle": "Preview image unavailable",
       "imageErrorText": "The resume data was loaded, but the preview image could not be displayed.",
-      "retryImage": "Reload image"
+      "retryImage": "Reload image",
+      "positions": "positions",
+      "degrees": "degrees",
+      "certificates": "certificates",
+      "skillsList": "skills"
     },
     "template": {
       "title": "Current template",
@@ -921,6 +925,14 @@
         },
         "button": "Upgrade to Pro",
         "note": "Upgrade anytime without losing your current resume."
+      },
+      "resumeInfo": "Resume Info",
+      "exportedSuccessfully": "Resume exported successfully.",
+      "sections": {
+        "experience": "Experience",
+        "education": "Education",
+        "certifications": "Certifications",
+        "skills": "Skills"
       }
     }
   }

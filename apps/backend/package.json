@@ -8,12 +8,16 @@
     "dev": "tsx src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "seed": "ts-node src/prisma/seed.ts",    "lint": "eslint .",
-    "type-check": "tsc --noEmit"
+    "seed": "ts-node src/prisma/seed.ts",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "test": "tsx --test src/**/*.test.ts"
   },
   "dependencies": {
+    "@google/genai": "^2.15.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@resumax/shared-types": "*",
     "argon2": "^0.44.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -25,6 +29,7 @@
     "nodemailer": "^9.0.3",
     "pg": "^8.22.0",
     "prisma": "^7.8.0",
+    "puppeteer": "^25.4.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

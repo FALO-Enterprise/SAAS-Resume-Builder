@@ -842,7 +842,11 @@
       "imageLoading": "جاري تحميل صورة السيرة...",
       "imageErrorTitle": "صورة المعاينة غير متاحة",
       "imageErrorText": "تم تحميل بيانات السيرة، لكن تعذر عرض صورة المعاينة.",
-      "retryImage": "إعادة تحميل الصورة"
+      "retryImage": "إعادة تحميل الصورة",
+      "positions": "مناصب",
+      "degrees": "درجات علمية",
+      "certificates": "شهادات",
+      "skillsList": "مهارات"
     },
     "template": {
       "title": "القالب الحالي",
@@ -921,6 +925,14 @@
         },
         "button": "الترقية إلى Pro",
         "note": "يمكنك الترقية في أي وقت دون فقدان سيرتك الحالية."
+      },
+      "resumeInfo": "معلومات السيرة الذاتية",
+      "exportedSuccessfully": "تم تصدير السيرة الذاتية بنجاح.",
+      "sections": {
+        "experience": "الخبرات",
+        "education": "التعليم",
+        "certifications": "الشهادات",
+        "skills": "المهارات"
       }
     }
   }

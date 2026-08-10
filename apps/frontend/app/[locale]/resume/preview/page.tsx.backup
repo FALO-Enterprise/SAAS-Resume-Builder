@@ -468,7 +468,15 @@ export default function ResumePreviewPage() {
         return {
           ...currentData,
 
-          pdfDownloadUrl: result.downloadUrl,
+          pdfDownloadUrl:
+            selectedExportFormat === "pdf"
+              ? result.downloadUrl
+              : currentData.pdfDownloadUrl,
+
+          jpgDownloadUrl:
+            selectedExportFormat === "jpg"
+              ? result.downloadUrl
+              : currentData.jpgDownloadUrl,
 
           creditsRemaining:
             result.creditsRemaining,
@@ -876,69 +884,36 @@ export default function ResumePreviewPage() {
                             )}
                           </div>
 
-                          {/* Section breakdown with enhanced details */}
-                          <div className="mt-4 space-y-3">
-                            {/* Experience */}
-                            {resumeData.content.experience.length > 0 && (
-                              <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-3">
-                                <Briefcase size={14} className="shrink-0 text-gold" />
-                                <div className="min-w-0">
-                                  <p className="text-[11px] font-bold text-secondary">{configuration("sections.experience")}</p>
-                                  <p className="text-xs font-black text-primary">{resumeData.content.experience.length} {t("preview.positions")}</p>
-                                  {/* Show most recent experience */}
-                                  {resumeData.content.experience[0] && (
-                                    <p className="mt-1 text-xs text-secondary truncate max-w-[200px]">
-                                      {resumeData.content.experience[0].jobTitle} at {resumeData.content.experience[0].company}
-                                    </p>
-                                  )}
-                                </div>
+                          {/* Section breakdown */}
+                          <div className="mt-4 grid grid-cols-2 gap-2">
+                            <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-2.5">
+                              <Briefcase size={14} className="shrink-0 text-gold" />
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-bold text-secondary">{configuration("sections.experience")}</p>
+                                <p className="text-xs font-black text-primary">{resumeData.content.experience.length}</p>
                               </div>
-                            )}
-                            
-                            {/* Education */}
-                            {resumeData.content.education.length > 0 && (
-                              <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-3">
-                                <GraduationCap size={14} className="shrink-0 text-azure-light" />
-                                <div className="min-w-0">
-                                  <p className="text-[11px] font-bold text-secondary">{configuration("sections.education")}</p>
-                                  <p className="text-xs font-black text-primary">{resumeData.content.education.length} {t("preview.degrees")}</p>
-                                  {/* Show most recent education */}
-                                  {resumeData.content.education[0] && (
-                                    <p className="mt-1 text-xs text-secondary truncate max-w-[200px]">
-                                      {resumeData.content.education[0].degree} from {resumeData.content.education[0].institution}
-                                    </p>
-                                  )}
-                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-2.5">
+                              <GraduationCap size={14} className="shrink-0 text-azure-light" />
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-bold text-secondary">{configuration("sections.education")}</p>
+                                <p className="text-xs font-black text-primary">{resumeData.content.education.length}</p>
                               </div>
-                            )}
-                            
-                            {/* Certifications */}
-                            {resumeData.content.certifications.length > 0 && (
-                              <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-3">
-                                <Award size={14} className="shrink-0 text-green" />
-                                <div className="min-w-0">
-                                  <p className="text-[11px] font-bold text-secondary">{configuration("sections.certifications")}</p>
-                                  <p className="text-xs font-black text-primary">{resumeData.content.certifications.length} {t("preview.certificates")}</p>
-                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-2.5">
+                              <Award size={14} className="shrink-0 text-green" />
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-bold text-secondary">{configuration("sections.certifications")}</p>
+                                <p className="text-xs font-black text-primary">{resumeData.content.certifications.length}</p>
                               </div>
-                            )}
-                            
-                            {/* Skills */}
-                            {resumeData.content.skills.length > 0 && (
-                              <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-3">
-                                <Wrench size={14} className="shrink-0 text-pink-light" />
-                                <div className="min-w-0">
-                                  <p className="text-[11px] font-bold text-secondary">{configuration("sections.skills")}</p>
-                                  <p className="text-xs font-black text-primary">{resumeData.content.skills.length} {t("preview.skillsList")}</p>
-                                  {/* Show top skills */}
-                                  {resumeData.content.skills.slice(0, 3).length > 0 && (
-                                    <p className="mt-1 text-xs text-secondary truncate max-w-[200px]">
-                                      {resumeData.content.skills.slice(0, 3).join(", ")}{resumeData.content.skills.length > 3 ? "..." : ""}
-                                    </p>
-                                  )}
-                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-2.5">
+                              <Wrench size={14} className="shrink-0 text-pink-light" />
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-bold text-secondary">{configuration("sections.skills")}</p>
+                                <p className="text-xs font-black text-primary">{resumeData.content.skills.length}</p>
                               </div>
-                            )}
+                            </div>
                           </div>
                         </section>
 

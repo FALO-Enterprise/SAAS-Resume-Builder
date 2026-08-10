@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { exchangeOAuthCode } from "@/lib/backend";
+import { persistAuthToken } from "@/lib/auth-session";
 import Logo from "@/components/ui/Logo";
 
 function OAuthCallbackContent() {
@@ -43,8 +44,13 @@ function OAuthCallbackContent() {
       .then((data) => {
         if ("error" in data) throw new Error(data.error);
 
-        localStorage.setItem("resumax_token", data.token);
-        document.cookie = `resumax_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+        // If the user is not verified (new OAuth registration), redirect to verification
+        if (!data.user.isVerified) {
+          router.replace(`/${locale}/`);
+          return;
+        }
+
+        persistAuthToken(data.token);
         login({
           id: data.user.id,
           name: data.user.name,
@@ -52,6 +58,7 @@ function OAuthCallbackContent() {
           avatar: data.user.avatar,
           role: data.user.role,
           planName: data.user.plan.name,
+          isVerified: data.user.isVerified ?? false,
         });
         setStatus("success");
         router.replace(`/${locale}`);

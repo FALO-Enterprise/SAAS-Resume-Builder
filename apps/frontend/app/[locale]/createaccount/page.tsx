@@ -142,7 +142,7 @@ export default function RegisterPage() {
       // ── BACKEND CONNECTION ─────────────────────────────────────────────────
       // POST /api/auth/register
       // Body: { name, email, password }
-      // Response: { token, user }  |  { error }
+      // Response: { user, message } | { error }
       // ─────────────────────────────────────────────────────────────────────
       const res = await fetch(buildBackendUrl('/api/auth/register'), {
         method: 'POST',
@@ -152,14 +152,16 @@ export default function RegisterPage() {
       const resData = await res.json();
 
       if (!res.ok) {
-        const message = typeof resData?.error === 'string' ? resData.error : t('errors.registrationFailed');
+        const message = typeof resData?.error === 'string'
+          ? resData.error
+          : typeof resData?.error?.message === 'string'
+            ? resData.error.message
+            : t('errors.registrationFailed');
         setServerError(message);
         setLoading(false);
         return;
       }
 
-      const token = resData?.token;
-      if (token) localStorage.setItem('resumax_token', token);
       setName(data.name);
       setSuccess(true);
 

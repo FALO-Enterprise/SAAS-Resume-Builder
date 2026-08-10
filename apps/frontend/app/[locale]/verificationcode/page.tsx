@@ -16,6 +16,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/context/AuthContext";
+import { persistAuthToken } from "@/lib/auth-session";
 import { buildBackendUrl } from "@/lib/backend";
 import { useCountdown } from "@/hooks/useCountdown";
 
@@ -201,7 +202,11 @@ export default function VerifyPage() {
         return;
       }
 
-      if (data.token) localStorage.setItem("resumax_token", data.token);
+      if (typeof data.token !== "string" || !data.user) {
+        throw new Error(t("errors.invalid"));
+      }
+
+      persistAuthToken(data.token);
       login({
         id: data.user?.id,
         name: data.user?.name ?? emailParam.split("@")[0],
@@ -209,9 +214,10 @@ export default function VerifyPage() {
         avatar: data.user?.avatar,
         role: data.user?.role,
         planName: data.user.plan.name,
+        isVerified: data.user?.isVerified ?? true,
       });
       setSuccess(true);
-      setTimeout(() => router.push(`/${locale}/dashboard`), 2000);
+      setTimeout(() => router.push(`/${locale}/`), 2000);
     } catch (error) {
       const message =
         typeof error === "object" && error && "message" in error
