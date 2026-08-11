@@ -1,7 +1,7 @@
 import type {
   ResumePreviewData,
   ResumePurpose,
-} from "@/types/resume-preview";
+} from "@/lib/types/resumePreview.types";
 
 export type ResumeExportFormat = "pdf" | "jpg";
 

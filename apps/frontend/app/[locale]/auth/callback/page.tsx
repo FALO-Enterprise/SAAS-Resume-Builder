@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { exchangeOAuthCode } from "@/lib/backend";
+import { setAccessToken } from "@/lib/auth/token";
 import Logo from "@/components/ui/Logo";
 
 function OAuthCallbackContent() {
@@ -43,15 +44,15 @@ function OAuthCallbackContent() {
       .then((data) => {
         if ("error" in data) throw new Error(data.error);
 
-        localStorage.setItem("resumax_token", data.token);
-        document.cookie = `resumax_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
+        setAccessToken(data.token);
         login({
           id: data.user.id,
           name: data.user.name,
           email: data.user.email,
           avatar: data.user.avatar,
           role: data.user.role,
-          planName: data.user.plan.name,
+          planName: data.user.plan?.name ?? "FREE",
+          isVerified: data.user.isVerified ?? false,
         });
         setStatus("success");
         router.replace(`/${locale}`);

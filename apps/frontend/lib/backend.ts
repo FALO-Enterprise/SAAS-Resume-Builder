@@ -1,54 +1,36 @@
-import type { DashboardDraftData } from './types/dashborad.types';
+import { AxiosError } from "axios";
+import { apiClient } from "@/lib/api/client";
+import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import type { DashboardDraftData } from './types/dashboard.types';
+import { PlanName } from "./types/auth.types";
+// import type { NormalizedApiError } from "@/lib/api/client";
 
-const DEFAULT_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+
+const DEFAULT_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:3001";
+
 export function buildBackendUrl(path: string) {
-    const baseUrl = (DEFAULT_BACKEND_URL || 'http://localhost:3001').replace(/\/$/, '');
-    return `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
-}
-
-export async function proxyToBackend(path: string, init?: RequestInit) {
-    const response = await fetch(buildBackendUrl(path), {
-        ...init,
-        cache: 'no-store',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            ...(init?.headers ?? {}),
-        },
-    });
-
-    const payload = await response.text();
-    let parsedPayload: unknown = null;
-
-    if (payload) {
-        try {
-            parsedPayload = JSON.parse(payload);
-        } catch {
-            parsedPayload = payload;
-        }
-    }
-
-    return { response, payload: parsedPayload };
+    const baseUrl = (DEFAULT_BACKEND_URL || "http://127.0.0.1:3001").replace(/\/$/, "");
+    return `${baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
 export function normalizeBackendPayload<T>(payload: unknown): T | { error: string } {
-    if (payload && typeof payload === 'object' && 'success' in payload) {
-        const p = payload as { success: boolean; data?: T; error?: string | { message?: string } }
+    if (payload && typeof payload === "object" && "success" in payload) {
+        const p = payload as { success: boolean; data?: T; error?: string | { message?: string } };
 
         if (p.success) {
-            return (p.data ?? payload) as T
+            return (p.data ?? payload) as T;
         }
 
-        if (typeof p.error === 'string') {
-            return { error: p.error }
+        if (typeof p.error === "string") {
+            return { error: p.error };
         }
 
         return {
-            error: (p.error as { message?: string })?.message || 'Request failed',
-        }
+            error: (p.error as { message?: string })?.message || "Request failed",
+        };
     }
 
-    return payload as T
+    return payload as T;
 }
 
 export interface BackendAuthUser {
@@ -57,8 +39,9 @@ export interface BackendAuthUser {
     avatar: string | null;
     role: string;
     email: string;
+    isVerified: boolean;
     plan: {
-        name: 'FREE' | 'PRO' | 'ENTERPRISE';
+        name: PlanName;
     };
 }
 
@@ -72,136 +55,169 @@ export interface RegistrationResponse {
     message: string;
 }
 
-function backendErrorMessage(payload: unknown, fallback: string) {
-    if (typeof payload === 'string') return payload;
+export interface UserDetailsResponse {
+    user: BackendAuthUser;
+}
 
-    const normalized = normalizeBackendPayload<{ error: string }>(payload)
-    return normalized && 'error' in normalized ? normalized.error : fallback
+function backendErrorMessage(error: unknown, fallback: string) {
+    const axiosError = error as AxiosError<{ message?: string; error?: string | { message?: string } }>;
+    const fromMessage = axiosError.response?.data?.message;
+    const fromError = axiosError.response?.data?.error;
+
+    if (fromMessage) return fromMessage;
+    if (typeof fromError === "string") return fromError;
+    if (fromError && typeof fromError === "object" && "message" in fromError) {
+        return String(fromError.message || fallback);
+    }
+
+    if (error instanceof Error && error.message) return error.message;
+    return fallback;
 }
 
 export async function loginWithBackend(input: { email: string; password: string }) {
-    const { response, payload } = await proxyToBackend('/api/auth/login-jwt', {
-        method: 'POST',
-        body: JSON.stringify(input),
-    });
-
-    if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Login failed'))
+    try {
+        const { data } = await apiClient.post(API_ENDPOINTS.auth.login, input);
+        return normalizeBackendPayload<AuthSession>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Login failed"));
     }
-
-    return normalizeBackendPayload<AuthSession>(payload);
 }
 
 export async function registerWithBackend(input: { name: string; email: string; password: string; locale?: 'en' | 'ar'; planId?: 'free' | 'pro' | 'enterprise' }) {
-    const { response, payload } = await proxyToBackend('/api/auth/register', {
-        method: 'POST',
-        body: JSON.stringify(input),
-    });
-    if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Registration failed'))
+    try {
+        const { data } = await apiClient.post(API_ENDPOINTS.auth.register, input);
+        return normalizeBackendPayload<RegistrationResponse>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Registration failed"));
     }
-
-    return normalizeBackendPayload<RegistrationResponse>(payload);
 }
 
 export function getOAuthStartUrl(provider: 'google' | 'github' | 'linkedin', locale: string) {
-    const safeLocale = locale === 'ar' ? 'ar' : 'en';
-    return buildBackendUrl(`/api/auth/oauth/${provider}?locale=${safeLocale}`);
+    return buildBackendUrl(API_ENDPOINTS.auth.oauthStart(provider, locale));
 }
 
 export async function exchangeOAuthCode(code: string) {
-    const { response, payload } = await proxyToBackend('/api/auth/oauth/exchange', {
-        method: 'POST',
-        body: JSON.stringify({ code }),
-    });
-
-    if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Social sign-in failed'));
+    try {
+        const { data } = await apiClient.post(API_ENDPOINTS.auth.oauthExchange, { code });
+        return normalizeBackendPayload<AuthSession>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Social sign-in failed"));
     }
-
-    return normalizeBackendPayload<AuthSession>(payload);
 }
 
 export async function requestPasswordReset(input: {
     email: string;
     locale: 'en' | 'ar';
 }) {
-    const { response, payload } = await proxyToBackend('/api/auth/forgot-password', {
-        method: 'POST',
-        body: JSON.stringify(input),
-    });
-
-    if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Could not send the reset email'));
+    try {
+        const { data } = await apiClient.post(API_ENDPOINTS.auth.forgotPassword, input);
+        return normalizeBackendPayload<{ message: string }>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Could not send the reset email"));
     }
-
-    return normalizeBackendPayload<{ message: string }>(payload);
 }
 
 export async function validatePasswordResetToken(token: string) {
-    const { response, payload } = await proxyToBackend('/api/auth/validate-reset-token', {
-        method: 'POST',
-        body: JSON.stringify({ token }),
-    });
-
-    if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Could not validate the reset link'));
+    try {
+        const { data } = await apiClient.post(API_ENDPOINTS.auth.validateResetToken, { token });
+        return normalizeBackendPayload<{ valid: boolean }>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Could not validate the reset link"));
     }
-
-    return normalizeBackendPayload<{ valid: boolean }>(payload);
 }
 
 export async function resetPasswordWithBackend(input: {
     token: string;
     password: string;
 }) {
-    const { response, payload } = await proxyToBackend('/api/auth/reset-password', {
-        method: 'POST',
-        body: JSON.stringify(input),
-    });
-
-    if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Could not reset the password'));
+    try {
+        const { data } = await apiClient.post(API_ENDPOINTS.auth.resetPassword, input);
+        return normalizeBackendPayload<{ message: string }>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Could not reset the password"));
     }
 
-    return normalizeBackendPayload<{ message: string }>(payload);
 }
 
-async function dashboardRequest(token: string, init?: RequestInit) {
-    const { response, payload } = await proxyToBackend('/api/dashboard', {
-        ...init,
-        headers: {
-            Authorization: `Bearer ${token}`,
-            ...(init?.headers ?? {}),
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Could not save your dashboard'));
+export async function verifyEmailCodeWithBackend(input: { email: string; code: string }) {
+    try {
+        const { data } = await apiClient.post(API_ENDPOINTS.auth.verify, input);
+        return normalizeBackendPayload<AuthSession>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Verification failed"));
     }
-
-    const normalized = normalizeBackendPayload<DashboardDraftData>(payload);
-    if ('error' in normalized) throw new Error(normalized.error);
-    return normalized;
 }
 
-export function getDashboardDraft(token: string) {
-    return dashboardRequest(token);
+export async function resendVerificationCodeWithBackend(input: { email: string }) {
+    try {
+        const { data } = await apiClient.post(API_ENDPOINTS.auth.resendCode, input);
+        return normalizeBackendPayload<{ success?: boolean; message?: string }>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Could not resend code"));
+    }
 }
 
-export function saveDashboardDraft(token: string, draft: DashboardDraftData) {
-    return dashboardRequest(token, {
-        method: 'PUT',
-        body: JSON.stringify({
-            template: draft.template,
-            currentStep: draft.currentStep,
-            completedSteps: draft.completedSteps,
-            contact: draft.contact,
-            experience: draft.experience,
-            education: draft.education,
-            certifications: draft.certifications,
-            skills: draft.skills,
-        }),
+export async function getUserByIdWithBackend(id: string) {
+    try {
+        const { data } = await apiClient.get(API_ENDPOINTS.users.byId(id));
+        return normalizeBackendPayload<UserDetailsResponse>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Could not fetch user"));
+    }
+}
+
+export async function updateUserWithBackend(id: string, payload: FormData) {
+    try {
+        const { data } = await apiClient.patch(API_ENDPOINTS.users.byId(id), payload);
+        return normalizeBackendPayload<UserDetailsResponse>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Could not update user"));
+    }
+}
+
+export async function deleteUserWithBackend(id: string) {
+    try {
+        const { data } = await apiClient.delete(API_ENDPOINTS.users.byId(id));
+        return normalizeBackendPayload<{ success?: boolean; message?: string }>(data);
+    } catch (error) {
+        throw new Error(backendErrorMessage(error, "Could not delete user"));
+    }
+}
+
+export async function getDashboardDraft(token: string) {
+  try {
+    const { data } = await apiClient.get(API_ENDPOINTS.auth.dashboard, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
+    return normalizeBackendPayload<DashboardDraftData>(data);
+  } catch (error) {
+    throw new Error(backendErrorMessage(error, "Could not fetch your dashboard"));
+  }
+}
+
+export async function saveDashboardDraft(token: string, draft: DashboardDraftData) {
+  try {
+    const payload = {
+      template: draft.template,
+      currentStep: draft.currentStep,
+      completedSteps: draft.completedSteps,
+      contact: draft.contact,
+      experience: draft.experience,
+      education: draft.education,
+      certifications: draft.certifications,
+      skills: draft.skills,
+    };
+
+    const { data } = await apiClient.put(API_ENDPOINTS.auth.dashboard, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return normalizeBackendPayload<DashboardDraftData>(data);
+  } catch (error) {
+    throw new Error(backendErrorMessage(error, "Could not save your dashboard"));
+  }
 }
 

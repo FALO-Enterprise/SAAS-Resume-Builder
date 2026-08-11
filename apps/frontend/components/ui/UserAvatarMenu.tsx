@@ -41,6 +41,7 @@ export default function UserAvatarMenu() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const activePlanId = (user?.planName?.toLowerCase() || "free") as keyof typeof PLAN_BADGES;
+  const verifyHref = `/${locale}/verificationcode${user?.email ? `?email=${encodeURIComponent(user.email)}` : ''}`;
 
   return (
     <>
@@ -50,12 +51,18 @@ export default function UserAvatarMenu() {
           className="relative flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-transparent border border-edge cursor-pointer transition-all delay-200"
         >
           {!isVerified ? (
-            <div className="absolute -left-1/8 -top-1/3 flex items-center justify-center h-6 w-6 rounded-full bg-pink-light text-ink font-bold text-[10px] overflow-hidden shrink-0 animate-pulse">
-              <TriangleAlert size={12} />
+            <div className="group absolute -left-1/8 -top-1/3 z-10">
+              <div
+                onClick={(e) => { e.stopPropagation(); }}
+                aria-label="Account not verified"
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-pink-light text-ink font-bold text-[10px] overflow-hidden shrink-0 animate-pulse"
+              >
+                <TriangleAlert size={12} />
+              </div>
             </div>
           ) : null}
 
-          {/* تم تصليح الوسم المكرر هنا */}
+
           <div className="flex items-center justify-center h-6 w-6 rounded-full bg-gold text-ink font-bold text-[10px] overflow-hidden shrink-0">
             {user?.avatar ? (
               <Image
@@ -89,6 +96,25 @@ export default function UserAvatarMenu() {
                 transition={{ duration: 0.15 }}
                 className="absolute top-[calc(100%+8px)] inset-e-0 bg-elevated border border-edge rounded-xl overflow-hidden min-w-52 z-100 shadow-[0_20px_60px_var(--shadow-color)]"
               >
+                {!isVerified && (
+                  <div className="border-b border-edge bg-pink-light/10 px-4 py-3">
+                    <p className="flex items-start gap-2 text-xs text-secondary">
+                      <TriangleAlert size={14} className="mt-0.5 shrink-0 text-pink-light" />
+                      <span>
+                        Your account is not verified yet. Verify your account{' '}
+                        <Link
+                          href={verifyHref}
+                          onClick={() => setOpen(false)}
+                          className="font-semibold text-pink-light underline underline-offset-2 hover:text-pink"
+                        >
+                          here
+                        </Link>
+                        .
+                      </span>
+                    </p>
+                  </div>
+                )}
+                
                 <div className="flex items-start justify-between gap-3 px-4 py-3 border-b border-edge">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-primary truncate">

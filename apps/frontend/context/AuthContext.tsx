@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { clearAccessToken } from "@/lib/auth/token";
 
 import {
   AuthContextType,
@@ -59,7 +60,7 @@ export function AuthProvider({
   // Expose the same auth state on the server and during the browser's first
   // render, then reveal the local session immediately after hydration.
   const user = hasHydrated ? storedUser : null;
-  const isVerified = !!user;
+  const isVerified = user?.isVerified ?? false;
 
   useEffect(() => {
     if (storedUser) {
@@ -81,9 +82,7 @@ export function AuthProvider({
 
   const logout = () => {
     setStoredUser(null);
-
-    localStorage.removeItem("resumax_token");
-    document.cookie = "resumax_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    clearAccessToken();
     router.push(`/${locale}`);
   };
 

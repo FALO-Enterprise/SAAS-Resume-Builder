@@ -21,13 +21,15 @@ import Logo from '@/components/ui/Logo';
 import UserAvatarMenu from '@/components/ui/UserAvatarMenu';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import HintTooltip from '@/components/ui/HintTooltip';
-import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem, DashboardDraftData } from '@/lib/types/dashborad.types';
+import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem, DashboardDraftData } from '@/lib/types/dashboard.types';
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
 import { emptyRole, emptyEdu, emptyCert } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
 import { getAvatarUrl, isUploadedAvatar } from '@/lib/utilities/avatar';
+import {getInitials} from '@/lib/utilities/getName';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { getDashboardDraft, saveDashboardDraft } from '@/lib/backend';
+import { useRouter } from 'next/navigation';
 
 const DASHBOARD_SAVE_ERROR_TOAST_ID = 'dashboard-save-error';
 
@@ -42,13 +44,6 @@ function serializeDashboardDraft(draft: DashboardDraftData) {
     certifications: draft.certifications,
     skills: draft.skills,
   });
-}
-
-function getInitials(name?: string) {
-  if (!name) return '?';
-  const parts = name.trim().split(/\s+/);
-  const initials = parts.length > 1 ? parts[0][0] + parts[1][0] : parts[0].slice(0, 2);
-  return initials.toUpperCase();
 }
 
 function FieldCard({
@@ -750,6 +745,21 @@ function SkillsStep({ skills, onChange, onFinish }: {
   const t = useTranslations('dashboard.skills');
   const [input, setInput] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const isSearching = input.trim().length > 0;
+
+  const available = DEFAULT_SUGGESTIONS.filter(
+    skill => !skills.some(s => s.toLowerCase() === skill.toLowerCase())
+  );
+
+  const searchResults = available.filter(skill =>
+    skill.toLowerCase().includes(input.toLowerCase())
+  );
+
+  const suggestedSkills = showAll
+    ? available
+    : available.slice(0, 5);
+
+  const remaining = available.length - suggestedSkills.length;
 
   const addSkill = (value: string) => {
     const v = value.trim();
@@ -760,12 +770,16 @@ function SkillsStep({ skills, onChange, onFinish }: {
   const removeSkill = (value: string) => onChange(skills.filter(s => s !== value));
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') { e.preventDefault(); addSkill(input); }
-  };
+    if (e.key !== 'Enter') return;
 
-  const available = DEFAULT_SUGGESTIONS.filter(s => !skills.some(k => k.toLowerCase() === s.toLowerCase()));
-  const visible = showAll ? available : available.slice(0, 5);
-  const remaining = available.length - visible.length;
+    e.preventDefault();
+
+    // If there are no matching search results,
+    // add it as a custom skill.
+    if (searchResults.length === 0) {
+      addSkill(input);
+    }
+  };
 
   const percent = Math.min(100, 40 + skills.length * 7);
 
@@ -820,10 +834,44 @@ function SkillsStep({ skills, onChange, onFinish }: {
             </div>
           </div>
 
+          {isSearching && (
+            <div className="mt-8">
+              <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">
+                Search Results
+              </div>
+
+              {searchResults.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {searchResults.map(skill => (
+                    <button
+                      key={skill}
+                      onClick={() => addSkill(skill)}
+                      className="group flex min-h-24 flex-col justify-between rounded-xl border border-edge bg-card p-4 text-left transition-all hover:border-gold/30 hover:bg-card-hover"
+                    >
+                      <span className="text-[14px] font-semibold text-primary">
+                        {skill}
+                      </span>
+                      <PlusCircle size={18} className="text-muted group-hover:text-gold" />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-edge bg-card p-6 text-center">
+                  <p className="text-sm font-medium text-primary">No matching skills found</p>
+                  <p className="mt-2 text-sm text-muted">
+                    Press Enter to add
+                    <span className="mx-1 font-semibold text-gold">&quot;{input}&quot;</span>
+                    as a custom skill.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="mt-8">
             <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">{t('suggestedForRole')}</div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {visible.map(s => (
+              {suggestedSkills.map(s => (
                 <button
                   key={s}
                   onClick={() => addSkill(s)}
@@ -833,7 +881,7 @@ function SkillsStep({ skills, onChange, onFinish }: {
                   <PlusCircle size={18} className="text-muted transition-colors group-hover:text-gold" />
                 </button>
               ))}
-              {remaining > 0 && (
+              {!isSearching && remaining > 0 && (
                 <button
                   onClick={() => setShowAll(true)}
                   className="flex min-h-24 items-center justify-center rounded-xl border border-edge bg-card-hover p-4 text-[14px] font-medium text-faint transition-colors hover:text-primary"
@@ -1130,6 +1178,7 @@ export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const tContact = useTranslations('dashboard.contact');
   const locale = useLocale();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const templateFromQuery = searchParams.get('template');
   const isRTL = locale === "ar";
@@ -1148,6 +1197,8 @@ export default function DashboardPage() {
   const lastQueuedDraft = useRef('');
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
   const saveErrorShown = useRef(false);
+  const lastSyncedUserName = useRef('');
+  const lastSyncedUserEmail = useRef('');
 
   useEffect(() => {
     if (!user) return;
@@ -1166,6 +1217,10 @@ export default function DashboardPage() {
       .then((draft) => {
         if (cancelled) return;
 
+        if ('error' in draft) {
+          throw new Error(draft.error);
+        }
+
         const persisted = Boolean(draft.id);
         const nextDraft: DashboardDraftData = {
           ...draft,
@@ -1181,8 +1236,6 @@ export default function DashboardPage() {
           skills: persisted ? draft.skills : ['Strategic Planning', 'React.js', 'Team Leadership'],
         };
 
-        // Record the server snapshot. Client-added defaults and URL template
-        // changes remain different and will still be autosaved.
         lastQueuedDraft.current = serializeDashboardDraft(draft);
 
         setSelectedTemplate(nextDraft.template);
@@ -1193,6 +1246,8 @@ export default function DashboardPage() {
         setEducation(nextDraft.education);
         setCerts(nextDraft.certifications);
         setSkills(nextDraft.skills);
+        lastSyncedUserName.current = nextDraft.contact.fullName || '';
+        lastSyncedUserEmail.current = nextDraft.contact.email || '';
         setDraftLoaded(true);
       })
       .catch(() => {
@@ -1201,6 +1256,31 @@ export default function DashboardPage() {
 
     return () => { cancelled = true; };
   }, [templateFromQuery, user]);
+
+  useEffect(() => {
+    if (!draftLoaded || !user) return;
+
+    const incomingName = user.name || '';
+    const incomingEmail = user.email || '';
+
+    setContact((current) => {
+      const shouldSyncName = !current.fullName.trim() || current.fullName === lastSyncedUserName.current;
+      const shouldSyncEmail = !current.email.trim() || current.email === lastSyncedUserEmail.current;
+
+      if (!shouldSyncName && !shouldSyncEmail) {
+        return current;
+      }
+
+      return {
+        ...current,
+        fullName: shouldSyncName ? incomingName : current.fullName,
+        email: shouldSyncEmail ? incomingEmail : current.email,
+      };
+    });
+
+    lastSyncedUserName.current = incomingName;
+    lastSyncedUserEmail.current = incomingEmail;
+  }, [draftLoaded, user]);
 
   useEffect(() => {
     if (!draftLoaded) return;
@@ -1287,7 +1367,7 @@ export default function DashboardPage() {
   const handleFinish = () => {
     setCompleted(prev => new Set(prev).add('skills'));
     // ── BACKEND: generate resume / navigate to preview ──
-    // router.push(`/${locale}/resume/preview`);
+    router.push(`/${locale}/resume/preview?resumeId=resume-123`);
   };
 
   const handleStepClick = (id: StepId) => {

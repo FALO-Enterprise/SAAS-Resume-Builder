@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, User, Mail, Camera, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { buildBackendUrl } from "@/lib/backend";
 import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
+import { useUpdateUserMutation } from "@/hooks/queries/useUser";
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -50,6 +50,7 @@ function ProfileModalContent({
   onClose: () => void;
 }) {
   const { updateUser } = useAuth();
+  const updateMutation = useUpdateUserMutation(user?.id);
 
   const [name, setName] = useState(user?.name || "");
   const [email] = useState(user?.email || "");
@@ -82,30 +83,12 @@ function ProfileModalContent({
         formData.append("avatar", selectedFile);
       }
 
-      const token = localStorage.getItem("resumax_token");
+      const responseData = await updateMutation.mutateAsync(formData);
 
-      const res = await fetch(buildBackendUrl(`/api/users/${user?.id}`), {
-        method: "PATCH", // أو POST/PUT حسب المسار
-        body: formData,
-        credentials: "include",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-
-      if (!res.ok) {
-        const errorBody = await res.text();
-        console.error("Server responded:", res.status, errorBody);
-        throw new Error(`Failed to update profile: ${res.status}`);
-      }
-
-      const responseData = await res.json();
-
-      // استخراج بيانات المستخدم المحدثة بغض النظر عن تنسيق الاستجابة من الباك إند
-      const updatedUser = responseData.user || responseData.data || responseData;
+      const updatedUser = responseData;
 
       // التأكد من وجود مسار الصورة المحدث
-      const updatedAvatar = updatedUser.avatar || updatedUser.avatarUrl || user?.avatar;
+      const updatedAvatar = updatedUser.avatar || user?.avatar || "";
 
       // تحديث بيانات المستخدم في Context و LocalStorage فوراً
       updateUser({

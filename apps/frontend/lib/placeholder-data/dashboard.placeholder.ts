@@ -1,6 +1,6 @@
 
 import { User, Briefcase, GraduationCap, Zap } from 'lucide-react';
-import type { StepId } from '@/lib/types/dashborad.types';
+import type { StepId } from '@/lib/types/dashboard.types';
 
 export const STEPS: {
   id: StepId;

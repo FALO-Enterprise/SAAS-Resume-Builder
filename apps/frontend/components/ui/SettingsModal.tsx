@@ -27,6 +27,7 @@ import { useLocale } from "next-intl";
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useDeleteUserMutation } from "@/hooks/queries/useUser";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -70,6 +71,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const deleteUserMutation = useDeleteUserMutation(user?.id);
 
   const [selectedLang, setSelectedLang] = useState(locale);
   const [dateFormat, setDateFormat] = useState("MM/YYYY");
@@ -89,39 +91,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   });
 
   const [savedSuccess, setSavedSuccess] = useState(false);
-  // useEffect(() => {
-  //   if (user?.id) {
-  //     const fetchUserPlan = async () => {
-  //       try {
-  //         setPlanLoading(true);
-  //         const token = localStorage.getItem("resumax_token");
-          
-  //         const res = await fetch(`http://localhost:3001/api/users/${user.id}`, {
-  //           method: 'GET',
-  //           credentials: "include",
-  //           headers: {
-  //             ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  //           },
-  //         });
-
-  //         if (res.ok) {
-  //           const userData = await res.json();
-  //           // Assuming the user object has a 'plan' or 'subscription' field
-  //           setCurrentPlan(userData?.subscription?.plan || userData?.plan || "Free");
-  //         } else {
-  //           setCurrentPlan("Free"); // Default to Free plan
-  //         }
-  //       } catch (error) {
-  //         console.error("Failed to fetch user plan:", error);
-  //         setCurrentPlan("Free"); // Default to Free plan on error
-  //       } finally {
-  //         setPlanLoading(false);
-  //       }
-  //     };
-
-  //     fetchUserPlan();
-  //   }
-  // }, [user?.id]);
 
   const handleSave = () => {
     setSavedSuccess(true);
@@ -150,21 +119,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       setIsDeleting(true);
       setServerError('');
 
-      const token = localStorage.getItem("resumax_token");
-
-      const res = await fetch(`http://localhost:3001/api/users/${user.id}`, {
-        method: 'DELETE',
-        credentials: "include",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      });
-
-      if (!res.ok) {
-        const errorBody = await res.text();
-        console.error("Server responded:", res.status, errorBody);
-        throw new Error(`Failed to delete user: ${res.status}`);
-      }
+      await deleteUserMutation.mutateAsync();
 
       // Account deleted successfully
       setShowDeleteConfirmation(false);

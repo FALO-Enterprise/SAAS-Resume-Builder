@@ -4,15 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
 import type { RegisterData, FormErrors } from '@/lib/types/auth.types';
 import { PROVIDERS } from '@/lib/placeholder-data/providors.placeholder';
 import AuthInput from '@/components/ui/AuthInput';
 import PasswordStrength from '@/lib/utilities/PasswordStrength'
-import { buildBackendUrl, getOAuthStartUrl } from '@/lib/backend';
-
+import { getOAuthStartUrl } from '@/lib/backend';
+import { useRegisterFlow } from '@/hooks/mutations/useRegisterFlow';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Register form
@@ -126,49 +125,13 @@ function SuccessScreen({ name }: { name: string }) {
 export default function RegisterPage() {
   const locale = useLocale();
   const t = useTranslations('auth.signup');
-  const router = useRouter();
 
-  const [success, setSuccess] = useState(false);
-  const [name, setName] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState('');
   const { openLogin } = useAuth();
+  const { submit, isPending, generalError, success, registeredName } = useRegisterFlow();
 
   const handleSubmit = async (data: RegisterData) => {
-    setLoading(true);
-    setServerError('');
-
-    try {
-      // ── BACKEND CONNECTION ─────────────────────────────────────────────────
-      // POST /api/auth/register
-      // Body: { name, email, password }
-      // Response: { token, user }  |  { error }
-      // ─────────────────────────────────────────────────────────────────────
-      const res = await fetch(buildBackendUrl('/api/auth/register'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: data.name, email: data.email, password: data.password }),
-      });
-      const resData = await res.json();
-
-      if (!res.ok) {
-        const message = typeof resData?.error === 'string' ? resData.error : t('errors.registrationFailed');
-        setServerError(message);
-        setLoading(false);
-        return;
-      }
-
-      const token = resData?.token;
-      if (token) localStorage.setItem('resumax_token', token);
-      setName(data.name);
-      setSuccess(true);
-
-      setTimeout(() => router.push(`/${locale}/verificationcode?email=${encodeURIComponent(data.email)}`), 2000);
-
-    } catch {
-      setServerError(t('errors.network'));
-      setLoading(false);
-    }
+    const networkFallback = t('errors.networkError');
+    await submit(data, networkFallback);
   };
 
   return (
@@ -207,10 +170,10 @@ export default function RegisterPage() {
         )}
 
         {/* Server error banner */}
-        {serverError && !success && (
+        {generalError && !success && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
             className="mb-5 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light">
-            {serverError}
+            {generalError}
           </motion.div>
         )}
 
@@ -224,8 +187,8 @@ export default function RegisterPage() {
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
             {!success
-              ? <RegisterForm onSubmit={handleSubmit} loading={loading} />
-              : <SuccessScreen name={name} />
+              ? <RegisterForm onSubmit={handleSubmit} loading={isPending} />
+              : <SuccessScreen name={registeredName} />
             }
           </motion.div>
         </AnimatePresence>

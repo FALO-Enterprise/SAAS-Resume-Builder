@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -23,10 +19,7 @@ import {
   RotateCcw,
   Sparkles,
 } from "lucide-react";
-import {
-  useLocale,
-  useTranslations,
-} from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import Logo from "@/components/ui/Logo";
@@ -39,10 +32,7 @@ import {
   type ResumeExportFormat,
 } from "@/lib/resume-preview-api";
 
-import type {
-  ResumePreviewData,
-  ResumePurpose,
-} from "@/types/resume-preview";
+import type { ResumePreviewData, ResumePurpose } from "@/lib/types/resumePreview.types";
 
 const MIN_ZOOM = 50;
 const MAX_ZOOM = 150;
@@ -59,10 +49,7 @@ const RESUME_PURPOSES: ResumePurpose[] = [
   "general",
 ];
 
-const EXPORT_FORMATS: ResumeExportFormat[] = [
-  "pdf",
-  "jpg",
-];
+const EXPORT_FORMATS: ResumeExportFormat[] = ["pdf", "jpg"];
 
 const PURPOSE_TRANSLATION_KEYS: Record<
   ResumePurpose,
@@ -97,74 +84,49 @@ const UPGRADE_BENEFIT_KEYS = [
   "benefits.moreOptions",
 ] as const;
 
-type PreviewImageStatus =
-  | "loading"
-  | "loaded"
-  | "error";
+type PreviewImageStatus = "loading" | "loaded" | "error";
 
 export default function ResumePreviewPage() {
   const locale = useLocale();
   const t = useTranslations("resumePreview");
 
-  const configuration = useTranslations(
-    "resumePreview.configuration",
-  );
+  const configuration = useTranslations("resumePreview.configuration");
 
   const isRTL = locale === "ar";
 
-  const upgrade = useTranslations(
-    "resumePreview.configuration.upgrade",
-  );
+  const upgrade = useTranslations("resumePreview.configuration.upgrade");
 
-  const purposeMenuRef =
-    useRef<HTMLDivElement | null>(null);
+  const purposeMenuRef = useRef<HTMLDivElement | null>(null);
 
-  const exportMenuRef =
-    useRef<HTMLDivElement | null>(null);
+  const exportMenuRef = useRef<HTMLDivElement | null>(null);
 
-  const [resumeData, setResumeData] =
-    useState<ResumePreviewData | null>(null);
+  const [resumeData, setResumeData] = useState<ResumePreviewData | null>(null);
 
-  const [isLoading, setIsLoading] =
-    useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [pageError, setPageError] =
-    useState<string | null>(null);
+  const [pageError, setPageError] = useState<string | null>(null);
 
-  const [draftPurpose, setDraftPurpose] =
-    useState<ResumePurpose>("scholarship");
+  const [draftPurpose, setDraftPurpose] = useState<ResumePurpose>("scholarship");
 
-  const [isPurposeMenuOpen, setIsPurposeMenuOpen] =
-    useState(false);
+  const [isPurposeMenuOpen, setIsPurposeMenuOpen] = useState(false);
 
-  const [zoom, setZoom] =
-    useState(DEFAULT_ZOOM);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
 
-  const [imageStatus, setImageStatus] =
-    useState<PreviewImageStatus>("loading");
+  const [imageStatus, setImageStatus] = useState<PreviewImageStatus>("loading");
 
-  const [imageReloadKey, setImageReloadKey] =
-    useState(0);
+  const [imageReloadKey, setImageReloadKey] = useState(0);
 
-  const [isGenerating, setIsGenerating] =
-    useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const [
-    selectedExportFormat,
-    setSelectedExportFormat,
-  ] = useState<ResumeExportFormat>("pdf");
+  const [selectedExportFormat, setSelectedExportFormat] = useState<ResumeExportFormat>("pdf");
 
-  const [isExportMenuOpen, setIsExportMenuOpen] =
-    useState(false);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
 
-  const [exportingFormat, setExportingFormat] =
-    useState<ResumeExportFormat | null>(null);
+  const [exportingFormat, setExportingFormat] =  useState<ResumeExportFormat | null>(null);
 
-  const [actionError, setActionError] =
-    useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const [actionSuccess, setActionSuccess] =
-    useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -175,21 +137,11 @@ export default function ResumePreviewPage() {
         setPageError(null);
         setImageStatus("loading");
 
-        const searchParams =
-          new URLSearchParams(
-            window.location.search,
-          );
+        const searchParams = new URLSearchParams(window.location.search);
 
-        const resumeId =
-          searchParams
-            .get("resumeId")
-            ?.trim() || "resume-123";
+        const resumeId = searchParams.get("resumeId")?.trim() || "resume-123";
 
-        const data =
-          await getResumePreviewData(
-            resumeId,
-            controller.signal,
-          );
+        const data = await getResumePreviewData(resumeId, controller.signal);
 
         setResumeData(data);
         setDraftPurpose(data.purpose);
@@ -221,71 +173,42 @@ export default function ResumePreviewPage() {
   }, [t]);
 
   useEffect(() => {
-    function handlePointerDown(
-      event: PointerEvent,
-    ) {
+    function handlePointerDown(event: PointerEvent) {
       const target = event.target;
 
       if (!(target instanceof Node)) {
         return;
       }
 
-      if (
-        purposeMenuRef.current &&
-        !purposeMenuRef.current.contains(target)
-      ) {
+      if (purposeMenuRef.current && !purposeMenuRef.current.contains(target)) {
         setIsPurposeMenuOpen(false);
       }
 
-      if (
-        exportMenuRef.current &&
-        !exportMenuRef.current.contains(target)
-      ) {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(target)) {
         setIsExportMenuOpen(false);
       }
     }
 
-    function handleKeyDown(
-      event: KeyboardEvent,
-    ) {
+    function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsPurposeMenuOpen(false);
         setIsExportMenuOpen(false);
       }
     }
 
-    document.addEventListener(
-      "pointerdown",
-      handlePointerDown,
-    );
+    document.addEventListener("pointerdown", handlePointerDown);
 
-    document.addEventListener(
-      "keydown",
-      handleKeyDown,
-    );
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.removeEventListener(
-        "pointerdown",
-        handlePointerDown,
-      );
+      document.removeEventListener("pointerdown", handlePointerDown);
 
-      document.removeEventListener(
-        "keydown",
-        handleKeyDown,
-      );
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
-  const handleZoomChange = (
-    value: number,
-  ) => {
-    setZoom(
-      Math.min(
-        Math.max(value, MIN_ZOOM),
-        MAX_ZOOM,
-      ),
-    );
+  const handleZoomChange = (value: number) => {
+    setZoom(Math.min(Math.max(value, MIN_ZOOM), MAX_ZOOM));
   };
 
   const handleZoomIn = () => {
@@ -311,27 +234,21 @@ export default function ResumePreviewPage() {
   const handleRetryImage = () => {
     setImageStatus("loading");
 
-    setImageReloadKey(
-      (currentKey) => currentKey + 1,
-    );
+    setImageReloadKey((currentKey) => currentKey + 1);
   };
 
   const handleRetryPage = () => {
     window.location.reload();
   };
 
-  const handlePurposeSelection = (
-    purpose: ResumePurpose,
-  ) => {
+  const handlePurposeSelection = (purpose: ResumePurpose) => {
     setDraftPurpose(purpose);
     setIsPurposeMenuOpen(false);
     setActionError(null);
     setActionSuccess(null);
   };
 
-  const handleExportFormatSelection = (
-    format: ResumeExportFormat,
-  ) => {
+  const handleExportFormatSelection = (format: ResumeExportFormat) => {
     setSelectedExportFormat(format);
     setIsExportMenuOpen(false);
     setActionError(null);
@@ -367,29 +284,18 @@ export default function ResumePreviewPage() {
 
       setImageStatus("loading");
 
-      setImageReloadKey(
-        (currentKey) => currentKey + 1,
-      );
+      setImageReloadKey((currentKey) => currentKey + 1);
 
-      setActionSuccess(
-        configuration(
-          "generatedSuccessfully",
-        ),
-      );
+      setActionSuccess(configuration("generatedSuccessfully"));
     } catch {
-      setActionError(
-        configuration("generateError"),
-      );
+      setActionError(configuration("generateError"));
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const triggerDownload = (
-    downloadUrl: string,
-  ) => {
-    const anchor =
-      document.createElement("a");
+  const triggerDownload = (downloadUrl: string) => {
+    const anchor = document.createElement("a");
 
     anchor.href = downloadUrl;
     anchor.target = "_blank";
@@ -402,22 +308,14 @@ export default function ResumePreviewPage() {
   };
 
   const handleExport = async () => {
-    if (
-      !resumeData ||
-      exportingFormat ||
-      isGenerating
-    ) {
+    if (!resumeData || exportingFormat || isGenerating) {
       return;
     }
 
     setIsExportMenuOpen(false);
 
-    if (
-      draftPurpose !== resumeData.purpose
-    ) {
-      setActionError(
-        configuration("generateError"),
-      );
+    if (draftPurpose !== resumeData.purpose) {
+      setActionError(configuration("generateError"));
 
       return;
     }
@@ -440,9 +338,7 @@ export default function ResumePreviewPage() {
     }
 
     try {
-      setExportingFormat(
-        selectedExportFormat,
-      );
+      setExportingFormat(selectedExportFormat);
 
       const result = await exportResume(
         resumeData.resumeId,
@@ -467,11 +363,9 @@ export default function ResumePreviewPage() {
               ? result.downloadUrl
               : currentData.jpgDownloadUrl,
 
-          creditsRemaining:
-            result.creditsRemaining,
+          creditsRemaining: result.creditsRemaining,
 
-          creditsTotal:
-            result.creditsTotal,
+          creditsTotal: result.creditsTotal,
         };
       });
 
@@ -489,9 +383,7 @@ export default function ResumePreviewPage() {
 
   if (isLoading) {
     return (
-      <main
-        className="flex min-h-screen items-center justify-center bg-base px-5 text-primary"
-      >
+      <main className="flex min-h-screen items-center justify-center bg-base px-5 text-primary">
         <div className="text-center">
           <div className="mx-auto h-11 w-11 animate-spin rounded-full border-4 border-edge border-t-gold" />
 
@@ -509,15 +401,10 @@ export default function ResumePreviewPage() {
 
   if (pageError || !resumeData) {
     return (
-      <main
-        className="flex min-h-screen items-center justify-center bg-base px-5 text-primary"
-      >
+      <main className="flex min-h-screen items-center justify-center bg-base px-5 text-primary">
         <div className="w-full max-w-md rounded-3xl border border-edge bg-elevated p-7 text-center shadow-[0_24px_80px_var(--shadow-color)]">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/20 bg-gold/10">
-            <FileText
-              size={26}
-              className="text-gold"
-            />
+            <FileText size={26} className="text-gold" />
           </div>
 
           <h1 className="mt-5 text-lg font-bold text-primary">
@@ -525,8 +412,7 @@ export default function ResumePreviewPage() {
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-secondary">
-            {pageError ||
-              t("status.errorText")}
+            {pageError || t("status.errorText")}
           </p>
 
           <button
@@ -541,56 +427,41 @@ export default function ResumePreviewPage() {
     );
   }
 
-  const selectedTemplate =
-    resumeData.selectedTemplate;
+  const selectedTemplate = resumeData.selectedTemplate;
 
-  const isPurposeChanged =
-    draftPurpose !== resumeData.purpose;
+  const isPurposeChanged = draftPurpose !== resumeData.purpose;
 
-  const hasCredits =
-    resumeData.creditsRemaining > 0;
+  const hasCredits = resumeData.creditsRemaining > 0;
 
   const exportUrl =
     selectedExportFormat === "pdf"
       ? resumeData.pdfDownloadUrl
       : resumeData.jpgDownloadUrl;
 
-  const isExporting =
-    exportingFormat !== null;
+  const isExporting = exportingFormat !== null;
 
-  const isImageLoading =
-    imageStatus === "loading";
+  const isImageLoading = imageStatus === "loading";
 
-  const isImageLoaded =
-    imageStatus === "loaded";
+  const isImageLoaded = imageStatus === "loaded";
 
-  const hasImageError =
-    imageStatus === "error";
+  const hasImageError = imageStatus === "error";
 
-  const generateButtonText =
-    isPurposeChanged
-      ? configuration("generate")
-      : configuration("regenerate");
+  const generateButtonText = isPurposeChanged
+    ? configuration("generate")
+    : configuration("regenerate");
 
-  const updatedAt =
-    new Intl.DateTimeFormat(locale, {
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(
-      new Date(resumeData.updatedAt),
-    );
+  const updatedAt = new Intl.DateTimeFormat(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(resumeData.updatedAt));
 
-  const templatesPageUrl =
-    `/${locale}/templates?resumeId=${encodeURIComponent(
-      resumeData.resumeId,
-    )}`;
+  const templatesPageUrl = `/${locale}/templates?resumeId=${encodeURIComponent(
+    resumeData.resumeId,
+  )}`;
 
-  const retrySeparator =
-    selectedTemplate.previewImageUrl.includes(
-      "?",
-    )
-      ? "&"
-      : "?";
+  const retrySeparator = selectedTemplate.previewImageUrl.includes("?")
+    ? "&"
+    : "?";
 
   const previewImageUrl =
     imageReloadKey > 0
@@ -598,16 +469,11 @@ export default function ResumePreviewPage() {
       : selectedTemplate.previewImageUrl;
 
   return (
-    <main
-      className="min-h-screen bg-base text-primary"
-    >
+    <main className="min-h-screen bg-base text-primary">
       <header className="sticky top-0 z-50 border-b border-edge bg-base/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-4">
-            <Link
-              href={`/${locale}`}
-              className="shrink-0 no-underline"
-            >
+            <Link href={`/${locale}`} className="shrink-0 no-underline">
               <Logo />
             </Link>
 
@@ -617,12 +483,7 @@ export default function ResumePreviewPage() {
               href={`/${locale}/dashboard`}
               className="hidden min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-secondary no-underline transition-colors hover:text-gold sm:flex"
             >
-              <ArrowLeft
-                size={16}
-                className={
-                  isRTL ? "rotate-180" : ""
-                }
-              />
+              <ArrowLeft size={16} className={isRTL ? "rotate-180" : ""} />
 
               {t("backToDashboard")}
             </Link>
@@ -647,17 +508,12 @@ export default function ResumePreviewPage() {
             <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                  <LayoutTemplate
-                    size={19}
-                    className="text-gold"
-                  />
+                  <LayoutTemplate size={19} className="text-gold" />
                 </div>
 
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-secondary">
-                    {configuration(
-                      "selectedTemplate",
-                    )}
+                    {configuration("selectedTemplate")}
                   </p>
 
                   <h2 className="mt-1 truncate text-base font-black">
@@ -669,10 +525,10 @@ export default function ResumePreviewPage() {
               <div className="mt-5 flex items-center gap-4 rounded-2xl border border-gold/30 bg-gold/10 p-4">
                 <div className="h-26 w-18.5 shrink-0 overflow-hidden rounded-xl border border-edge bg-white shadow-sm">
                   <Image
-                    src={
-                      selectedTemplate.thumbnailUrl
-                    }
+                    src={selectedTemplate.thumbnailUrl}
                     alt={selectedTemplate.name}
+                    width={74}
+                    height={96}
                     loading="lazy"
                     decoding="async"
                     className="h-full w-full object-cover"
@@ -681,9 +537,7 @@ export default function ResumePreviewPage() {
 
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold uppercase tracking-widest text-gold">
-                    {configuration(
-                      "currentTemplate",
-                    )}
+                    {configuration("currentTemplate")}
                   </p>
 
                   <p className="mt-2 truncate text-lg font-black text-primary">
@@ -704,9 +558,7 @@ export default function ResumePreviewPage() {
               >
                 <LayoutTemplate size={16} />
 
-                {configuration(
-                  "changeTemplate",
-                )}
+                {configuration("changeTemplate")}
               </Link>
             </section>
 
@@ -714,10 +566,7 @@ export default function ResumePreviewPage() {
             <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-azure/25 bg-azure/10">
-                  <Sparkles
-                    size={19}
-                    className="text-azure-light"
-                  />
+                  <Sparkles size={19} className="text-azure-light" />
                 </div>
 
                 <div className="min-w-0">
@@ -726,19 +575,12 @@ export default function ResumePreviewPage() {
                   </p>
 
                   <h2 className="mt-1 truncate text-sm font-black text-primary">
-                    {configuration(
-                      PURPOSE_TRANSLATION_KEYS[
-                        draftPurpose
-                      ],
-                    )}
+                    {configuration(PURPOSE_TRANSLATION_KEYS[draftPurpose])}
                   </h2>
                 </div>
               </div>
 
-              <div
-                ref={purposeMenuRef}
-                className="relative mt-5"
-              >
+              <div ref={purposeMenuRef} className="relative mt-5">
                 <button
                   type="button"
                   onClick={() => {
@@ -746,34 +588,23 @@ export default function ResumePreviewPage() {
                       return;
                     }
 
-                    setIsPurposeMenuOpen(
-                      (currentState) =>
-                        !currentState,
-                    );
+                    setIsPurposeMenuOpen((currentState) => !currentState);
 
                     setIsExportMenuOpen(false);
                   }}
                   disabled={isGenerating}
                   aria-haspopup="listbox"
-                  aria-expanded={
-                    isPurposeMenuOpen
-                  }
+                  aria-expanded={isPurposeMenuOpen}
                   className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-edge bg-card px-4 text-start text-sm font-black text-primary shadow-sm outline-none transition-all hover:border-gold/50 hover:bg-soft focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/25 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <span className="truncate">
-                    {configuration(
-                      PURPOSE_TRANSLATION_KEYS[
-                        draftPurpose
-                      ],
-                    )}
+                    {configuration(PURPOSE_TRANSLATION_KEYS[draftPurpose])}
                   </span>
 
                   <ChevronDown
                     size={17}
                     className={`shrink-0 text-secondary transition-transform ${
-                      isPurposeMenuOpen
-                        ? "rotate-180"
-                        : ""
+                      isPurposeMenuOpen ? "rotate-180" : ""
                     }`}
                   />
                 </button>
@@ -781,53 +612,37 @@ export default function ResumePreviewPage() {
                 {isPurposeMenuOpen && (
                   <div
                     role="listbox"
-                    aria-label={configuration(
-                      "purpose",
-                    )}
+                    aria-label={configuration("purpose")}
                     className="absolute inset-x-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-xl border border-edge bg-elevated p-1.5 shadow-[0_20px_55px_rgba(0,0,0,0.22)]"
                   >
-                    {RESUME_PURPOSES.map(
-                      (purpose) => {
-                        const isSelected =
-                          draftPurpose === purpose;
+                    {RESUME_PURPOSES.map((purpose) => {
+                      const isSelected = draftPurpose === purpose;
 
-                        return (
-                          <button
-                            key={purpose}
-                            type="button"
-                            role="option"
-                            aria-selected={
-                              isSelected
-                            }
-                            onClick={() => {
-                              handlePurposeSelection(
-                                purpose,
-                              );
-                            }}
-                            className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 text-start text-sm font-bold transition-colors ${
-                              isSelected
-                                ? "bg-gold/15 text-gold"
-                                : "text-primary hover:bg-soft"
-                            }`}
-                          >
-                            <span className="truncate">
-                              {configuration(
-                                PURPOSE_TRANSLATION_KEYS[
-                                  purpose
-                                ],
-                              )}
-                            </span>
+                      return (
+                        <button
+                          key={purpose}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => {
+                            handlePurposeSelection(purpose);
+                          }}
+                          className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 text-start text-sm font-bold transition-colors ${
+                            isSelected
+                              ? "bg-gold/15 text-gold"
+                              : "text-primary hover:bg-soft"
+                          }`}
+                        >
+                          <span className="truncate">
+                            {configuration(PURPOSE_TRANSLATION_KEYS[purpose])}
+                          </span>
 
-                            {isSelected && (
-                              <Check
-                                size={15}
-                                className="shrink-0"
-                              />
-                            )}
-                          </button>
-                        );
-                      },
-                    )}
+                          {isSelected && (
+                            <Check size={15} className="shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -844,10 +659,7 @@ export default function ResumePreviewPage() {
               <div className="p-5">
                 <div className="flex items-start gap-3">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                    <Sparkles
-                      size={19}
-                      className="text-gold"
-                    />
+                    <Sparkles size={19} className="text-gold" />
                   </div>
 
                   <div className="min-w-0 flex-1">
@@ -864,8 +676,7 @@ export default function ResumePreviewPage() {
                     <p className="mt-2 text-xs leading-5 text-secondary">
                       {resumeData.creditsRemaining > 0
                         ? upgrade("availableDescription", {
-                            remaining:
-                              resumeData.creditsRemaining,
+                            remaining: resumeData.creditsRemaining,
                           })
                         : upgrade("limitDescription")}
                     </p>
@@ -878,10 +689,7 @@ export default function ResumePreviewPage() {
                       key={benefitKey}
                       className="flex items-center gap-2 text-xs font-semibold text-primary"
                     >
-                      <CheckCircle2
-                        size={14}
-                        className="shrink-0 text-green"
-                      />
+                      <CheckCircle2 size={14} className="shrink-0 text-green" />
 
                       <span>{upgrade(benefitKey)}</span>
                     </div>
@@ -911,29 +719,18 @@ export default function ResumePreviewPage() {
               className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 hover:opacity-95 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60"
             >
               {isGenerating ? (
-                <LoaderCircle
-                  size={19}
-                  className="animate-spin"
-                />
+                <LoaderCircle size={19} className="animate-spin" />
               ) : (
                 <Sparkles size={19} />
               )}
 
-              {isGenerating
-                ? configuration("generating")
-                : generateButtonText}
+              {isGenerating ? configuration("generating") : generateButtonText}
             </button>
 
-            <div
-              aria-live="polite"
-              className="space-y-3"
-            >
+            <div aria-live="polite" className="space-y-3">
               {actionSuccess && (
                 <p className="flex items-start gap-2 rounded-xl border border-green/20 bg-green/10 px-3 py-2.5 text-xs leading-5 text-green">
-                  <CheckCircle2
-                    size={15}
-                    className="mt-0.5 shrink-0"
-                  />
+                  <CheckCircle2 size={15} className="mt-0.5 shrink-0" />
 
                   {actionSuccess}
                 </p>
@@ -956,10 +753,7 @@ export default function ResumePreviewPage() {
               <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <FileText
-                      size={18}
-                      className="text-gold"
-                    />
+                    <FileText size={18} className="text-gold" />
 
                     <h1 className="font-playfair text-2xl font-black text-primary sm:text-3xl">
                       {configuration("preview")}
@@ -971,10 +765,7 @@ export default function ResumePreviewPage() {
                   </p>
 
                   <p className="mt-1 text-xs text-secondary">
-                    {configuration(
-                      "lastUpdated",
-                    )}
-                    : {updatedAt}
+                    {configuration("lastUpdated")}: {updatedAt}
                   </p>
                 </div>
 
@@ -997,20 +788,12 @@ export default function ResumePreviewPage() {
                       </output>
                     </div>
 
-                    <div
-                      dir="ltr"
-                      className="flex items-center gap-2"
-                    >
+                    <div dir="ltr" className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={handleZoomOut}
-                        disabled={
-                          zoom <= MIN_ZOOM ||
-                          !isImageLoaded
-                        }
-                        aria-label={t(
-                          "preview.zoomOut",
-                        )}
+                        disabled={zoom <= MIN_ZOOM || !isImageLoaded}
+                        aria-label={t("preview.zoomOut")}
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-gold/40 hover:bg-soft disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <Minus size={15} />
@@ -1025,11 +808,7 @@ export default function ResumePreviewPage() {
                         value={zoom}
                         disabled={!isImageLoaded}
                         onChange={(event) => {
-                          handleZoomChange(
-                            Number(
-                              event.target.value,
-                            ),
-                          );
+                          handleZoomChange(Number(event.target.value));
                         }}
                         className="h-2 min-w-0 flex-1 cursor-pointer accent-gold disabled:cursor-not-allowed disabled:opacity-40"
                       />
@@ -1037,13 +816,8 @@ export default function ResumePreviewPage() {
                       <button
                         type="button"
                         onClick={handleZoomIn}
-                        disabled={
-                          zoom >= MAX_ZOOM ||
-                          !isImageLoaded
-                        }
-                        aria-label={t(
-                          "preview.zoomIn",
-                        )}
+                        disabled={zoom >= MAX_ZOOM || !isImageLoaded}
+                        aria-label={t("preview.zoomIn")}
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-gold/40 hover:bg-soft disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <Plus size={15} />
@@ -1052,13 +826,8 @@ export default function ResumePreviewPage() {
                       <button
                         type="button"
                         onClick={handleResetZoom}
-                        disabled={
-                          zoom === DEFAULT_ZOOM ||
-                          !isImageLoaded
-                        }
-                        aria-label={t(
-                          "preview.resetZoom",
-                        )}
+                        disabled={zoom === DEFAULT_ZOOM || !isImageLoaded}
+                        aria-label={t("preview.resetZoom")}
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-gold/40 hover:bg-soft disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <RotateCcw size={14} />
@@ -1080,44 +849,31 @@ export default function ResumePreviewPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            if (
-                              isExporting ||
-                              isGenerating
-                            ) {
+                            if (isExporting || isGenerating) {
                               return;
                             }
 
                             setIsExportMenuOpen(
-                              (currentState) =>
-                                !currentState,
+                              (currentState) => !currentState,
                             );
 
                             setIsPurposeMenuOpen(false);
                           }}
-                          disabled={
-                            isExporting ||
-                            isGenerating
-                          }
+                          disabled={isExporting || isGenerating}
                           aria-haspopup="listbox"
-                          aria-expanded={
-                            isExportMenuOpen
-                          }
+                          aria-expanded={isExportMenuOpen}
                           className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-edge bg-card px-3 text-sm font-black uppercase text-primary outline-none transition-all hover:border-gold/50 hover:bg-soft focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/25 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <span>
                             {configuration(
-                              FORMAT_TRANSLATION_KEYS[
-                                selectedExportFormat
-                              ],
+                              FORMAT_TRANSLATION_KEYS[selectedExportFormat],
                             )}
                           </span>
 
                           <ChevronDown
                             size={15}
                             className={`shrink-0 text-secondary transition-transform ${
-                              isExportMenuOpen
-                                ? "rotate-180"
-                                : ""
+                              isExportMenuOpen ? "rotate-180" : ""
                             }`}
                           />
                         </button>
@@ -1125,53 +881,38 @@ export default function ResumePreviewPage() {
                         {isExportMenuOpen && (
                           <div
                             role="listbox"
-                            aria-label={configuration(
-                              "exportAs",
-                            )}
+                            aria-label={configuration("exportAs")}
                             className="absolute inset-x-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-xl border border-edge bg-elevated p-1.5 shadow-[0_20px_55px_rgba(0,0,0,0.22)]"
                           >
-                            {EXPORT_FORMATS.map(
-                              (format) => {
-                                const isSelected =
-                                  selectedExportFormat ===
-                                  format;
+                            {EXPORT_FORMATS.map((format) => {
+                              const isSelected =
+                                selectedExportFormat === format;
 
-                                return (
-                                  <button
-                                    key={format}
-                                    type="button"
-                                    role="option"
-                                    aria-selected={
-                                      isSelected
-                                    }
-                                    onClick={() => {
-                                      handleExportFormatSelection(
-                                        format,
-                                      );
-                                    }}
-                                    className={`flex min-h-10 w-full items-center justify-between gap-3 rounded-lg px-3 text-start text-sm font-bold uppercase transition-colors ${
-                                      isSelected
-                                        ? "bg-gold/15 text-gold"
-                                        : "text-primary hover:bg-soft"
-                                    }`}
-                                  >
-                                    <span>
-                                      {configuration(
-                                        FORMAT_TRANSLATION_KEYS[
-                                          format
-                                        ],
-                                      )}
-                                    </span>
-
-                                    {isSelected && (
-                                      <Check
-                                        size={14}
-                                      />
+                              return (
+                                <button
+                                  key={format}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={isSelected}
+                                  onClick={() => {
+                                    handleExportFormatSelection(format);
+                                  }}
+                                  className={`flex min-h-10 w-full items-center justify-between gap-3 rounded-lg px-3 text-start text-sm font-bold uppercase transition-colors ${
+                                    isSelected
+                                      ? "bg-gold/15 text-gold"
+                                      : "text-primary hover:bg-soft"
+                                  }`}
+                                >
+                                  <span>
+                                    {configuration(
+                                      FORMAT_TRANSLATION_KEYS[format],
                                     )}
-                                  </button>
-                                );
-                              },
-                            )}
+                                  </span>
+
+                                  {isSelected && <Check size={14} />}
+                                </button>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
@@ -1185,21 +926,14 @@ export default function ResumePreviewPage() {
                           isExporting ||
                           isGenerating ||
                           isPurposeChanged ||
-                          (!exportUrl &&
-                            !hasCredits)
+                          (!exportUrl && !hasCredits)
                         }
                         className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-gold px-3 font-bold text-ink transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label={configuration(
-                          "exportAs",
-                        )}
+                        aria-label={configuration("exportAs")}
                       >
                         {isExporting ? (
-                          <LoaderCircle
-                            size={17}
-                            className="animate-spin"
-                          />
-                        ) : selectedExportFormat ===
-                          "pdf" ? (
+                          <LoaderCircle size={17} className="animate-spin" />
+                        ) : selectedExportFormat === "pdf" ? (
                           <Download size={17} />
                         ) : (
                           <ImageIcon size={17} />
@@ -1218,9 +952,7 @@ export default function ResumePreviewPage() {
                     <div className="mx-auto h-11 w-11 animate-spin rounded-full border-4 border-edge border-t-gold" />
 
                     <p className="mt-4 text-sm font-semibold text-secondary">
-                      {t(
-                        "preview.imageLoading",
-                      )}
+                      {t("preview.imageLoading")}
                     </p>
                   </div>
                 </div>
@@ -1230,22 +962,15 @@ export default function ResumePreviewPage() {
                 <div className="absolute inset-0 z-30 flex items-center justify-center px-5">
                   <div className="w-full max-w-sm rounded-3xl border border-edge bg-elevated p-7 text-center shadow-[0_20px_70px_var(--shadow-color)]">
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/20 bg-gold/10">
-                      <ImageIcon
-                        size={26}
-                        className="text-gold"
-                      />
+                      <ImageIcon size={26} className="text-gold" />
                     </div>
 
                     <h2 className="mt-5 text-base font-bold">
-                      {t(
-                        "preview.imageErrorTitle",
-                      )}
+                      {t("preview.imageErrorTitle")}
                     </h2>
 
                     <p className="mt-2 text-sm leading-6 text-secondary">
-                      {t(
-                        "preview.imageErrorText",
-                      )}
+                      {t("preview.imageErrorText")}
                     </p>
 
                     <button
@@ -1265,9 +990,9 @@ export default function ResumePreviewPage() {
                 <Image
                   key={imageReloadKey}
                   src={previewImageUrl}
-                  alt={`${t(
-                    "preview.imageAlt",
-                  )} - ${selectedTemplate.name}`}
+                  width={100}
+                  height={133}
+                  alt={`${t("preview.imageAlt")} - ${selectedTemplate.name}`}
                   loading="eager"
                   decoding="async"
                   onLoad={handleImageLoad}
@@ -1290,9 +1015,7 @@ export default function ResumePreviewPage() {
   );
 }
 
-function wait(
-  milliseconds: number,
-): Promise<void> {
+function wait(milliseconds: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, milliseconds);
   });
