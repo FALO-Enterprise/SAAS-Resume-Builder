@@ -9,6 +9,7 @@ import { templateRouter } from './modules/template/template.routes'
 import { dashboardRouter } from './modules/dashboard/dashboard.routes'
 import session from 'express-session'
 import { responseEnhancer } from './common/middlewares/response.middleware'
+import { errorHandler } from './common/middlewares/error.middleware'
 import path from 'path'
 
 const app = express()
@@ -50,5 +51,7 @@ app.use('/api/users', userRouter)
 app.use('/api/resumes', resumeRouter)
 app.use('/api/templates', templateRouter)
 app.use('/api/dashboard', dashboardRouter)
+
+app.use(errorHandler)
 
 export default app

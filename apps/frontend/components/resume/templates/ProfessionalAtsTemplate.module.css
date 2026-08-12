@@ -1,49 +1,54 @@
 .resumePage {
-  --resume-accent: #1f4e79;
+  --resume-accent: #0563c1;
   --resume-font-scale: 1;
   box-sizing: border-box;
   width: 210mm;
   min-height: 297mm;
   margin: 0 auto;
-  padding: 16mm 17mm 18mm;
-  overflow-wrap: anywhere;
+  padding: 12.7mm;
+  overflow-wrap: break-word;
+  word-break: normal;
   background: #fff;
-  color: #17202a;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: calc(10pt * var(--resume-font-scale));
-  line-height: 1.45;
+  color: #000;
+  font-family: Arial, "Liberation Sans", Helvetica, sans-serif;
+  font-size: calc(12pt * var(--resume-font-scale));
+  line-height: 1.33;
+  font-synthesis: none;
+  font-variant-ligatures: common-ligatures;
   text-rendering: optimizeLegibility;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
 .header {
-  padding-bottom: 5mm;
-  border-bottom: 1.5pt solid var(--resume-accent);
+  text-align: center;
 }
 
-.name {
+.documentTitle {
   margin: 0;
-  color: #111827;
-  font-size: calc(25pt * var(--resume-font-scale));
+  font-size: calc(16pt * var(--resume-font-scale));
   font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -0.025em;
+  line-height: 1.15;
 }
 
-.title {
-  margin: 1.5mm 0 0;
-  color: var(--resume-accent);
+.identity {
+  margin: 4mm 0 0;
   font-size: calc(12pt * var(--resume-font-scale));
-  font-weight: 600;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .contactList {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5mm 4mm;
-  margin: 3mm 0 0;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1.5mm 5.5mm;
+  margin: 4mm 0 0;
   padding: 0;
-  color: #374151;
-  font-size: calc(8.8pt * var(--resume-font-scale));
+  color: #000;
+  font-size: calc(12pt * var(--resume-font-scale));
+  font-weight: 700;
   list-style: none;
 }
 
@@ -52,31 +57,49 @@
 }
 
 .contactList a {
-  color: inherit;
+  color: var(--resume-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.5pt;
+}
+
+.contactList .phoneLink {
+  color: #000;
   text-decoration: none;
 }
 
+.labeledContact {
+  display: inline-flex;
+  gap: 1.5mm;
+}
+
 .section {
-  margin-top: 5mm;
+  margin-top: 4.5mm;
 }
 
 .sectionHeading {
-  margin: 0 0 2.5mm;
-  padding-bottom: 1mm;
-  border-bottom: 0.6pt solid #cbd5e1;
-  color: var(--resume-accent);
-  font-size: calc(11pt * var(--resume-font-scale));
+  margin: 0 0 3mm;
+  padding-bottom: 1.4mm;
+  border-bottom: 1.5pt solid #000;
+  color: #000;
+  font-size: calc(14pt * var(--resume-font-scale));
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-style: italic;
+  line-height: 1.15;
   break-after: avoid;
   page-break-after: avoid;
 }
 
+.summary {
+  margin: 0;
+  text-align: justify;
+  text-justify: inter-word;
+  orphans: 3;
+  widows: 3;
+}
+
 .entryList {
   display: grid;
-  gap: 3.5mm;
+  gap: 5mm;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -96,42 +119,85 @@
 
 .entryTitle {
   margin: 0;
-  color: #111827;
-  font-size: calc(10.3pt * var(--resume-font-scale));
+  color: #000;
+  font-size: calc(12pt * var(--resume-font-scale));
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.25;
+}
+
+.entryTitle a {
+  color: var(--resume-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.5pt;
+}
+
+.technologies {
+  font-weight: 700;
 }
 
 .date {
   flex: 0 0 auto;
-  color: #4b5563;
-  font-size: calc(8.5pt * var(--resume-font-scale));
+  color: #000;
+  font-size: calc(11pt * var(--resume-font-scale));
+  font-weight: 700;
+  font-style: italic;
   white-space: nowrap;
 }
 
 .entryMeta {
-  margin: 0.6mm 0 0;
-  color: #374151;
-  font-weight: 600;
+  margin: 1mm 0 0;
+  color: #000;
+  font-style: italic;
 }
 
-.description {
-  margin: 1.5mm 0 0;
-  color: #303846;
-  white-space: pre-line;
+.descriptionList {
+  display: grid;
+  gap: 1.4mm;
+  margin: 3mm 0 0;
+  padding-inline-start: 7mm;
+  color: #000;
+  list-style: disc;
 }
 
-.skills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5mm 5mm;
-  margin: 0;
-  padding-left: 5mm;
-}
-
-.skills li {
+.descriptionList li {
+  padding-inline-start: 1.5mm;
   break-inside: avoid;
   page-break-inside: avoid;
+}
+
+.skillGroups {
+  display: grid;
+  gap: 2.5mm;
+  margin: 0;
+  padding: 0;
+}
+
+.skillGroup {
+  display: flex;
+  gap: 1mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.skillGroup dt,
+.skillGroup dd {
+  margin: 0;
+}
+
+.skillGroup dt {
+  flex: 0 0 auto;
+}
+
+.legacySkills {
+  margin: 0;
+}
+
+.educationEntry {
+  padding-inline: 6.35mm;
+}
+
+.educationDetail {
+  margin: 2.5mm 0 0;
 }
 
 @page {
@@ -146,6 +212,12 @@
 }
 
 @media print {
+  :global(html),
+  :global(body) {
+    margin: 0 !important;
+    background: #fff !important;
+  }
+
   .resumePage {
     margin: 0;
     box-shadow: none;
@@ -153,17 +225,5 @@
 
   :global(.non-printable) {
     display: none !important;
-  }
-}
-
-@media (max-width: 700px) {
-  .entryHeader {
-    display: block;
-  }
-
-  .date {
-    display: block;
-    margin-top: 0.5mm;
-    white-space: normal;
   }
 }

@@ -4,7 +4,10 @@ import {
     type ResumeRenderSnapshot,
 } from '@resumax/shared-types';
 import { DashboardRepository } from '../dashboard/dashboard.repository';
-import { resumeContentSchema } from '../dashboard/dashboard.schema';
+import {
+    resumeContentSchema,
+    resumeDraftCustomizationSchema,
+} from '../dashboard/dashboard.schema';
 import { ResumeRepository } from './resume.repository';
 import type { Resume } from './resume.schema';
 import { resolveResumeTemplate } from './resume-template.registry';
@@ -22,7 +25,7 @@ type DraftLookup = {
 export class ResumeExportError extends Error {
     constructor(
         message: string,
-        public readonly code: 'NOT_FOUND' | 'INVALID_TEMPLATE' | 'INVALID_RESUME' | 'PDF_FAILED',
+        public readonly code: 'NOT_FOUND' | 'INVALID_TEMPLATE' | 'INVALID_RESUME' | 'PDF_FAILED' | 'JPG_FAILED',
     ) {
         super(message);
     }
@@ -49,7 +52,8 @@ export class ResumeExportService {
         if (!draft) throw new ResumeExportError('Resume data is unavailable', 'INVALID_RESUME');
 
         const parsedContent = resumeContentSchema.safeParse(draft);
-        if (!parsedContent.success) {
+        const parsedDraftCustomization = resumeDraftCustomizationSchema.safeParse(draft);
+        if (!parsedContent.success || !parsedDraftCustomization.success) {
             throw new ResumeExportError('Resume data is invalid', 'INVALID_RESUME');
         }
 
@@ -61,7 +65,7 @@ export class ResumeExportService {
             ...input.customization,
             sectionOrder: input.customization?.sectionOrder
                 ? [...input.customization.sectionOrder]
-                : [...DEFAULT_RESUME_CUSTOMIZATION.sectionOrder],
+                : [...parsedDraftCustomization.data.sectionOrder],
             hiddenSections: input.customization?.hiddenSections
                 ? [...input.customization.hiddenSections]
                 : [...DEFAULT_RESUME_CUSTOMIZATION.hiddenSections],
@@ -89,6 +93,20 @@ export class ResumeExportService {
                 error: error instanceof Error ? error.message : String(error),
             });
             throw new ResumeExportError('PDF generation failed', 'PDF_FAILED');
+        }
+    }
+
+    async generateJpg(resumeId: string, userId: string, input: ResumeExportInput = {}) {
+        const snapshot = await this.createSnapshot(resumeId, userId, input);
+        try {
+            return await this.pdfGenerator.generateJpg(snapshot);
+        } catch (error) {
+            console.error('Resume JPG generation failed', {
+                resumeId,
+                userId,
+                error: error instanceof Error ? error.message : String(error),
+            });
+            throw new ResumeExportError('JPG generation failed', 'JPG_FAILED');
         }
     }
 }

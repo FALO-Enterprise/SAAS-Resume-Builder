@@ -1,5 +1,6 @@
 import type { PlanName } from './types/auth.types';
 import type { DashboardDraftData } from './types/dashborad.types';
+import { AUTH_TOKEN_KEY } from './auth-session';
 
 const DEFAULT_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
 export function buildBackendUrl(path: string) {
@@ -8,12 +9,20 @@ export function buildBackendUrl(path: string) {
 }
 
 export async function proxyToBackend(path: string, init?: RequestInit) {
+    const defaultHeaders: Record<string, string> = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+    };
+
+    const storedToken = typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+
     const response = await fetch(buildBackendUrl(path), {
         ...init,
         cache: 'no-store',
+        credentials: 'include',
         headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            ...defaultHeaders,
+            ...(storedToken ? { Authorization: `Bearer ${storedToken}` } : {}),
             ...(init?.headers ?? {}),
         },
     });
@@ -75,10 +84,54 @@ export interface RegistrationResponse {
 }
 
 function backendErrorMessage(payload: unknown, fallback: string) {
-    if (typeof payload === 'string') return payload;
+    if (typeof payload === 'string') {
+        const message = payload.trim();
+        const isHtml = /^<!doctype html|^<html/i.test(message);
+        return message && !isHtml ? message : fallback;
+    }
 
     const normalized = normalizeBackendPayload<{ error: string }>(payload)
     return normalized && 'error' in normalized ? normalized.error : fallback
+}
+
+export class BackendRequestError extends Error {
+    constructor(
+        message: string,
+        public readonly status: number,
+    ) {
+        super(message);
+        this.name = 'BackendRequestError';
+    }
+}
+
+export function isUnauthorizedBackendError(error: unknown): error is BackendRequestError {
+    return error instanceof BackendRequestError && error.status === 401;
+}
+
+function createBackendRequestError(
+    response: Response,
+    payload: unknown,
+    fallback: string,
+) {
+    return new BackendRequestError(
+        backendErrorMessage(payload, fallback),
+        response.status,
+    );
+}
+
+export function createAuthenticatedRequestError(
+    response: Response,
+    payload: unknown,
+    fallback: string,
+) {
+    if (response.status === 401) {
+        return new BackendRequestError(
+            'Your session has expired. Please sign in again.',
+            response.status,
+        );
+    }
+
+    return createBackendRequestError(response, payload, fallback);
 }
 
 export async function loginWithBackend(input: { email: string; password: string }) {
@@ -88,7 +141,7 @@ export async function loginWithBackend(input: { email: string; password: string 
     });
 
     if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Login failed'))
+        throw createBackendRequestError(response, payload, 'Login failed')
     }
 
     return normalizeBackendPayload<AuthSession>(payload);
@@ -100,7 +153,7 @@ export async function registerWithBackend(input: { name: string; email: string; 
         body: JSON.stringify(input),
     });
     if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Registration failed'))
+        throw createBackendRequestError(response, payload, 'Registration failed')
     }
 
     return normalizeBackendPayload<RegistrationResponse>(payload);
@@ -118,7 +171,7 @@ export async function exchangeOAuthCode(code: string) {
     });
 
     if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Social sign-in failed'));
+        throw createBackendRequestError(response, payload, 'Social sign-in failed');
     }
 
     return normalizeBackendPayload<AuthSession>(payload);
@@ -134,7 +187,7 @@ export async function requestPasswordReset(input: {
     });
 
     if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Could not send the reset email'));
+        throw createBackendRequestError(response, payload, 'Could not send the reset email');
     }
 
     return normalizeBackendPayload<{ message: string }>(payload);
@@ -147,7 +200,7 @@ export async function validatePasswordResetToken(token: string) {
     });
 
     if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Could not validate the reset link'));
+        throw createBackendRequestError(response, payload, 'Could not validate the reset link');
     }
 
     return normalizeBackendPayload<{ valid: boolean }>(payload);
@@ -163,7 +216,7 @@ export async function resetPasswordWithBackend(input: {
     });
 
     if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Could not reset the password'));
+        throw createBackendRequestError(response, payload, 'Could not reset the password');
     }
 
     return normalizeBackendPayload<{ message: string }>(payload);
@@ -179,7 +232,7 @@ async function dashboardRequest(token: string, init?: RequestInit) {
     });
 
     if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Could not save your dashboard'));
+        throw createAuthenticatedRequestError(response, payload, 'Could not save your dashboard');
     }
 
     const normalized = normalizeBackendPayload<DashboardDraftData>(payload);
@@ -198,8 +251,12 @@ export function saveDashboardDraft(token: string, draft: DashboardDraftData) {
             template: draft.template,
             currentStep: draft.currentStep,
             completedSteps: draft.completedSteps,
+            sectionOrder: draft.sectionOrder,
             contact: draft.contact,
+            summary: draft.summary,
+            skillGroups: draft.skillGroups,
             experience: draft.experience,
+            projects: draft.projects,
             education: draft.education,
             certifications: draft.certifications,
             skills: draft.skills,
@@ -227,7 +284,7 @@ export async function generateCurrentResume(
     });
 
     if (!response.ok) {
-        throw new Error(backendErrorMessage(payload, 'Could not generate your resume'));
+        throw createAuthenticatedRequestError(response, payload, 'Could not generate your resume');
     }
 
     const normalized = normalizeBackendPayload<GeneratedResume>(payload);

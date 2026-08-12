@@ -3,7 +3,7 @@ export const RESUME_TEMPLATE_IDS = ["minimal"] as const;
 export type ResumeTemplateId = (typeof RESUME_TEMPLATE_IDS)[number];
 
 export const RESUME_TEMPLATE_DEFINITIONS = [
-  { id: 'minimal', name: 'Professional ATS', version: 1 },
+  { id: "minimal", name: "Professional ATS", version: 3 },
 ] as const satisfies ReadonlyArray<{
   id: ResumeTemplateId;
   name: string;
@@ -11,10 +11,12 @@ export const RESUME_TEMPLATE_DEFINITIONS = [
 }>;
 
 export const RESUME_SECTION_IDS = [
+  "summary",
+  "skills",
   "experience",
+  "projects",
   "education",
   "certifications",
-  "skills",
 ] as const;
 
 export type ResumeSectionId = (typeof RESUME_SECTION_IDS)[number];
@@ -26,6 +28,8 @@ export type ResumeContact = {
   phone: string;
   location: string;
   linkedin: string;
+  github: string;
+  portfolio: string;
 };
 
 export type ResumeExperience = {
@@ -46,6 +50,14 @@ export type ResumeEducation = {
   institution: string;
   degree: string;
   field: string;
+  location: string;
+  country: string;
+  startMonth: string;
+  startYear: string;
+  endMonth: string;
+  endYear: string;
+  current: boolean;
+  /** Retained for compatibility with existing dashboard drafts. */
   gradYear: string;
 };
 
@@ -55,13 +67,33 @@ export type ResumeCertification = {
   org: string;
 };
 
+export type ResumeSkillGroup = {
+  id: string;
+  label: string;
+  skills: string[];
+};
+
+export type ResumeProject = {
+  id: string;
+  name: string;
+  technologies: string[];
+  link: string;
+  startMonth: string;
+  startYear: string;
+  description: string;
+};
+
 /** The existing dashboard draft is the application's resume content contract. */
 export type ResumeContent = {
   contact: ResumeContact;
+  summary: string;
+  skillGroups: ResumeSkillGroup[];
+  /** Retained as a flat fallback for existing dashboard drafts and AI output. */
+  skills: string[];
   experience: ResumeExperience[];
+  projects: ResumeProject[];
   education: ResumeEducation[];
   certifications: ResumeCertification[];
-  skills: string[];
 };
 
 export type ResumeCustomization = {
@@ -82,8 +114,15 @@ export type ResumeRenderSnapshot = {
 };
 
 export const DEFAULT_RESUME_CUSTOMIZATION: ResumeCustomization = {
-  sectionOrder: [...RESUME_SECTION_IDS],
-  hiddenSections: [],
-  accentColor: "#1f4e79",
+  sectionOrder: [
+    "summary",
+    "skills",
+    "experience",
+    "projects",
+    "education",
+    "certifications",
+  ],
+  hiddenSections: ["certifications"],
+  accentColor: "#0563c1",
   fontScale: 1,
 };

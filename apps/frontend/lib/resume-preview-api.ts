@@ -1,10 +1,10 @@
+import type { ResumePreviewData, ResumePurpose } from "@/types/resume-preview";
+import type { ResumeRenderSnapshot } from "@shared-types/resume";
 import type {
-  ResumePreviewData,
-  ResumePurpose,
-} from "@/types/resume-preview";
-import type { ResumeRenderSnapshot } from '@shared-types/resume';
-import type { ResumeCustomization, ResumeTemplateId } from '@shared-types/resume';
-import { buildBackendUrl, normalizeBackendPayload } from './backend';
+  ResumeCustomization,
+  ResumeTemplateId,
+} from "@shared-types/resume";
+import { buildBackendUrl, normalizeBackendPayload } from "./backend";
 
 export type ResumeExportFormat = "pdf" | "jpg";
 
@@ -14,6 +14,37 @@ export type ResumeExportResult = {
   creditsTotal: number;
 };
 
+export async function getResumeApiErrorMessage(
+  response: Response,
+  fallback: string,
+) {
+  try {
+    const payload: unknown = await response.json();
+    if (typeof payload === "string" && payload.trim()) return payload;
+
+    if (payload && typeof payload === "object") {
+      const body = payload as {
+        message?: unknown;
+        error?: unknown;
+      };
+      if (typeof body.message === "string" && body.message.trim()) {
+        return body.message;
+      }
+      if (typeof body.error === "string" && body.error.trim()) {
+        return body.error;
+      }
+      if (body.error && typeof body.error === "object") {
+        const message = (body.error as { message?: unknown }).message;
+        if (typeof message === "string" && message.trim()) return message;
+      }
+    }
+  } catch {
+    // Fall back to a status-bearing message for non-JSON server responses.
+  }
+
+  return `${fallback} (${response.status})`;
+}
+
 const MOCK_RESUME_DATA: ResumePreviewData = {
   resumeId: "resume-123",
   resumeName: "Scholarship Resume",
@@ -22,15 +53,42 @@ const MOCK_RESUME_DATA: ResumePreviewData = {
   selectedTemplate: {
     id: "minimal",
     name: "Professional ATS",
-    version: 1,
+    version: 3,
     thumbnailUrl: "/file.svg",
   },
 
   content: {
-    contact: { fullName: 'Alex Morgan', title: 'Software Engineer', email: 'alex@example.com', phone: '', location: '', linkedin: '' },
-    experience: [], education: [], certifications: [], skills: [],
+    contact: {
+      fullName: "Alex Morgan",
+      title: "Software Engineer",
+      email: "alex@example.com",
+      phone: "",
+      location: "",
+      linkedin: "",
+      github: "",
+      portfolio: "",
+    },
+    summary: "",
+    skillGroups: [],
+    experience: [],
+    projects: [],
+    education: [],
+    certifications: [],
+    skills: [],
   },
-  customization: { sectionOrder: ['experience', 'education', 'certifications', 'skills'], hiddenSections: [], accentColor: '#1f4e79', fontScale: 1 },
+  customization: {
+    sectionOrder: [
+      "summary",
+      "skills",
+      "experience",
+      "projects",
+      "education",
+      "certifications",
+    ],
+    hiddenSections: ["certifications"],
+    accentColor: "#0563c1",
+    fontScale: 1,
+  },
 
   pdfDownloadUrl: null,
   jpgDownloadUrl: null,
@@ -45,17 +103,23 @@ export async function getResumePreviewData(
   resumeId: string,
   signal?: AbortSignal,
 ): Promise<ResumePreviewData> {
-  const token = typeof window === 'undefined' ? null : localStorage.getItem('resumax_token');
-  if (!token) return { ...MOCK_RESUME_DATA, resumeId, updatedAt: new Date().toISOString() };
+  const token =
+    typeof window === "undefined"
+      ? null
+      : localStorage.getItem("resumax_token");
+  if (!token)
+    return {
+      ...MOCK_RESUME_DATA,
+      resumeId,
+      updatedAt: new Date().toISOString(),
+    };
 
   const response = await fetch(
-    buildBackendUrl(`/api/resumes/${encodeURIComponent(
-      resumeId,
-    )}/preview`),
+    buildBackendUrl(`/api/resumes/${encodeURIComponent(resumeId)}/preview`),
     {
       method: "GET",
       headers: {
-        Accept: "application/pdf",
+        Accept: "application/json",
         Authorization: `Bearer ${token}`,
       },
       credentials: "include",
@@ -66,22 +130,22 @@ export async function getResumePreviewData(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to load resume preview: ${response.status}`,
+      await getResumeApiErrorMessage(response, "Failed to load resume preview"),
     );
   }
 
   const payload: unknown = await response.json();
   const snapshot = normalizeBackendPayload<ResumeRenderSnapshot>(payload);
-  if ('error' in snapshot) throw new Error(snapshot.error);
+  if ("error" in snapshot) throw new Error(snapshot.error);
   const data: ResumePreviewData = {
     resumeId: snapshot.resumeId,
     resumeName: snapshot.title,
-    purpose: 'general',
+    purpose: "general",
     selectedTemplate: {
       id: snapshot.templateId,
-      name: 'Professional ATS',
+      name: "Professional ATS",
       version: snapshot.templateVersion,
-      thumbnailUrl: '/file.svg',
+      thumbnailUrl: "/file.svg",
     },
     content: snapshot.content,
     customization: snapshot.customization,
@@ -93,9 +157,7 @@ export async function getResumePreviewData(
   };
 
   if (!isResumePreviewData(data)) {
-    throw new Error(
-      "Invalid resume preview response",
-    );
+    throw new Error("Invalid resume preview response");
   }
 
   return data;
@@ -105,25 +167,25 @@ export async function exportResume(
   resumeId: string,
   format: ResumeExportFormat,
   signal?: AbortSignal,
-  templateId: ResumeTemplateId = 'minimal',
+  templateId: ResumeTemplateId = "minimal",
   customization?: ResumeCustomization,
 ): Promise<ResumeExportResult> {
-  const token = typeof window === 'undefined' ? null : localStorage.getItem('resumax_token');
-  if (!token) throw new Error('Authentication is required to export a resume');
+  const token =
+    typeof window === "undefined"
+      ? null
+      : localStorage.getItem("resumax_token");
+  if (!token) throw new Error("Authentication is required to export a resume");
 
-  if (format === 'jpg') {
-    // JPG is handled client-side via html2canvas — this is a fallback
-    throw new Error('JPG export is handled client-side');
-  }
+  const contentType = format === "pdf" ? "application/pdf" : "image/jpeg";
 
   const response = await fetch(
-    buildBackendUrl(`/api/resumes/${encodeURIComponent(
-      resumeId,
-    )}/exports/pdf`),
+    buildBackendUrl(
+      `/api/resumes/${encodeURIComponent(resumeId)}/exports/${format}`,
+    ),
     {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        Accept: contentType,
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
@@ -136,30 +198,37 @@ export async function exportResume(
 
   if (!response.ok) {
     throw new Error(
-      `Failed to export resume: ${response.status}`,
+      await getResumeApiErrorMessage(response, "Failed to export resume"),
     );
   }
 
-  if (!response.headers.get('content-type')?.toLowerCase().includes('application/pdf')) {
-    throw new Error('The server returned an invalid PDF response');
+  if (
+    !response.headers
+      .get("content-type")
+      ?.toLowerCase()
+      .includes(contentType)
+  ) {
+    throw new Error(
+      `The server returned an invalid ${format.toUpperCase()} response`,
+    );
   }
 
   const blob = await response.blob();
-  return { downloadUrl: URL.createObjectURL(blob), creditsRemaining: 0, creditsTotal: 1 };
+  return {
+    downloadUrl: URL.createObjectURL(blob),
+    creditsRemaining: 0,
+    creditsTotal: 1,
+  };
 }
 
-function isResumePreviewData(
-  value: unknown,
-): value is ResumePreviewData {
+function isResumePreviewData(value: unknown): value is ResumePreviewData {
   if (!value || typeof value !== "object") {
     return false;
   }
 
-  const data =
-    value as Partial<ResumePreviewData>;
+  const data = value as Partial<ResumePreviewData>;
 
-  const selectedTemplate =
-    data.selectedTemplate;
+  const selectedTemplate = data.selectedTemplate;
 
   return (
     typeof data.resumeId === "string" &&
@@ -169,22 +238,17 @@ function isResumePreviewData(
     typeof selectedTemplate === "object" &&
     typeof selectedTemplate.id === "string" &&
     typeof selectedTemplate.name === "string" &&
-    typeof selectedTemplate.thumbnailUrl ===
-      "string" &&
+    typeof selectedTemplate.thumbnailUrl === "string" &&
     typeof selectedTemplate.version === "number" &&
-    (typeof data.pdfDownloadUrl === "string" ||
-      data.pdfDownloadUrl === null) &&
-    (typeof data.jpgDownloadUrl === "string" ||
-      data.jpgDownloadUrl === null) &&
+    (typeof data.pdfDownloadUrl === "string" || data.pdfDownloadUrl === null) &&
+    (typeof data.jpgDownloadUrl === "string" || data.jpgDownloadUrl === null) &&
     typeof data.creditsRemaining === "number" &&
     typeof data.creditsTotal === "number" &&
     typeof data.updatedAt === "string"
   );
 }
 
-function isResumePurpose(
-  value: unknown,
-): value is ResumePurpose {
+function isResumePurpose(value: unknown): value is ResumePurpose {
   return (
     value === "job" ||
     value === "internship" ||

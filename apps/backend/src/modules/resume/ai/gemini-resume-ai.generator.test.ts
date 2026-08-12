@@ -25,7 +25,9 @@ test('requests structured resume enhancements without sending personal contact f
         contact: {
             fullName: 'Private Name', title: 'Developer', email: 'private@example.com',
             phone: '+1 202 555 0199', location: 'Private Address', linkedin: 'https://linkedin.example/private-profile',
+            github: 'https://github.example/private-profile', portfolio: 'https://portfolio.example/private-profile',
         },
+        summary: '', skillGroups: [], projects: [],
         experience: [{
             id: 'experience-1', jobTitle: 'Engineer', company: 'Example', location: 'Remote', current: true,
             startMonth: 'January', startYear: '2022', endMonth: '', endYear: '', description: 'Built services.',
@@ -51,7 +53,7 @@ test('requests structured resume enhancements without sending personal contact f
     assert.match(params.system_instruction, /every source experience exactly once/);
     assert.match(params.input, /^<resume_data>/);
     assert.match(params.input, /Built services/);
-    assert.doesNotMatch(params.input, /Private Name|private@example\.com|202 555|Private Address|linkedin\.example/);
+    assert.doesNotMatch(params.input, /Private Name|private@example\.com|202 555|Private Address|linkedin\.example|github\.example|portfolio\.example/);
 });
 
 test('classifies Gemini quota failures without exposing provider details', async () => {
@@ -66,8 +68,8 @@ test('classifies Gemini quota failures without exposing provider details', async
 
     await assert.rejects(
         generator.enhance({
-            contact: { fullName: '', title: '', email: '', phone: '', location: '', linkedin: '' },
-            experience: [], education: [], certifications: [], skills: [],
+            contact: { fullName: '', title: '', email: '', phone: '', location: '', linkedin: '', github: '', portfolio: '' },
+            summary: '', skillGroups: [], experience: [], projects: [], education: [], certifications: [], skills: [],
         }, 'user-1'),
         (error: unknown) => error instanceof GeminiAiProviderError
             && error.code === 'QUOTA_EXCEEDED'
@@ -87,8 +89,8 @@ test('classifies an invalid Gemini key from a Google 400 response', async () => 
 
     await assert.rejects(
         generator.enhance({
-            contact: { fullName: '', title: '', email: '', phone: '', location: '', linkedin: '' },
-            experience: [], education: [], certifications: [], skills: [],
+            contact: { fullName: '', title: '', email: '', phone: '', location: '', linkedin: '', github: '', portfolio: '' },
+            summary: '', skillGroups: [], experience: [], projects: [], education: [], certifications: [], skills: [],
         }, 'user-1'),
         (error: unknown) => error instanceof GeminiAiProviderError
             && error.code === 'AUTH_FAILED'

@@ -40,6 +40,10 @@ import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import UserAvatarMenu from "@/components/ui/UserAvatarMenu";
+import {
+  hasPendingResumeGeneration,
+  isResumeGenerationDisabled,
+} from "@/components/resume/resume-preview-state";
 
 import {
   exportResume,
@@ -126,9 +130,6 @@ export default function ResumePreviewPage() {
     const exportMenuRef =
       useRef<HTMLDivElement | null>(null);
   
-    const resumePreviewRef =
-      useRef<HTMLDivElement | null>(null);
-
     const [resumeData, setResumeData] =
     useState<ResumePreviewData | null>(null);
 
@@ -140,6 +141,9 @@ export default function ResumePreviewPage() {
 
   const [draftPurpose, setDraftPurpose] =
     useState<ResumePurpose>("scholarship");
+
+  const [generatedTemplateId, setGeneratedTemplateId] =
+    useState<string | null>(null);
 
   const [isPurposeMenuOpen, setIsPurposeMenuOpen] =
     useState(false);
@@ -193,6 +197,7 @@ export default function ResumePreviewPage() {
 
         setResumeData(data);
         setDraftPurpose(data.purpose);
+        setGeneratedTemplateId(data.selectedTemplate.id);
       } catch (loadError) {
         if (
           loadError instanceof DOMException &&
@@ -322,9 +327,12 @@ export default function ResumePreviewPage() {
   };
 
   const handleGenerate = async () => {
-    if (!resumeData || isGenerating) {
+    if (!resumeData || isGenerating || !hasPendingChanges) {
       return;
     }
+
+    const nextPurpose = draftPurpose;
+    const nextTemplateId = resumeData.selectedTemplate.id;
 
     try {
       setIsGenerating(true);
@@ -342,12 +350,14 @@ export default function ResumePreviewPage() {
 
         return {
           ...currentData,
-          purpose: draftPurpose,
+          purpose: nextPurpose,
           pdfDownloadUrl: null,
           jpgDownloadUrl: null,
           updatedAt: new Date().toISOString(),
         };
       });
+
+      setGeneratedTemplateId(nextTemplateId);
 
       setActionSuccess(
         configuration(
@@ -391,9 +401,7 @@ export default function ResumePreviewPage() {
 
     setIsExportMenuOpen(false);
 
-    if (
-      draftPurpose !== resumeData.purpose
-    ) {
+    if (hasPendingChanges) {
       setActionError(
         configuration("generateError"),
       );
@@ -423,35 +431,6 @@ export default function ResumePreviewPage() {
             selectedExportFormat,
           );
 
-          if (selectedExportFormat === "jpg") {
-            // Client-side JPG capture via html2canvas
-            const previewEl = resumePreviewRef.current?.querySelector("[data-resume-template]") as HTMLElement | null;
-            if (!previewEl) throw new Error("Resume preview element not found");
-
-            const html2canvas = (await import("html2canvas")).default;
-            const canvas = await html2canvas(previewEl, {
-              scale: 2,
-              useCORS: true,
-              allowTaint: false,
-              backgroundColor: "#ffffff",
-              logging: false,
-              width: previewEl.scrollWidth,
-              height: previewEl.scrollHeight,
-            });
-
-            const blob = await new Promise<Blob | null>((resolve) =>
-              canvas.toBlob(resolve, "image/jpeg", 0.92),
-            );
-            if (!blob) throw new Error("Could not generate JPG image");
-
-            const url = URL.createObjectURL(blob);
-            triggerDownload(url, "jpg");
-            URL.revokeObjectURL(url);
-
-            setActionSuccess(configuration("exportedSuccessfully"));
-            return;
-          }
-
           const result = await exportResume(
         resumeData.resumeId,
         selectedExportFormat,
@@ -468,7 +447,15 @@ export default function ResumePreviewPage() {
         return {
           ...currentData,
 
-          pdfDownloadUrl: result.downloadUrl,
+          pdfDownloadUrl:
+            selectedExportFormat === "pdf"
+              ? result.downloadUrl
+              : currentData.pdfDownloadUrl,
+
+          jpgDownloadUrl:
+            selectedExportFormat === "jpg"
+              ? result.downloadUrl
+              : currentData.jpgDownloadUrl,
 
           creditsRemaining:
             result.creditsRemaining,
@@ -478,7 +465,7 @@ export default function ResumePreviewPage() {
         };
       });
 
-      triggerDownload(result.downloadUrl, "pdf");
+      triggerDownload(result.downloadUrl, selectedExportFormat);
     } catch (exportError) {
       setActionError(
         exportError instanceof Error
@@ -549,6 +536,27 @@ export default function ResumePreviewPage() {
 
   const isPurposeChanged =
     draftPurpose !== resumeData.purpose;
+
+  const hasPendingChanges =
+    generatedTemplateId !== null &&
+    hasPendingResumeGeneration({
+      draftPurpose,
+      generatedPurpose: resumeData.purpose,
+      draftTemplateId: selectedTemplate.id,
+      generatedTemplateId,
+    });
+
+  const isGenerateDisabled =
+    generatedTemplateId === null ||
+    isResumeGenerationDisabled(
+      {
+        draftPurpose,
+        generatedPurpose: resumeData.purpose,
+        draftTemplateId: selectedTemplate.id,
+        generatedTemplateId,
+      },
+      isGenerating,
+    );
 
   const hasCredits =
     resumeData.creditsRemaining > 0;
@@ -820,7 +828,7 @@ export default function ResumePreviewPage() {
                 )}
               </div>
 
-              {isPurposeChanged && (
+              {hasPendingChanges && (
                 <p className="mt-3 rounded-xl border border-gold/25 bg-gold/10 px-3 py-2 text-xs font-semibold leading-5 text-gold">
                   {configuration("generate")}
                 </p>
@@ -1010,7 +1018,7 @@ export default function ResumePreviewPage() {
               onClick={() => {
                 void handleGenerate();
               }}
-              disabled={isGenerating}
+              disabled={isGenerateDisabled}
               className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 hover:opacity-95 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60"
             >
               {isGenerating ? (
@@ -1054,8 +1062,8 @@ export default function ResumePreviewPage() {
           </aside>
 
           {/* Preview */}
-                    <section ref={resumePreviewRef} className="overflow-hidden rounded-[28px] border border-edge bg-elevated shadow-[0_24px_80px_var(--shadow-color)]">
-            <div className="border-b border-edge px-5 py-5 sm:px-6">
+          <section className="overflow-hidden rounded-[28px] border border-edge bg-elevated shadow-[0_24px_80px_var(--shadow-color)] xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col">
+            <div className="shrink-0 border-b border-edge px-5 py-5 sm:px-6">
               <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -1314,7 +1322,7 @@ export default function ResumePreviewPage() {
               </div>
             </div>
 
-            <div className="relative flex h-[calc(100vh-190px)] min-h-180 items-start justify-center overflow-auto bg-soft p-5 sm:p-8">
+            <div className="relative flex h-[calc(100vh-190px)] min-h-180 items-start justify-center overflow-auto bg-soft p-5 sm:p-8 xl:h-auto xl:min-h-0 xl:flex-1">
               <div className="flex w-full shrink-0 justify-center" style={{ zoom: zoom / 100 }}>
                 <TemplateComponent resume={resumeData.content} customization={resumeData.customization} />
               </div>

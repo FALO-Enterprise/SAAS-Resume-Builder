@@ -1,10 +1,78 @@
 import puppeteer, { type Browser, type HTTPRequest, type Page } from 'puppeteer';
 import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import type { ResumeRenderSnapshot } from '@resumax/shared-types';
 import type { ResumePdfGenerator } from './resume-pdf-generator';
 import { renderSnapshotStore, type RenderSnapshotStore } from './render-snapshot.store';
 
 type BrowserFactory = () => Promise<Browser>;
+type RenderOperation<T> = (page: Page) => Promise<T>;
+type BrowserExecutablePathOptions = {
+    configuredPath?: string;
+    resolveManagedPath?: () => Promise<string>;
+    platform?: NodeJS.Platform;
+    environment?: { LOCALAPPDATA?: string };
+    pathExists?: (path: string) => boolean;
+};
+
+const RENDER_READY_SELECTOR = '[data-resume-render-ready="true"] [data-resume-template]';
+const RENDER_VIEWPORT = {
+    width: 794,
+    height: 1123,
+    deviceScaleFactor: 2,
+};
+
+export async function resolveBrowserExecutablePath({
+    configuredPath = process.env.PUPPETEER_EXECUTABLE_PATH,
+    resolveManagedPath = () => puppeteer.executablePath(),
+    platform = process.platform,
+    environment = process.env as { LOCALAPPDATA?: string },
+    pathExists = existsSync,
+}: BrowserExecutablePathOptions = {}) {
+    const candidates: Array<string | undefined> = [configuredPath];
+
+    try {
+        candidates.push(await resolveManagedPath());
+    } catch {
+        // A bundled Puppeteer browser is optional in production.
+    }
+
+    if (platform === 'win32') {
+        const localAppData = environment.LOCALAPPDATA;
+        if (localAppData) {
+            candidates.push(join(localAppData, 'Google', 'Chrome', 'Application', 'chrome.exe'));
+        }
+        candidates.push(
+            'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+            'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+            'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+            'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+        );
+    } else if (platform === 'darwin') {
+        candidates.push(
+            '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+            '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+        );
+    } else {
+        candidates.push(
+            '/usr/bin/google-chrome-stable',
+            '/usr/bin/google-chrome',
+            '/usr/bin/chromium',
+            '/usr/bin/chromium-browser',
+            '/snap/bin/chromium',
+        );
+    }
+
+    const executablePath = candidates.find((candidate): candidate is string =>
+        Boolean(candidate && pathExists(candidate)),
+    );
+    if (!executablePath) {
+        throw new Error(
+            'Chrome or Chromium is required for resume exports. Set PUPPETEER_EXECUTABLE_PATH to its executable.',
+        );
+    }
+    return executablePath;
+}
 
 class ConcurrencyGate {
     private active = 0;
@@ -34,12 +102,10 @@ export class PuppeteerResumePdfGenerator implements ResumePdfGenerator {
     constructor(
         private readonly snapshotStore: RenderSnapshotStore = renderSnapshotStore,
         private readonly browserFactory: BrowserFactory = async () => {
-            const configuredPath = process.env.PUPPETEER_EXECUTABLE_PATH;
-            const managedPath = configuredPath ?? await puppeteer.executablePath();
-            const systemPath = existsSync(managedPath) ? managedPath : await puppeteer.executablePath('chrome');
+            const executablePath = await resolveBrowserExecutablePath();
             return puppeteer.launch({
                 headless: true,
-                executablePath: systemPath,
+                executablePath,
                 args: ['--disable-dev-shm-usage', '--no-sandbox'],
             });
         },
@@ -50,7 +116,29 @@ export class PuppeteerResumePdfGenerator implements ResumePdfGenerator {
     }
 
     generate(snapshot: ResumeRenderSnapshot): Promise<Buffer> {
-        return this.gate.run(() => this.generateWithPage(snapshot));
+        return this.gate.run(() => this.withRenderPage(snapshot, async (page) => {
+            const pdf = await page.pdf({
+                format: 'A4',
+                printBackground: true,
+                preferCSSPageSize: true,
+                margin: { top: '0', right: '0', bottom: '0', left: '0' },
+            });
+            return Buffer.from(pdf);
+        }));
+    }
+
+    generateJpg(snapshot: ResumeRenderSnapshot): Promise<Buffer> {
+        return this.gate.run(() => this.withRenderPage(snapshot, async (page) => {
+            const resumeElement = await page.$(RENDER_READY_SELECTOR);
+            if (!resumeElement) throw new Error('Resume template did not render');
+
+            const jpg = await resumeElement.screenshot({
+                type: 'jpeg',
+                quality: 92,
+                captureBeyondViewport: true,
+            });
+            return Buffer.from(jpg);
+        }));
     }
 
     async dispose() {
@@ -60,7 +148,7 @@ export class PuppeteerResumePdfGenerator implements ResumePdfGenerator {
         if (browser?.connected) await browser.close();
     }
 
-    private async generateWithPage(snapshot: ResumeRenderSnapshot) {
+    private async withRenderPage<T>(snapshot: ResumeRenderSnapshot, operation: RenderOperation<T>): Promise<T> {
         const token = this.snapshotStore.create(snapshot);
         let page: Page | null = null;
 
@@ -69,6 +157,8 @@ export class PuppeteerResumePdfGenerator implements ResumePdfGenerator {
             page = await browser.newPage();
             page.setDefaultNavigationTimeout(this.timeoutMilliseconds);
             page.setDefaultTimeout(this.timeoutMilliseconds);
+            await page.setViewport(RENDER_VIEWPORT);
+            await page.emulateMediaType('print');
             await this.restrictRequests(page);
 
             const frontendUrl = new URL(process.env.FRONTEND_URL ?? 'http://localhost:3000');
@@ -76,25 +166,13 @@ export class PuppeteerResumePdfGenerator implements ResumePdfGenerator {
             renderUrl.searchParams.set('token', token);
 
             await page.goto(renderUrl.href, { waitUntil: 'networkidle0' });
-            await page.waitForSelector('[data-resume-render-ready="true"]');
+            await page.waitForSelector(RENDER_READY_SELECTOR, { visible: true });
             await page.evaluate(async () => {
                 await document.fonts.ready;
-                await Promise.all(Array.from(document.images).map((image) => {
-                    if (image.complete) return Promise.resolve();
-                    return new Promise<void>((resolve) => {
-                        image.addEventListener('load', () => resolve(), { once: true });
-                        image.addEventListener('error', () => resolve(), { once: true });
-                    });
-                }));
+                await Promise.all(Array.from(document.images).map((image) => image.decode().catch(() => undefined)));
+                await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
             });
-
-            const pdf = await page.pdf({
-                format: 'A4',
-                printBackground: true,
-                preferCSSPageSize: true,
-                margin: { top: '0', right: '0', bottom: '0', left: '0' },
-            });
-            return Buffer.from(pdf);
+            return await operation(page);
         } catch (error) {
             if (this.browser && !this.browser.connected) {
                 this.browser = null;

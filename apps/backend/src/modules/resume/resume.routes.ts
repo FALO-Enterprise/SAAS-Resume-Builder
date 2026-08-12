@@ -14,6 +14,7 @@ router.post('/current/generate', checkPlan, resumeController.generateCurrentResu
 router.put('/current', checkPlan, resumeController.upsertCurrentResume);
 router.get('/:rid/preview', resumeController.getPreview);
 router.post('/:rid/exports/pdf', checkPlan, resumeController.exportPdf);
+router.post('/:rid/exports/jpg', checkPlan, resumeController.exportJpg);
 router.get('/:rid', resumeController.getResume);
 router.post('/', checkPlan, checkResume, resumeController.createResume);
 router.patch('/:rid', resumeController.updateResume);

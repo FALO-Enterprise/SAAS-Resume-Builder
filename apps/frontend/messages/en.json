@@ -166,22 +166,14 @@
         "name": "Global Core",
         "date": "Jan 2027",
         "tag": "Upcoming",
-        "features": [
-          "120+ templates",
-          "ATS optimizer",
-          "AI suggestions"
-        ]
+        "features": ["120+ templates", "ATS optimizer", "AI suggestions"]
       },
       "v3": {
         "version": "v3.0",
         "name": "AI-Powered",
         "date": "Q3 2027",
         "tag": "Future",
-        "features": [
-          "GPT resume coach",
-          "Job-match scoring",
-          "LinkedIn sync"
-        ]
+        "features": ["GPT resume coach", "Job-match scoring", "LinkedIn sync"]
       }
     }
   },
@@ -530,6 +522,7 @@
     "onboarding": "Onboarding",
     "stepOf": "Step {current} of {total}",
     "aiAssistant": "AI Resume Assistant",
+    "sessionExpired": "Your session has expired. Please sign in again.",
     "plans": {
       "free": "Free plan",
       "pro": "Pro plan",
@@ -541,27 +534,50 @@
     "steps": {
       "contact": {
         "label": "Contact",
-        "desc": "Personal & contact info"
+        "desc": "Personal details & links"
+      },
+      "summary": {
+        "label": "Summary",
+        "desc": "Professional introduction"
+      },
+      "skills": {
+        "label": "Skills",
+        "desc": "Detailed skill categories"
       },
       "experience": {
         "label": "Experience",
         "desc": "Work history & roles"
       },
+      "projects": {
+        "label": "Projects",
+        "desc": "Projects & technologies"
+      },
       "education": {
         "label": "Education",
         "desc": "Degrees & certifications"
-      },
-      "skills": {
-        "label": "Skills",
-        "desc": "Technical & soft skills"
       }
     },
-    "nextLabel": {
-      "contact": "Next: Experience",
-      "experience": "Next: Education",
-      "education": "Next: Skills",
-      "skills": "Finish & Preview"
+    "resumePlaceholder": {
+      "title": "Resume outline",
+      "editing": "Editing: {section}",
+      "ariaLabel": "Resume outline. Currently editing {section}.",
+      "hint": "The highlighted block follows the section you're editing."
     },
+    "reorder": {
+      "hint": "Drag sections to reorder your resume",
+      "handleLabel": "Drag {section} to reorder",
+      "handleTitle": "Reorder section",
+      "moved": "{section} moved to position {position}"
+    },
+    "nextLabel": {
+      "contact": "Next: Summary",
+      "summary": "Next: Skills",
+      "skills": "Next: Experience",
+      "experience": "Next: Projects",
+      "projects": "Next: Education",
+      "education": "Generate Resume"
+    },
+    "generateResume": "Generate Resume",
     "back": "Back",
     "exitToHome": "Exit to home",
     "contact": {
@@ -570,7 +586,7 @@
       "titleHighlight": "yourself",
       "subtitle": "First impressions matter. We'll use this information to build your resume header and optimize your contact details for ATS screening.",
       "sectionCompletion": "Section completion",
-      "fieldsCount": "{count}/6 fields",
+      "fieldsCount": "{count}/{total} fields",
       "optional": "Optional",
       "atsTipLabel": "ATS Tip",
       "atsTipText": "Recruiters spend an average of <b>6 seconds</b> on the header. A complete contact section increases your callback rate by up to <gold>60%</gold>.",
@@ -599,10 +615,20 @@
           "placeholder": "San Francisco, CA",
           "hint": "City and country is enough — no full address needed"
         },
+        "github": {
+          "label": "GitHub Profile URL",
+          "placeholder": "github.com/alexsterling",
+          "hint": "Show recruiters your public code and projects"
+        },
         "linkedin": {
           "label": "LinkedIn Profile URL",
           "placeholder": "linkedin.com/in/alexsterling",
           "hint": "Increases your callback rate by up to 40%"
+        },
+        "portfolio": {
+          "label": "Portfolio URL",
+          "placeholder": "alexsterling.dev",
+          "hint": "Link to your portfolio or personal website"
         }
       },
       "errors": {
@@ -622,8 +648,17 @@
         "saveFailed": "Could not save your email. Please try again."
       }
     },
+    "summary": {
+      "badge": "Step 2 — Summary",
+      "title": "Professional Summary",
+      "subtitle": "Write one focused paragraph that introduces your experience, strengths, and the value you bring.",
+      "label": "Summary",
+      "placeholder": "I am a motivated software engineer with experience building scalable applications...",
+      "hint": "Aim for 60–120 words. Keep this as one paragraph; the template handles line wrapping.",
+      "wordCount": "{count} words"
+    },
     "experience": {
-      "badge": "Step 2 — Experience",
+      "badge": "Step 4 — Experience",
       "title": "Work Experience",
       "subtitle": "Detail your career history to highlight your impact and leadership.",
       "roleFallback": "Role {n}",
@@ -652,7 +687,7 @@
       "addAnotherRole": "Add Another Role"
     },
     "education": {
-      "badge": "Academic Portfolio",
+      "badge": "Step 6 — Academic Portfolio",
       "title": "Education & Certifications",
       "subtitle": "Showcase your academic foundations and professional credentials. ResuMax helps align these with industry standards for better ATS ranking.",
       "formalEducation": "Formal Education",
@@ -663,6 +698,10 @@
         "label": "Institution Name",
         "placeholder": "e.g. Stanford University"
       },
+      "location": {
+        "label": "Institution City",
+        "placeholder": "e.g. Gaza"
+      },
       "degree": {
         "label": "Degree",
         "placeholder": "e.g. B.S. Computer Science"
@@ -671,6 +710,15 @@
         "label": "Field of Study",
         "placeholder": "e.g. Artificial Intelligence"
       },
+      "country": {
+        "label": "Country",
+        "placeholder": "e.g. Palestine"
+      },
+      "currentlyStudying": "I currently study here",
+      "startDate": "Start Date",
+      "endDate": "End / Expected Date",
+      "month": "Month",
+      "year": "Year",
       "gradYear": {
         "label": "Graduation Year",
         "placeholder": "2023"
@@ -691,10 +739,45 @@
       "atsScoreRank": "ATS Score Rank",
       "profileCompletion": "Profile completion progress"
     },
+    "projects": {
+      "badge": "Step 5 — Projects",
+      "title": "Projects",
+      "subtitle": "Show practical work, the technologies you used, and the result of each project.",
+      "projectFallback": "Project {n}",
+      "removeProject": "Remove project",
+      "name": {
+        "label": "Project Name",
+        "placeholder": "e.g. Tours Reservation"
+      },
+      "link": {
+        "label": "Project URL",
+        "placeholder": "github.com/you/project"
+      },
+      "technologies": {
+        "label": "Technologies",
+        "placeholder": "Node.js, Express.js, REST API, MongoDB"
+      },
+      "date": "Project Date",
+      "month": "Month",
+      "year": "Year",
+      "description": {
+        "label": "Highlights",
+        "placeholder": "- Built a REST API for...\n- Integrated MongoDB...",
+        "hint": "Write one achievement per line. Each line becomes a bullet in the resume."
+      },
+      "addProject": "Add Another Project"
+    },
     "skills": {
       "title": "Skills & Expertise",
-      "subtitle": "ResuMax AI has analyzed your job history. Add specific skills to pass ATS filters and stand out to recruiters.",
-      "addManually": "Add Manually",
+      "subtitle": "Organize specific skills into clear categories so recruiters can scan your complete technical profile.",
+      "categoryLabel": "Category Name",
+      "categoryPlaceholder": "e.g. Frontend",
+      "skillsLabel": "Skills in this category",
+      "skillsPlaceholder": "React.js, HTML/CSS, Tailwind CSS, JavaScript",
+      "addCategory": "Add Skill Category",
+      "removeCategory": "Remove skill category {n}",
+      "generalCategory": "General",
+      "addManually": "Quick add to the first category",
       "inputPlaceholder": "e.g., Python, Project Management…",
       "noneAdded": "No skills added yet — type above or pick a suggestion.",
       "suggestedForRole": "Suggested for your role",

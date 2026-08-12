@@ -13,7 +13,7 @@ export class ResumeController {
     private service = resumeService;
 
     constructor(
-        private readonly exportService: Pick<ResumeExportService, 'createSnapshot' | 'generatePdf'> = resumeExportService,
+        private readonly exportService: Pick<ResumeExportService, 'createSnapshot' | 'generatePdf' | 'generateJpg'> = resumeExportService,
         private readonly aiService: Pick<ResumeAiService, 'generate'> = resumeAiService,
     ) {}
 
@@ -36,7 +36,7 @@ export class ResumeController {
 
     exportPdf = async (req: Request<{ rid: string }, Buffer, ResumeExportInput>, res: Response) => {
         if (!req.plan.canExportPDF) {
-            return res.error({ message: 'Your plan does not include PDF export', statusCode: HttpErrorStatus.Forbidden });
+            return res.error({ message: 'Your plan does not include resume export', statusCode: HttpErrorStatus.Forbidden });
         }
 
         const parsed = resumeExportSchema.safeParse(req.body ?? {});
@@ -64,6 +64,36 @@ export class ResumeController {
         }
     };
 
+    exportJpg = async (req: Request<{ rid: string }, Buffer, ResumeExportInput>, res: Response) => {
+        if (!req.plan.canExportPDF || req.plan.name === 'FREE') {
+            return res.error({ message: 'Your plan does not include JPG export', statusCode: HttpErrorStatus.Forbidden });
+        }
+
+        const parsed = resumeExportSchema.safeParse(req.body ?? {});
+        if (!parsed.success) {
+            return res.error({
+                message: parsed.error.issues.map((issue) => issue.message).join('; '),
+                statusCode: HttpErrorStatus.BadRequest,
+            });
+        }
+
+        try {
+            const jpg = await this.exportService.generateJpg(req.params.rid, req.user.id, parsed.data);
+            const filename = `resume-${req.params.rid.replace(/[^a-zA-Z0-9_-]/g, '') || 'export'}.jpg`;
+            res.status(200)
+                .set({
+                    'Content-Type': 'image/jpeg',
+                    'Content-Disposition': `attachment; filename="${filename}"`,
+                    'Content-Length': String(jpg.byteLength),
+                    'Cache-Control': 'private, no-store',
+                    'X-Content-Type-Options': 'nosniff',
+                })
+                .send(jpg);
+        } catch (error) {
+            this.handleExportError(error, res);
+        }
+    };
+
     private handleExportError(error: unknown, res: Response) {
         if (error instanceof ResumeExportError) {
             const statusCode = error.code === 'NOT_FOUND'
@@ -75,7 +105,7 @@ export class ResumeController {
         }
 
         console.error('Unexpected resume export error', error);
-        return res.error({ message: 'PDF export is temporarily unavailable', statusCode: HttpErrorStatus.InternalServerError });
+        return res.error({ message: 'Resume export is temporarily unavailable', statusCode: HttpErrorStatus.InternalServerError });
     }
 
     getResumes = async (req: Request<{}, {}, {}, { page: string; limit: string }>, res: Response) => {

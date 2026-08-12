@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { Request, Response } from 'express';
+import { DEFAULT_RESUME_CUSTOMIZATION } from '@resumax/shared-types';
 import type { DashboardDraftDTO } from '../dashboard/dashboard.schema';
 import type { ResumeAiGenerator } from './ai/resume-ai-generator';
 import { ResumeAiGenerationError, ResumeAiService } from './resume-ai.service';
@@ -11,6 +12,7 @@ const draft: DashboardDraftDTO = {
     template: 'minimal',
     currentStep: 'skills',
     completedSteps: ['contact', 'experience', 'education', 'skills'],
+    sectionOrder: [...DEFAULT_RESUME_CUSTOMIZATION.sectionOrder],
     contact: {
         fullName: 'Alexandra Morgan',
         title: 'Developer',
@@ -18,7 +20,11 @@ const draft: DashboardDraftDTO = {
         phone: '+1 202 555 0199',
         location: 'Washington, DC',
         linkedin: 'https://www.linkedin.com/in/alexandra-morgan',
+        github: 'https://github.com/alexandra-morgan',
+        portfolio: 'https://alexandra.example.com',
     },
+    summary: 'Platform engineer focused on reliable services.',
+    skillGroups: [{ id: 'skill-group-1', label: 'Languages', skills: ['TypeScript'] }],
     experience: [{
         id: 'experience-1',
         jobTitle: 'Platform Engineer',
@@ -36,7 +42,23 @@ const draft: DashboardDraftDTO = {
         institution: 'State University',
         degree: 'Bachelor of Science',
         field: 'Computer Science',
+        location: 'Washington, DC',
+        country: 'United States',
+        startMonth: 'September',
+        startYear: '2016',
+        endMonth: 'May',
+        endYear: '2020',
+        current: false,
         gradYear: '2020',
+    }],
+    projects: [{
+        id: 'project-1',
+        name: 'Reliability Dashboard',
+        technologies: ['TypeScript'],
+        link: 'https://example.com/reliability-dashboard',
+        startMonth: 'March',
+        startYear: '2020',
+        description: 'Visualized service health.',
     }],
     certifications: [{ id: 'certification-1', name: 'Cloud Certification', org: 'Example Org' }],
     skills: ['TypeScript'],
@@ -96,8 +118,14 @@ test('enhances supported resume text while preserving factual dashboard data', a
     assert.deepEqual(saved?.skills, ['TypeScript', 'Distributed Systems']);
     assert.equal(saved?.contact.fullName, draft.contact.fullName);
     assert.equal(saved?.experience[0]?.company, draft.experience[0]?.company);
+    assert.equal(saved?.summary, draft.summary);
+    assert.deepEqual(saved?.skillGroups, draft.skillGroups);
+    assert.deepEqual(saved?.projects, draft.projects);
+    assert.equal(saved?.contact.github, draft.contact.github);
+    assert.equal(saved?.contact.portfolio, draft.contact.portfolio);
     assert.deepEqual(saved?.education, draft.education);
     assert.deepEqual(saved?.certifications, draft.certifications);
+    assert.deepEqual(saved?.sectionOrder, draft.sectionOrder);
     assert.equal(fixture.getRequestedUserId(), 'owner-1');
     assert.equal(fixture.getGeneratedUserId(), 'owner-1');
 });
@@ -141,6 +169,7 @@ test('generation controller uses the authenticated user and rejects an invalid t
     const exportService = {
         createSnapshot: async () => { throw new Error('unused'); },
         generatePdf: async () => { throw new Error('unused'); },
+        generateJpg: async () => { throw new Error('unused'); },
     };
     const aiService = {
         generate: async (userId: string) => {

@@ -1,5 +1,5 @@
 
-import { User, Briefcase, GraduationCap, Zap } from 'lucide-react';
+import { AlignLeft, Briefcase, FolderKanban, GraduationCap, User, Zap } from 'lucide-react';
 import type { StepId } from '@/lib/types/dashborad.types';
 
 export const STEPS: {
@@ -9,10 +9,12 @@ export const STEPS: {
   num: number;
   desc: string;
 }[] = [
-  { id: 'contact',    label: 'Contact',    icon: User,          num: 1, desc: 'Personal & contact info'   },
-  { id: 'experience', label: 'Experience', icon: Briefcase,     num: 2, desc: 'Work history & roles'      },
-  { id: 'education',  label: 'Education',  icon: GraduationCap, num: 3, desc: 'Degrees & certifications'  },
-  { id: 'skills',     label: 'Skills',     icon: Zap,           num: 4, desc: 'Technical & soft skills'   },
+  { id: 'contact',    label: 'Contact',    icon: User,          num: 1, desc: 'Personal details & links'  },
+  { id: 'summary',    label: 'Summary',    icon: AlignLeft,     num: 2, desc: 'Professional introduction' },
+  { id: 'skills',     label: 'Skills',     icon: Zap,           num: 3, desc: 'Detailed skill categories' },
+  { id: 'experience', label: 'Experience', icon: Briefcase,     num: 4, desc: 'Work history & roles'       },
+  { id: 'projects',   label: 'Projects',   icon: FolderKanban,  num: 5, desc: 'Projects & technologies'    },
+  { id: 'education',  label: 'Education',  icon: GraduationCap, num: 6, desc: 'Degrees & certifications'   },
 ];
 
 export const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   createContext,
   useContext,
   useEffect,
@@ -112,13 +113,13 @@ export function AuthProvider({
     setStoredUser(nextUser);
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     clearAuthToken();
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(VERIFIED_KEY);
     setStoredUser(null);
     router.push(`/${locale}`);
-  };
+  }, [locale, router]);
 
   const updateUser = (nextUser: AuthUser) => {
     setStoredUser(nextUser);

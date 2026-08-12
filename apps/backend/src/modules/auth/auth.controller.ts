@@ -221,18 +221,29 @@ export class AuthController {
         next: NextFunction
     ) {
         const payloadData = zodValidation(loginDTOSchema, req.body, 'AUTH');
-        const userData = await this.authService.login(payloadData);
-        if (!userData) {
-            res.error({ statusCode: HttpErrorStatus.BadRequest, message: 'Wrong credentials' });
-            return;
+        try {
+            const userData = await this.authService.login(payloadData);
+            if (!userData) {
+                res.error({ statusCode: HttpErrorStatus.BadRequest, message: 'Wrong credentials' });
+                return;
+            }
+
+            console.log(req.session, 'before i set the req.session');
+            req.session.userId = userData.id;
+
+            //  express session => create new entity  { 12345: { userId:123213} } => save memory
+            // express session on  response it will send the cookie with same key on session memory [abc] and sign it with my secret
+
+            res.ok(userData);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Internal server error';
+            if (message === 'Please verify your email before logging in') {
+                res.error({ statusCode: HttpErrorStatus.BadRequest, message });
+                return;
+            }
+            console.error('Login failed:', err);
+            res.error({ statusCode: HttpErrorStatus.InternalServerError, message: 'Internal server error' });
         }
-        console.log(req.session, 'before i set the req.session');
-        req.session.userId = userData.id;
-
-        //  express session => create new entity  { 12345: { userId:123213} } => save memory
-        // express session on  response it will send the cookie with same key on session memory [abc] and sign it with my secret
-
-        res.ok(userData);
     }
 
 
@@ -242,13 +253,24 @@ export class AuthController {
         next: NextFunction
     ) {
         const payloadData = zodValidation(loginDTOSchema, req.body, 'AUTH');
-        const userData = await this.authService.login(payloadData);
-        if (!userData) {
-            res.error({ statusCode: HttpErrorStatus.BadRequest, message: 'Wrong credentials' });
-            return;
+        try {
+            const userData = await this.authService.login(payloadData);
+            if (!userData) {
+                res.error({ statusCode: HttpErrorStatus.BadRequest, message: 'Wrong credentials' });
+                return;
+            }
+
+            const token = signJWT({ sub: userData.id, name: userData.name });
+            res.ok({ user: userData, token });
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Internal server error';
+            if (message === 'Please verify your email before logging in') {
+                res.error({ statusCode: HttpErrorStatus.BadRequest, message });
+                return;
+            }
+            console.error('JWT login failed:', err);
+            res.error({ statusCode: HttpErrorStatus.InternalServerError, message: 'Internal server error' });
         }
-        const token = signJWT({ sub: userData.id, name: userData.name });
-        res.ok({ user: userData, token });
     }
     public logout(req: Request, res: Response) {
         req.session.destroy((err) => {

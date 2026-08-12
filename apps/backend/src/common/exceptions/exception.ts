@@ -3,7 +3,11 @@ import { ModuleNameType } from "../utils/constant";
 import { ErrorStatusCode } from "../utils/util.types";
 
 const isPrismaError = (error: unknown): error is { name: string; message: string } =>
-  typeof error === 'object' && error !== null && 'name' in error && (error as { name: unknown }).name === 'PrismaClientKnownRequestError';
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    typeof (error as { name: unknown }).name === 'string' &&
+    (error as { name: string }).name.startsWith('PrismaClient');
 
 export class CustomError extends Error {
     public errorType = 'custom';
@@ -19,18 +23,25 @@ export class CustomError extends Error {
 
 export const handleError = (error: unknown, res: Response) => {
     if (error instanceof CustomError) {
-        console.log('customError', error);
-        res.status(error.statusCode).send(error.message);
+        res.error({
+            statusCode: error.statusCode,
+            message: error.message,
+        });
         return;
     }
 
     if (isPrismaError(error)) {
-        console.log('Prisma error message', error.message);
-        res.status(400).send({ message: error.message });
+        console.error('Prisma request failed', error.message);
+        res.error({
+            statusCode: 400,
+            message: 'The request could not be completed',
+        });
         return;
     }
 
-    console.log(`internal server error`, error);
-    // we should alert ourself
-    res.status(500).send('internal server');
+    console.error('Internal server error', error);
+    res.error({
+        statusCode: 500,
+        message: 'Internal server error',
+    });
 }
