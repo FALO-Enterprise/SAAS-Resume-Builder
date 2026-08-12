@@ -4,6 +4,7 @@ import { useState, useRef, ChangeEvent, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, User, Mail, Camera, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/context/AuthContext";
 import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
 import { useUpdateUserMutation } from "@/hooks/queries/useUser";
@@ -29,7 +30,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm"
           />
 
-          {/* Modal Content - نمرر key لإعادة تهيئة مكون النماذج تلقائياً عند فتح المودال أو تغير المستخدم */}
           <ProfileModalContent
             key={`${isOpen}-${user?.id}-${user?.avatar}`}
             user={user}
@@ -41,7 +41,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   );
 }
 
-// مكون فرعي داخلي يضمن تهيئة الـ State بشكل نظيف عند كل فتح للمودال دون الحاجة لـ useEffect
 function ProfileModalContent({
   user,
   onClose,
@@ -49,6 +48,7 @@ function ProfileModalContent({
   user: ReturnType<typeof useAuth>["user"];
   onClose: () => void;
 }) {
+  const t = useTranslations("profile");
   const { updateUser } = useAuth();
   const updateMutation = useUpdateUserMutation(user?.id);
 
@@ -84,13 +84,9 @@ function ProfileModalContent({
       }
 
       const responseData = await updateMutation.mutateAsync(formData);
-
       const updatedUser = responseData;
-
-      // التأكد من وجود مسار الصورة المحدث
       const updatedAvatar = updatedUser.avatar || user?.avatar || "";
 
-      // تحديث بيانات المستخدم في Context و LocalStorage فوراً
       updateUser({
         ...user!,
         ...updatedUser,
@@ -100,9 +96,7 @@ function ProfileModalContent({
       onClose();
     } catch (err) {
       console.error(err);
-      setErrorMsg(
-        err instanceof Error ? err.message : "Something went wrong. Please try again."
-      );
+      setErrorMsg(err instanceof Error ? err.message : t("errors.updateFailed"));
     } finally {
       setIsSubmitting(false);
     }
@@ -118,9 +112,10 @@ function ProfileModalContent({
     >
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-edge">
-        <h3 className="text-lg font-semibold text-primary">Edit Profile</h3>
+        <h3 className="text-lg font-semibold text-primary">{t("title")}</h3>
         <button
           onClick={onClose}
+          aria-label={t("cancel")}
           className="rounded-lg p-1 text-secondary hover:bg-card-hover hover:text-primary transition-colors cursor-pointer"
         >
           <X size={18} />
@@ -141,7 +136,7 @@ function ProfileModalContent({
             {preview ? (
               <Image
                 src={preview}
-                alt="Profile preview"
+                alt={t("title")}
                 fill
                 className="object-cover"
                 unoptimized={isUploadedAvatar(preview)}
@@ -156,7 +151,7 @@ function ProfileModalContent({
               className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-xs gap-1 cursor-pointer"
             >
               <Camera size={18} />
-              <span>Change</span>
+              <span>{t("changeAvatar")}</span>
             </button>
           </div>
 
@@ -174,35 +169,35 @@ function ProfileModalContent({
             className="text-xs text-secondary hover:text-primary flex items-center gap-1.5 cursor-pointer"
           >
             <Upload size={12} />
-            <span>Upload image</span>
+            <span>{t("avatarUpload")}</span>
           </button>
         </div>
 
         {/* Name Input */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-secondary">Name</label>
+          <label className="text-xs font-medium text-secondary">{t("nameLabel")}</label>
           <div className="relative flex items-center">
-            <User size={16} className="absolute left-3 text-secondary" />
+            <User size={16} className="absolute inset-s-3 text-secondary" />
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full rounded-lg border border-edge bg-card pl-9 pr-3 py-2 text-sm text-primary placeholder:text-secondary focus:outline-none focus:ring-1 focus:ring-gold"
+              className="w-full rounded-lg border border-edge bg-card ps-9 pe-3 py-2 text-sm text-primary placeholder:text-secondary focus:outline-none focus:ring-1 focus:ring-gold"
             />
           </div>
         </div>
 
         {/* Email Input */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-secondary">Email</label>
+          <label className="text-xs font-medium text-secondary">{t("emailLabel")}</label>
           <div className="relative flex items-center">
-            <Mail size={16} className="absolute left-3 text-secondary" />
+            <Mail size={16} className="absolute inset-s-3 text-secondary" />
             <input
               type="email"
               value={email}
               disabled
-              className="w-full rounded-lg border border-edge bg-card/50 pl-9 pr-3 py-2 text-sm text-secondary opacity-70 cursor-not-allowed"
+              className="w-full rounded-lg border border-edge bg-card/50 ps-9 pe-3 py-2 text-sm text-secondary opacity-70 cursor-not-allowed"
             />
           </div>
         </div>
@@ -214,7 +209,7 @@ function ProfileModalContent({
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-secondary hover:text-primary cursor-pointer transition-colors"
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             type="submit"
@@ -222,7 +217,7 @@ function ProfileModalContent({
             className="flex items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-ink hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
-            Save Changes
+            {isSubmitting ? t("saving") : t("saveChanges")}
           </button>
         </div>
       </form>

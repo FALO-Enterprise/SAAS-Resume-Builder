@@ -5,6 +5,8 @@
     "templates": "القوالب",
     "pricing": "الأسعار",
     "getStarted": "ابدأ الآن",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
     "signIn": "تسجيل الدخول",
     "dashboard": "لوحة التحكم",
     "logout": "تسجيل الخروج"
@@ -803,29 +805,7 @@
       }
     }
   },
-  "footer": {
-    "tagline": "موثوق. عالمي. سهل.",
-    "product": "المنتج",
-    "company": "الشركة",
-    "support": "الدعم",
-    "links": {
-      "features": "المميزات",
-      "templates": "القوالب",
-      "pricing": "الأسعار",
-      "changelog": "سجل التغييرات",
-      "about": "من نحن",
-      "blog": "المدونة",
-      "careers": "الوظائف",
-      "press": "الصحافة",
-      "help": "مركز المساعدة",
-      "contact": "تواصل معنا",
-      "privacy": "سياسة الخصوصية",
-      "terms": "شروط الخدمة"
-    },
-    "rights": "جميع الحقوق محفوظة.",
-    "poweredBy": "مدعوم من FALO Enterprise"
-  },
-  "resumePreview": {
+    "resumePreview": {
     "badge": "السيرة الذاتية المولدة",
     "title": "سيرتك الذاتية جاهزة",
     "subtitle": "راجع سيرتك الذاتية المولدة، واختر القالب المناسب، ثم صدّر النسخة النهائية.",
@@ -957,5 +937,40 @@
       "preserve": "الحفاظ على معلوماتك الأصلية",
       "fast": "المتابعة دون البدء من جديد"
     }
+  },
+  "profile": {
+    "title": "تعديل الملف الشخصي",
+    "avatarUpload": "رفع صورة",
+    "changeAvatar": "تغيير",
+    "nameLabel": "الاسم",
+    "emailLabel": "البريد الإلكتروني",
+    "cancel": "إلغاء",
+    "saveChanges": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ…",
+    "errors": {
+      "updateFailed": "حدث خطأ ما. حاول مرة أخرى."
+    }
+  },
+  "footer": {
+    "tagline": "موثوق. عالمي. سهل.",
+    "product": "المنتج",
+    "company": "الشركة",
+    "support": "الدعم",
+    "links": {
+      "features": "المميزات",
+      "templates": "القوالب",
+      "pricing": "الأسعار",
+      "changelog": "سجل التغييرات",
+      "about": "من نحن",
+      "blog": "المدونة",
+      "careers": "الوظائف",
+      "press": "الصحافة",
+      "help": "مركز المساعدة",
+      "contact": "تواصل معنا",
+      "privacy": "سياسة الخصوصية",
+      "terms": "شروط الخدمة"
+    },
+    "rights": "جميع الحقوق محفوظة.",
+    "poweredBy": "مدعوم من FALO Enterprise"
   }
 }

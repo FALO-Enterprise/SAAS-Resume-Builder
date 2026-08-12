@@ -5,6 +5,8 @@
     "templates": "Templates",
     "pricing": "Pricing",
     "getStarted": "Get Started",
+    "profile": "Profile",
+    "settings": "Settings",
     "signIn": "Sign In",
     "dashboard": "Dashboard",
     "logout": "Log Out"
@@ -803,29 +805,7 @@
       }
     }
   },
-  "footer": {
-    "tagline": "Trusted. Global. Effortless.",
-    "product": "Product",
-    "company": "Company",
-    "support": "Support",
-    "links": {
-      "features": "Features",
-      "templates": "Templates",
-      "pricing": "Pricing",
-      "changelog": "Changelog",
-      "about": "About Us",
-      "blog": "Blog",
-      "careers": "Careers",
-      "press": "Press",
-      "help": "Help Center",
-      "contact": "Contact",
-      "privacy": "Privacy Policy",
-      "terms": "Terms of Service"
-    },
-    "rights": "All rights reserved.",
-    "poweredBy": "Powered by FALO Enterprise"
-  },
-  "resumePreview": {
+    "resumePreview": {
     "badge": "Generated resume",
     "title": "Your resume is ready",
     "subtitle": "Review your generated resume, choose the right template, and export the final version.",
@@ -957,5 +937,40 @@
       "preserve": "Your original information is preserved",
       "fast": "Continue without starting over"
     }
+  },
+  "profile": {
+    "title": "Edit Profile",
+    "avatarUpload": "Upload image",
+    "changeAvatar": "Change",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving…",
+    "errors": {
+      "updateFailed": "Something went wrong. Please try again."
+    }
+  },
+  "footer": {
+    "tagline": "Trusted. Global. Effortless.",
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "links": {
+      "features": "Features",
+      "templates": "Templates",
+      "pricing": "Pricing",
+      "changelog": "Changelog",
+      "about": "About Us",
+      "blog": "Blog",
+      "careers": "Careers",
+      "press": "Press",
+      "help": "Help Center",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    },
+    "rights": "All rights reserved.",
+    "poweredBy": "Powered by FALO Enterprise"
   }
 }
