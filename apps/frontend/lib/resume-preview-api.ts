@@ -1,4 +1,4 @@
-import type { ResumePreviewData, ResumePurpose } from "@/types/resume-preview";
+import type { ResumePreviewData, ResumePurpose } from "@/lib/types/resumePreview.types";
 import type { ResumeRenderSnapshot } from "@shared-types/resume";
 import type {
   ResumeCustomization,
