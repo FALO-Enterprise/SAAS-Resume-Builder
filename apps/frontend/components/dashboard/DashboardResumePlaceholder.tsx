@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, UserRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { StepId } from '@/lib/types/dashborad.types';
+import type { StepId } from '@/lib/types/dashboard.types';
 import { getResumePlaceholderSections } from './resume-placeholder.model';
 
 type PlaceholderSectionProps = {

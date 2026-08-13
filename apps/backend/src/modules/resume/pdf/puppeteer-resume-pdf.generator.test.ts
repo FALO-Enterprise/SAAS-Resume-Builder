@@ -13,7 +13,8 @@ import {
 import { RenderSnapshotStore } from './render-snapshot.store';
 
 const snapshot: ResumeRenderSnapshot = {
-    resumeId: 'resume-1', title: 'Test Resume', templateId: 'minimal', templateVersion: RESUME_TEMPLATE_DEFINITIONS[0].version,
+    resumeId: 'resume-1', title: 'Test Resume', templateId: 'minimal',
+    templateVersion: RESUME_TEMPLATE_DEFINITIONS.find((template) => template.id === 'minimal')!.version,
     createdAt: new Date().toISOString(), customization: DEFAULT_RESUME_CUSTOMIZATION,
     content: {
         contact: { fullName: 'Test User', title: '', email: '', phone: '', location: '', linkedin: '', github: '', portfolio: '' },

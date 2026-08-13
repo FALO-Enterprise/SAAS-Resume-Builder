@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { DashboardDraftData } from './types/dashboard.types';
+import type { ResumeTemplateId } from '@shared-types/resume';
 import { PlanName } from "./types/auth.types";
 // import type { NormalizedApiError } from "@/lib/api/client";
 
@@ -317,7 +318,7 @@ export async function saveDashboardDraft(token: string, draft: DashboardDraftDat
 export type GeneratedResume = {
     id: string;
     title: string;
-    templateId: string;
+    templateId: ResumeTemplateId;
     userId: string;
     createdAt: string;
     updatedAt: string;
@@ -325,7 +326,7 @@ export type GeneratedResume = {
 
 export async function generateCurrentResume(
     token: string,
-    input: { title: string; templateId: 'minimal' },
+    input: { title: string; templateId: ResumeTemplateId },
 ): Promise<GeneratedResume> {
     try {
         const { data } = await apiClient.post(

@@ -1,3 +1,9 @@
+import type {
+  ResumeContent,
+  ResumeCustomization,
+  ResumeTemplateId,
+} from "@shared-types/resume";
+
 export type ResumePurpose =
   | "job"
   | "internship"
@@ -33,4 +39,3 @@ export type ResumePreviewData = {
 
   updatedAt: string;
 };
-import type { ResumeContent, ResumeCustomization, ResumeTemplateId } from '@shared-types/resume';

@@ -2,15 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowLeft,
   Check,
-  CheckCircle2,
   ChevronDown,
   Download,
   FileText,
-  GraduationCap,
   ImageIcon,
   LayoutTemplate,
   LoaderCircle,
@@ -18,42 +15,37 @@ import {
   Plus,
   RotateCcw,
   Sparkles,
-  User,
-  Briefcase,
-  Award,
-  Wrench,
-  MapPin,
-  Mail,
-  Phone,
-  Globe,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import type { ResumeTemplateId } from "@shared-types/resume";
 
+import { resolveResumeTemplate } from "@/components/resume/templates/registry";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import UserAvatarMenu from "@/components/ui/UserAvatarMenu";
 import {
-  hasPendingResumeGeneration,
-  isResumeGenerationDisabled,
-} from "@/components/resume/resume-preview-state";
-
-import {
   exportResume,
   getResumePreviewData,
+  getResumeTemplateMetadata,
+  updateCurrentResumeTemplate,
   type ResumeExportFormat,
 } from "@/lib/resume-preview-api";
-
 import type {
   ResumePreviewData,
   ResumePurpose,
-} from "@/types/resume-preview";
-import { resolveResumeTemplate } from '@/components/resume/templates/registry';
+} from "@/lib/types/resumePreview.types";
 
 const MIN_ZOOM = 50;
 const MAX_ZOOM = 150;
 const ZOOM_STEP = 5;
 const DEFAULT_ZOOM = 95;
+
+const SELECTABLE_TEMPLATE_IDS = [
+  "minimal",
+  "executive",
+  "developer",
+] as const satisfies readonly ResumeTemplateId[];
 
 const RESUME_PURPOSES: ResumePurpose[] = [
   "job",
@@ -65,18 +57,7 @@ const RESUME_PURPOSES: ResumePurpose[] = [
   "general",
 ];
 
-const EXPORT_FORMATS: ResumeExportFormat[] = ["pdf", "jpg"];
-
-const PURPOSE_TRANSLATION_KEYS: Record<
-  ResumePurpose,
-  | "purposes.job"
-  | "purposes.internship"
-  | "purposes.scholarship"
-  | "purposes.academic"
-  | "purposes.promotion"
-  | "purposes.government"
-  | "purposes.general"
-> = {
+const PURPOSE_TRANSLATION_KEYS: Record<ResumePurpose, string> = {
   job: "purposes.job",
   internship: "purposes.internship",
   scholarship: "purposes.scholarship",
@@ -86,311 +67,220 @@ const PURPOSE_TRANSLATION_KEYS: Record<
   general: "purposes.general",
 };
 
-const FORMAT_TRANSLATION_KEYS: Record<
-  ResumeExportFormat,
-  "formats.pdf" | "formats.jpg"
-> = {
+const EXPORT_FORMATS: ResumeExportFormat[] = ["pdf", "jpg"];
+
+const FORMAT_TRANSLATION_KEYS: Record<ResumeExportFormat, string> = {
   pdf: "formats.pdf",
   jpg: "formats.jpg",
 };
 
-const UPGRADE_BENEFIT_KEYS = [
-  "benefits.unlimitedExports",
-  "benefits.premiumTemplates",
-  "benefits.moreOptions",
-] as const;
+const TEMPLATE_ACCENTS: Record<
+  (typeof SELECTABLE_TEMPLATE_IDS)[number],
+  string
+> = {
+  minimal: "from-slate-100 via-white to-slate-50",
+  executive: "from-cyan-950 via-teal-800 to-cyan-700",
+  developer: "from-slate-950 via-slate-900 to-rose-950",
+};
+
+function triggerDownload(url: string, format: ResumeExportFormat) {
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `resume.${format}`;
+  anchor.target = "_blank";
+  anchor.rel = "noopener noreferrer";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+}
+
+function releaseDownloadUrl(url: string | null) {
+  if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+}
 
 export default function ResumePreviewPage() {
   const locale = useLocale();
   const t = useTranslations("resumePreview");
-
   const configuration = useTranslations("resumePreview.configuration");
-
+  const templates = useTranslations("templatesPage");
   const isRTL = locale === "ar";
 
-  const upgrade = useTranslations("resumePreview.configuration.upgrade");
-
-  const purposeMenuRef =
-      useRef<HTMLDivElement | null>(null);
-
-    const exportMenuRef =
-      useRef<HTMLDivElement | null>(null);
-  
-    const [resumeData, setResumeData] =
-    useState<ResumePreviewData | null>(null);
-
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [pageError, setPageError] = useState<string | null>(null);
-
-  const [draftPurpose, setDraftPurpose] = useState<ResumePurpose>("scholarship");
-
-  const [generatedTemplateId, setGeneratedTemplateId] =
-    useState<string | null>(null);
-
-  const [isPurposeMenuOpen, setIsPurposeMenuOpen] =
-    useState(false);
-
+  const exportMenuRef = useRef<HTMLDivElement | null>(null);
+  const [resumeData, setResumeData] = useState<ResumePreviewData | null>(null);
+  const [draftTemplateId, setDraftTemplateId] =
+    useState<ResumeTemplateId>("minimal");
+  const [appliedTemplateId, setAppliedTemplateId] =
+    useState<ResumeTemplateId>("minimal");
+  const [draftPurpose, setDraftPurpose] = useState<ResumePurpose>("general");
+  const [appliedPurpose, setAppliedPurpose] = useState<ResumePurpose>("general");
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
-
-  const [isGenerating, setIsGenerating] =
-    useState(false);
-
-  const [selectedExportFormat, setSelectedExportFormat] = useState<ResumeExportFormat>("pdf");
-
+  const [selectedExportFormat, setSelectedExportFormat] =
+    useState<ResumeExportFormat>("pdf");
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
-
-  const [exportingFormat, setExportingFormat] =  useState<ResumeExportFormat | null>(null);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [isApplying, setIsApplying] = useState(false);
+  const [exportingFormat, setExportingFormat] =
+    useState<ResumeExportFormat | null>(null);
+  const [pageError, setPageError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
 
-    async function loadResumePreview() {
+    async function loadPreview() {
       try {
         setIsLoading(true);
         setPageError(null);
-
-        const searchParams = new URLSearchParams(window.location.search);
-
-        const resumeId = searchParams.get("resumeId")?.trim() || "resume-123";
-
+        const resumeId =
+          new URLSearchParams(window.location.search).get("resumeId")?.trim() ||
+          "resume-123";
         const data = await getResumePreviewData(resumeId, controller.signal);
 
+        if (controller.signal.aborted) return;
         setResumeData(data);
+        setDraftTemplateId(data.selectedTemplate.id);
+        setAppliedTemplateId(data.selectedTemplate.id);
         setDraftPurpose(data.purpose);
-        setGeneratedTemplateId(data.selectedTemplate.id);
-      } catch (loadError) {
-        if (
-          loadError instanceof DOMException &&
-          loadError.name === "AbortError"
-        ) {
-          return;
-        }
-
+        setAppliedPurpose(data.purpose);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
         setPageError(
-          loadError instanceof Error
-            ? loadError.message
-            : t("status.errorText"),
+          error instanceof Error ? error.message : t("status.errorText"),
         );
       } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
-    void loadResumePreview();
-
-    return () => {
-      controller.abort();
-    };
+    void loadPreview();
+    return () => controller.abort();
   }, [t]);
 
   useEffect(() => {
-    function handlePointerDown(event: PointerEvent) {
+    function closeExportMenu(event: PointerEvent) {
       const target = event.target;
-
-      if (!(target instanceof Node)) {
-        return;
-      }
-
-      if (purposeMenuRef.current && !purposeMenuRef.current.contains(target)) {
-        setIsPurposeMenuOpen(false);
-      }
-
-      if (exportMenuRef.current && !exportMenuRef.current.contains(target)) {
+      if (
+        target instanceof Node &&
+        exportMenuRef.current &&
+        !exportMenuRef.current.contains(target)
+      ) {
         setIsExportMenuOpen(false);
       }
     }
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsPurposeMenuOpen(false);
-        setIsExportMenuOpen(false);
-      }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setIsExportMenuOpen(false);
     }
 
-    document.addEventListener("pointerdown", handlePointerDown);
-
-    document.addEventListener("keydown", handleKeyDown);
-
+    document.addEventListener("pointerdown", closeExportMenu);
+    document.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("pointerdown", closeExportMenu);
+      document.removeEventListener("keydown", closeOnEscape);
     };
   }, []);
 
-  const handleZoomChange = (value: number) => {
-    setZoom(Math.min(Math.max(value, MIN_ZOOM), MAX_ZOOM));
-  };
+  const hasPendingChanges =
+    draftTemplateId !== appliedTemplateId || draftPurpose !== appliedPurpose;
+  const isBusy = isApplying || exportingFormat !== null;
 
-  const handleZoomIn = () => {
-    handleZoomChange(zoom + ZOOM_STEP);
-  };
-
-  const handleZoomOut = () => {
-    handleZoomChange(zoom - ZOOM_STEP);
-  };
-
-  const handleResetZoom = () => {
-    setZoom(DEFAULT_ZOOM);
-  };
-
-  const handleRetryPage = () => {
-    window.location.reload();
-  };
-
-  const handlePurposeSelection = (purpose: ResumePurpose) => {
-    setDraftPurpose(purpose);
-    setIsPurposeMenuOpen(false);
+  const selectTemplate = (templateId: ResumeTemplateId) => {
+    if (isBusy) return;
+    setDraftTemplateId(templateId);
     setActionError(null);
     setActionSuccess(null);
   };
 
-  const handleExportFormatSelection = (format: ResumeExportFormat) => {
-    setSelectedExportFormat(format);
-    setIsExportMenuOpen(false);
-    setActionError(null);
-  };
-
-  const handleGenerate = async () => {
-    if (!resumeData || isGenerating || !hasPendingChanges) {
-      return;
-    }
-
-    const nextPurpose = draftPurpose;
-    const nextTemplateId = resumeData.selectedTemplate.id;
+  const applyConfiguration = async () => {
+    if (!resumeData || isBusy || !hasPendingChanges) return;
 
     try {
-      setIsGenerating(true);
+      setIsApplying(true);
       setActionError(null);
       setActionSuccess(null);
-      setIsPurposeMenuOpen(false);
       setIsExportMenuOpen(false);
 
-      await wait(900);
+      const result = await updateCurrentResumeTemplate(
+        resumeData.resumeName,
+        draftTemplateId,
+      );
+      const metadata = getResumeTemplateMetadata(result.templateId);
 
-      setResumeData((currentData) => {
-        if (!currentData) {
-          return currentData;
-        }
-
-        return {
-          ...currentData,
-          purpose: nextPurpose,
-          pdfDownloadUrl: null,
-          jpgDownloadUrl: null,
-          updatedAt: new Date().toISOString(),
-        };
-      });
-
-      setGeneratedTemplateId(nextTemplateId);
-
+      releaseDownloadUrl(resumeData.pdfDownloadUrl);
+      releaseDownloadUrl(resumeData.jpgDownloadUrl);
+      setResumeData((current) =>
+        current
+          ? {
+              ...current,
+              selectedTemplate: metadata,
+              purpose: draftPurpose,
+              pdfDownloadUrl: null,
+              jpgDownloadUrl: null,
+              updatedAt: result.updatedAt || new Date().toISOString(),
+            }
+          : current,
+      );
+      setDraftTemplateId(result.templateId);
+      setAppliedTemplateId(result.templateId);
+      setAppliedPurpose(draftPurpose);
       setActionSuccess(configuration("generatedSuccessfully"));
-    } catch {
-      setActionError(configuration("generateError"));
+    } catch (error) {
+      setActionError(
+        error instanceof Error ? error.message : configuration("generateError"),
+      );
     } finally {
-      setIsGenerating(false);
+      setIsApplying(false);
     }
   };
 
-  const triggerDownload = (
-      downloadUrl: string,
-      format: ResumeExportFormat = "pdf",
-    ) => {
-      const anchor =
-        document.createElement("a");
-
-      anchor.href = downloadUrl;
-      anchor.target = "_blank";
-      anchor.rel = "noopener noreferrer";
-      anchor.download = `resume.${format}`;
-
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-    };
-
   const handleExport = async () => {
-    if (!resumeData || exportingFormat || isGenerating) {
-      return;
-    }
+    if (!resumeData || isBusy || hasPendingChanges) return;
 
-    setIsExportMenuOpen(false);
-
-    if (hasPendingChanges) {
-      setActionError(
-        configuration("generateError"),
-      );
-
-      return;
-    }
-
-    const existingDownloadUrl =
+    const existingUrl =
       selectedExportFormat === "pdf"
         ? resumeData.pdfDownloadUrl
         : resumeData.jpgDownloadUrl;
-
+    setIsExportMenuOpen(false);
     setActionError(null);
     setActionSuccess(null);
 
-    if (existingDownloadUrl) {
-          triggerDownload(existingDownloadUrl, selectedExportFormat);
-          return;
-        }
+    if (existingUrl) {
+      triggerDownload(existingUrl, selectedExportFormat);
+      return;
+    }
 
-        if (resumeData.creditsRemaining <= 0) {
-          return;
-        }
+    if (resumeData.creditsRemaining <= 0) return;
 
-        try {
-          setExportingFormat(
-            selectedExportFormat,
-          );
-
-          const result = await exportResume(
+    try {
+      const format = selectedExportFormat;
+      setExportingFormat(format);
+      const result = await exportResume(
         resumeData.resumeId,
-        selectedExportFormat,
+        format,
         undefined,
-        resumeData.selectedTemplate.id,
+        appliedTemplateId,
         resumeData.customization,
       );
 
-      setResumeData((currentData) => {
-        if (!currentData) {
-          return currentData;
-        }
-
-        return {
-          ...currentData,
-
-          pdfDownloadUrl:
-            selectedExportFormat === "pdf"
-              ? result.downloadUrl
-              : currentData.pdfDownloadUrl,
-
-          jpgDownloadUrl:
-            selectedExportFormat === "jpg"
-              ? result.downloadUrl
-              : currentData.jpgDownloadUrl,
-
-          creditsRemaining: result.creditsRemaining,
-
-          creditsTotal: result.creditsTotal,
-        };
-      });
-
-      triggerDownload(result.downloadUrl, selectedExportFormat);
-    } catch (exportError) {
+      setResumeData((current) =>
+        current
+          ? {
+              ...current,
+              pdfDownloadUrl:
+                format === "pdf" ? result.downloadUrl : current.pdfDownloadUrl,
+              jpgDownloadUrl:
+                format === "jpg" ? result.downloadUrl : current.jpgDownloadUrl,
+              creditsRemaining: result.creditsRemaining,
+              creditsTotal: result.creditsTotal,
+            }
+          : current,
+      );
+      triggerDownload(result.downloadUrl, format);
+      setActionSuccess(configuration("exportedSuccessfully"));
+    } catch (error) {
       setActionError(
-        exportError instanceof Error
-          ? exportError.message
-          : t("status.errorText"),
+        error instanceof Error ? error.message : t("status.errorText"),
       );
     } finally {
       setExportingFormat(null);
@@ -401,15 +291,9 @@ export default function ResumePreviewPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-base px-5 text-primary">
         <div className="text-center">
-          <div className="mx-auto h-11 w-11 animate-spin rounded-full border-4 border-edge border-t-gold" />
-
-          <h1 className="mt-5 text-base font-bold">
-            {t("status.loadingTitle")}
-          </h1>
-
-          <p className="mt-2 text-sm text-secondary">
-            {t("status.loadingText")}
-          </p>
+          <LoaderCircle className="mx-auto animate-spin text-gold" size={42} />
+          <h1 className="mt-5 text-base font-bold">{t("status.loadingTitle")}</h1>
+          <p className="mt-2 text-sm text-secondary">{t("status.loadingText")}</p>
         </div>
       </main>
     );
@@ -418,23 +302,16 @@ export default function ResumePreviewPage() {
   if (pageError || !resumeData) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-base px-5 text-primary">
-        <div className="w-full max-w-md rounded-3xl border border-edge bg-elevated p-7 text-center shadow-[0_24px_80px_var(--shadow-color)]">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/20 bg-gold/10">
-            <FileText size={26} className="text-gold" />
-          </div>
-
-          <h1 className="mt-5 text-lg font-bold text-primary">
-            {t("status.errorTitle")}
-          </h1>
-
+        <div className="w-full max-w-md rounded-3xl border border-edge bg-elevated p-7 text-center shadow-xl">
+          <FileText size={28} className="mx-auto text-gold" />
+          <h1 className="mt-5 text-lg font-bold">{t("status.errorTitle")}</h1>
           <p className="mt-2 text-sm leading-6 text-secondary">
             {pageError || t("status.errorText")}
           </p>
-
           <button
             type="button"
-            onClick={handleRetryPage}
-            className="mt-6 min-h-11 rounded-xl bg-gold px-6 text-sm font-bold text-ink transition-opacity hover:opacity-90"
+            onClick={() => window.location.reload()}
+            className="mt-6 min-h-11 rounded-xl bg-gold px-6 text-sm font-bold text-ink"
           >
             {t("status.retry")}
           </button>
@@ -443,80 +320,41 @@ export default function ResumePreviewPage() {
     );
   }
 
-  const selectedTemplate = resumeData.selectedTemplate;
-
-  const isPurposeChanged = draftPurpose !== resumeData.purpose;
-
-  const hasPendingChanges =
-    generatedTemplateId !== null &&
-    hasPendingResumeGeneration({
-      draftPurpose,
-      generatedPurpose: resumeData.purpose,
-      draftTemplateId: selectedTemplate.id,
-      generatedTemplateId,
-    });
-
-  const isGenerateDisabled =
-    generatedTemplateId === null ||
-    isResumeGenerationDisabled(
-      {
-        draftPurpose,
-        generatedPurpose: resumeData.purpose,
-        draftTemplateId: selectedTemplate.id,
-        generatedTemplateId,
-      },
-      isGenerating,
-    );
-
-  const hasCredits =
-    resumeData.creditsRemaining > 0;
-
-  const exportUrl =
+  const selectedMetadata = getResumeTemplateMetadata(draftTemplateId);
+  const selectedDefinition =
+    resolveResumeTemplate(draftTemplateId) ?? resolveResumeTemplate("minimal");
+  const TemplateComponent = selectedDefinition?.component;
+  const selectedExportUrl =
     selectedExportFormat === "pdf"
       ? resumeData.pdfDownloadUrl
       : resumeData.jpgDownloadUrl;
-
-  const isExporting = exportingFormat !== null;
-
-  const isImageLoaded = true;
-
-  const generateButtonText = isPurposeChanged
-    ? configuration("generate")
-    : configuration("regenerate");
-
+  const exportDisabled =
+    isBusy ||
+    hasPendingChanges ||
+    (!selectedExportUrl && resumeData.creditsRemaining <= 0);
   const updatedAt = new Intl.DateTimeFormat(locale, {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(resumeData.updatedAt));
 
-  const templatesPageUrl = `/${locale}/templates?resumeId=${encodeURIComponent(
-    resumeData.resumeId,
-  )}`;
-
-  const TemplateComponent = (resolveResumeTemplate(selectedTemplate.id) ?? resolveResumeTemplate('minimal'))!.component;
-
   return (
     <main className="min-h-screen bg-base text-primary">
       <header className="sticky top-0 z-50 border-b border-edge bg-base/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-4">
             <Link href={`/${locale}`} className="shrink-0 no-underline">
               <Logo />
             </Link>
-
             <div className="hidden h-6 w-px bg-edge sm:block" />
-
             <Link
               href={`/${locale}/dashboard`}
-              className="hidden min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-secondary no-underline transition-colors hover:text-gold sm:flex"
+              className="hidden min-h-11 items-center gap-2 text-sm font-semibold text-secondary no-underline hover:text-gold sm:flex"
             >
               <ArrowLeft size={16} className={isRTL ? "rotate-180" : ""} />
-
               {t("backToDashboard")}
             </Link>
           </div>
-
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex items-center gap-2">
             <ThemeToggle />
             <LanguageSwitcher />
             <UserAvatarMenu />
@@ -524,583 +362,294 @@ export default function ResumePreviewPage() {
         </div>
       </header>
 
-      <div className="pointer-events-none fixed left-[5%] top-[12%] h-80 w-80 rounded-full bg-gold/5 blur-[120px]" />
-
-      <div className="pointer-events-none fixed bottom-[8%] right-[5%] h-80 w-80 rounded-full bg-azure/5 blur-[120px]" />
-
-      <div className="relative z-10 mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
-        <div className="grid items-start gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-          <aside className="flex flex-col gap-5 xl:sticky xl:top-22">
-            {/* Selected template */}
-            <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                  <LayoutTemplate size={19} className="text-gold" />
-                </div>
-
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-secondary">
-                    {configuration("selectedTemplate")}
-                  </p>
-
-                  <h2 className="mt-1 truncate text-base font-black">
-                    {selectedTemplate.name}
-                  </h2>
-                </div>
+      <div className="mx-auto grid w-full max-w-[1600px] items-start gap-6 px-4 py-6 sm:px-6 lg:px-8 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <aside className="flex flex-col gap-5 xl:sticky xl:top-22">
+          <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
+                <LayoutTemplate size={19} className="text-gold" />
               </div>
-
-              <div className="mt-5 flex items-center gap-4 rounded-2xl border border-gold/30 bg-gold/10 p-4">
-                <div className="h-26 w-18.5 shrink-0 overflow-hidden rounded-xl border border-edge bg-white shadow-sm">
-                  <Image
-                    src={selectedTemplate.thumbnailUrl}
-                    alt={selectedTemplate.name}
-                    width={74}
-                    height={104}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold uppercase tracking-widest text-gold">
-                    {configuration("currentTemplate")}
-                  </p>
-
-                  <p className="mt-2 truncate text-lg font-black text-primary">
-                    {selectedTemplate.name}
-                  </p>
-
-                  <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-green">
-                    <CheckCircle2 size={14} />
-
-                    {configuration("ready")}
-                  </div>
-                </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-secondary">
+                  {configuration("selectedTemplate")}
+                </p>
+                <h2 className="mt-1 truncate text-base font-black">
+                  {selectedMetadata.name}
+                </h2>
               </div>
+            </div>
 
-              <Link
-                href={templatesPageUrl}
-                className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-edge bg-card px-4 text-sm font-bold text-primary no-underline transition-colors hover:border-gold/50 hover:bg-gold/10 hover:text-gold"
-              >
-                <LayoutTemplate size={16} />
+            <div className="mt-5 grid grid-cols-3 gap-2" role="listbox">
+              {SELECTABLE_TEMPLATE_IDS.map((templateId) => {
+                const metadata = getResumeTemplateMetadata(templateId);
+                const isSelected = templateId === draftTemplateId;
+                const isApplied = templateId === appliedTemplateId;
 
-                {configuration("changeTemplate")}
-              </Link>
-            </section>
-
-            {/* Purpose */}
-            <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-azure/25 bg-azure/10">
-                  <Sparkles size={19} className="text-azure-light" />
-                </div>
-
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-secondary">
-                    {configuration("purpose")}
-                  </p>
-
-                  <h2 className="mt-1 truncate text-sm font-black text-primary">
-                    {configuration(PURPOSE_TRANSLATION_KEYS[draftPurpose])}
-                  </h2>
-                </div>
-              </div>
-
-              <div ref={purposeMenuRef} className="relative mt-5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (isGenerating) {
-                      return;
-                    }
-
-                    setIsPurposeMenuOpen((currentState) => !currentState);
-
-                    setIsExportMenuOpen(false);
-                  }}
-                  disabled={isGenerating}
-                  aria-haspopup="listbox"
-                  aria-expanded={isPurposeMenuOpen}
-                  className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-edge bg-card px-4 text-start text-sm font-black text-primary shadow-sm outline-none transition-all hover:border-gold/50 hover:bg-soft focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/25 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <span className="truncate">
-                    {configuration(PURPOSE_TRANSLATION_KEYS[draftPurpose])}
-                  </span>
-
-                  <ChevronDown
-                    size={17}
-                    className={`shrink-0 text-secondary transition-transform ${
-                      isPurposeMenuOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {isPurposeMenuOpen && (
-                  <div
-                    role="listbox"
-                    aria-label={configuration("purpose")}
-                    className="absolute inset-x-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-xl border border-edge bg-elevated p-1.5 shadow-[0_20px_55px_rgba(0,0,0,0.22)]"
-                  >
-                    {RESUME_PURPOSES.map((purpose) => {
-                      const isSelected = draftPurpose === purpose;
-
-                      return (
-                        <button
-                          key={purpose}
-                          type="button"
-                          role="option"
-                          aria-selected={isSelected}
-                          onClick={() => {
-                            handlePurposeSelection(purpose);
-                          }}
-                          className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 text-start text-sm font-bold transition-colors ${
-                            isSelected
-                              ? "bg-gold/15 text-gold"
-                              : "text-primary hover:bg-soft"
-                          }`}
-                        >
-                          <span className="truncate">
-                            {configuration(PURPOSE_TRANSLATION_KEYS[purpose])}
-                          </span>
-
-                          {isSelected && (
-                            <Check size={15} className="shrink-0" />
-                          )}
-                        </button>
-                      );
+                return (
+                  <button
+                    key={templateId}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    aria-label={t("template.selectAria", {
+                      template: metadata.name,
                     })}
-                  </div>
-                )}
-              </div>
-
-              {hasPendingChanges && (
-                <p className="mt-3 rounded-xl border border-gold/25 bg-gold/10 px-3 py-2 text-xs font-semibold leading-5 text-gold">
-                  {configuration("generate")}
-                </p>
-              )}
-            </section>
-
-                        {/* Resume Info */}
-                        <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-azure/25 bg-azure/10">
-                              <User
-                                size={19}
-                                className="text-azure-light"
-                              />
-                            </div>
-
-                            <div className="min-w-0">
-                              <p className="text-xs font-semibold text-secondary">
-                                {configuration("resumeInfo")}
-                              </p>
-
-                              <h2 className="mt-1 truncate text-sm font-black text-primary">
-                                {resumeData.content.contact.fullName || t("preview.placeholderTitle")}
-                              </h2>
-                            </div>
-                          </div>
-
-                          {/* Contact info */}
-                          <div className="mt-4 space-y-2">
-                            {resumeData.content.contact.email && (
-                              <div className="flex items-center gap-2 text-xs text-primary">
-                                <Mail size={13} className="shrink-0 text-secondary" />
-                                <span className="truncate">{resumeData.content.contact.email}</span>
-                              </div>
-                            )}
-                            {resumeData.content.contact.phone && (
-                              <div className="flex items-center gap-2 text-xs text-primary">
-                                <Phone size={13} className="shrink-0 text-secondary" />
-                                <span>{resumeData.content.contact.phone}</span>
-                              </div>
-                            )}
-                            {resumeData.content.contact.location && (
-                              <div className="flex items-center gap-2 text-xs text-primary">
-                                <MapPin size={13} className="shrink-0 text-secondary" />
-                                <span className="truncate">{resumeData.content.contact.location}</span>
-                              </div>
-                            )}
-                            {resumeData.content.contact.linkedin && (
-                              <div className="flex items-center gap-2 text-xs text-primary">
-                                <Globe size={13} className="shrink-0 text-secondary" />
-                                <span className="truncate">{resumeData.content.contact.linkedin}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Section breakdown with enhanced details */}
-                          <div className="mt-4 space-y-3">
-                            {/* Experience */}
-                            {resumeData.content.experience.length > 0 && (
-                              <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-3">
-                                <Briefcase size={14} className="shrink-0 text-gold" />
-                                <div className="min-w-0">
-                                  <p className="text-[11px] font-bold text-secondary">{configuration("sections.experience")}</p>
-                                  <p className="text-xs font-black text-primary">{resumeData.content.experience.length} {t("preview.positions")}</p>
-                                  {/* Show most recent experience */}
-                                  {resumeData.content.experience[0] && (
-                                    <p className="mt-1 text-xs text-secondary truncate max-w-[200px]">
-                                      {resumeData.content.experience[0].jobTitle} at {resumeData.content.experience[0].company}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                            
-                            {/* Education */}
-                            {resumeData.content.education.length > 0 && (
-                              <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-3">
-                                <GraduationCap size={14} className="shrink-0 text-azure-light" />
-                                <div className="min-w-0">
-                                  <p className="text-[11px] font-bold text-secondary">{configuration("sections.education")}</p>
-                                  <p className="text-xs font-black text-primary">{resumeData.content.education.length} {t("preview.degrees")}</p>
-                                  {/* Show most recent education */}
-                                  {resumeData.content.education[0] && (
-                                    <p className="mt-1 text-xs text-secondary truncate max-w-[200px]">
-                                      {resumeData.content.education[0].degree} from {resumeData.content.education[0].institution}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                            
-                            {/* Certifications */}
-                            {resumeData.content.certifications.length > 0 && (
-                              <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-3">
-                                <Award size={14} className="shrink-0 text-green" />
-                                <div className="min-w-0">
-                                  <p className="text-[11px] font-bold text-secondary">{configuration("sections.certifications")}</p>
-                                  <p className="text-xs font-black text-primary">{resumeData.content.certifications.length} {t("preview.certificates")}</p>
-                                </div>
-                              </div>
-                            )}
-                            
-                            {/* Skills */}
-                            {resumeData.content.skills.length > 0 && (
-                              <div className="flex items-center gap-2 rounded-xl border border-edge bg-card p-3">
-                                <Wrench size={14} className="shrink-0 text-pink-light" />
-                                <div className="min-w-0">
-                                  <p className="text-[11px] font-bold text-secondary">{configuration("sections.skills")}</p>
-                                  <p className="text-xs font-black text-primary">{resumeData.content.skills.length} {t("preview.skillsList")}</p>
-                                  {/* Show top skills */}
-                                  {resumeData.content.skills.slice(0, 3).length > 0 && (
-                                    <p className="mt-1 text-xs text-secondary truncate max-w-[200px]">
-                                      {resumeData.content.skills.slice(0, 3).join(", ")}{resumeData.content.skills.length > 3 ? "..." : ""}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </section>
-
-                        {/* Upgrade to Pro */}
-            <section className="overflow-hidden rounded-[26px] border border-gold/25 bg-elevated shadow-[0_18px_60px_var(--shadow-color)]">
-              <div className="p-5">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                    <Sparkles size={19} className="text-gold" />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-secondary">
-                      {upgrade("eyebrow")}
-                    </p>
-
-                    <h2 className="mt-1 text-sm font-black text-primary">
-                      {resumeData.creditsRemaining > 0
-                        ? upgrade("availableTitle")
-                        : upgrade("limitTitle")}
-                    </h2>
-
-                    <p className="mt-2 text-xs leading-5 text-secondary">
-                      {resumeData.creditsRemaining > 0
-                        ? upgrade("availableDescription", {
-                            remaining: resumeData.creditsRemaining,
-                          })
-                        : upgrade("limitDescription")}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 space-y-2 rounded-2xl border border-gold/20 bg-gold/10 p-4">
-                  {UPGRADE_BENEFIT_KEYS.map((benefitKey) => (
-                    <div
-                      key={benefitKey}
-                      className="flex items-center gap-2 text-xs font-semibold text-primary"
+                    disabled={isBusy}
+                    onClick={() => selectTemplate(templateId)}
+                    className={`relative rounded-xl border p-2 text-start transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+                      isSelected
+                        ? "border-gold bg-gold/10 ring-2 ring-gold/20"
+                        : "border-edge bg-card hover:border-gold/40"
+                    }`}
+                  >
+                    <span
+                      className={`block aspect-4/5 overflow-hidden rounded-lg bg-linear-to-br ${TEMPLATE_ACCENTS[templateId]}`}
                     >
-                      <CheckCircle2 size={14} className="shrink-0 text-green" />
-
-                      <span>{upgrade(benefitKey)}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <Link
-                  href={`/${locale}/pricing`}
-                  className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gold px-4 text-sm font-bold text-ink no-underline transition-all hover:-translate-y-0.5 hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
-                >
-                  <Sparkles size={16} />
-                  {upgrade("button")}
-                </Link>
-
-                <p className="mt-3 text-center text-[11px] leading-5 text-secondary">
-                  {upgrade("note")}
-                </p>
-              </div>
-            </section>
-
-            <button
-              type="button"
-              onClick={() => {
-                void handleGenerate();
-              }}
-              disabled={isGenerateDisabled}
-              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 hover:opacity-95 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60"
-            >
-              {isGenerating ? (
-                <LoaderCircle size={19} className="animate-spin" />
-              ) : (
-                <Sparkles size={19} />
-              )}
-
-              {isGenerating ? configuration("generating") : generateButtonText}
-            </button>
-
-            <div aria-live="polite" className="space-y-3">
-              {actionSuccess && (
-                <p className="flex items-start gap-2 rounded-xl border border-green/20 bg-green/10 px-3 py-2.5 text-xs leading-5 text-green">
-                  <CheckCircle2 size={15} className="mt-0.5 shrink-0" />
-
-                  {actionSuccess}
-                </p>
-              )}
-
-              {actionError && (
-                <p
-                  role="alert"
-                  className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2.5 text-xs leading-5 text-red-400"
-                >
-                  {actionError}
-                </p>
-              )}
-            </div>
-          </aside>
-
-          {/* Preview */}
-          <section className="overflow-hidden rounded-[28px] border border-edge bg-elevated shadow-[0_24px_80px_var(--shadow-color)] xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col">
-            <div className="shrink-0 border-b border-edge px-5 py-5 sm:px-6">
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <FileText size={18} className="text-gold" />
-
-                    <h1 className="font-playfair text-2xl font-black text-primary sm:text-3xl">
-                      {configuration("preview")}
-                    </h1>
-                  </div>
-
-                  <p className="mt-2 truncate text-sm font-bold text-primary">
-                    {resumeData.resumeName}
-                  </p>
-
-                  <p className="mt-1 text-xs text-secondary">
-                    {configuration("lastUpdated")}: {updatedAt}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-                  {/* Zoom */}
-                  <div className="min-w-62.5">
-                    <div className="mb-2 flex items-center justify-between gap-4">
-                      <label
-                        htmlFor="resume-zoom"
-                        className="text-xs font-bold text-primary"
-                      >
-                        {configuration("zoom")}
-                      </label>
-
-                      <output
-                        htmlFor="resume-zoom"
-                        className="text-xs font-black text-gold"
-                      >
-                        {zoom}%
-                      </output>
-                    </div>
-
-                    <div dir="ltr" className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleZoomOut}
-                        disabled={zoom <= MIN_ZOOM || !isImageLoaded}
-                        aria-label={t("preview.zoomOut")}
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-gold/40 hover:bg-soft disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        <Minus size={15} />
-                      </button>
-
-                      <input
-                        id="resume-zoom"
-                        type="range"
-                        min={MIN_ZOOM}
-                        max={MAX_ZOOM}
-                        step={ZOOM_STEP}
-                        value={zoom}
-                        disabled={!isImageLoaded}
-                        onChange={(event) => {
-                          handleZoomChange(Number(event.target.value));
-                        }}
-                        className="h-2 min-w-0 flex-1 cursor-pointer accent-gold disabled:cursor-not-allowed disabled:opacity-40"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={handleZoomIn}
-                        disabled={zoom >= MAX_ZOOM || !isImageLoaded}
-                        aria-label={t("preview.zoomIn")}
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-gold/40 hover:bg-soft disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        <Plus size={15} />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleResetZoom}
-                        disabled={zoom === DEFAULT_ZOOM || !isImageLoaded}
-                        aria-label={t("preview.resetZoom")}
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-gold/40 hover:bg-soft disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        <RotateCcw size={14} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Export */}
-                  <div className="min-w-57.5">
-                    <label className="mb-2 block text-xs font-bold text-primary">
-                      {configuration("exportAs")}
-                    </label>
-
-                    <div className="flex gap-2">
-                      <div
-                        ref={exportMenuRef}
-                        className="relative min-w-0 flex-1"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isExporting || isGenerating) {
-                              return;
-                            }
-
-                            setIsExportMenuOpen(
-                              (currentState) => !currentState,
-                            );
-
-                            setIsPurposeMenuOpen(false);
-                          }}
-                          disabled={isExporting || isGenerating}
-                          aria-haspopup="listbox"
-                          aria-expanded={isExportMenuOpen}
-                          className="flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-edge bg-card px-3 text-sm font-black uppercase text-primary outline-none transition-all hover:border-gold/50 hover:bg-soft focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/25 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          <span>
-                            {configuration(
-                              FORMAT_TRANSLATION_KEYS[selectedExportFormat],
-                            )}
-                          </span>
-
-                          <ChevronDown
-                            size={15}
-                            className={`shrink-0 text-secondary transition-transform ${
-                              isExportMenuOpen ? "rotate-180" : ""
-                            }`}
-                          />
-                        </button>
-
-                        {isExportMenuOpen && (
-                          <div
-                            role="listbox"
-                            aria-label={configuration("exportAs")}
-                            className="absolute inset-x-0 top-[calc(100%+8px)] z-50 overflow-hidden rounded-xl border border-edge bg-elevated p-1.5 shadow-[0_20px_55px_rgba(0,0,0,0.22)]"
-                          >
-                            {EXPORT_FORMATS.map((format) => {
-                              const isSelected =
-                                selectedExportFormat === format;
-
-                              return (
-                                <button
-                                  key={format}
-                                  type="button"
-                                  role="option"
-                                  aria-selected={isSelected}
-                                  onClick={() => {
-                                    handleExportFormatSelection(format);
-                                  }}
-                                  className={`flex min-h-10 w-full items-center justify-between gap-3 rounded-lg px-3 text-start text-sm font-bold uppercase transition-colors ${
-                                    isSelected
-                                      ? "bg-gold/15 text-gold"
-                                      : "text-primary hover:bg-soft"
-                                  }`}
-                                >
-                                  <span>
-                                    {configuration(
-                                      FORMAT_TRANSLATION_KEYS[format],
-                                    )}
-                                  </span>
-
-                                  {isSelected && <Check size={14} />}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void handleExport();
-                        }}
-                        disabled={
-                          isExporting ||
-                          isGenerating ||
-                          isPurposeChanged ||
-                          (!exportUrl && !hasCredits)
-                        }
-                        className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-gold px-3 font-bold text-ink transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label={configuration("exportAs")}
-                      >
-                        {isExporting ? (
-                          <LoaderCircle size={17} className="animate-spin" />
-                        ) : selectedExportFormat === "pdf" ? (
-                          <Download size={17} />
-                        ) : (
-                          <ImageIcon size={17} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                      <span className="mx-auto mt-2 block h-[82%] w-[72%] rounded-sm bg-white/90 p-1 shadow-md">
+                        <span className="block h-1.5 w-2/3 rounded-full bg-current opacity-45" />
+                        <span className="mt-1 block h-px w-full bg-current opacity-20" />
+                        <span className="mt-1 block h-px w-4/5 bg-current opacity-20" />
+                      </span>
+                    </span>
+                    <span className="mt-2 block truncate text-[10px] font-black">
+                      {metadata.name}
+                    </span>
+                    {isApplied && (
+                      <span className="absolute end-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-green text-white shadow">
+                        <Check size={12} />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="relative flex h-[calc(100vh-190px)] min-h-180 items-start justify-center overflow-auto bg-soft p-5 sm:p-8 xl:h-auto xl:min-h-0 xl:flex-1">
-              <div className="flex w-full shrink-0 justify-center" style={{ zoom: zoom / 100 }}>
-                <TemplateComponent resume={resumeData.content} customization={resumeData.customization} />
-              </div>
-            </div>
+            <p className="mt-3 text-xs leading-5 text-secondary">
+              {t("template.subtitle")}
+            </p>
           </section>
-        </div>
+
+          <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-azure/25 bg-azure/10">
+                <Sparkles size={19} className="text-azure-light" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-secondary">
+                  {configuration("purpose")}
+                </p>
+                <h2 className="mt-1 text-sm font-black">
+                  {configuration(PURPOSE_TRANSLATION_KEYS[draftPurpose])}
+                </h2>
+              </div>
+            </div>
+            <select
+              value={draftPurpose}
+              disabled={isBusy}
+              onChange={(event) => {
+                setDraftPurpose(event.target.value as ResumePurpose);
+                setActionError(null);
+                setActionSuccess(null);
+              }}
+              className="mt-5 min-h-12 w-full rounded-xl border border-edge bg-card px-4 text-sm font-bold text-primary outline-none focus:border-gold focus:ring-2 focus:ring-gold/25"
+              aria-label={configuration("selectPurpose")}
+            >
+              {RESUME_PURPOSES.map((purpose) => (
+                <option key={purpose} value={purpose}>
+                  {configuration(PURPOSE_TRANSLATION_KEYS[purpose])}
+                </option>
+              ))}
+            </select>
+          </section>
+
+          <button
+            type="button"
+            onClick={() => void applyConfiguration()}
+            disabled={isBusy || !hasPendingChanges}
+            className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black text-ink shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
+          >
+            {isApplying ? (
+              <LoaderCircle size={19} className="animate-spin" />
+            ) : (
+              <LayoutTemplate size={19} />
+            )}
+            {isApplying
+              ? configuration("generating")
+              : templates("actions.useTemplate")}
+          </button>
+
+          <div aria-live="polite" className="space-y-3">
+            {hasPendingChanges && !actionError && (
+              <p className="rounded-xl border border-gold/25 bg-gold/10 px-3 py-2.5 text-xs leading-5 text-gold">
+                {t("template.changeHint")}
+              </p>
+            )}
+            {actionSuccess && (
+              <p className="rounded-xl border border-green/20 bg-green/10 px-3 py-2.5 text-xs leading-5 text-green">
+                {actionSuccess}
+              </p>
+            )}
+            {actionError && (
+              <p
+                role="alert"
+                className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2.5 text-xs leading-5 text-red-400"
+              >
+                {actionError}
+              </p>
+            )}
+          </div>
+        </aside>
+
+        <section className="overflow-hidden rounded-[28px] border border-edge bg-elevated shadow-[0_24px_80px_var(--shadow-color)] xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col">
+          <div className="shrink-0 border-b border-edge px-5 py-5 sm:px-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <FileText size={18} className="text-gold" />
+                  <h1 className="font-playfair text-2xl font-black sm:text-3xl">
+                    {configuration("preview")}
+                  </h1>
+                </div>
+                <p className="mt-2 truncate text-sm font-bold">
+                  {resumeData.resumeName}
+                </p>
+                <p className="mt-1 text-xs text-secondary">
+                  {configuration("lastUpdated")}: {updatedAt}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+                <div className="min-w-55">
+                  <div className="mb-2 flex items-center justify-between">
+                    <label htmlFor="resume-zoom" className="text-xs font-bold">
+                      {configuration("zoom")}
+                    </label>
+                    <output htmlFor="resume-zoom" className="text-xs font-black text-gold">
+                      {zoom}%
+                    </output>
+                  </div>
+                  <div dir="ltr" className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setZoom((value) => Math.max(MIN_ZOOM, value - ZOOM_STEP))}
+                      disabled={zoom <= MIN_ZOOM}
+                      aria-label={t("preview.zoomOut")}
+                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-edge bg-card disabled:opacity-40"
+                    >
+                      <Minus size={15} />
+                    </button>
+                    <input
+                      id="resume-zoom"
+                      type="range"
+                      min={MIN_ZOOM}
+                      max={MAX_ZOOM}
+                      step={ZOOM_STEP}
+                      value={zoom}
+                      onChange={(event) => setZoom(Number(event.target.value))}
+                      className="h-2 min-w-0 flex-1 cursor-pointer accent-gold"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setZoom((value) => Math.min(MAX_ZOOM, value + ZOOM_STEP))}
+                      disabled={zoom >= MAX_ZOOM}
+                      aria-label={t("preview.zoomIn")}
+                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-edge bg-card disabled:opacity-40"
+                    >
+                      <Plus size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setZoom(DEFAULT_ZOOM)}
+                      disabled={zoom === DEFAULT_ZOOM}
+                      aria-label={t("preview.resetZoom")}
+                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-edge bg-card disabled:opacity-40"
+                    >
+                      <RotateCcw size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="min-w-52">
+                  <label className="mb-2 block text-xs font-bold">
+                    {configuration("exportAs")}
+                  </label>
+                  <div className="flex gap-2">
+                    <div ref={exportMenuRef} className="relative min-w-0 flex-1">
+                      <button
+                        type="button"
+                        onClick={() => !isBusy && setIsExportMenuOpen((open) => !open)}
+                        disabled={isBusy}
+                        aria-haspopup="listbox"
+                        aria-expanded={isExportMenuOpen}
+                        className="flex min-h-11 w-full items-center justify-between rounded-xl border border-edge bg-card px-3 text-sm font-black uppercase disabled:opacity-50"
+                      >
+                        {configuration(FORMAT_TRANSLATION_KEYS[selectedExportFormat])}
+                        <ChevronDown size={15} />
+                      </button>
+                      {isExportMenuOpen && (
+                        <div
+                          role="listbox"
+                          className="absolute inset-x-0 top-[calc(100%+8px)] z-50 rounded-xl border border-edge bg-elevated p-1.5 shadow-xl"
+                        >
+                          {EXPORT_FORMATS.map((format) => (
+                            <button
+                              key={format}
+                              type="button"
+                              role="option"
+                              aria-selected={selectedExportFormat === format}
+                              onClick={() => {
+                                setSelectedExportFormat(format);
+                                setIsExportMenuOpen(false);
+                              }}
+                              className="flex min-h-10 w-full items-center justify-between rounded-lg px-3 text-sm font-bold uppercase hover:bg-soft"
+                            >
+                              {configuration(FORMAT_TRANSLATION_KEYS[format])}
+                              {selectedExportFormat === format && <Check size={14} />}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void handleExport()}
+                      disabled={exportDisabled}
+                      aria-label={configuration("exportAs")}
+                      className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-gold px-3 text-ink disabled:cursor-not-allowed disabled:opacity-45"
+                    >
+                      {exportingFormat ? (
+                        <LoaderCircle size={17} className="animate-spin" />
+                      ) : selectedExportFormat === "pdf" ? (
+                        <Download size={17} />
+                      ) : (
+                        <ImageIcon size={17} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative flex min-h-180 flex-1 items-start justify-center overflow-auto bg-soft p-5 sm:p-8 xl:min-h-0">
+            {TemplateComponent ? (
+              <div
+                className="flex w-full shrink-0 justify-center transition-[zoom] duration-200"
+                style={{ zoom: zoom / 100 }}
+              >
+                <TemplateComponent
+                  resume={resumeData.content}
+                  customization={resumeData.customization}
+                />
+              </div>
+            ) : (
+              <div className="m-auto rounded-xl border border-red-400/20 bg-red-400/10 p-5 text-sm text-red-400">
+                {t("status.errorText")}
+              </div>
+            )}
+          </div>
+        </section>
       </div>
     </main>
   );
-}
-
-function wait(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, milliseconds);
-  });
 }

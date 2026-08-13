@@ -1,9 +1,28 @@
-export const RESUME_TEMPLATE_IDS = ["minimal"] as const;
+/**
+ * Stable template identifiers shared by the dashboard, API validation,
+ * preview renderer, and PDF/JPG export pipeline.
+ *
+ * Keep gallery identifiers here even while a layout is being rolled out so a
+ * selection never becomes an API value that the backend cannot validate.
+ */
+export const RESUME_TEMPLATE_IDS = [
+  "executive",
+  "developer",
+  "director",
+  "minimal",
+  "academic",
+  "global",
+] as const;
 
 export type ResumeTemplateId = (typeof RESUME_TEMPLATE_IDS)[number];
 
 export const RESUME_TEMPLATE_DEFINITIONS = [
-  { id: "minimal", name: "Professional ATS", version: 3 },
+  { id: "executive", name: "Executive Teal", version: 1 },
+  { id: "developer", name: "Developer Sidebar", version: 1 },
+  { id: "director", name: "Creative Director", version: 1 },
+  { id: "minimal", name: "Classic ATS", version: 3 },
+  { id: "academic", name: "Academic", version: 1 },
+  { id: "global", name: "Global Professional", version: 1 },
 ] as const satisfies ReadonlyArray<{
   id: ResumeTemplateId;
   name: string;
@@ -122,7 +141,7 @@ export const DEFAULT_RESUME_CUSTOMIZATION: ResumeCustomization = {
     "education",
     "certifications",
   ],
-  hiddenSections: ["certifications"],
+  hiddenSections: [],
   accentColor: "#0563c1",
   fontScale: 1,
 };

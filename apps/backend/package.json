@@ -5,12 +5,16 @@
   "description": "Resumax backend API server",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx src/server.ts",
+    "predev": "npm --workspace @resumax/shared-types run build",
+    "dev": "tsx watch --include \"../../packages/shared-types/dist/**/*.js\" src/server.ts",
+    "prebuild": "npm --workspace @resumax/shared-types run build",
     "build": "tsc",
     "start": "node dist/server.js",
     "seed": "ts-node src/prisma/seed.ts",
     "lint": "eslint .",
+    "pretype-check": "npm --workspace @resumax/shared-types run build",
     "type-check": "tsc --noEmit",
+    "pretest": "npm --workspace @resumax/shared-types run build",
     "test": "tsx --test src/**/*.test.ts"
   },
   "dependencies": {

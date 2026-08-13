@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { StepId } from '@/lib/types/dashborad.types';
+import type { StepId } from '@/lib/types/dashboard.types';
 import {
   getResumePlaceholderSections,
   RESUME_PLACEHOLDER_SECTION_IDS,
