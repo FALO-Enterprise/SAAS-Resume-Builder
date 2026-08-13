@@ -14,4 +14,7 @@ export const API_ENDPOINTS = {
   users: {
     byId: (id: string) => `/api/users/${id}`,
   },
+  resumes: {
+    generate: "/api/resumes/current/generate",
+  },
 } as const;

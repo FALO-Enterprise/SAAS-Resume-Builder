@@ -28,8 +28,6 @@ import { formatPhoneNumber } from "@/lib/utilities/phone";
 import { getAvatarUrl, isUploadedAvatar } from '@/lib/utilities/avatar';
 import {getInitials} from '@/lib/utilities/getName';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import { getDashboardDraft, saveDashboardDraft } from '@/lib/backend';
-import { useRouter } from 'next/navigation';
 import DashboardResumePlaceholder from '@/components/dashboard/DashboardResumePlaceholder';
 import {
   getResumeSectionOrder,
@@ -1588,7 +1586,6 @@ export default function DashboardPage() {
   const tContact = useTranslations('dashboard.contact');
   const locale = useLocale();
   const router = useRouter();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const templateFromQuery = searchParams.get('template');
   const isRTL = locale === "ar";
@@ -1695,7 +1692,6 @@ export default function DashboardPage() {
         setProjects(nextDraft.projects);
         setEducation(nextDraft.education);
         setCerts(nextDraft.certifications);
-        setSkills(nextDraft.skills);
         lastSyncedUserName.current = nextDraft.contact.fullName || '';
         lastSyncedUserEmail.current = nextDraft.contact.email || '';
         setDraftLoaded(true);
@@ -1706,7 +1702,7 @@ export default function DashboardPage() {
       });
 
     return () => { cancelled = true; };
-  }, [templateFromQuery, user]);
+  }, [handleDashboardRequestError, templateFromQuery, user]);
 
   useEffect(() => {
     if (!draftLoaded || !user) return;
@@ -1732,7 +1728,6 @@ export default function DashboardPage() {
     lastSyncedUserName.current = incomingName;
     lastSyncedUserEmail.current = incomingEmail;
   }, [draftLoaded, user]);
-  }, [handleDashboardRequestError, templateFromQuery, user]);
 
   useEffect(() => {
     if (!draftLoaded) return;
@@ -1826,10 +1821,6 @@ export default function DashboardPage() {
     if (nextStep) setCurrentStep(nextStep.id);
   };
 
-  const handleFinish = () => {
-    setCompleted(prev => new Set(prev).add('skills'));
-    // ── BACKEND: generate resume / navigate to preview ──
-    router.push(`/${locale}/resume/preview?resumeId=resume-123`);
   const handleFinish = async () => {
     if (isFinishing) return;
     if (!validateContact()) {

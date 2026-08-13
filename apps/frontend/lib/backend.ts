@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 import { apiClient } from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { DashboardDraftData } from './types/dashboard.types';
@@ -59,19 +58,50 @@ export interface UserDetailsResponse {
     user: BackendAuthUser;
 }
 
-function backendErrorMessage(error: unknown, fallback: string) {
-    const axiosError = error as AxiosError<{ message?: string; error?: string | { message?: string } }>;
-    const fromMessage = axiosError.response?.data?.message;
-    const fromError = axiosError.response?.data?.error;
+type BackendErrorPayload = {
+    message?: unknown;
+    error?: unknown;
+    status?: unknown;
+    statusCode?: unknown;
+    response?: {
+        status?: unknown;
+        data?: unknown;
+    };
+};
 
-    if (fromMessage) return fromMessage;
+function backendErrorMessage(error: unknown, fallback: string) {
+    if (!error || typeof error !== 'object') return fallback;
+
+    const source = error as BackendErrorPayload;
+    const responseData = source.response?.data;
+    const payload = responseData && typeof responseData === 'object'
+        ? responseData as BackendErrorPayload
+        : source;
+    const fromMessage = payload.message;
+    const fromError = payload.error;
+
+    if (typeof fromMessage === 'string' && fromMessage.trim()) return fromMessage;
     if (typeof fromError === "string") return fromError;
     if (fromError && typeof fromError === "object" && "message" in fromError) {
-        return String(fromError.message || fallback);
+        const nestedMessage = (fromError as { message?: unknown }).message;
+        if (typeof nestedMessage === 'string' && nestedMessage.trim()) return nestedMessage;
     }
 
     if (error instanceof Error && error.message) return error.message;
     return fallback;
+}
+
+function backendErrorStatus(error: unknown): number | null {
+    if (!error || typeof error !== 'object') return null;
+
+    const source = error as BackendErrorPayload;
+    const status = [
+        source.response?.status,
+        source.status,
+        source.statusCode,
+    ].find((value): value is number => typeof value === 'number');
+
+    return status ?? null;
 }
 
 export class BackendRequestError extends Error {
@@ -112,6 +142,21 @@ export function createAuthenticatedRequestError(
     }
 
     return createBackendRequestError(response, payload, fallback);
+}
+
+export function createApiRequestError(error: unknown, fallback: string) {
+    const status = backendErrorStatus(error);
+    if (status === 401) {
+        return new BackendRequestError(
+            'Your session has expired. Please sign in again.',
+            status,
+        );
+    }
+
+    const message = backendErrorMessage(error, fallback);
+    return status === null
+        ? new Error(message)
+        : new BackendRequestError(message, status);
 }
 
 export async function loginWithBackend(input: { email: string; password: string }) {
@@ -233,33 +278,41 @@ export async function getDashboardDraft(token: string) {
         });
         return normalizeBackendPayload<DashboardDraftData>(data);
     } catch (error) {
-        throw new Error(backendErrorMessage(error, "Could not fetch your dashboard"));
+        throw createApiRequestError(error, "Could not fetch your dashboard");
     }
+}
+
+export function createDashboardDraftPayload(draft: DashboardDraftData) {
+    return {
+        template: draft.template,
+        currentStep: draft.currentStep,
+        completedSteps: draft.completedSteps,
+        sectionOrder: draft.sectionOrder,
+        contact: draft.contact,
+        summary: draft.summary,
+        skillGroups: draft.skillGroups,
+        experience: draft.experience,
+        projects: draft.projects,
+        education: draft.education,
+        certifications: draft.certifications,
+        skills: draft.skills,
+    };
 }
 
 export async function saveDashboardDraft(token: string, draft: DashboardDraftData) {
     try {
-        const payload = {
-            template: draft.template,
-            currentStep: draft.currentStep,
-            completedSteps: draft.completedSteps,
-            sectionOrder: draft.sectionOrder,
-            contact: draft.contact,
-            summary: draft.summary,
-            skillGroups: draft.skillGroups,
-            experience: draft.experience,
-            projects: draft.projects,
-            education: draft.education,
-            certifications: draft.certifications,
-            skills: draft.skills,
-        };
+        const payload = createDashboardDraftPayload(draft);
 
         const { data } = await apiClient.put(API_ENDPOINTS.auth.dashboard, payload, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
-    }}
+        return normalizeBackendPayload<DashboardDraftData>(data);
+    } catch (error) {
+        throw createApiRequestError(error, "Could not save your dashboard");
+    }
+}
 
 export type GeneratedResume = {
     id: string;
@@ -273,18 +326,21 @@ export type GeneratedResume = {
 export async function generateCurrentResume(
     token: string,
     input: { title: string; templateId: 'minimal' },
-) {
-    const { response, payload } = await proxyToBackend('/api/resumes/current/generate', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(input),
-    });
+): Promise<GeneratedResume> {
+    try {
+        const { data } = await apiClient.post(
+            API_ENDPOINTS.resumes.generate,
+            input,
+            {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 75_000,
+            },
+        );
 
-    if (!response.ok) {
-        throw createAuthenticatedRequestError(response, payload, 'Could not generate your resume');
+        const normalized = normalizeBackendPayload<GeneratedResume>(data);
+        if ('error' in normalized) throw new Error(normalized.error);
+        return normalized;
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not generate your resume');
     }
-
-    const normalized = normalizeBackendPayload<GeneratedResume>(payload);
-    if ('error' in normalized) throw new Error(normalized.error);
-    return normalized;
 }
