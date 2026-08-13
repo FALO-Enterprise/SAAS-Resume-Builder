@@ -4,7 +4,7 @@ import type {
   ExperienceItem,
   ProjectItem,
   SkillGroupItem,
-} from '../types/dashborad.types';
+} from '../types/dashboard.types';
 
 export const emptyRole = (): ExperienceItem => ({
   id: crypto.randomUUID(),

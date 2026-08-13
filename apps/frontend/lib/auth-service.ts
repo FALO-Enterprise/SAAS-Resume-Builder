@@ -2,6 +2,7 @@ import 'dotenv/config'
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
 import { RegisterData, LoginData } from "./types/auth.types"
+import { setAccessToken, clearAccessToken, getAccessToken } from "@/lib/auth/token"
 
 export const authService = {
     register: async (input: RegisterData) => {
@@ -34,16 +35,16 @@ export const authService = {
         const data = await response.json()  // { user, token }
 
         // save token
-        localStorage.setItem('token', data.token)
+        setAccessToken(data.token)
 
         return data
     },
 
     logout: () => {
-        localStorage.removeItem('token')
+        clearAccessToken()
     },
 
     getToken: () => {
-        return localStorage.getItem('token')
+        return getAccessToken()
     }
 }

@@ -107,7 +107,7 @@ export default function PricingPage() {
   const isRTL = locale === "ar";
   const router = useRouter();
   const { isVerified, user } = useAuth();
-  const currentPlanId = (user?.planName.toLowerCase() ?? "free") as PlanId;
+  const currentPlanId = (user?.planName?.toLowerCase() ?? "free") as PlanId;
 
   const goToRegister = (planId: PlanId) => {
     router.push(`/${locale}/createaccount?plan=${planId}`);

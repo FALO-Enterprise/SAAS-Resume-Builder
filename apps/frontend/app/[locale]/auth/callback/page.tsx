@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { exchangeOAuthCode } from "@/lib/backend";
+import { setAccessToken } from "@/lib/auth/token";
 import { persistAuthToken } from "@/lib/auth-session";
 import Logo from "@/components/ui/Logo";
 
@@ -44,6 +45,7 @@ function OAuthCallbackContent() {
       .then((data) => {
         if ("error" in data) throw new Error(data.error);
 
+        setAccessToken(data.token);
         // If the user is not verified (new OAuth registration), redirect to verification
         if (!data.user.isVerified) {
           router.replace(`/${locale}/`);
@@ -57,6 +59,8 @@ function OAuthCallbackContent() {
           email: data.user.email,
           avatar: data.user.avatar,
           role: data.user.role,
+          planName: data.user.plan?.name ?? "FREE",
+          isVerified: data.user.isVerified ?? false,
           planName: data.user.plan.name,
           isVerified: data.user.isVerified ?? false,
         });

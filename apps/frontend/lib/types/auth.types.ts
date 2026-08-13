@@ -57,7 +57,8 @@ export type AuthUser = {
   email: string;
   avatar: string | null;
   role: string;
-  planName: PlanName;
+  isVerified?: boolean;
+  planName?: PlanName;
   isVerified: boolean;
 }
 

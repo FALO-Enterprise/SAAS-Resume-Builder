@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { clearAccessToken } from "@/lib/auth/token";
 
 import {
   AuthContextType,
@@ -118,6 +119,7 @@ export function AuthProvider({
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(VERIFIED_KEY);
     setStoredUser(null);
+    clearAccessToken();
     router.push(`/${locale}`);
   }, [locale, router]);
 

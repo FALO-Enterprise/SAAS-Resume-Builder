@@ -4,25 +4,23 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useAuth } from "@/context/AuthContext";
 import AuthInput from "@/components/ui/AuthInput";
 import type { LoginData, FieldError } from "@/lib/types/auth.types";
 import { PROVIDERS } from "@/lib/placeholder-data/providors.placeholder";
 import { getOAuthStartUrl, loginWithBackend } from "@/lib/backend";
 import { persistAuthToken } from "@/lib/auth-session";
 import Link from "next/link";
+import { useLoginFlow } from "@/hooks/mutations/useLoginFlow";
 
 // ─── Login Form ──────────────────────────────────────────────────────────────
 export default function LoginForm() {
-  const { closeModal, login } = useAuth();
   const locale = useLocale();
   const t = useTranslations("auth");
   const isRTL = locale === "ar";
   const [form, setForm] = useState<LoginData>({ email: "", password: "" });
   const [errors, setErrors] = useState<FieldError>({});
   const [showPw, setShowPw] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const { submit, isPending, success, generalError, closeModal } = useLoginFlow();
 
   const validate = (): boolean => {
     const e: FieldError = {};
@@ -39,7 +37,6 @@ export default function LoginForm() {
   const handleSubmit = async () => {
     if (!validate()) return;
 
-    setLoading(true);
     setErrors({});
 
     try {
@@ -103,13 +100,13 @@ export default function LoginForm() {
   return (
     <div className="flex flex-col gap-5" dir={isRTL ? "rtl" : "ltr"}>
       {/* General error banner */}
-      {errors.general && (
+      {(errors.general || generalError) && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           className="rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
         >
-          {errors.general}
+          {errors.general || generalError}
         </motion.div>
       )}
 
@@ -180,10 +177,10 @@ export default function LoginForm() {
       {/* Submit */}
       <button
         onClick={handleSubmit}
-        disabled={loading}
+        disabled={isPending}
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.75 text-[15px] font-bold text-ink shadow-[0_8px_25px_rgba(245,166,35,0.3)] transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:bg-gold/60 disabled:shadow-none"
       >
-        {loading ? (
+        {isPending ? (
           <>
             <Loader2 size={16} className="animate-spin" /> {t("login.loading")}
           </>
