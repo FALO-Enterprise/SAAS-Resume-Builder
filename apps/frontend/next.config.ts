@@ -37,6 +37,11 @@ const nextConfig: NextConfig = {
         hostname: "media.licdn-ei.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "i.imgur.com",
+        pathname: "/**",
+      },
     ],
   },
 };
