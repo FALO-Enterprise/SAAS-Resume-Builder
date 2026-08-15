@@ -888,7 +888,7 @@
       }
     }
   },
-    "resumePreview": {
+  "resumePreview": {
     "badge": "السيرة الذاتية المولدة",
     "title": "سيرتك الذاتية جاهزة",
     "subtitle": "راجع سيرتك الذاتية المولدة، واختر القالب المناسب، ثم صدّر النسخة النهائية.",
@@ -1044,6 +1044,121 @@
     "saving": "جارٍ الحفظ…",
     "errors": {
       "updateFailed": "حدث خطأ ما. حاول مرة أخرى."
+    }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "إدارة تفضيلات التطبيق",
+    "version": "ResuMax الإصدار 1.0.0",
+    "close": "إغلاق",
+    "savePreferences": "حفظ التفضيلات",
+    "preferencesSaved": "تم حفظ التفضيلات!",
+    "tabs": {
+      "appearance": "المظهر",
+      "language": "اللغة والمنطقة",
+      "resume": "تفضيلات السيرة الذاتية",
+      "notifications": "الإشعارات",
+      "billing": "الفوترة والباقات",
+      "security": "الأمان والجلسات",
+      "privacy": "الخصوصية والبيانات",
+      "about": "حول ResuMax"
+    },
+    "appearance": {
+      "heading": "المظهر",
+      "description": "خصص طريقة ظهور ResuMax على شاشتك.",
+      "themeLabel": "السمة",
+      "light": "فاتح",
+      "dark": "داكن",
+      "accentColorLabel": "لون التمييز",
+      "compactMode": "الوضع المضغوط",
+      "compactModeDesc": "تقليل الحشو في الشريط الجانبي والمحرر",
+      "reduceAnimations": "تقليل الحركات",
+      "reduceAnimationsDesc": "تعطيل انتقالات الحركة لتصفح أسرع"
+    },
+    "language": {
+      "heading": "اللغة والمنطقة",
+      "description": "حدد لغة التطبيق وتنسيق التاريخ.",
+      "interfaceLanguage": "لغة الواجهة",
+      "dateFormatLabel": "تنسيق التاريخ الافتراضي في السيرة الذاتية",
+      "dateFormats": {
+        "mmYYYY": "شهر/سنة (مثال: 08/2026)",
+        "mmmYYYY": "شهر سنة (مثال: أغسطس 2026)",
+        "yyyyMM": "سنة-شهر (مثال: 2026-08)"
+      }
+    },
+    "resume": {
+      "heading": "تفضيلات السيرة الذاتية",
+      "description": "الإعدادات الافتراضية عند إنشاء سير ذاتية جديدة.",
+      "paperSizeLabel": "حجم الورق الافتراضي",
+      "exportFormatLabel": "صيغة التحميل الافتراضية",
+      "formats": {
+        "pdf": "مستند PDF (.pdf)",
+        "docx": "مستند Word (.docx)"
+      },
+      "autoSave": "الحفظ التلقائي أثناء التحرير",
+      "autoSaveDesc": "حفظ التغييرات تلقائيًا أثناء الكتابة"
+    },
+    "notifications": {
+      "heading": "إشعارات البريد الإلكتروني",
+      "description": "إدارة الرسائل التي تصلك من ResuMax.",
+      "resumeExported": { "title": "تصدير السيرة الذاتية", "desc": "التنبيه عند اكتمال إنشاء ملف PDF" },
+      "securityAlerts": { "title": "تنبيهات الأمان", "desc": "تنبيهي عند تسجيل الدخول من جهاز جديد" },
+      "weeklyTips": { "title": "نصائح مهنية ومساعدة الذكاء الاصطناعي", "desc": "نصائح أسبوعية لتحسين نتيجة سيرتك الذاتية" },
+      "productUpdates": { "title": "أخبار المنتج والميزات الجديدة", "desc": "تحديثات حول القوالب والميزات الجديدة" }
+    },
+    "billing": {
+      "heading": "الفوترة والاشتراك",
+      "description": "إدارة اشتراكك النشط وحدود باقتك.",
+      "planLabel": "باقة {plan}",
+      "activeSubscription": "اشتراك نشط",
+      "upgradeToPro": "الترقية إلى Pro",
+      "managePlan": "إدارة الباقة",
+      "upgradeToEnterprise": "الترقية إلى Enterprise",
+      "manageEnterprise": "إدارة Enterprise",
+      "planDescriptions": {
+        "free": "أنت حاليًا على الباقة المجانية. رقّ للحصول على تحسينات ذكاء اصطناعي غير محدودة وتصدير DOCX.",
+        "pro": "أنت على باقة Pro مع تحسينات ذكاء اصطناعي غير محدودة، تصدير DOCX، وتحليلات متقدمة.",
+        "enterprise": "أنت على باقة Enterprise مع ميزات غير محدودة، دعم ذو أولوية، وتكاملات مخصصة."
+      },
+      "usageLimits": "حدود الاستخدام",
+      "aiCreditsUsed": "رصيد الذكاء الاصطناعي المستخدم",
+      "resumesStored": "السير الذاتية المخزّنة"
+    },
+    "security": {
+      "heading": "الأمان والجلسات",
+      "description": "إدارة كلمة المرور وعرض الأجهزة المتصلة.",
+      "activeSessions": "الجلسات النشطة",
+      "currentDevice": "الجهاز الحالي",
+      "active": "نشط",
+      "signOutAllDevices": "تسجيل الخروج من جميع الأجهزة"
+    },
+    "privacy": {
+      "heading": "الخصوصية والبيانات",
+      "description": "تحكم في بياناتك الشخصية وحذف الحساب.",
+      "downloadData": "تنزيل بيانات الحساب (.json)",
+      "dangerZone": "منطقة الخطر",
+      "dangerZoneDesc": "حذف حسابك وجميع السير الذاتية المخزنة من ResuMax نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+      "deleteAccount": "حذف الحساب",
+      "errors": {
+        "userNotFound": "لم يتم العثور على معلومات المستخدم",
+        "deleteFailed": "فشل حذف الحساب. حاول مرة أخرى."
+      }
+    },
+    "about": {
+      "heading": "حول ResuMax",
+      "description": "بيانات التطبيق وروابط الدعم.",
+      "version": "الإصدار",
+      "buildDate": "تاريخ الإصدار",
+      "buildDateValue": "يوليو 2026",
+      "termsOfService": "شروط الخدمة",
+      "privacyPolicy": "سياسة الخصوصية"
+    },
+    "deleteConfirm": {
+      "title": "حذف الحساب",
+      "message": "هل أنت متأكد من رغبتك في حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع سيرك الذاتية وبياناتك نهائيًا.",
+      "cancel": "إلغاء",
+      "confirm": "حذف الحساب",
+      "deleting": "جارٍ الحذف…"
     }
   },
   "footer": {
