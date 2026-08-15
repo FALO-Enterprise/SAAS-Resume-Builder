@@ -391,6 +391,8 @@ export default function OnboardingPage() {
   const progress = finished ? 100 : ((currentStep + 1) / STEPS.length) * 100;
 
   useEffect(() => {
+    if (!user?.id) return;
+
     const token = getAccessToken();
     if (!token) {
       router.replace(`/${locale}`);
@@ -398,7 +400,7 @@ export default function OnboardingPage() {
     }
 
     const timer = window.setTimeout(() => {
-      const stored = loadOnboardingState();
+      const stored = loadOnboardingState(user?.id);
       if (stored) {
         setAnswers(stored.answers);
         setCurrentStep(
@@ -410,20 +412,20 @@ export default function OnboardingPage() {
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [locale, router]);
+  }, [locale, router, user?.id]);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || !user?.id) return;
     const timer = window.setTimeout(() => {
       saveOnboardingState({
         answers,
         currentStep,
         completed: finished,
         dashboardSynced: finished,
-      });
+      }, user?.id);
     }, 200);
     return () => window.clearTimeout(timer);
-  }, [answers, currentStep, finished, loading]);
+  }, [answers, currentStep, finished, loading, user?.id]);
 
   function chooseOption(value: string) {
     setAnswers((previous) => {
@@ -577,7 +579,7 @@ export default function OnboardingPage() {
         currentStep,
         completed: true,
         dashboardSynced: true,
-      });
+      }, user?.id);
       setFinished(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
@@ -594,7 +596,7 @@ export default function OnboardingPage() {
       currentStep,
       completed: finished,
       dashboardSynced: finished,
-    });
+    }, user?.id);
     router.push(`/${locale}`);
   }
 
@@ -654,8 +656,8 @@ export default function OnboardingPage() {
     >
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(245,166,35,0.11),transparent_42%)]" />
-        <div className="absolute -inset-s-4848 top-1/3 h-96 w-96 rounded-full bg-azure/5 blur-3xl" />
-        <div className="absolute -inset-e-48 bottom-0 h-96 w-96 rounded-full bg-gold/6 blur-3xl" />
+        <div className="absolute -start-48 top-1/3 h-96 w-96 rounded-full bg-azure/5 blur-3xl" />
+        <div className="absolute -end-48 bottom-0 h-96 w-96 rounded-full bg-gold/6 blur-3xl" />
       </div>
 
       <header className="relative z-30 border-b border-edge bg-base/85 backdrop-blur-xl">
@@ -742,7 +744,7 @@ export default function OnboardingPage() {
                     </div>
                   </div>
 
-                  <h1 className="max-w-210 font-playfair text-[clamp(34px,5.5vw,58px)] font-black leading-[1.06] tracking-tight text-primary">
+                  <h1 className="max-w-210 font-playfair text-[clamp(34px,5.5vw,58px)] font-black leading-[1.06] tracking-[-0.025em] text-primary">
                     {stepTitle()}
                   </h1>
                   <p className="mt-4 max-w-175 text-[13px] font-medium leading-6.5 text-secondary sm:text-[15px] sm:leading-7">

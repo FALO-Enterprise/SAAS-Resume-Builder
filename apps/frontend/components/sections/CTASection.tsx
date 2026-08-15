@@ -5,16 +5,23 @@ import { useTranslations, useLocale } from "next-intl";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { hasCompletedOnboarding } from "@/lib/onboarding-storage";
 
 export default function CTASection() {
   const t = useTranslations("cta");
   const locale = useLocale();
   const isRTL = locale === "ar";
   const { isVerified, user } = useAuth();
-
+  const onboardingCompleted =
+    isVerified && hasCompletedOnboarding(user?.id);
 
   const currentPlanId = user?.planName?.toLowerCase() ?? "free";
   const isPaidUser = isVerified && currentPlanId !== "free";
+  const primaryHref = !isVerified
+    ? `/${locale}/createaccount`
+    : onboardingCompleted
+      ? `/${locale}/dashboard`
+      : `/${locale}/onboarding`;
 
   return (
     <section
@@ -80,11 +87,7 @@ export default function CTASection() {
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
           <Link
-            href={
-              isVerified
-                ? `/${locale}/dashboard`
-                : `/${locale}/createaccount`
-            }
+            href={primaryHref}
             className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-bold px-8 py-5 rounded-full text-lg transition-all duration-200 hover:scale-105 hover:shadow-[0_0_40px_rgba(245,166,35,0.5)] w-full sm:w-auto justify-center"
           >
             {isPaidUser ? t("buttonPaid") || "Start Building Now" : t("button")}

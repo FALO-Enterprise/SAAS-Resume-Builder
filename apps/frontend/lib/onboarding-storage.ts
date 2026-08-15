@@ -14,16 +14,24 @@ function storageKey(userId?: string) {
   return `${STORAGE_PREFIX}:${userId || 'current-user'}`;
 }
 
-export function loadOnboardingState(userId?: string): StoredOnboardingState | null {
-  if (typeof window === 'undefined') return null;
-
+function readStoredState(key: string): StoredOnboardingState | null {
   try {
-    const stored = localStorage.getItem(storageKey(userId));
+    const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) as StoredOnboardingState : null;
   } catch {
-    localStorage.removeItem(storageKey(userId));
+    localStorage.removeItem(key);
     return null;
   }
+}
+
+export function loadOnboardingState(userId?: string): StoredOnboardingState | null {
+  if (typeof window === 'undefined') return null;
+  return readStoredState(storageKey(userId));
+}
+
+export function hasCompletedOnboarding(userId?: string) {
+  const storedState = loadOnboardingState(userId);
+  return Boolean(storedState?.completed && storedState.dashboardSynced);
 }
 
 export function saveOnboardingState(

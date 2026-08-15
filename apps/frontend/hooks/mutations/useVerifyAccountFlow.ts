@@ -68,6 +68,7 @@ export function useVerifyAccountFlow(
       });
 
       if (!isMounted.current) return { ok: true };
+      resetOnboardingState(data.user?.id);
       resetOnboardingState();
       setSuccess(true);
       setTimeout(() => router.push(`/${locale}/onboarding`), 2000);
