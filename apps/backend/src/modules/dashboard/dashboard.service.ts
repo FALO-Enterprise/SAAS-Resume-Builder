@@ -37,6 +37,7 @@ export class DashboardService {
 
         return {
             template: null,
+            purpose: 'general',
             currentStep: 'contact',
             completedSteps: [],
             sectionOrder: [...DEFAULT_RESUME_CUSTOMIZATION.sectionOrder],

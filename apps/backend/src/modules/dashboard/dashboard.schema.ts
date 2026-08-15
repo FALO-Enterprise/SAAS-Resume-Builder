@@ -79,6 +79,7 @@ export const projectSchema = z.object({
 
 export const dashboardDraftSchema = z.object({
     template: z.string().max(100).nullable().default(null),
+    purpose: z.string().max(100).default('general'),
     currentStep: z.enum(dashboardSteps),
     completedSteps: z.array(z.enum(dashboardSteps)).max(dashboardSteps.length),
     sectionOrder: resumeSectionOrderSchema,

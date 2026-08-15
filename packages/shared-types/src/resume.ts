@@ -131,6 +131,7 @@ export type ResumeRenderSnapshot = {
   customization: ResumeCustomization;
   createdAt: string;
   hasWatermark?: boolean;
+  purpose?: string;
 };
 
 export const TEMPLATE_PLAN_CONFIG: Record<ResumeTemplateId, { requiredPlan: "FREE" | "PRO" | "ENTERPRISE"; badgeText: string; isFreeCompatible: boolean }> = {

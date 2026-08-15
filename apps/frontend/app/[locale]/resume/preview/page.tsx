@@ -239,6 +239,52 @@ export default function ResumePreviewPage() {
     setActionSuccess(null);
   };
 
+  const handlePurposeSelect = async (newPurpose: ResumePurpose) => {
+    if (!resumeData || isBusy) return;
+    setDraftPurpose(newPurpose);
+
+    const purposeLabel = configuration(PURPOSE_TRANSLATION_KEYS[newPurpose]);
+    const toastId = toast.loading(`Rewriting resume for ${purposeLabel} with Gemini AI...`);
+
+    try {
+      setIsApplying(true);
+      setActionError(null);
+      setActionSuccess(null);
+      setIsExportMenuOpen(false);
+
+      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
+
+      if (token) {
+        await generateCurrentResume(token, {
+          title: resumeData.resumeName,
+          templateId: draftTemplateId,
+          purpose: newPurpose,
+        });
+
+        const freshData = await getResumePreviewData(resumeData.resumeId);
+        releaseDownloadUrl(resumeData.pdfDownloadUrl);
+        releaseDownloadUrl(resumeData.jpgDownloadUrl);
+        setResumeData(freshData);
+        setDraftTemplateId(freshData.selectedTemplate.id);
+        setAppliedTemplateId(freshData.selectedTemplate.id);
+        setAppliedPurpose(newPurpose);
+      } else {
+        setAppliedPurpose(newPurpose);
+      }
+
+      const successMsg = `Resume rewritten for ${purposeLabel} using Gemini AI!`;
+      setActionSuccess(successMsg);
+      toast.success(successMsg, { id: toastId });
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : configuration("generateError");
+      setActionError(errorMsg);
+      toast.error(errorMsg, { id: toastId });
+      setDraftPurpose(appliedPurpose);
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
   const applyConfiguration = async () => {
     if (!resumeData || isBusy || !hasPendingChanges) return;
 
@@ -539,9 +585,7 @@ export default function ResumePreviewPage() {
               value={draftPurpose}
               disabled={isBusy}
               onChange={(event) => {
-                setDraftPurpose(event.target.value as ResumePurpose);
-                setActionError(null);
-                setActionSuccess(null);
+                void handlePurposeSelect(event.target.value as ResumePurpose);
               }}
               className="mt-5 min-h-12 w-full rounded-xl border border-edge bg-card px-4 text-sm font-bold text-primary outline-none focus:border-gold focus:ring-2 focus:ring-gold/25"
               aria-label={configuration("selectPurpose")}
