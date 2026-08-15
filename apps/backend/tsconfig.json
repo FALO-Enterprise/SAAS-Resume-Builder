@@ -1,0 +1,37 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["esnext", "dom"],
+    "types": ["node"],
+    "allowJs": true,
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+    "jsx": "react-jsx",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "paths": {
+      "@/*": ["../../*"],
+      "@shared/*": ["../../packages/*/src"],
+      "@shared-types": ["../../packages/shared-types/src"],
+      "@shared-utils": ["../../packages/shared-utils/src"] ,
+      "@prisma/client": ["./generated/prisma"]
+    }
+  },
+  "include": ["src/**/*" , "generated/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

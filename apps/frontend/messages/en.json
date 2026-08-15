@@ -1,0 +1,1190 @@
+{
+  "nav": {
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "templates": "Templates",
+    "pricing": "Pricing",
+    "getStarted": "Get Started",
+    "profile": "Profile",
+    "settings": "Settings",
+    "signIn": "Sign In",
+    "dashboard": "Dashboard",
+    "logout": "Log Out"
+  },
+  "hero": {
+    "badge": "v1.0 Launching Soon",
+    "title": "Build Resumes That",
+    "titleHighlight": "Open Doors",
+    "subtitle": "World-class resumes & CVs following global standards. Trusted by professionals across every industry, from Silicon Valley to the Gulf.",
+    "cta": "Start Building Free",
+    "ctaPaid": "Start Building",
+    "ctaSecondary": "View Templates",
+    "stats": {
+      "resumes": "50K+",
+      "resumesLabel": "Resumes Created",
+      "templates": "120+",
+      "templatesLabel": "Templates",
+      "satisfaction": "98%",
+      "satisfactionLabel": "Satisfaction Rate"
+    }
+  },
+  "challenge": {
+    "label": "The Problem",
+    "title": "Why Most Resumes",
+    "titleHighlight": "Never Get Read",
+    "items": {
+      "formats": {
+        "title": "Inconsistent Formats",
+        "desc": "Resumes vary wildly across candidates, causing confusion for recruiters before they even read a word."
+      },
+      "standards": {
+        "title": "No Global Standards",
+        "desc": "Most tools ignore regional and industry-specific CV expectations — what works in NYC fails in Dubai."
+      },
+      "content": {
+        "title": "Untrustworthy Content",
+        "desc": "Fabricated or exaggerated entries damage careers and credibility. Recruiters notice every inconsistency."
+      },
+      "ats": {
+        "title": "Poor ATS Compatibility",
+        "desc": "Poorly structured resumes get filtered out before any human sees them. 75% never make it through."
+      }
+    }
+  },
+  "features": {
+    "label": "Key Features",
+    "title": "Everything You Need to",
+    "titleHighlight": "Stand Out Globally",
+    "items": {
+      "templates": {
+        "title": "120+ Templates",
+        "desc": "Industry-specific layouts for every profession and region — crafted by professional designers."
+      },
+      "multiRegion": {
+        "title": "Multi-Region Support",
+        "desc": "US, EU Europass, GCC, Asia-Pacific, and academic CV formats all built-in and current."
+      },
+      "ats": {
+        "title": "ATS Optimizer",
+        "desc": "Score & optimize your resume for applicant tracking systems with real-time keyword analysis."
+      },
+      "coverLetter": {
+        "title": "Cover Letter Builder",
+        "desc": "AI-assisted cover letters matched to job descriptions. Personalized, not generic."
+      },
+      "preview": {
+        "title": "Real-Time Preview",
+        "desc": "See changes live as you build. No surprises when you export — what you see is what you get."
+      },
+      "export": {
+        "title": "Export Anywhere",
+        "desc": "PDF, DOCX, LinkedIn-ready formats with one click. Share a live link or download instantly."
+      }
+    }
+  },
+  "howItWorks": {
+    "label": "Process",
+    "title": "From Blank Page to",
+    "titleHighlight": "Job-Ready in Minutes",
+    "steps": {
+      "template": {
+        "num": "01",
+        "title": "Choose Template",
+        "desc": "Pick from 120+ industry & region-specific layouts built to global standards."
+      },
+      "info": {
+        "num": "02",
+        "title": "Enter Your Info",
+        "desc": "Guided form with smart prompts, skill suggestions & impact-driven phrasing."
+      },
+      "check": {
+        "num": "03",
+        "title": "ATS & Quality Check",
+        "desc": "Real-time score, keyword analysis, and section-by-section improvement tips."
+      },
+      "export": {
+        "num": "04",
+        "title": "Export & Apply",
+        "desc": "Download as PDF or DOCX. Share direct link or push to LinkedIn with one click."
+      }
+    }
+  },
+  "principles": {
+    "label": "Global Principles",
+    "title": "Built on Standards",
+    "titleHighlight": "The World Trusts",
+    "items": {
+      "honesty": {
+        "title": "Honesty First",
+        "desc": "ResuMax enforces truthful representation — no inflated job titles or fabricated credentials."
+      },
+      "ats": {
+        "title": "ATS-First Structure",
+        "desc": "Every template is engineered for machine readability, maximizing recruiter visibility."
+      },
+      "relevance": {
+        "title": "Relevance Over Length",
+        "desc": "Guided word limits and section priorities ensure concise, impact-driven documents."
+      },
+      "cultural": {
+        "title": "Cultural Sensitivity",
+        "desc": "Region-specific guidance on photos, age, marital status, and appropriate length."
+      },
+      "privacy": {
+        "title": "Privacy by Design",
+        "desc": "Users control exactly what personal data appears and how it is stored."
+      }
+    }
+  },
+  "roadmap": {
+    "label": "Roadmap",
+    "title": "Where We're",
+    "titleHighlight": "Headed",
+    "versions": {
+      "v1": {
+        "version": "v1.0",
+        "name": "Foundation",
+        "date": "Aug 2026",
+        "tag": "Current",
+        "features": [
+          "Basic resume builder",
+          "5 starter templates",
+          "PDF export"
+        ]
+      },
+      "v15": {
+        "version": "v1.5",
+        "name": "Expansion",
+        "date": "Nov 2026",
+        "tag": "Upcoming",
+        "features": [
+          "30 templates",
+          "Multi-language support",
+          "Cover letter builder"
+        ]
+      },
+      "v2": {
+        "version": "v2.0",
+        "name": "Global Core",
+        "date": "Jan 2027",
+        "tag": "Upcoming",
+        "features": ["120+ templates", "ATS optimizer", "AI suggestions"]
+      },
+      "v3": {
+        "version": "v3.0",
+        "name": "AI-Powered",
+        "date": "Q3 2027",
+        "tag": "Future",
+        "features": ["GPT resume coach", "Job-match scoring", "LinkedIn sync"]
+      }
+    }
+  },
+  "testimonials": {
+    "label": "Testimonials",
+    "title": "Trusted by",
+    "titleHighlight": "Professionals Worldwide",
+    "items": [
+      {
+        "name": "Sarah Mitchell",
+        "role": "Senior Product Manager",
+        "company": "Google",
+        "text": "ResuMax helped me land interviews at 5 top tech companies. The ATS optimizer is a game-changer.",
+        "region": "USA"
+      },
+      {
+        "name": "Ahmed Al-Rashidi",
+        "role": "Civil Engineer",
+        "company": "NEOM",
+        "text": "The GCC-specific template was exactly what I needed. Professional, culturally appropriate, and stunning.",
+        "region": "Saudi Arabia"
+      },
+      {
+        "name": "Elena Vasquez",
+        "role": "Data Scientist",
+        "company": "Spotify",
+        "text": "The Europass format support saved me hours. Perfect for applying across multiple EU countries.",
+        "region": "Spain"
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready to Build Your",
+    "titleHighlight": "Best Resume?",
+    "subtitle": "Join thousands of professionals who trust ResuMax to represent them with clarity, honesty, and global standards.",
+    "button": "Start Building Free",
+    "buttonPaid": "Start Building Now",
+    "note": "No credit card required • Free forever plan available",
+    "notePaid": "Full access enabled with your current subscription"
+  },
+  "auth": {
+    "tabs": {
+      "login": "Sign In",
+      "signup": "Create Account"
+    },
+    "heading": {
+      "loginTitle": "Welcome back",
+      "loginSubtitle": "Sign in to continue building your career.",
+      "signupTitle": "Join ResuMax",
+      "signupSubtitle": "Create your account and start building today."
+    },
+    "login": {
+      "emailPlaceholder": "Email address",
+      "passwordPlaceholder": "Password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "loading": "Signing in…",
+      "or": "or",
+      "switchText": "Don't have an account?",
+      "switchLink": "Create one",
+      "successTitle": "Welcome back!",
+      "successSubtitle": "Redirecting you now…",
+      "errors": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordMin": "Password must be at least 6 characters",
+        "invalidCredentials": "Invalid email or password.",
+        "network": "Network error. Please try again."
+      }
+    },
+    "oauth": {
+      "completing": "Completing sign in",
+      "pleaseWait": "Please wait while we securely finish signing you in.",
+      "success": "Signed in successfully. Redirecting…",
+      "errorTitle": "We couldn't sign you in",
+      "accessDenied": "You cancelled the provider authorization request.",
+      "failed": "Social sign-in could not be completed. Please try again.",
+      "expired": "This sign-in request is invalid or expired. Please try again.",
+      "backHome": "Back to home"
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Fill in your details to get started with ResuMax.",
+      "nameExample": "John Smith",
+      "emailExample": "john@example.com",
+      "passwordInputPlaceholder": "Create a strong password",
+      "confirmInputPlaceholder": "Repeat your password",
+      "successReady": "Your account is ready. Start building the resume that opens doors.",
+      "redirecting": "Redirecting to dashboard…",
+      "fullNamePlaceholder": "Full name",
+      "emailPlaceholder": "Email address",
+      "passwordPlaceholder": "Password",
+      "confirmPasswordPlaceholder": "Confirm password",
+      "termsPrefix": "By creating an account you agree to our",
+      "termsLink": "Terms of Service",
+      "termsAnd": "and",
+      "policyLink": "Privacy Policy",
+      "submit": "Create Account",
+      "loading": "Creating account…",
+      "or": "or",
+      "switchText": "Already have an account?",
+      "switchLink": "Sign in",
+      "successTitle": "Account created!",
+      "successSubtitle": "Welcome to ResuMax, {name}!",
+      "passwordChecks": {
+        "length": "8+ characters",
+        "uppercase": "Uppercase letter",
+        "number": "Number",
+        "special": "Special character"
+      },
+      "strength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong"
+      },
+      "errors": {
+        "nameRequired": "Full name is required",
+        "emailRequired": "Email is required",
+        "invalidEmail": "Enter a valid email address",
+        "passwordRequired": "Password is required",
+        "passwordMin": "Password must be at least 8 characters",
+        "confirmRequired": "Please confirm your password",
+        "confirmMismatch": "Passwords do not match",
+        "termsRequired": "Please accept the Terms of Service to continue.",
+        "registrationFailed": "Registration failed. Please try again.",
+        "network": "Network error. Please try again."
+      }
+    },
+    "passwordRecovery": {
+      "backToHome": "Home",
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email address and we will send you a secure link to reset your password.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "name@example.com",
+      "sendButton": "Send reset link",
+      "sending": "Sending...",
+      "remembered": "Remembered your password?",
+      "signIn": "Sign in",
+      "sentTitle": "Check your email",
+      "sentSubtitle": "We sent a password reset link to {email}. If you do not see it, check your spam folder or resend the email.",
+      "resendQuestion": "Did not receive the email?",
+      "resendButton": "Resend email",
+      "resendCountdown": "Resend in {seconds}s",
+      "resendSuccess": "A new reset email has been sent.",
+      "backToLogin": "Back to sign in",
+      "errors": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Enter a valid email address",
+        "network": "Could not send the reset email. Please try again."
+      }
+    },
+    "resetPassword": {
+      "backToLogin": "Sign in",
+      "title": "Create a new password",
+      "subtitle": "Add a strong password and confirm it so you can get back to your ResuMax account.",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "Enter your new password",
+      "confirmLabel": "Confirm password",
+      "confirmPlaceholder": "Re-enter your new password",
+      "submit": "Update password",
+      "saving": "Updating...",
+      "successTitle": "Password updated",
+      "successSubtitle": "Your password has been changed successfully. Redirecting you to sign in...",
+      "checks": {
+        "length": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "number": "One number",
+        "special": "One special character"
+      },
+      "errors": {
+        "passwordRequired": "New password is required",
+        "passwordWeak": "Use a stronger password that matches all requirements",
+        "confirmRequired": "Please confirm your new password",
+        "confirmMismatch": "Passwords do not match",
+        "network": "Network error. Please try again.",
+        "resetFailed": "Could not update your password. Please try again."
+      },
+      "invalidTitle": "Invalid reset link",
+      "invalidSubtitle": "This password reset link is missing or no longer valid. Please request a new reset email.",
+      "requestNewLink": "Request new reset link"
+    }
+  },
+  "verify": {
+    "heading": "Check your email",
+    "subtitlePrefix": "We sent a 6-digit verification code to",
+    "subtitleFallback": "your email address",
+    "subtitleSuffix": "Enter it below to verify your account.",
+    "verifyButton": "Verify Email",
+    "verifying": "Verifying…",
+    "dividerText": "didn't receive it?",
+    "resend": "Resend code",
+    "resending": "Sending…",
+    "resendIn": "in",
+    "resendSuccess": "A new code has been sent to your email.",
+    "backToRegister": "Back to register",
+    "bottomNote": "The code expires in 10 minutes. Check your spam folder if you don't see it.",
+    "success": {
+      "title": "Email verified!",
+      "subtitle": "Your account is now active. Taking you to your dashboard…"
+    },
+    "errors": {
+      "incomplete": "Please enter the complete 6-digit code.",
+      "invalid": "Invalid code. Please try again.",
+      "resendFailed": "Could not resend code. Try again.",
+      "network": "Network error. Please try again.",
+      "resendNetwork": "Network error. Could not resend."
+    }
+  },
+  "pricing": {
+    "hero": {
+      "badge": "Simple Pricing",
+      "titleLine1": "Invest in your",
+      "titleHighlight": "career, not your resume tool",
+      "subtitle": "Start free. Upgrade when you're ready. No surprises."
+    },
+    "billing": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "save": "Save 22%",
+      "billedAnnually": "Billed annually",
+      "billedMonthly": "Billed monthly"
+    },
+    "plans": {
+      "popular": "Most Popular",
+      "alwaysFree": "Always free",
+      "billedMonthly": "Billed monthly",
+      "perMonth": "/ mo",
+      "getStarted": "Get started free",
+      "downgradeToFree": "Downgrade to Free",
+      "startPlan": "Start {plan}",
+      "currentPlan": "Current plan",
+      "upgradePlan": "Upgrade to {plan}",
+      "items": {
+        "free": {
+          "name": "Free",
+          "features": [
+            "3 resume exports / month",
+            "5 starter templates",
+            "PDF export only",
+            "Basic ATS check"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "badge": "Most Popular",
+          "features": [
+            "Unlimited resume exports",
+            "120+ premium templates",
+            "PDF, DOCX & LinkedIn export",
+            "Full ATS optimizer + score",
+            "AI cover letter builder",
+            "Real-time preview"
+          ]
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "features": [
+            "Everything in Pro",
+            "Team workspace (up to 20)",
+            "GPT resume coach",
+            "Job-match scoring",
+            "LinkedIn sync",
+            "Priority support"
+          ]
+        }
+      }
+    },
+    "table": {
+      "title": "Compare all features",
+      "subtitle": "Everything side by side so you can pick with confidence.",
+      "featureHeader": "Feature",
+      "values": {
+        "unlimited": "Unlimited",
+        "basic": "Basic",
+        "full": "Full",
+        "upTo": "Up to {count}"
+      },
+      "sections": {
+        "core": "Core Builder",
+        "ai": "AI & Optimization",
+        "global": "Global & Regional",
+        "team": "Team & Collaboration"
+      },
+      "rows": {
+        "resumeExports": "Resume exports / month",
+        "templates": "Templates",
+        "realTimePreview": "Real-time preview",
+        "pdfExport": "PDF export",
+        "docxExport": "DOCX export",
+        "linkedinExport": "LinkedIn-ready export",
+        "atsCheck": "ATS check",
+        "atsScore": "ATS score",
+        "keywordAnalysis": "Keyword analysis",
+        "aiCoverLetter": "AI cover letter",
+        "gptCoach": "GPT resume coach",
+        "jobMatch": "Job-match scoring",
+        "usFormat": "US / Canada format",
+        "euFormat": "EU Europass format",
+        "gccFormat": "GCC / Middle East",
+        "apacFormat": "Asia-Pacific format",
+        "academicCv": "Academic CV",
+        "rtlSupport": "RTL language support",
+        "teamWorkspace": "Team workspace",
+        "linkedinSync": "LinkedIn sync",
+        "prioritySupport": "Priority support",
+        "customBranding": "Custom branding"
+      }
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "Everything you need to know before deciding.",
+      "items": [
+        {
+          "q": "Can I switch plans later?",
+          "a": "Yes, you can upgrade or downgrade at any time. When you upgrade, you get access to the new features immediately. When you downgrade, the change takes effect at the start of your next billing cycle."
+        },
+        {
+          "q": "Is there a free trial for Pro or Enterprise?",
+          "a": "You can start with the Free plan at any time with no credit card required. We also offer a 7-day money-back guarantee on Pro and Enterprise plans if you are not satisfied."
+        },
+        {
+          "q": "What payment methods do you accept?",
+          "a": "We accept all major credit cards (Visa, Mastercard, Amex) and PayPal via Stripe. All transactions are encrypted and secure."
+        },
+        {
+          "q": "Can I cancel my subscription?",
+          "a": "Absolutely. You can cancel any time from your account settings. You keep access to all paid features until the end of your current billing period."
+        },
+        {
+          "q": "Do you support Arabic and RTL languages?",
+          "a": "Yes. ResuMax is fully bilingual — both the interface and the resume builder support Arabic with proper RTL layout."
+        }
+      ]
+    },
+    "ctaBottom": {
+      "title": "Still not sure which plan?",
+      "subtitle": "Start with Free — no credit card, no commitment. You can always upgrade in one click.",
+      "primaryButton": "Start for free",
+      "secondaryButton": "Try Pro — $9/mo"
+    }
+  },
+  "dashboard": {
+    "backToHome": "Back to home",
+    "onboarding": "Onboarding",
+    "stepOf": "Step {current} of {total}",
+    "aiAssistant": "AI Resume Assistant",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "plans": {
+      "free": "Free plan",
+      "pro": "Pro plan",
+      "enterprise": "Enterprise plan"
+    },
+    "upgrade": "Upgrade",
+    "managePlan": "Manage plan",
+    "yourAccount": "Your account",
+    "steps": {
+      "contact": {
+        "label": "Contact",
+        "desc": "Personal details & links"
+      },
+      "summary": {
+        "label": "Summary",
+        "desc": "Professional introduction"
+      },
+      "skills": {
+        "label": "Skills",
+        "desc": "Detailed skill categories"
+      },
+      "experience": {
+        "label": "Experience",
+        "desc": "Work history & roles"
+      },
+      "projects": {
+        "label": "Projects",
+        "desc": "Projects & technologies"
+      },
+      "education": {
+        "label": "Education",
+        "desc": "Degrees & certifications"
+      }
+    },
+    "resumePlaceholder": {
+      "title": "Resume outline",
+      "editing": "Editing: {section}",
+      "ariaLabel": "Resume outline. Currently editing {section}.",
+      "hint": "The highlighted block follows the section you're editing."
+    },
+    "reorder": {
+      "hint": "Drag sections to reorder your resume",
+      "handleLabel": "Drag {section} to reorder",
+      "handleTitle": "Reorder section",
+      "moved": "{section} moved to position {position}"
+    },
+    "nextLabel": {
+      "contact": "Next: Summary",
+      "summary": "Next: Skills",
+      "skills": "Next: Experience",
+      "experience": "Next: Projects",
+      "projects": "Next: Education",
+      "education": "Generate Resume"
+    },
+    "generateResume": "Generate Resume",
+    "back": "Back",
+    "exitToHome": "Exit to home",
+    "contact": {
+      "badge": "Step 1 — Contact Info",
+      "titleLine1": "Tell us about",
+      "titleHighlight": "yourself",
+      "subtitle": "First impressions matter. We'll use this information to build your resume header and optimize your contact details for ATS screening.",
+      "sectionCompletion": "Section completion",
+      "fieldsCount": "{count}/{total} fields",
+      "optional": "Optional",
+      "atsTipLabel": "ATS Tip",
+      "atsTipText": "Recruiters spend an average of <b>6 seconds</b> on the header. A complete contact section increases your callback rate by up to <gold>60%</gold>.",
+      "fields": {
+        "fullName": {
+          "label": "Full Name",
+          "placeholder": "e.g. Alex Sterling",
+          "hint": "Use your real name as it appears on official documents"
+        },
+        "title": {
+          "label": "Professional Title",
+          "placeholder": "e.g. Senior UX Designer",
+          "hint": "Your current role or the role you're targeting"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "alex.sterling@example.com",
+          "hint": "Use a professional email address"
+        },
+        "phone": {
+          "label": "Phone Number",
+          "placeholder": "+1 (555) 000-0000"
+        },
+        "location": {
+          "label": "Location",
+          "placeholder": "San Francisco, CA",
+          "hint": "City and country is enough — no full address needed"
+        },
+        "github": {
+          "label": "GitHub Profile URL",
+          "placeholder": "github.com/alexsterling",
+          "hint": "Show recruiters your public code and projects"
+        },
+        "linkedin": {
+          "label": "LinkedIn Profile URL",
+          "placeholder": "linkedin.com/in/alexsterling",
+          "hint": "Increases your callback rate by up to 40%"
+        },
+        "portfolio": {
+          "label": "Portfolio URL",
+          "placeholder": "alexsterling.dev",
+          "hint": "Link to your portfolio or personal website"
+        }
+      },
+      "errors": {
+        "fullNameRequired": "Full name is required",
+        "titleRequired": "Professional title is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Enter a valid email address"
+      },
+      "email": {
+        "edit": "Edit email address",
+        "save": "Save email address",
+        "cancel": "Cancel editing email",
+        "updated": "Email updated.",
+        "updatedVerify": "Email updated — we sent a verification code to your new address.",
+        "verifyNow": "Verify now",
+        "invalidEmail": "Enter a valid email address",
+        "saveFailed": "Could not save your email. Please try again."
+      }
+    },
+    "summary": {
+      "badge": "Step 2 — Summary",
+      "title": "Professional Summary",
+      "subtitle": "Write one focused paragraph that introduces your experience, strengths, and the value you bring.",
+      "label": "Summary",
+      "placeholder": "I am a motivated software engineer with experience building scalable applications...",
+      "hint": "Aim for 60–120 words. Keep this as one paragraph; the template handles line wrapping.",
+      "wordCount": "{count} words"
+    },
+    "experience": {
+      "badge": "Step 4 — Experience",
+      "title": "Work Experience",
+      "subtitle": "Detail your career history to highlight your impact and leadership.",
+      "roleFallback": "Role {n}",
+      "removeRole": "Remove role",
+      "jobTitle": {
+        "label": "Job Title",
+        "placeholder": "e.g. Senior Software Engineer"
+      },
+      "company": {
+        "label": "Company Name",
+        "placeholder": "e.g. Global Tech Solutions"
+      },
+      "location": {
+        "label": "Location",
+        "placeholder": "e.g. New York, NY or Remote"
+      },
+      "currentlyWorkHere": "I currently work here",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "month": "Month",
+      "year": "Year",
+      "descriptionLabel": "Description / Key Achievements",
+      "atsTipsAvailable": "ATS Optimized Tips Available",
+      "descriptionPlaceholder": "• Spearheaded the development of a cloud-native platform, increasing deployment speed by 40%…",
+      "descriptionHint": "Use action verbs and quantify results where possible.",
+      "addAnotherRole": "Add Another Role"
+    },
+    "education": {
+      "badge": "Step 6 — Academic Portfolio",
+      "title": "Education & Certifications",
+      "subtitle": "Showcase your academic foundations and professional credentials. ResuMax helps align these with industry standards for better ATS ranking.",
+      "formalEducation": "Formal Education",
+      "addInstitution": "Add Institution",
+      "institutionFallback": "Institution {n}",
+      "removeInstitution": "Remove institution",
+      "institutionName": {
+        "label": "Institution Name",
+        "placeholder": "e.g. Stanford University"
+      },
+      "location": {
+        "label": "Institution City",
+        "placeholder": "e.g. Gaza"
+      },
+      "degree": {
+        "label": "Degree",
+        "placeholder": "e.g. B.S. Computer Science"
+      },
+      "fieldOfStudy": {
+        "label": "Field of Study",
+        "placeholder": "e.g. Artificial Intelligence"
+      },
+      "country": {
+        "label": "Country",
+        "placeholder": "e.g. Palestine"
+      },
+      "currentlyStudying": "I currently study here",
+      "startDate": "Start Date",
+      "endDate": "End / Expected Date",
+      "month": "Month",
+      "year": "Year",
+      "gradYear": {
+        "label": "Graduation Year",
+        "placeholder": "2023"
+      },
+      "professionalCertifications": "Professional Certifications",
+      "certificateName": {
+        "label": "Certificate Name",
+        "placeholder": "e.g. AWS Certified Solutions Architect"
+      },
+      "issuingOrg": {
+        "label": "Issuing Organization",
+        "placeholder": "e.g. Amazon Web Services"
+      },
+      "removeCertificate": "Remove certificate",
+      "addCertificate": "Add Certificate",
+      "proTip": "Pro Tip",
+      "proTipText": "Listing relevant coursework can significantly boost your ATS score for entry-level and mid-level roles. Ensure you use industry keywords.",
+      "atsScoreRank": "ATS Score Rank",
+      "profileCompletion": "Profile completion progress"
+    },
+    "projects": {
+      "badge": "Step 5 — Projects",
+      "title": "Projects",
+      "subtitle": "Show practical work, the technologies you used, and the result of each project.",
+      "projectFallback": "Project {n}",
+      "removeProject": "Remove project",
+      "name": {
+        "label": "Project Name",
+        "placeholder": "e.g. Tours Reservation"
+      },
+      "link": {
+        "label": "Project URL",
+        "placeholder": "github.com/you/project"
+      },
+      "technologies": {
+        "label": "Technologies",
+        "placeholder": "Node.js, Express.js, REST API, MongoDB"
+      },
+      "date": "Project Date",
+      "month": "Month",
+      "year": "Year",
+      "description": {
+        "label": "Highlights",
+        "placeholder": "- Built a REST API for...\n- Integrated MongoDB...",
+        "hint": "Write one achievement per line. Each line becomes a bullet in the resume."
+      },
+      "addProject": "Add Another Project"
+    },
+    "skills": {
+      "title": "Skills & Expertise",
+      "subtitle": "Organize specific skills into clear categories so recruiters can scan your complete technical profile.",
+      "categoryLabel": "Category Name",
+      "categoryPlaceholder": "e.g. Frontend",
+      "skillsLabel": "Skills in this category",
+      "skillsPlaceholder": "React.js, HTML/CSS, Tailwind CSS, JavaScript",
+      "addCategory": "Add Skill Category",
+      "removeCategory": "Remove skill category {n}",
+      "generalCategory": "General",
+      "addManually": "Quick add to the first category",
+      "inputPlaceholder": "e.g., Python, Project Management…",
+      "noneAdded": "No skills added yet — type above or pick a suggestion.",
+      "suggestedForRole": "Suggested for your role",
+      "viewMore": "View {count}+ more",
+      "estimatedAtsScore": "Estimated ATS Score",
+      "atsQuote": "Add 3 more technical skills to increase visibility for Senior Developer roles.",
+      "proTip": "Pro Tip",
+      "proTipText": "Skills like 'Public Speaking' or 'Critical Thinking' are great, but focus on industry-standard software and tools first.",
+      "finishButton": "Finish & Generate Resume",
+      "noCreditCard": "No credit card required • AI powered generation"
+    }
+  },
+  "templatesPage": {
+    "hero": {
+      "badge": "Localized & Responsive",
+      "title": "Templates for Every Career Stage",
+      "subtitle": "Built to exceed global institutional standards. Our layouts are surgical, precise, and 100% ATS-optimized to ensure your expertise never goes unnoticed."
+    },
+    "filters": {
+      "all": "All",
+      "professional": "Professional",
+      "creative": "Creative",
+      "technical": "Technical",
+      "minimalist": "Minimalist"
+    },
+    "actions": {
+      "useTemplate": "Use Template"
+    },
+    "labels": {
+      "studio": "Template Studio",
+      "ats": "ATS Ready",
+      "preview": "Preview",
+      "close": "Close",
+      "premium": "Premium",
+      "trusted": "Professional templates ready to apply",
+      "atsScore": "ATS Score",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "zoomControl": "Preview zoom percentage",
+      "rank": "#{number}"
+    },
+    "stats": {
+      "templates": "Templates",
+      "responsive": "Responsive",
+      "languages": "Arabic / English"
+    },
+    "templates": {
+      "executive": {
+        "title": "The Executive",
+        "tag": "High Performance",
+        "description": "Optimized for finance, leadership, and high-stakes corporate roles. Clean margins and a single-column layout for maximum impact.",
+        "field": "Finance / Mgmt"
+      },
+      "developer": {
+        "title": "The Developer",
+        "tag": "Density Focus",
+        "description": "Designed for software engineering and data science. Features a multi-column layout to highlight technical stack and repositories.",
+        "field": "Tech / STEM"
+      },
+      "director": {
+        "title": "The Director",
+        "tag": "Artistic Edge",
+        "description": "A bold, high-contrast design for creative directors and designers. Uses asymmetrical elements and refined typography.",
+        "field": "Design / Art"
+      },
+      "minimal": {
+        "title": "The Minimal",
+        "tag": "Clean Cut",
+        "description": "A precise, distraction-free template for modern professionals who want clarity, whitespace, and fast scanning.",
+        "field": "Business / General"
+      },
+      "academic": {
+        "title": "The Academic",
+        "tag": "Research Ready",
+        "description": "Structured for academic CVs, publications, research experience, teaching roles, and graduate applications.",
+        "field": "Education / Research"
+      },
+      "global": {
+        "title": "The Global",
+        "tag": "International",
+        "description": "A globally polished resume layout built for international applications, languages, certifications, and remote roles.",
+        "field": "Global / Remote"
+      }
+    },
+    "quality": {
+      "badge": "Surgical precision",
+      "title": "Surgical Precision in Every Pixel",
+      "subtitle": "Every template is built around clarity, responsive structure, and career-focused hierarchy so your experience stays easy to scan on every device.",
+      "items": {
+        "ats": {
+          "title": "ATS Shield Guaranteed",
+          "description": "Every template is pre-vetted to support clean parsing and reliable data extraction by hiring systems."
+        },
+        "global": {
+          "title": "Global Standards",
+          "description": "Compliant with US, EU, and UK resume expectations for international talent portability."
+        },
+        "rtl": {
+          "title": "RTL & LTR Ready",
+          "description": "Layouts are designed to stay balanced in Arabic and English without breaking spacing or hierarchy."
+        },
+        "support": {
+          "title": "Expert Support",
+          "description": "Built for a smooth editing experience with clear sections, readable spacing, and professional structure."
+        }
+      }
+    }
+  },
+  "resumePreview": {
+    "badge": "Generated resume",
+    "title": "Your resume is ready",
+    "subtitle": "Review your generated resume, choose the right template, and export the final version.",
+    "backToDashboard": "Back to dashboard",
+    "editResume": "Edit resume",
+    "preview": {
+      "title": "Resume preview",
+      "subtitle": "Review the generated resume before exporting it.",
+      "placeholderTitle": "Resume preview",
+      "placeholderText": "The generated resume will appear here in the next step.",
+      "imageAlt": "Generated resume preview",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "resetZoom": "Reset zoom",
+      "imageLoading": "Loading resume image...",
+      "imageErrorTitle": "Preview image unavailable",
+      "imageErrorText": "The resume data was loaded, but the preview image could not be displayed.",
+      "retryImage": "Reload image",
+      "positions": "positions",
+      "degrees": "degrees",
+      "certificates": "certificates",
+      "skillsList": "skills"
+    },
+    "labels": {
+      "ats": "ATS Ready"
+    },
+    "template": {
+      "title": "Current template",
+      "subtitle": "Choose the template that best fits your resume.",
+      "placeholder": "Templates will be added later",
+      "current": "Current template",
+      "selected": "Selected",
+      "selectAria": "Select {template} template",
+      "changeButton": "Change template",
+      "changeHint": "Return to the templates page to choose another template available in your plan."
+    },
+    "credits": {
+      "title": "Generation credits",
+      "subtitle": "Your available resume generation attempts.",
+      "remaining": "attempts remaining"
+    },
+    "export": {
+      "title": "Export resume",
+      "subtitle": "Download your final resume in your preferred format."
+    },
+    "status": {
+      "loadingTitle": "Loading resume preview",
+      "loadingText": "Please wait while we prepare your resume.",
+      "errorTitle": "Resume preview unavailable",
+      "errorText": "The resume preview could not be loaded.",
+      "retry": "Try again"
+    },
+    "configuration": {
+      "selectedTemplate": "Selected template",
+      "currentTemplate": "Current template",
+      "changeTemplate": "Change template",
+      "purpose": "Purpose",
+      "generate": "Generate resume",
+      "regenerate": "Regenerate resume",
+      "generating": "Generating...",
+      "preview": "Preview",
+      "zoom": "Zoom",
+      "exportAs": "Export as",
+      "credits": "Export credits",
+      "attemptsRemaining": "attempts remaining",
+      "ready": "Ready",
+      "lastUpdated": "Last updated",
+      "generatedSuccessfully": "Resume generated successfully.",
+      "generateError": "The resume could not be generated.",
+      "selectPurpose": "Select a purpose",
+      "formats": {
+        "pdf": "PDF",
+        "jpg": "JPG"
+      },
+      "purposes": {
+        "job": "Job application",
+        "internship": "Internship",
+        "scholarship": "Scholarship",
+        "academic": "Academic program",
+        "promotion": "Promotion or career move",
+        "government": "Government position",
+        "general": "General use"
+      },
+      "previewSections": {
+        "contact": "Contact details",
+        "summary": "Professional summary",
+        "details": "More details",
+        "about": "More about you",
+        "history": "Education and experience"
+      },
+      "upgrade": {
+        "eyebrow": "Upgrade plan",
+        "availableTitle": "Need more exports?",
+        "limitTitle": "You've reached your free limit",
+        "availableDescription": "You have {remaining} export attempts left. Upgrade to Pro for unlimited exports and access to premium templates.",
+        "limitDescription": "Upgrade to Pro to continue exporting your resume, unlock premium templates, and access more features.",
+        "benefits": {
+          "unlimitedExports": "Unlimited exports",
+          "premiumTemplates": "Access to premium templates",
+          "moreOptions": "More export and customization options"
+        },
+        "button": "Upgrade to Pro",
+        "note": "Upgrade anytime without losing your current resume."
+      },
+      "resumeInfo": "Resume Info",
+      "exportedSuccessfully": "Resume exported successfully.",
+      "sections": {
+        "experience": "Experience",
+        "education": "Education",
+        "certifications": "Certifications",
+        "skills": "Skills"
+      }
+    }
+  },
+  "resumeStart": {
+    "badge": "Choose how to begin",
+    "title": "How would you like to",
+    "titleHighlight": "build your resume?",
+    "subtitle": "Start a new resume with guided AI assistance, or upload your existing resume and improve it with ResuMax.",
+    "scratch": {
+      "badge": "Recommended",
+      "title": "Create a new resume",
+      "description": "Build your resume from scratch with guided steps, professional templates, and AI-powered suggestions.",
+      "button": "Start from scratch",
+      "features": {
+        "guided": "Guided resume-building experience",
+        "templates": "Professional and ATS-friendly templates",
+        "ai": "AI-assisted writing and improvements"
+      }
+    },
+    "upload": {
+      "title": "Upload an existing resume",
+      "description": "Upload your current resume to reformat, improve, and update it without entering all your information again.",
+      "button": "Upload resume",
+      "changeButton": "Choose another file",
+      "accepted": "PDF, DOC, or DOCX — maximum 10 MB",
+      "selected": "Selected file",
+      "ready": "Your file is ready to upload",
+      "remove": "Remove selected file",
+      "invalidType": "Please select a PDF, DOC, or DOCX file.",
+      "tooLarge": "The selected file must be smaller than 10 MB."
+    },
+    "trust": {
+      "secure": "Secure file handling",
+      "preserve": "Your original information is preserved",
+      "fast": "Continue without starting over"
+    }
+  },
+  "profile": {
+    "title": "Edit Profile",
+    "avatarUpload": "Upload image",
+    "changeAvatar": "Change",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving…",
+    "errors": {
+      "updateFailed": "Something went wrong. Please try again."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage app preferences",
+    "version": "ResuMax v1.0.0",
+    "close": "Close",
+    "savePreferences": "Save Preferences",
+    "preferencesSaved": "Preferences saved!",
+    "tabs": {
+      "appearance": "Appearance",
+      "language": "Language & Region",
+      "resume": "Resume Preferences",
+      "notifications": "Notifications",
+      "billing": "Billing & Plans",
+      "security": "Security & Sessions",
+      "privacy": "Privacy & Data",
+      "about": "About ResuMax"
+    },
+    "appearance": {
+      "heading": "Appearance",
+      "description": "Customize how ResuMax looks on your screen.",
+      "themeLabel": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "accentColorLabel": "Accent Color",
+      "compactMode": "Compact Mode",
+      "compactModeDesc": "Reduce padding in sidebar and editor",
+      "reduceAnimations": "Reduce Animations",
+      "reduceAnimationsDesc": "Disable motion transitions for faster navigation"
+    },
+    "language": {
+      "heading": "Language & Region",
+      "description": "Set application language and date formatting.",
+      "interfaceLanguage": "Interface Language",
+      "dateFormatLabel": "Default Date Format on Resume",
+      "dateFormats": {
+        "mmYYYY": "MM/YYYY (e.g., 08/2026)",
+        "mmmYYYY": "MMM YYYY (e.g., Aug 2026)",
+        "yyyyMM": "YYYY-MM (e.g., 2026-08)"
+      }
+    },
+    "resume": {
+      "heading": "Resume Preferences",
+      "description": "Default defaults when generating new resumes.",
+      "paperSizeLabel": "Default Paper Size",
+      "exportFormatLabel": "Default Download Format",
+      "formats": {
+        "pdf": "PDF Document (.pdf)",
+        "docx": "Microsoft Word (.docx)"
+      },
+      "autoSave": "Auto-Save Editor Changes",
+      "autoSaveDesc": "Automatically save changes while typing"
+    },
+    "notifications": {
+      "heading": "Email Notifications",
+      "description": "Manage what emails you receive from ResuMax.",
+      "resumeExported": { "title": "Resume Exports", "desc": "Notify when PDF generation completes" },
+      "securityAlerts": { "title": "Security Alerts", "desc": "Alert me about new device logins" },
+      "weeklyTips": { "title": "Career Tips & AI Advice", "desc": "Weekly tips to improve your resume score" },
+      "productUpdates": { "title": "Product News & Features", "desc": "Updates about new templates and features" }
+    },
+    "billing": {
+      "heading": "Billing & Subscription",
+      "description": "Manage your active subscription and plan limits.",
+      "planLabel": "{plan} Plan",
+      "activeSubscription": "Active Subscription",
+      "upgradeToPro": "Upgrade to Pro",
+      "managePlan": "Manage Plan",
+      "upgradeToEnterprise": "Upgrade to Enterprise",
+      "manageEnterprise": "Manage Enterprise",
+      "planDescriptions": {
+        "free": "You are currently on the Free plan. Upgrade for unlimited AI resume enhancements and DOCX exports.",
+        "pro": "You are on the Pro plan with unlimited AI resume enhancements, DOCX exports, and advanced analytics.",
+        "enterprise": "You are on the Enterprise plan with unlimited features, priority support, and custom integrations."
+      },
+      "usageLimits": "Usage Limits",
+      "aiCreditsUsed": "AI Credits Used",
+      "resumesStored": "Resumes Stored"
+    },
+    "security": {
+      "heading": "Security & Sessions",
+      "description": "Manage password and view connected devices.",
+      "activeSessions": "Active Sessions",
+      "currentDevice": "Current Device",
+      "active": "Active",
+      "signOutAllDevices": "Sign out from all devices"
+    },
+    "privacy": {
+      "heading": "Privacy & Data",
+      "description": "Control your personal data and account deletion.",
+      "downloadData": "Download Account Data (.json)",
+      "dangerZone": "Danger Zone",
+      "dangerZoneDesc": "Permanently delete your account and all stored resumes from ResuMax. This cannot be undone.",
+      "deleteAccount": "Delete Account",
+      "errors": {
+        "userNotFound": "User information not found",
+        "deleteFailed": "Failed to delete account. Please try again."
+      }
+    },
+    "about": {
+      "heading": "About ResuMax",
+      "description": "Application metadata and support links.",
+      "version": "Version",
+      "buildDate": "Build Date",
+      "buildDateValue": "July 2026",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "deleteConfirm": {
+      "title": "Delete Account",
+      "message": "Are you sure you want to delete your account? This action cannot be undone. All your resumes and data will be permanently removed.",
+      "cancel": "Cancel",
+      "confirm": "Delete Account",
+      "deleting": "Deleting…"
+    }
+  },
+  "footer": {
+    "tagline": "Trusted. Global. Effortless.",
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "links": {
+      "features": "Features",
+      "templates": "Templates",
+      "pricing": "Pricing",
+      "changelog": "Changelog",
+      "about": "About Us",
+      "blog": "Blog",
+      "careers": "Careers",
+      "press": "Press",
+      "help": "Help Center",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    },
+    "rights": "All rights reserved.",
+    "poweredBy": "Powered by FALO Enterprise"
+  }
+}

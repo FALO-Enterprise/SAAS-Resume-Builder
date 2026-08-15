@@ -1,0 +1,168 @@
+.resumePage {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 14mm 16mm;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-family: var(--font-academic, "Times New Roman", "Cambria", Georgia, serif);
+  font-size: calc(12.5px * var(--resume-font-scale, 1));
+  line-height: 1.55;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1.5px solid #1e3a8a;
+}
+
+.fullName {
+  margin: 0;
+  font-size: calc(24px * var(--resume-font-scale, 1));
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #1e3a8a;
+  text-transform: uppercase;
+}
+
+.jobTitle {
+  font-size: calc(13px * var(--resume-font-scale, 1));
+  font-weight: 600;
+  color: #475569;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.contactList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  color: #334155;
+}
+
+.contactList a {
+  color: #1e3a8a;
+  text-decoration: none;
+}
+
+.contactList a:hover {
+  text-decoration: underline;
+}
+
+.contactDot {
+  color: #94a3b8;
+}
+
+.section {
+  margin-bottom: 18px;
+}
+
+.sectionHeading {
+  margin: 0 0 10px 0;
+  font-size: calc(12.5px * var(--resume-font-scale, 1));
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #1e3a8a;
+  border-bottom: 1px solid #cbd5e1;
+  padding-bottom: 3px;
+}
+
+.summary {
+  margin: 0;
+  color: #334155;
+  font-size: calc(12px * var(--resume-font-scale, 1));
+  line-height: 1.6;
+}
+
+.entryList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  position: relative;
+}
+
+.entryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.entryTitle {
+  margin: 0;
+  font-size: calc(13px * var(--resume-font-scale, 1));
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.institution {
+  font-style: italic;
+  font-weight: 600;
+  color: #1e3a8a;
+}
+
+.date {
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.location {
+  font-size: 11px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.descriptionList {
+  margin: 6px 0 0 0;
+  padding-left: 18px;
+  font-size: calc(11.5px * var(--resume-font-scale, 1));
+  color: #334155;
+  line-height: 1.55;
+}
+
+.descriptionList li {
+  margin-bottom: 3px;
+}
+
+.skillsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: calc(12px * var(--resume-font-scale, 1));
+}
+
+.skillLine {
+  display: flex;
+  gap: 8px;
+}
+
+.skillLabel {
+  font-weight: 700;
+  color: #1e3a8a;
+  min-width: 120px;
+}
+
+.skillValues {
+  color: #334155;
+}
