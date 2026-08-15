@@ -10,7 +10,7 @@ import { useRegisterMutation } from "@/hooks/mutations/useAuthMutations";
 export function useRegisterFlow() {
   const locale = useLocale();
   const router = useRouter();
-  const { closeModal, login } = useAuth();
+  const { closeModal } = useAuth();
   const registerMutation = useRegisterMutation();
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -34,21 +34,25 @@ export function useRegisterFlow() {
       setRegisteredName(form.name);
       setSuccess(true);
 
-      login({
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        avatar: data.user.avatar,
-        role: data.user.role,
-      })
-
+      // After registration the user must verify their email before they can
+      // log in, so redirect them to the verification page instead of logging
+      // them in (the register endpoint returns no token and the account is
+      // not verified yet).
       setTimeout(() => {
-        router.push(`/${locale}/`);
+        router.push(
+          `/${locale}/verificationcode?email=${encodeURIComponent(form.email)}`,
+        );
       }, 2000);
 
       return true;
     } catch (error) {
-      setGeneralError(error instanceof Error ? error.message : networkFallback);
+      const message =
+        typeof error === "object" && error && "message" in error
+          ? String((error as { message?: string }).message ?? networkFallback)
+          : error instanceof Error
+            ? error.message
+            : networkFallback;
+      setGeneralError(message);
       return false;
     }
   };

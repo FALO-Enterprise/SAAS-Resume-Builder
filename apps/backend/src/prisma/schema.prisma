@@ -30,6 +30,7 @@ model DashboardDraft {
   template       String?
   currentStep    String   @default("contact")
   completedSteps String[] @default([])
+  sectionOrder   String[] @default([])
   contact        Json
   experience     Json
   education      Json

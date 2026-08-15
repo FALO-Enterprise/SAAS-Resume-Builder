@@ -1,3 +1,9 @@
+import type {
+  ResumeContent,
+  ResumeCustomization,
+  ResumeTemplateId,
+} from "@shared-types/resume";
+
 export type ResumePurpose =
   | "job"
   | "internship"
@@ -8,10 +14,10 @@ export type ResumePurpose =
   | "general";
 
 export type SelectedResumeTemplate = {
-  id: string;
+  id: ResumeTemplateId;
   name: string;
+  version: number;
   thumbnailUrl: string;
-  previewImageUrl: string;
 };
 
 export type ResumePreviewData = {
@@ -21,6 +27,9 @@ export type ResumePreviewData = {
   purpose: ResumePurpose;
 
   selectedTemplate: SelectedResumeTemplate;
+
+  content: ResumeContent;
+  customization: ResumeCustomization;
 
   pdfDownloadUrl: string | null;
   jpgDownloadUrl: string | null;

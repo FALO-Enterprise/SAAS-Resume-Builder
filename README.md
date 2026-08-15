@@ -61,6 +61,34 @@ Next.js App Router app under `apps/frontend/app/[locale]`. Landing page sections
 
 Express API under `apps/backend/src`, organized by module (`auth`, `resume`, `template`, `users`), each with its own controller/service/repository/schema. Database access is via Prisma (`apps/backend/src/prisma/schema.prisma`).
 
+### Resume PDF export
+
+PDF export uses Puppeteer's managed Chromium and the same React template as the browser preview. The existing `FRONTEND_URL` and `BACKEND_PUBLIC_URL` settings are used by the restricted internal render flow. Optional deployment settings are:
+
+```dotenv
+# Backend
+PDF_CONCURRENCY=2
+PDF_TIMEOUT_MS=30000
+PUPPETEER_EXECUTABLE_PATH=/path/to/chrome
+
+# Frontend (only when its server reaches the API at a different internal URL)
+BACKEND_INTERNAL_URL=http://backend:3001
+```
+
+Run `npm run seed --workspace apps/backend` when provisioning a database so the stable `minimal` / Professional ATS template metadata is present.
+
+### AI resume enhancement with Google Gemini
+
+The dashboard Generate action uses the authenticated backend to improve the professional title, experience descriptions, and skills before opening the preview. Configure the server only; never expose this key through a `NEXT_PUBLIC_` variable:
+
+```dotenv
+GEMINI_API_KEY=your-gemini-api-key
+# Optional; defaults to the stable Gemini 3.6 Flash model
+GEMINI_MODEL=gemini-3.6-flash
+```
+
+Google's standard `GOOGLE_API_KEY` variable is also accepted, but `GEMINI_API_KEY` is preferred.
+
 ### Password-reset email configuration
 
 The password-reset flow uses the backend SMTP settings and builds links to the

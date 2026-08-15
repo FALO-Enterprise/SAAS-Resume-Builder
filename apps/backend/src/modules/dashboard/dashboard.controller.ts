@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { HttpErrorStatus } from '../../common/utils/util.types';
-import { dashboardDraftSchema, DashboardDraftDTO } from './dashboard.schema';
+import { dashboardDraftSchema, type DashboardDraftInput } from './dashboard.schema';
 import { dashboardService } from './dashboard.service';
 
 export class DashboardController {
@@ -9,7 +9,7 @@ export class DashboardController {
         res.ok(draft);
     };
 
-    saveDraft = async (req: Request<{}, {}, DashboardDraftDTO>, res: Response) => {
+    saveDraft = async (req: Request<{}, {}, DashboardDraftInput>, res: Response) => {
         const parsed = dashboardDraftSchema.safeParse(req.body);
         if (!parsed.success) {
             res.error({

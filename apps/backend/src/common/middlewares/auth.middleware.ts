@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { JsonWebTokenError } from 'jsonwebtoken';
 import { verifyJWT } from '../../modules/auth/util/jwt.util';
 import { CustomError } from '../exceptions/exception';
 import { HttpErrorStatus } from '../utils/util.types';
@@ -32,24 +33,16 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
     }
 
     const jwt = authHeader.replace('Bearer ', '');
-    try {
-        const payload = verifyJWT(jwt);
-        const user = await userService.getUser(payload.sub);
+    let payload;
 
-        if (!user) {
-            next(
-                new CustomError(
-                    'User no longer exists',
-                    'AUTH',
-                    HttpErrorStatus.Unauthorized
-                )
-            );
+    try {
+        payload = verifyJWT(jwt);
+    } catch (error) {
+        if (!(error instanceof JsonWebTokenError)) {
+            next(error);
             return;
         }
 
-        req.user = { id: user.id, email: user.email, role: user.role };
-        next();
-    } catch {
         next(
             new CustomError(
                 'Invalid token',
@@ -57,5 +50,22 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
                 HttpErrorStatus.Unauthorized
             )
         );
+        return;
     }
+
+    const user = await userService.getUser(payload.sub);
+
+    if (!user) {
+        next(
+            new CustomError(
+                'User no longer exists',
+                'AUTH',
+                HttpErrorStatus.Unauthorized
+            )
+        );
+        return;
+    }
+
+    req.user = { id: user.id, email: user.email, role: user.role };
+    next();
 }

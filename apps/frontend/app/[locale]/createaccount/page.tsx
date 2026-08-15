@@ -13,6 +13,8 @@ import PasswordStrength from '@/lib/utilities/PasswordStrength'
 import { getOAuthStartUrl } from '@/lib/backend';
 import { useRegisterFlow } from '@/hooks/mutations/useRegisterFlow';
 
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Register form
 // ─────────────────────────────────────────────────────────────────────────────
@@ -121,32 +123,41 @@ function SuccessScreen({ name }: { name: string }) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main page
-// ─────────────────────────────────────────────────────────────────────────────
+
 export default function RegisterPage() {
   const locale = useLocale();
   const t = useTranslations('auth.signup');
 
   const { openLogin } = useAuth();
-  const { submit, isPending, generalError, success, registeredName } = useRegisterFlow();
+
+  const {
+    submit,
+    isPending,
+    generalError,
+    success,
+    registeredName,
+  } = useRegisterFlow();
 
   const handleSubmit = async (data: RegisterData) => {
-    const networkFallback = t('errors.networkError');
-    await submit(data, networkFallback);
+    await submit(data , t('errors.network'));
   };
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-base px-6 py-10">
 
       {/* Background glows */}
-      <div className='fixed top-1/6 left-1/6 w-125 h-125 glow-gold rounded-full blur-2xl pointer-events-none' />
-      <div className='fixed bottom-1/6 right-1/12 w-100 h-100 glow-azure rounded-full blur-2xl pointer-events-none' />
-      <div className='fixed top-1/2 right-1/12 w-75 h-75 glow-gold rounded-full blur-2xl pointer-events-none' />
+      <div className="fixed top-1/6 left-1/6 w-125 h-125 glow-gold rounded-full blur-2xl pointer-events-none" />
+      <div className="fixed bottom-1/6 right-1/12 w-100 h-100 glow-azure rounded-full blur-2xl pointer-events-none" />
+      <div className="fixed top-1/2 right-1/12 w-75 h-75 glow-gold rounded-full blur-2xl pointer-events-none" />
 
       {/* Card */}
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        transition={{
+          duration: 0.5,
+          ease: [0.16, 1, 0.3, 1],
+        }}
         className="relative z-10 w-full max-w-125 rounded-[28px] border border-edge bg-elevated px-10 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)]"
       >
         {/* Header */}
@@ -171,8 +182,11 @@ export default function RegisterPage() {
 
         {/* Server error banner */}
         {generalError && !success && (
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-            className="mb-5 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light">
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-5 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
+          >
             {generalError}
           </motion.div>
         )}
@@ -181,15 +195,31 @@ export default function RegisterPage() {
         <AnimatePresence mode="wait">
           <motion.div
             key={success ? 'success' : 'form'}
-            initial={{ opacity: 0, x: success ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: success ? -20 : 20 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            initial={{
+              opacity: 0,
+              x: success ? 20 : -20,
+            }}
+            animate={{
+              opacity: 1,
+              x: 0,
+            }}
+            exit={{
+              opacity: 0,
+              x: success ? -20 : 20,
+            }}
+            transition={{
+              duration: 0.25,
+              ease: [0.16, 1, 0.3, 1],
+            }}
           >
-            {!success
-              ? <RegisterForm onSubmit={handleSubmit} loading={isPending} />
-              : <SuccessScreen name={registeredName} />
-            }
+            {!success ? (
+              <RegisterForm
+                onSubmit={handleSubmit}
+                loading={isPending}
+              />
+            ) : (
+              <SuccessScreen name={registeredName} />
+            )}
           </motion.div>
         </AnimatePresence>
 
@@ -215,16 +245,16 @@ export default function RegisterPage() {
       {/* Bottom note */}
       {!success && (
         <motion.p
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
           className="mt-6 text-center text-xs text-muted"
         >
           {t('termsPrefix')}{' '}
           <a href="#" className="text-faint no-underline">
             {t('termsLink')}
-          </a>
-          {' '}
-          {t('termsAnd')}
-          {' '}
+          </a>{' '}
+          {t('termsAnd')}{' '}
           <a href="#" className="text-faint no-underline">
             {t('policyLink')}
           </a>

@@ -40,6 +40,8 @@ export default function UserAvatarMenu() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  if (!user) return null;
+
   const activePlanId = (user?.planName?.toLowerCase() || "free") as keyof typeof PLAN_BADGES;
   const verifyHref = `/${locale}/verificationcode${user?.email ? `?email=${encodeURIComponent(user.email)}` : ''}`;
 
@@ -140,7 +142,7 @@ export default function UserAvatarMenu() {
                   className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-secondary hover:bg-card-hover hover:text-primary transition-colors cursor-pointer"
                 >
                   <UserIcon size={14} />
-                  Profile
+                  {t("profile")}
                 </button>
 
                 {/* Settings */}
@@ -152,7 +154,7 @@ export default function UserAvatarMenu() {
                   className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-secondary hover:bg-card-hover hover:text-primary transition-colors cursor-pointer"
                 >
                   <Settings size={14} />
-                  Settings
+                  {t("settings")}
                 </button>
 
                 {/* Dashboard */}

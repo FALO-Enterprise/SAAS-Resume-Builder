@@ -2,6 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import prisma from '../../prisma/prisma.service';
 import { createArgonHash } from './util/argon.util';
 import type { AuthenticatedUserDTO } from './types/auth.dto';
+import { sendVerificationCode } from './util/verification.util';
 
 export const OAUTH_PROVIDERS = ['google', 'github', 'linkedin'] as const;
 export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
@@ -293,10 +294,15 @@ export async function findOrCreateOAuthUser(
     if (existingAccount) {
         const existingUser = await prisma.user.findUnique({
             where: { id: existingAccount.userId },
-            select: { avatar: true },
+            select: { avatar: true, email: true, isVerified: true },
         });
 
         if (!existingUser) throw new Error('OAuth account user not found');
+
+        const updateData: { avatar?: string | null } = {};
+        
+        // Don't auto-verify returning OAuth users — they must verify via email
+        // like everyone else. Their existing isVerified status is maintained.
 
         // Provider image URLs can change or expire. Refresh provider-managed
         // avatars on login, but never replace an image uploaded by the user.
@@ -305,10 +311,18 @@ export async function findOrCreateOAuthUser(
             && profile.avatar !== existingUser.avatar
             && (!existingUser.avatar || !isUploadedAvatar(existingUser.avatar))
         ) {
+            updateData.avatar = profile.avatar;
+        }
+
+        if (Object.keys(updateData).length > 0) {
             await prisma.user.update({
                 where: { id: existingAccount.userId },
-                data: { avatar: profile.avatar },
+                data: updateData,
             });
+        }
+
+        if (!existingUser.isVerified) {
+            await sendVerificationCode(existingUser.email);
         }
 
         return authenticatedUser(existingAccount.userId);
@@ -330,12 +344,21 @@ export async function findOrCreateOAuthUser(
                     email,
                     avatar: profile.avatar,
                     password,
-                    isVerified: true,
+                    isVerified: false,
                 },
             });
+
+            // Send verification email for new OAuth registrations
+            try {
+                await sendVerificationCode(email);
+                console.log(`Verification code sent to OAuth user: ${email}`);
+            } catch (verifyError) {
+                console.error(`Failed to send verification code to OAuth user ${email}:`, verifyError);
+            }
         } else {
             const updateData: { isVerified?: boolean; avatar?: string | null } = {};
-            if (!user.isVerified) updateData.isVerified = true;
+            // Keep existing user's isVerified status unchanged — if they were
+            // never verified via email, they still need to verify
             if (!user.avatar && profile.avatar) updateData.avatar = profile.avatar;
 
             if (Object.keys(updateData).length > 0) {

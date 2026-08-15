@@ -1,45 +1,67 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import {
   User, Briefcase, GraduationCap, Zap,
   Mail, Phone, MapPin, Link2, ArrowRight,
   ArrowLeft, Sparkles, Check,
   LayoutDashboard, ChevronRight, Menu, X,
   Plus, Trash2, Building2, Calendar, Info,
-  Award, Lightbulb, PlusCircle, Search,
-  Pencil, Loader2,
+  Award, Lightbulb, PlusCircle, FileText, Search,
+  Pencil, Loader2, FolderKanban, GripVertical,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
 import UserAvatarMenu from '@/components/ui/UserAvatarMenu';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import HintTooltip from '@/components/ui/HintTooltip';
-import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem, DashboardDraftData } from '@/lib/types/dashboard.types';
+import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem, DashboardDraftData, ProjectItem, SkillGroupItem } from '@/lib/types/dashboard.types';
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
-import { emptyRole, emptyEdu, emptyCert } from '@/lib/utilities/resume';
+import { defaultSkillGroups, emptyRole, emptyEdu, emptyCert, emptyProject, emptySkillGroup } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
 import { getAvatarUrl, isUploadedAvatar } from '@/lib/utilities/avatar';
 import {getInitials} from '@/lib/utilities/getName';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import { getDashboardDraft, saveDashboardDraft } from '@/lib/backend';
-import { useRouter } from 'next/navigation';
+import DashboardResumePlaceholder from '@/components/dashboard/DashboardResumePlaceholder';
+import {
+  getResumeSectionOrder,
+  getResumeStepOrder,
+  moveResumeStep,
+  type ResumeStepId,
+} from '@/components/dashboard/section-order.model';
+import { generateCurrentResume, getDashboardDraft, isUnauthorizedBackendError, saveDashboardDraft } from '@/lib/backend';
+import {
+  DEFAULT_RESUME_CUSTOMIZATION,
+  RESUME_TEMPLATE_IDS,
+  type ResumeSectionId,
+  type ResumeTemplateId,
+} from '@shared-types/resume';
 
 const DASHBOARD_SAVE_ERROR_TOAST_ID = 'dashboard-save-error';
+const SESSION_EXPIRED_TOAST_ID = 'session-expired';
+const DEFAULT_TEMPLATE_ID: ResumeTemplateId = 'minimal';
+
+function parseResumeTemplateId(value: string | null | undefined): ResumeTemplateId {
+  return RESUME_TEMPLATE_IDS.find((templateId) => templateId === value) ?? DEFAULT_TEMPLATE_ID;
+}
 
 function serializeDashboardDraft(draft: DashboardDraftData) {
   return JSON.stringify({
     template: draft.template,
     currentStep: draft.currentStep,
     completedSteps: draft.completedSteps,
+    sectionOrder: draft.sectionOrder,
     contact: draft.contact,
+    summary: draft.summary,
+    skillGroups: draft.skillGroups,
     experience: draft.experience,
+    projects: draft.projects,
     education: draft.education,
     certifications: draft.certifications,
     skills: draft.skills,
@@ -376,6 +398,87 @@ function AtsRing({ percent }: { percent: number }) {
 }
 
 // ── Experience step (accordion) ──────────────────────────────────────────────
+function CommaListField({ label, placeholder, value, onChange }: {
+  label: string;
+  placeholder: string;
+  value: string[];
+  onChange: (value: string[]) => void;
+}) {
+  const [draft, setDraft] = useState(value.join(', '));
+  const focused = useRef(false);
+  const serialized = value.join(', ');
+
+  useEffect(() => {
+    if (!focused.current) setDraft(serialized);
+  }, [serialized]);
+
+  const commit = () => {
+    focused.current = false;
+    const items = draft
+      .split(/[,\n]/)
+      .map(item => item.trim())
+      .filter((item, index, items) => item && items.findIndex(candidate => candidate.toLowerCase() === item.toLowerCase()) === index);
+    onChange(items);
+    setDraft(items.join(', '));
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{label}</label>
+      <textarea
+        rows={3}
+        value={draft}
+        placeholder={placeholder}
+        onFocus={() => { focused.current = true; }}
+        onBlur={commit}
+        onChange={event => setDraft(event.target.value)}
+        className="w-full resize-y rounded-xl border border-edge bg-base/40 px-4 py-3 text-[14px] leading-relaxed text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4"
+      />
+    </div>
+  );
+}
+
+function SummaryStep({ value, onChange }: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const t = useTranslations('dashboard.summary');
+  const words = value.trim() ? value.trim().split(/\s+/).length : 0;
+
+  return (
+    <div>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
+        <FileText size={13} className="text-gold" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
+      </motion.div>
+      <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        {t('title')}
+      </motion.h1>
+      <p className="mb-8 max-w-150 text-[15px] leading-[1.7] text-faint">{t('subtitle')}</p>
+      <div className="rounded-2xl border border-edge bg-card p-5 sm:p-7">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <label htmlFor="professional-summary" className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+            {t('label')}
+          </label>
+          <span className="text-[11px] text-muted">{t('wordCount', { count: words })}</span>
+        </div>
+        <textarea
+          id="professional-summary"
+          rows={10}
+          maxLength={3000}
+          value={value}
+          onChange={event => onChange(event.target.value)}
+          placeholder={t('placeholder')}
+          className="w-full resize-y rounded-xl border border-edge bg-base/40 px-4 py-4 text-[15px] leading-[1.75] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4"
+        />
+        <p className="mt-3 text-[12px] leading-relaxed text-faint">{t('hint')}</p>
+      </div>
+    </div>
+  );
+}
+
 function ExperienceStep({ items, onChange }: {
   items: ExperienceItem[];
   onChange: (items: ExperienceItem[]) => void;
@@ -541,6 +644,89 @@ function ExperienceStep({ items, onChange }: {
 }
 
 // ── Education step ───────────────────────────────────────────────────────────
+function ProjectsStep({ items, onChange }: {
+  items: ProjectItem[];
+  onChange: (items: ProjectItem[]) => void;
+}) {
+  const t = useTranslations('dashboard.projects');
+  const update = (id: string, patch: Partial<ProjectItem>) =>
+    onChange(items.map(item => item.id === id ? { ...item, ...patch } : item));
+  const addProject = () => onChange([...items, emptyProject()]);
+  const removeProject = (id: string) => onChange(items.filter(item => item.id !== id));
+
+  return (
+    <div>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
+        <FolderKanban size={13} className="text-gold" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
+      </motion.div>
+      <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        {t('title')}
+      </motion.h1>
+      <p className="mb-8 max-w-150 text-[15px] leading-[1.7] text-faint">{t('subtitle')}</p>
+
+      <div className="flex flex-col gap-5">
+        {items.map((project, index) => (
+          <div key={project.id} className="rounded-2xl border border-edge bg-card p-5 sm:p-7">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-gold/20 bg-gold/10">
+                  <FolderKanban size={15} className="text-gold" />
+                </div>
+                <h2 className="font-bold text-primary">{project.name || t('projectFallback', { n: index + 1 })}</h2>
+              </div>
+              {items.length > 1 && (
+                <button type="button" onClick={() => removeProject(project.id)} aria-label={t('removeProject')}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:text-pink-light">
+                  <Trash2 size={14} />
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <ExpField label={t('name.label')} placeholder={t('name.placeholder')}
+                value={project.name} onChange={value => update(project.id, { name: value })} />
+              <ExpField label={t('link.label')} placeholder={t('link.placeholder')} rightIcon={Link2}
+                value={project.link} onChange={value => update(project.id, { link: value })} />
+              <div className="sm:col-span-2">
+                <CommaListField label={t('technologies.label')} placeholder={t('technologies.placeholder')}
+                  value={project.technologies} onChange={technologies => update(project.id, { technologies })} />
+              </div>
+              <div className="flex flex-col gap-2 sm:col-span-2">
+                <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                  <Calendar size={12} /> {t('date')}
+                </label>
+                <div className="flex gap-2.5">
+                  <ExpSelect value={project.startMonth} onChange={value => update(project.id, { startMonth: value })}
+                    options={MONTHS} placeholder={t('month')} />
+                  <ExpSelect value={project.startYear} onChange={value => update(project.id, { startYear: value })}
+                    options={YEARS} placeholder={t('year')} />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-2">
+              <label className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{t('description.label')}</label>
+              <textarea rows={5} value={project.description}
+                onChange={event => update(project.id, { description: event.target.value })}
+                placeholder={t('description.placeholder')}
+                className="w-full resize-y rounded-xl border border-edge bg-base/40 px-4 py-3 text-[14px] leading-relaxed text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4" />
+              <p className="text-[11px] text-muted">{t('description.hint')}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button type="button" onClick={addProject}
+        className="mx-auto mt-6 flex items-center gap-2 rounded-xl border border-dashed border-azure-light/40 bg-azure-light/4 px-6 py-3.5 text-[14px] font-semibold text-faint transition-all hover:border-azure-light/60 hover:bg-azure-light/8">
+        <Plus size={16} /> {t('addProject')}
+      </button>
+    </div>
+  );
+}
+
 function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
   education: EducationItem[];
   onEducationChange: (items: EducationItem[]) => void;
@@ -572,8 +758,11 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
   const addCert = () => onCertsChange([...certs, emptyCert()]);
   const removeCert = (id: string) => onCertsChange(certs.filter(it => it.id !== id));
 
-  const eduFilled = education.reduce((n, e) => n + [e.institution, e.degree, e.field, e.gradYear].filter(v => v.trim()).length, 0);
-  const eduTotal = education.length * 4;
+  const eduFilled = education.reduce((n, e) => n + [
+    e.institution, e.location, e.degree, e.field, e.country,
+    e.startMonth, e.startYear, e.endMonth, e.endYear || e.gradYear,
+  ].filter(v => v.trim()).length, 0);
+  const eduTotal = education.length * 9;
   const certFilled = certs.reduce((n, c) => n + [c.name, c.org].filter(v => v.trim()).length, 0);
   const certTotal = certs.length * 2;
   const total = eduTotal + certTotal;
@@ -612,7 +801,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
         {education.map((edu, idx) => {
           const isOpen = expandedId === edu.id;
           const title = edu.institution || t('institutionFallback', { n: idx + 1 });
-          const subtitle = [edu.degree, edu.gradYear].filter(Boolean).join(' · ');
+          const subtitle = [edu.degree, edu.endYear || edu.gradYear].filter(Boolean).join(' · ');
 
           return (
             <div key={edu.id} className="overflow-hidden rounded-2xl border border-edge bg-card">
@@ -656,12 +845,49 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                       <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
                         <ExpField label={t('institutionName.label')} placeholder={t('institutionName.placeholder')}
                           value={edu.institution} onChange={v => updateEdu(edu.id, { institution: v })} />
+                        <ExpField label={t('location.label')} placeholder={t('location.placeholder')} rightIcon={MapPin}
+                          value={edu.location} onChange={v => updateEdu(edu.id, { location: v })} />
                         <ExpField label={t('degree.label')} placeholder={t('degree.placeholder')}
                           value={edu.degree} onChange={v => updateEdu(edu.id, { degree: v })} />
                         <ExpField label={t('fieldOfStudy.label')} placeholder={t('fieldOfStudy.placeholder')}
                           value={edu.field} onChange={v => updateEdu(edu.id, { field: v })} />
-                        <ExpField label={t('gradYear.label')} placeholder={t('gradYear.placeholder')} rightIcon={Calendar}
-                          value={edu.gradYear} onChange={v => updateEdu(edu.id, { gradYear: v })} />
+                        <ExpField label={t('country.label')} placeholder={t('country.placeholder')} rightIcon={MapPin}
+                          value={edu.country} onChange={v => updateEdu(edu.id, { country: v })} />
+
+                        <div className="flex items-end">
+                          <label className="flex cursor-pointer items-center gap-2.5 py-3">
+                            <button type="button" role="checkbox" aria-checked={edu.current}
+                              onClick={() => updateEdu(edu.id, { current: !edu.current, endMonth: '', endYear: '', gradYear: '' })}
+                              className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${edu.current ? 'border-gold bg-gold' : 'border-edge-strong bg-transparent'}`}>
+                              {edu.current && <Check size={12} className="text-ink" />}
+                            </button>
+                            <span className="text-[14px] text-secondary">{t('currentlyStudying')}</span>
+                          </label>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                            <Calendar size={12} /> {t('startDate')}
+                          </label>
+                          <div className="flex gap-2.5">
+                            <ExpSelect value={edu.startMonth} onChange={v => updateEdu(edu.id, { startMonth: v })}
+                              options={MONTHS} placeholder={t('month')} />
+                            <ExpSelect value={edu.startYear} onChange={v => updateEdu(edu.id, { startYear: v })}
+                              options={YEARS} placeholder={t('year')} />
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                            <Calendar size={12} /> {t('endDate')}
+                          </label>
+                          <div className="flex gap-2.5">
+                            <ExpSelect value={edu.endMonth} onChange={v => updateEdu(edu.id, { endMonth: v })}
+                              options={MONTHS} placeholder={t('month')} disabled={edu.current} />
+                            <ExpSelect value={edu.endYear || edu.gradYear} onChange={v => updateEdu(edu.id, { endYear: v, gradYear: v })}
+                              options={YEARS} placeholder={t('year')} disabled={edu.current} />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -737,15 +963,16 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
 }
 
 // ── Skills step ──────────────────────────────────────────────────────────────
-function SkillsStep({ skills, onChange, onFinish }: {
-  skills: string[];
-  onChange: (skills: string[]) => void;
-  onFinish: () => void;
+function SkillsStep({ groups, onChange }: {
+  groups: SkillGroupItem[];
+  onChange: (groups: SkillGroupItem[]) => void;
 }) {
   const t = useTranslations('dashboard.skills');
   const [input, setInput] = useState('');
   const [showAll, setShowAll] = useState(false);
   const isSearching = input.trim().length > 0;
+
+  const skills = groups.flatMap(group => group.skills);
 
   const available = DEFAULT_SUGGESTIONS.filter(
     skill => !skills.some(s => s.toLowerCase() === skill.toLowerCase())
@@ -761,13 +988,26 @@ function SkillsStep({ skills, onChange, onFinish }: {
 
   const remaining = available.length - suggestedSkills.length;
 
+  const updateGroup = (id: string, patch: Partial<SkillGroupItem>) =>
+    onChange(groups.map(group => group.id === id ? { ...group, ...patch } : group));
+  const addGroup = () => onChange([...groups, emptySkillGroup()]);
+  const removeGroup = (id: string) => onChange(groups.filter(group => group.id !== id));
+
   const addSkill = (value: string) => {
     const v = value.trim();
     if (!v || skills.some(s => s.toLowerCase() === v.toLowerCase())) return;
-    onChange([...skills, v]);
+    if (groups.length === 0) {
+      const group = emptySkillGroup(t('generalCategory'));
+      onChange([{ ...group, skills: [v] }]);
+    } else {
+      updateGroup(groups[0].id, { skills: [...groups[0].skills, v] });
+    }
     setInput('');
   };
-  const removeSkill = (value: string) => onChange(skills.filter(s => s !== value));
+  const removeSkill = (value: string) => onChange(groups.map(group => ({
+    ...group,
+    skills: group.skills.filter(skill => skill !== value),
+  })));
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') return;
@@ -798,6 +1038,40 @@ function SkillsStep({ skills, onChange, onFinish }: {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_320px]">
         {/* Left column */}
         <div>
+          <div className="mb-5 flex flex-col gap-4">
+            {groups.map((group, index) => (
+              <div key={group.id} className="rounded-2xl border border-edge bg-card p-5 sm:p-6">
+                <div className="mb-4 flex items-end gap-3">
+                  <div className="flex-1">
+                    <ExpField
+                      label={t('categoryLabel')}
+                      placeholder={t('categoryPlaceholder')}
+                      value={group.label}
+                      onChange={label => updateGroup(group.id, { label })}
+                    />
+                  </div>
+                  {groups.length > 1 && (
+                    <button type="button" onClick={() => removeGroup(group.id)}
+                      aria-label={t('removeCategory', { n: index + 1 })}
+                      className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light">
+                      <Trash2 size={15} />
+                    </button>
+                  )}
+                </div>
+                <CommaListField
+                  label={t('skillsLabel')}
+                  placeholder={t('skillsPlaceholder')}
+                  value={group.skills}
+                  onChange={skillItems => updateGroup(group.id, { skills: skillItems })}
+                />
+              </div>
+            ))}
+            <button type="button" onClick={addGroup}
+              className="mx-auto flex items-center gap-2 rounded-xl border border-dashed border-azure-light/40 bg-azure-light/4 px-5 py-3 text-[13px] font-semibold text-faint transition-all hover:border-azure-light/60 hover:bg-azure-light/8">
+              <Plus size={15} /> {t('addCategory')}
+            </button>
+          </div>
+
           <div className="rounded-2xl border border-edge bg-card p-5 sm:p-6">
             <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">{t('addManually')}</div>
             <div className="relative mb-5">
@@ -918,26 +1192,104 @@ function SkillsStep({ skills, onChange, onFinish }: {
             </div>
           </div>
 
-          <div>
-            <button
-              onClick={onFinish}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_30px_rgba(245,166,35,0.4)] transition-all hover:-translate-y-px hover:bg-gold-light"
-            >
-              {t('finishButton')} <Zap size={16} />
-            </button>
-            <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.08em] text-muted">
-              {t('noCreditCard')}
-            </p>
-          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
-  currentStep: StepId; completedSteps: Set<StepId>;
+type DashboardStep = (typeof STEPS)[number];
+
+function SortableSidebarStep({
+  step,
+  currentStep,
+  completedSteps,
+  isLocked,
+  position,
+  onStepClick,
+  onMove,
+  onMoveComplete,
+}: {
+  step: DashboardStep & { id: ResumeStepId };
+  currentStep: StepId;
+  completedSteps: Set<StepId>;
+  isLocked: boolean;
+  position: number;
   onStepClick: (id: StepId) => void;
+  onMove: (id: ResumeStepId, destinationIndex: number) => void;
+  onMoveComplete: (id: ResumeStepId) => void;
+}) {
+  const t = useTranslations('dashboard');
+  const dragControls = useDragControls();
+  const Icon = step.icon;
+  const isActive = step.id === currentStep;
+  const isComplete = completedSteps.has(step.id);
+  const label = t(`steps.${step.id}.label`);
+
+  return (
+    <Reorder.Item
+      as="div"
+      value={step.id}
+      dragListener={false}
+      dragControls={dragControls}
+      onDragEnd={() => onMoveComplete(step.id)}
+      whileDrag={{ scale: 1.02, zIndex: 10 }}
+      className={`flex w-full items-stretch rounded-xl border transition-[border-color,background-color,box-shadow,opacity] ${isActive ? 'border-gold/15 bg-gold/10' : 'border-gold/10 bg-transparent'
+        } ${isLocked ? 'opacity-35' : ''}`}
+    >
+      <button
+        type="button"
+        disabled={isLocked}
+        onClick={() => onStepClick(step.id)}
+        className={`flex min-w-0 flex-1 items-center gap-3 rounded-xl px-3.5 py-3 text-left ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}
+      >
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-all ${isActive ? 'border-gold/30 bg-gold/15' : isComplete ? 'border-green/20 bg-green/10' : 'border-edge bg-card'
+          }`}>
+          {isComplete ? <Check size={15} className="text-green" /> : <Icon size={15} className={isActive ? 'text-gold' : 'text-muted'} />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className={`text-[13px] transition-colors ${isActive ? 'font-bold text-primary' : 'font-medium text-secondary'}`}>
+            {label}
+          </div>
+          <div className="mt-0.5 truncate text-[11px] text-faint">
+            {t(`steps.${step.id}.desc`)}
+          </div>
+        </div>
+      </button>
+
+      <button
+        type="button"
+        aria-label={t('reorder.handleLabel', { section: label })}
+        title={t('reorder.handleTitle')}
+        onPointerDown={(event) => dragControls.start(event)}
+        onKeyDown={(event) => {
+          const destination = event.key === 'ArrowUp'
+            ? position - 1
+            : event.key === 'ArrowDown'
+              ? position + 1
+              : event.key === 'Home'
+                ? 0
+                : event.key === 'End'
+                  ? Number.MAX_SAFE_INTEGER
+                  : null;
+
+          if (destination === null) return;
+          event.preventDefault();
+          onMove(step.id, destination);
+        }}
+        className="m-1.5 ms-0 flex w-8 touch-none cursor-grab items-center justify-center rounded-lg text-muted transition-colors hover:bg-gold/10 hover:text-gold focus-visible:bg-gold/10 focus-visible:text-gold focus-visible:outline-2 focus-visible:outline-gold active:cursor-grabbing"
+      >
+        <GripVertical size={16} aria-hidden="true" />
+      </button>
+    </Reorder.Item>
+  );
+}
+
+function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSectionOrderChange, open, onClose }: {
+  currentStep: StepId; completedSteps: Set<StepId>;
+  sectionOrder: ResumeSectionId[];
+  onStepClick: (id: StepId) => void;
+  onSectionOrderChange: (order: ResumeSectionId[]) => void;
   open: boolean; onClose: () => void;
 }) {
   const t = useTranslations('dashboard');
@@ -945,6 +1297,12 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
   const locale = useLocale();
   const isRTL = locale === "ar";
   const { user } = useAuth();
+  const [reorderAnnouncement, setReorderAnnouncement] = useState('');
+  const resumeStepOrder = getResumeStepOrder(sectionOrder);
+  const resumeSteps = resumeStepOrder.map((id) =>
+    STEPS.find((step): step is DashboardStep & { id: ResumeStepId } => step.id === id)!,
+  );
+  const contactStep = STEPS.find(step => step.id === 'contact')!;
   const activePlanId = user?.planName ?? 'FREE';
   const planLabel: Record<'FREE' | 'PRO' | 'ENTERPRISE', string> = {
     FREE: t('plans.free'),
@@ -953,8 +1311,26 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
   };
   const ctaLabel = activePlanId === 'FREE' ? t('upgrade') : t('managePlan');
 
+  const moveSection = (id: ResumeStepId, destinationIndex: number) => {
+    const next = moveResumeStep(resumeStepOrder, id, destinationIndex);
+    onSectionOrderChange(getResumeSectionOrder(next));
+    const nextPosition = next.indexOf(id) + 1;
+    setReorderAnnouncement(t('reorder.moved', {
+      section: t(`steps.${id}.label`),
+      position: nextPosition,
+    }));
+  };
+
+  const announceDroppedSection = (id: ResumeStepId) => {
+    const position = resumeStepOrder.indexOf(id) + 1;
+    setReorderAnnouncement(t('reorder.moved', {
+      section: t(`steps.${id}.label`),
+      position,
+    }));
+  };
+
   return (
-    <aside className={`fixed inset-y-0 inset-s-0 z-50 flex h-screen w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`fixed inset-y-0 inset-s-0 z-50 flex h-dvh w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
       <div className="px-6 pt-7">
         <div className="flex items-center justify-between">
           <Link href={`/${locale}`} aria-label="ResuMax home">
@@ -997,14 +1373,20 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
       <div className="mx-6 h-px bg-edge" />
 
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3 px-3">
-        {STEPS.map(step => {
-          const Icon = step.icon;
-          const isActive = step.id === currentStep;
-          const isComplete = completedSteps.has(step.id);
-          const isLocked = !isActive && !isComplete && step.num > currentNum;
+        <p className="px-2 pb-1 text-[10px] leading-4 text-muted">
+          {t('reorder.hint')}
+        </p>
+
+        {(() => {
+          const Icon = contactStep.icon;
+          const isActive = contactStep.id === currentStep;
+          const isComplete = completedSteps.has(contactStep.id);
+          const isLocked = !isActive && !isComplete && contactStep.num > currentNum;
+
           return (
-            <motion.button key={step.id}
-              onClick={() => !isLocked && onStepClick(step.id)}
+            <motion.button
+              type="button"
+              onClick={() => !isLocked && onStepClick(contactStep.id)}
               whileHover={!isLocked ? { x: 2 } : {}}
               className={`flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${isActive ? 'border-gold/15 bg-gold/10' : 'border-gold/10 bg-transparent'
                 } ${isLocked ? 'cursor-default opacity-35' : 'cursor-pointer'}`}
@@ -1014,18 +1396,49 @@ function Sidebar({ currentStep, completedSteps, onStepClick, open, onClose }: {
                 {isComplete ? <Check size={15} className="text-green" /> : <Icon size={15} className={isActive ? 'text-gold' : 'text-muted'} />}
               </div>
               <div className="min-w-0 flex-1">
-                <div className={`text-[13px] transition-colors ${isActive ? 'font-bold text-primary' : isComplete ? 'font-medium text-secondary' : 'font-medium text-secondary'
-                  }`}>
-                  {t(`steps.${step.id}.label`)}
+                <div className={`text-[13px] transition-colors ${isActive ? 'font-bold text-primary' : 'font-medium text-secondary'}`}>
+                  {t('steps.contact.label')}
                 </div>
                 <div className="mt-0.5 truncate text-[11px] text-faint">
-                  {t(`steps.${step.id}.desc`)}
+                  {t('steps.contact.desc')}
                 </div>
               </div>
-              {isActive && <ChevronRight size={14} className={`text-gold/60 ${isRTL ? "rotate-180" : ""}`} />}
+              {isActive && <ChevronRight size={14} className={`text-gold/60 ${isRTL ? 'rotate-180' : ''}`} />}
             </motion.button>
           );
-        })}
+        })()}
+
+        <Reorder.Group
+          as="div"
+          axis="y"
+          values={resumeStepOrder}
+          onReorder={(nextOrder) => onSectionOrderChange(getResumeSectionOrder(nextOrder))}
+          className="flex flex-col gap-1"
+        >
+          {resumeSteps.map((step, position) => {
+            const isActive = step.id === currentStep;
+            const isComplete = completedSteps.has(step.id);
+            const isLocked = !isActive && !isComplete && step.num > currentNum;
+
+            return (
+              <SortableSidebarStep
+                key={step.id}
+                step={step}
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+                isLocked={isLocked}
+                position={position}
+                onStepClick={onStepClick}
+                onMove={moveSection}
+                onMoveComplete={announceDroppedSection}
+              />
+            );
+          })}
+        </Reorder.Group>
+
+        <p className="sr-only" role="status" aria-live="polite">
+          {reorderAnnouncement}
+        </p>
       </nav>
 
       <div className="mx-6 h-px bg-edge" />
@@ -1100,7 +1513,9 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
     { key: 'email', label: t('fields.email.label'), icon: Mail, placeholder: t('fields.email.placeholder'), type: 'email', hint: t('fields.email.hint') },
     { key: 'phone', label: t('fields.phone.label'), icon: Phone, placeholder: t('fields.phone.placeholder'), type: 'tel', optional: true },
     { key: 'location', label: t('fields.location.label'), icon: MapPin, placeholder: t('fields.location.placeholder'), hint: t('fields.location.hint'), optional: true },
+    { key: 'github', label: t('fields.github.label'), icon: Link2, placeholder: t('fields.github.placeholder'), hint: t('fields.github.hint'), optional: true },
     { key: 'linkedin', label: t('fields.linkedin.label'), icon: Link2, placeholder: t('fields.linkedin.placeholder'), hint: t('fields.linkedin.hint'), optional: true },
+    { key: 'portfolio', label: t('fields.portfolio.label'), icon: Link2, placeholder: t('fields.portfolio.placeholder'), hint: t('fields.portfolio.hint'), optional: true },
   ];
   const filledCount = Object.values(data).filter(v => v.trim()).length;
 
@@ -1126,11 +1541,11 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mb-8">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-xs font-medium text-muted">{t('sectionCompletion')}</span>
-          <span className={`text-xs font-bold ${filledCount === 6 ? 'text-green' : 'text-gold'}`}>{t('fieldsCount', { count: filledCount })}</span>
+          <span className={`text-xs font-bold ${filledCount === fields.length ? 'text-green' : 'text-gold'}`}>{t('fieldsCount', { count: filledCount, total: fields.length })}</span>
         </div>
         <div className="h-1 overflow-hidden rounded-full bg-card">
-          <motion.div animate={{ width: `${(filledCount / 6) * 100}%` }} transition={{ duration: 0.4, ease: 'easeOut' }}
-            className={`h-full rounded-full ${filledCount === 6 ? 'bg-linear-to-r from-green to-green-light' : 'bg-linear-to-r from-gold to-gold-light'}`} />
+          <motion.div animate={{ width: `${(filledCount / fields.length) * 100}%` }} transition={{ duration: 0.4, ease: 'easeOut' }}
+            className={`h-full rounded-full ${filledCount === fields.length ? 'bg-linear-to-r from-green to-green-light' : 'bg-linear-to-r from-gold to-gold-light'}`} />
         </div>
       </motion.div>
 
@@ -1180,25 +1595,51 @@ export default function DashboardPage() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const templateFromQuery = searchParams.get('template');
+  const templateQueryValue = searchParams.get('template');
+  const templateFromQuery = RESUME_TEMPLATE_IDS.find(
+    (templateId) => templateId === templateQueryValue,
+  ) ?? null;
   const isRTL = locale === "ar";
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [currentStep, setCurrentStep] = useState<StepId>('contact');
   const [completedSteps, setCompleted] = useState<Set<StepId>>(new Set());
-  const [contact, setContact] = useState<ContactData>({ fullName: '', title: '', email: '', phone: '', location: '', linkedin: '' });
+  const [sectionOrder, setSectionOrder] = useState<ResumeSectionId[]>(
+    [...DEFAULT_RESUME_CUSTOMIZATION.sectionOrder],
+  );
+  const [contact, setContact] = useState<ContactData>({ fullName: '', title: '', email: '', phone: '', location: '', github: '', linkedin: '', portfolio: '' });
+  const [summary, setSummary] = useState('');
+  const [skillGroups, setSkillGroups] = useState<SkillGroupItem[]>(defaultSkillGroups);
   const [experience, setExperience] = useState<ExperienceItem[]>([emptyRole()]);
+  const [projects, setProjects] = useState<ProjectItem[]>([emptyProject()]);
   const [education, setEducation] = useState<EducationItem[]>([emptyEdu()]);
   const [certs, setCerts] = useState<CertItem[]>([emptyCert()]);
-  const [skills, setSkills] = useState<string[]>(['Strategic Planning', 'React.js', 'Team Leadership']);
   const [errors, setErrors] = useState<Partial<Record<keyof ContactData, string>>>({});
   const [navOpen, setNavOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(templateFromQuery);
+  const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplateId>(
+    templateFromQuery ?? DEFAULT_TEMPLATE_ID,
+  );
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
   const lastQueuedDraft = useRef('');
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
   const saveErrorShown = useRef(false);
   const lastSyncedUserName = useRef('');
   const lastSyncedUserEmail = useRef('');
+  const sessionExpiredHandled = useRef(false);
+  const autosaveTimer = useRef<number | null>(null);
+
+  const handleDashboardRequestError = useCallback((error: unknown) => {
+    if (!isUnauthorizedBackendError(error)) return false;
+
+    if (!sessionExpiredHandled.current) {
+      sessionExpiredHandled.current = true;
+      toast.dismiss(DASHBOARD_SAVE_ERROR_TOAST_ID);
+      toast.error(t('sessionExpired'), { id: SESSION_EXPIRED_TOAST_ID });
+      logout();
+    }
+
+    return true;
+  }, [logout, t]);
 
   useEffect(() => {
     if (!user) return;
@@ -1222,40 +1663,60 @@ export default function DashboardPage() {
         }
 
         const persisted = Boolean(draft.id);
+        const nextTemplate = parseResumeTemplateId(templateFromQuery ?? draft.template);
         const nextDraft: DashboardDraftData = {
           ...draft,
-          template: templateFromQuery ?? draft.template,
+          template: nextTemplate,
+          sectionOrder: getResumeSectionOrder(getResumeStepOrder(draft.sectionOrder)),
           contact: {
             ...draft.contact,
+            github: draft.contact.github ?? '',
+            portfolio: draft.contact.portfolio ?? '',
             fullName: draft.contact.fullName || user.name,
             email: draft.contact.email || user.email,
           },
+          summary: persisted ? (draft.summary ?? '') : '',
+          skillGroups: persisted && draft.skillGroups?.length
+            ? draft.skillGroups
+            : persisted && draft.skills?.length
+              ? [{ ...emptySkillGroup('Skills'), skills: draft.skills }]
+              : defaultSkillGroups(),
           experience: persisted ? draft.experience : [emptyRole()],
-          education: persisted ? draft.education : [emptyEdu()],
+          projects: persisted ? (draft.projects?.length ? draft.projects : [emptyProject()]) : [emptyProject()],
+          education: persisted
+            ? draft.education.map(item => ({
+              ...emptyEdu(),
+              ...item,
+              endYear: item.endYear || item.gradYear || '',
+            }))
+            : [emptyEdu()],
           certifications: persisted ? draft.certifications : [emptyCert()],
-          skills: persisted ? draft.skills : ['Strategic Planning', 'React.js', 'Team Leadership'],
         };
 
         lastQueuedDraft.current = serializeDashboardDraft(draft);
 
-        setSelectedTemplate(nextDraft.template);
+        setSelectedTemplate(nextTemplate);
         setCurrentStep(nextDraft.currentStep);
         setCompleted(new Set(nextDraft.completedSteps));
+        setSectionOrder(nextDraft.sectionOrder);
         setContact(nextDraft.contact);
+        setSummary(nextDraft.summary);
+        setSkillGroups(nextDraft.skillGroups);
         setExperience(nextDraft.experience);
+        setProjects(nextDraft.projects);
         setEducation(nextDraft.education);
         setCerts(nextDraft.certifications);
-        setSkills(nextDraft.skills);
         lastSyncedUserName.current = nextDraft.contact.fullName || '';
         lastSyncedUserEmail.current = nextDraft.contact.email || '';
         setDraftLoaded(true);
       })
-      .catch(() => {
-        if (!cancelled) toast.error('We could not load your saved resume draft.');
+      .catch((error) => {
+        if (cancelled || handleDashboardRequestError(error)) return;
+        toast.error('We could not load your saved resume draft.');
       });
 
     return () => { cancelled = true; };
-  }, [templateFromQuery, user]);
+  }, [handleDashboardRequestError, templateFromQuery, user]);
 
   useEffect(() => {
     if (!draftLoaded || !user) return;
@@ -1292,16 +1753,21 @@ export default function DashboardPage() {
       template: selectedTemplate,
       currentStep,
       completedSteps: [...completedSteps],
+      sectionOrder,
       contact,
+      summary,
+      skillGroups,
       experience,
+      projects,
       education,
       certifications: certs,
-      skills,
+      skills: skillGroups.flatMap(group => group.skills),
     };
     const serialized = serializeDashboardDraft(draft);
     if (serialized === lastQueuedDraft.current) return;
 
     const timer = window.setTimeout(() => {
+      if (autosaveTimer.current === timer) autosaveTimer.current = null;
       lastQueuedDraft.current = serialized;
       saveQueue.current = saveQueue.current
         .then(async () => {
@@ -1310,6 +1776,7 @@ export default function DashboardPage() {
           toast.dismiss(DASHBOARD_SAVE_ERROR_TOAST_ID);
         })
         .catch((error) => {
+          if (handleDashboardRequestError(error)) return;
           console.error('Dashboard autosave failed:', error);
           if (lastQueuedDraft.current === serialized) {
             lastQueuedDraft.current = '';
@@ -1322,9 +1789,13 @@ export default function DashboardPage() {
           }
         });
     }, 800);
+    autosaveTimer.current = timer;
 
-    return () => window.clearTimeout(timer);
-  }, [certs, completedSteps, contact, currentStep, draftLoaded, education, experience, selectedTemplate, skills]);
+    return () => {
+      window.clearTimeout(timer);
+      if (autosaveTimer.current === timer) autosaveTimer.current = null;
+    };
+  }, [certs, completedSteps, contact, currentStep, draftLoaded, education, experience, handleDashboardRequestError, projects, sectionOrder, selectedTemplate, skillGroups, summary]);
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
   const nextStep = STEPS[currentIndex + 1];
@@ -1364,10 +1835,65 @@ export default function DashboardPage() {
     if (nextStep) setCurrentStep(nextStep.id);
   };
 
-  const handleFinish = () => {
-    setCompleted(prev => new Set(prev).add('skills'));
-    // ── BACKEND: generate resume / navigate to preview ──
-    router.push(`/${locale}/resume/preview?resumeId=resume-123`);
+  const handleFinish = async () => {
+    if (isFinishing) return;
+    if (!validateContact()) {
+      setCurrentStep('contact');
+      return;
+    }
+
+    const token = localStorage.getItem('resumax_token');
+    if (!token) {
+      toast.error('Please sign in before generating your resume.');
+      return;
+    }
+
+    const finalCompletedSteps = new Set(completedSteps);
+    finalCompletedSteps.add('education');
+    const finalDraft: DashboardDraftData = {
+      template: selectedTemplate,
+      currentStep: 'education',
+      completedSteps: [...finalCompletedSteps],
+      sectionOrder,
+      contact,
+      summary,
+      skillGroups,
+      experience,
+      projects,
+      education,
+      certifications: certs,
+      skills: skillGroups.flatMap(group => group.skills),
+    };
+
+    setIsFinishing(true);
+    setCompleted(finalCompletedSteps);
+
+    if (autosaveTimer.current !== null) {
+      window.clearTimeout(autosaveTimer.current);
+      autosaveTimer.current = null;
+    }
+
+    try {
+      await saveQueue.current;
+      await saveDashboardDraft(token, finalDraft);
+      lastQueuedDraft.current = serializeDashboardDraft(finalDraft);
+
+      const resume = await generateCurrentResume(token, {
+        title: `${contact.fullName.trim()} Resume`,
+        templateId: selectedTemplate,
+      });
+
+      router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resume.id)}`);
+    } catch (error) {
+      if (handleDashboardRequestError(error)) {
+        setIsFinishing(false);
+        return;
+      }
+
+      console.error('Resume generation failed:', error);
+      toast.error(error instanceof Error ? error.message : 'Could not generate your resume.');
+      setIsFinishing(false);
+    }
   };
 
   const handleStepClick = (id: StepId) => {
@@ -1387,20 +1913,28 @@ export default function DashboardPage() {
 
   const nextLabel: Record<StepId, string> = {
     contact: t('nextLabel.contact'),
-    experience: t('nextLabel.experience'),
-    education: t('nextLabel.education'),
+    summary: t('nextLabel.summary'),
     skills: t('nextLabel.skills'),
+    experience: t('nextLabel.experience'),
+    projects: t('nextLabel.projects'),
+    education: t('nextLabel.education'),
   };
 
   return (
-    <div className="flex min-h-screen bg-base font-syne">
+    <div
+      className="flex h-dvh overflow-hidden bg-base font-syne"
+      inert={isFinishing}
+      aria-busy={isFinishing}
+    >
       <div className="pointer-events-none fixed right-[15%] top-[20%] z-0 h-100 w-100 rounded-full bg-gold/4 blur-[100px]" />
       <div className="pointer-events-none fixed bottom-[20%] right-[30%] z-0 h-75 w-75 rounded-full bg-azure/4 blur-[80px]" />
 
       <Sidebar
         currentStep={currentStep}
         completedSteps={completedSteps}
+        sectionOrder={sectionOrder}
         onStepClick={handleSidebarStep}
+        onSectionOrderChange={setSectionOrder}
         open={navOpen}
         onClose={() => setNavOpen(false)}
       />
@@ -1412,7 +1946,7 @@ export default function DashboardPage() {
         />
       )}
 
-      <div className="relative z-1 flex min-h-screen flex-1 flex-col">
+      <div className="relative z-1 flex h-dvh min-h-0 flex-1 flex-col overflow-hidden">
         <div className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3 backdrop-blur-xl md:hidden">
           <button onClick={() => setNavOpen(true)} aria-label="Open menu" className="text-primary">
             <Menu size={22} />
@@ -1431,30 +1965,40 @@ export default function DashboardPage() {
         </div>
         <div className="hidden h-16 shrink-0 md:block" aria-hidden />
 
-        <div className="flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-15 lg:pt-13">
-          <div className="w-full max-w-215">
-            <AnimatePresence mode="wait">
-              <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
-                {currentStep === 'contact' && (
-                  <ContactStep data={contact}
-                    onChange={(field, value) => { setContact(c => ({ ...c, [field]: value })); if (errors[field]) setErrors(e => ({ ...e, [field]: undefined })); }}
-                    errors={errors} onSaveEmail={handleSaveEmail} />
-                )}
-                {currentStep === 'experience' && (
-                  <ExperienceStep items={experience} onChange={setExperience} />
-                )}
-                {currentStep === 'education' && (
-                  <EducationStep education={education} onEducationChange={setEducation} certs={certs} onCertsChange={setCerts} />
-                )}
-                {currentStep === 'skills' && (
-                  <SkillsStep skills={skills} onChange={setSkills} onFinish={handleFinish} />
-                )}
-              </motion.div>
-            </AnimatePresence>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-15 lg:pt-13">
+          <div className="mx-auto grid w-full max-w-[1240px] grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_280px] 2xl:grid-cols-[minmax(0,860px)_300px] 2xl:gap-10">
+            <div className="min-w-0 max-w-215 xl:max-w-none">
+              <AnimatePresence mode="wait">
+                <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
+                  {currentStep === 'contact' && (
+                    <ContactStep data={contact}
+                      onChange={(field, value) => { setContact(c => ({ ...c, [field]: value })); if (errors[field]) setErrors(e => ({ ...e, [field]: undefined })); }}
+                      errors={errors} onSaveEmail={handleSaveEmail} />
+                  )}
+                  {currentStep === 'summary' && (
+                    <SummaryStep value={summary} onChange={setSummary} />
+                  )}
+                  {currentStep === 'skills' && (
+                    <SkillsStep groups={skillGroups} onChange={setSkillGroups} />
+                  )}
+                  {currentStep === 'experience' && (
+                    <ExperienceStep items={experience} onChange={setExperience} />
+                  )}
+                  {currentStep === 'projects' && (
+                    <ProjectsStep items={projects} onChange={setProjects} />
+                  )}
+                  {currentStep === 'education' && (
+                    <EducationStep education={education} onEducationChange={setEducation} certs={certs} onCertsChange={setCerts} />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            <DashboardResumePlaceholder currentStep={currentStep} order={getResumeStepOrder(sectionOrder)} />
           </div>
         </div>
 
-        <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 border-t border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3.5 backdrop-blur-[20px] sm:px-8 lg:px-15 lg:py-4.5">
+        <div className="sticky bottom-0 z-10 flex shrink-0 items-center justify-between gap-3 border-t border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3.5 backdrop-blur-[20px] sm:px-8 lg:px-15 lg:py-4.5">
           {prevStep ? (
             <button onClick={() => setCurrentStep(prevStep.id)}
               className="flex items-center gap-2 border-none bg-transparent py-2.5 text-sm font-semibold text-muted transition-colors hover:text-secondary">
@@ -1475,13 +2019,16 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {currentStep !== 'skills' ? (
+          {currentStep !== 'education' ? (
             <button onClick={handleNext}
               className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-3.25 text-[13px] font-bold text-ink shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light hover:shadow-[0_10px_28px_rgba(245,166,35,0.5)] sm:px-6.5 sm:text-sm">
               {nextLabel[currentStep]} <ArrowRight size={15} className={isRTL ? "rotate-180" : ""} />
             </button>
           ) : (
-            <span className="w-px" />
+            <button onClick={() => { void handleFinish(); }} disabled={isFinishing}
+              className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-3.25 text-[13px] font-bold text-ink shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light disabled:cursor-wait disabled:translate-y-0 disabled:opacity-70 sm:px-6.5 sm:text-sm">
+              {t('generateResume')} {isFinishing ? <Loader2 size={15} className="animate-spin" /> : <Zap size={15} />}
+            </button>
           )}
         </div>
       </div>

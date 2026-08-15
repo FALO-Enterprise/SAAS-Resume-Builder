@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { exchangeOAuthCode } from "@/lib/backend";
-import { setAccessToken } from "@/lib/auth/token";
+import { persistAuthToken } from "@/lib/auth-session";
 import Logo from "@/components/ui/Logo";
 
 function OAuthCallbackContent() {
@@ -44,7 +44,7 @@ function OAuthCallbackContent() {
       .then((data) => {
         if ("error" in data) throw new Error(data.error);
 
-        setAccessToken(data.token);
+        persistAuthToken(data.token);
         login({
           id: data.user.id,
           name: data.user.name,
@@ -54,7 +54,16 @@ function OAuthCallbackContent() {
           planName: data.user.plan?.name ?? "FREE",
           isVerified: data.user.isVerified ?? false,
         });
+
         setStatus("success");
+
+        if (!data.user.isVerified) {
+          router.replace(
+            `/${locale}/verificationcode?email=${encodeURIComponent(data.user.email)}`,
+          );
+          return;
+        }
+
         router.replace(`/${locale}`);
       })
       .catch((err) => {

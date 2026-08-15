@@ -1,6 +1,8 @@
 import { CreateResumeDTO, UpdateResumeDTO } from './types/resume.dto';
 import { Resume } from './resume.schema';
 import { ResumeRepository } from './resume.repository';
+import type { ResumeGenerationDTO } from './util/resume.schema';
+import { resolveResumeTemplate } from './resume-template.registry';
 
 class ResumeService {
     private repository = new ResumeRepository();
@@ -15,6 +17,12 @@ class ResumeService {
 
     public createResume(payload: CreateResumeDTO): Promise<Resume> {
         return this.repository.create(payload.title, payload.templateId, payload.userId);
+    }
+
+    public upsertCurrentResume(userId: string, payload: ResumeGenerationDTO): Promise<Resume> {
+        const template = resolveResumeTemplate(payload.templateId);
+        if (!template) throw new Error('Template not found');
+        return this.repository.upsertForUser(payload.title, template.id, template.name, userId);
     }
 
     public updateResume(id: string, payload: UpdateResumeDTO): Promise<Resume> {

@@ -1,48 +1,33 @@
-export type StepId = 'contact' | 'experience' | 'education' | 'skills';
+export type StepId = 'contact' | 'summary' | 'skills' | 'experience' | 'projects' | 'education';
 
-export type ContactData = {
-  fullName: string;
-  title: string;
-  email: string;
-  phone: string;
-  location: string;
-  linkedin: string;
-}
+import type {
+  ResumeCertification,
+  ResumeContact,
+  ResumeEducation,
+  ResumeExperience,
+  ResumeProject,
+  ResumeSectionId,
+  ResumeSkillGroup,
+} from '@shared-types/resume';
 
-export type ExperienceItem = {
-  id: string;
-  jobTitle: string;
-  company: string;
-  location: string;
-  current: boolean;
-  startMonth: string;
-  startYear: string;
-  endMonth: string;
-  endYear: string;
-  description: string;
-}
-
-export type EducationItem = {
-  id: string;
-  institution: string;
-  degree: string;
-  field: string;
-  gradYear: string;
-}
-
-export type CertItem = {
-  id: string;
-  name: string;
-  org: string;
-}
+export type ContactData = ResumeContact;
+export type ExperienceItem = ResumeExperience;
+export type EducationItem = ResumeEducation;
+export type CertItem = ResumeCertification;
+export type ProjectItem = ResumeProject;
+export type SkillGroupItem = ResumeSkillGroup;
 
 export type DashboardDraftData = {
   id?: string;
   template: string | null;
   currentStep: StepId;
   completedSteps: StepId[];
+  sectionOrder: ResumeSectionId[];
   contact: ContactData;
+  summary: string;
+  skillGroups: SkillGroupItem[];
   experience: ExperienceItem[];
+  projects: ProjectItem[];
   education: EducationItem[];
   certifications: CertItem[];
   skills: string[];
