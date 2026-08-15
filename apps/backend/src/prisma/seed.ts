@@ -1,22 +1,25 @@
 // apps/backend/prisma/seed.ts
 import { randomUUID } from "node:crypto"
+import { RESUME_TEMPLATE_DEFINITIONS } from "@resumax/shared-types"
 import prisma from "./prisma.service"
 
 async function main() {
 
-    await prisma.template.upsert({
-        where: { id: 'minimal' },
-        create: {
-            id: 'minimal',
-            name: 'Professional ATS',
-            thumbnail: null,
-            isPremium: false,
-        },
-        update: {
-            name: 'Professional ATS',
-            isPremium: false,
-        },
-    })
+    for (const template of RESUME_TEMPLATE_DEFINITIONS) {
+        await prisma.template.upsert({
+            where: { id: template.id },
+            create: {
+                id: template.id,
+                name: template.name,
+                thumbnail: null,
+                isPremium: false,
+            },
+            update: {
+                name: template.name,
+                isPremium: false,
+            },
+        })
+    }
 
     const plans = [
         {

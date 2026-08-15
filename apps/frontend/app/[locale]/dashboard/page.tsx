@@ -38,11 +38,18 @@ import {
 import { generateCurrentResume, getDashboardDraft, isUnauthorizedBackendError, saveDashboardDraft } from '@/lib/backend';
 import {
   DEFAULT_RESUME_CUSTOMIZATION,
+  RESUME_TEMPLATE_IDS,
   type ResumeSectionId,
+  type ResumeTemplateId,
 } from '@shared-types/resume';
 
 const DASHBOARD_SAVE_ERROR_TOAST_ID = 'dashboard-save-error';
 const SESSION_EXPIRED_TOAST_ID = 'session-expired';
+const DEFAULT_TEMPLATE_ID: ResumeTemplateId = 'minimal';
+
+function parseResumeTemplateId(value: string | null | undefined): ResumeTemplateId {
+  return RESUME_TEMPLATE_IDS.find((templateId) => templateId === value) ?? DEFAULT_TEMPLATE_ID;
+}
 
 function serializeDashboardDraft(draft: DashboardDraftData) {
   return JSON.stringify({
@@ -965,6 +972,8 @@ function SkillsStep({ groups, onChange }: {
   const [showAll, setShowAll] = useState(false);
   const isSearching = input.trim().length > 0;
 
+  const skills = groups.flatMap(group => group.skills);
+
   const available = DEFAULT_SUGGESTIONS.filter(
     skill => !skills.some(s => s.toLowerCase() === skill.toLowerCase())
   );
@@ -978,7 +987,6 @@ function SkillsStep({ groups, onChange }: {
     : available.slice(0, 5);
 
   const remaining = available.length - suggestedSkills.length;
-  const skills = groups.flatMap(group => group.skills);
 
   const updateGroup = (id: string, patch: Partial<SkillGroupItem>) =>
     onChange(groups.map(group => group.id === id ? { ...group, ...patch } : group));
@@ -1587,7 +1595,10 @@ export default function DashboardPage() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const templateFromQuery = searchParams.get('template');
+  const templateQueryValue = searchParams.get('template');
+  const templateFromQuery = RESUME_TEMPLATE_IDS.find(
+    (templateId) => templateId === templateQueryValue,
+  ) ?? null;
   const isRTL = locale === "ar";
   const { user, logout } = useAuth();
   const [currentStep, setCurrentStep] = useState<StepId>('contact');
@@ -1604,7 +1615,9 @@ export default function DashboardPage() {
   const [certs, setCerts] = useState<CertItem[]>([emptyCert()]);
   const [errors, setErrors] = useState<Partial<Record<keyof ContactData, string>>>({});
   const [navOpen, setNavOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(templateFromQuery);
+  const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplateId>(
+    templateFromQuery ?? DEFAULT_TEMPLATE_ID,
+  );
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const lastQueuedDraft = useRef('');
@@ -1650,9 +1663,10 @@ export default function DashboardPage() {
         }
 
         const persisted = Boolean(draft.id);
+        const nextTemplate = parseResumeTemplateId(templateFromQuery ?? draft.template);
         const nextDraft: DashboardDraftData = {
           ...draft,
-          template: templateFromQuery ?? draft.template,
+          template: nextTemplate,
           sectionOrder: getResumeSectionOrder(getResumeStepOrder(draft.sectionOrder)),
           contact: {
             ...draft.contact,
@@ -1681,7 +1695,7 @@ export default function DashboardPage() {
 
         lastQueuedDraft.current = serializeDashboardDraft(draft);
 
-        setSelectedTemplate(nextDraft.template);
+        setSelectedTemplate(nextTemplate);
         setCurrentStep(nextDraft.currentStep);
         setCompleted(new Set(nextDraft.completedSteps));
         setSectionOrder(nextDraft.sectionOrder);
@@ -1837,7 +1851,7 @@ export default function DashboardPage() {
     const finalCompletedSteps = new Set(completedSteps);
     finalCompletedSteps.add('education');
     const finalDraft: DashboardDraftData = {
-      template: 'minimal',
+      template: selectedTemplate,
       currentStep: 'education',
       completedSteps: [...finalCompletedSteps],
       sectionOrder,
@@ -1853,7 +1867,6 @@ export default function DashboardPage() {
 
     setIsFinishing(true);
     setCompleted(finalCompletedSteps);
-    setSelectedTemplate('minimal');
 
     if (autosaveTimer.current !== null) {
       window.clearTimeout(autosaveTimer.current);
@@ -1867,7 +1880,7 @@ export default function DashboardPage() {
 
       const resume = await generateCurrentResume(token, {
         title: `${contact.fullName.trim()} Resume`,
-        templateId: 'minimal',
+        templateId: selectedTemplate,
       });
 
       router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resume.id)}`);
@@ -1908,7 +1921,11 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-base font-syne">
+    <div
+      className="flex h-dvh overflow-hidden bg-base font-syne"
+      inert={isFinishing}
+      aria-busy={isFinishing}
+    >
       <div className="pointer-events-none fixed right-[15%] top-[20%] z-0 h-100 w-100 rounded-full bg-gold/4 blur-[100px]" />
       <div className="pointer-events-none fixed bottom-[20%] right-[30%] z-0 h-75 w-75 rounded-full bg-azure/4 blur-[80px]" />
 

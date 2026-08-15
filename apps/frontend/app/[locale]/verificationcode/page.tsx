@@ -170,6 +170,14 @@ export default function VerifyPage() {
     inputRefs.current[lastIndex]?.focus();
   };
 
+  // Auto-submit when all digits filled
+  // useEffect(() => {
+  //   if (digits.every((d) => d !== "") && !isVerifying && !success) {
+  //     handleSubmit(digits.join(""));
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [digits]);
+
   // ── Resend ───────────────────────────────────────────────────────────────
   const handleResend = async () => {
     const ok = await resend(emailParam, t("errors.resendNetwork"), () => {

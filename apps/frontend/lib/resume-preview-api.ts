@@ -1,8 +1,13 @@
-import type { ResumePreviewData, ResumePurpose } from "@/lib/types/resumePreview.types";
-import type { ResumeRenderSnapshot } from "@shared-types/resume";
 import type {
-  ResumeCustomization,
-  ResumeTemplateId,
+  ResumePreviewData,
+  ResumePurpose,
+  SelectedResumeTemplate,
+} from "@/lib/types/resumePreview.types";
+import {
+  RESUME_TEMPLATE_DEFINITIONS,
+  type ResumeRenderSnapshot,
+  type ResumeCustomization,
+  type ResumeTemplateId,
 } from "@shared-types/resume";
 import { buildBackendUrl, normalizeBackendPayload } from "./backend";
 
@@ -13,6 +18,49 @@ export type ResumeExportResult = {
   creditsRemaining: number;
   creditsTotal: number;
 };
+
+export type CurrentResumeTemplateResult = {
+  id: string;
+  title: string;
+  templateId: ResumeTemplateId;
+  updatedAt: string;
+};
+
+const TEMPLATE_THUMBNAILS: Record<ResumeTemplateId, string> = {
+  executive: "https://i.imgur.com/oPsyIDT.png",
+  developer: "https://i.imgur.com/UFjkAoq.png",
+  director: "https://i.imgur.com/bIVtQW4.png",
+  minimal: "https://i.imgur.com/KnsEIYe.png",
+  academic: "https://i.imgur.com/cL8Rls0.png",
+  global: "https://i.imgur.com/uaye0sJ.png",
+};
+
+const TEMPLATE_IDS = new Set<ResumeTemplateId>(
+  RESUME_TEMPLATE_DEFINITIONS.map((template) => template.id),
+);
+
+export function isResumeTemplateId(value: string): value is ResumeTemplateId {
+  return TEMPLATE_IDS.has(value as ResumeTemplateId);
+}
+
+export function getResumeTemplateMetadata(
+  templateId: ResumeTemplateId,
+): SelectedResumeTemplate {
+  const definition = RESUME_TEMPLATE_DEFINITIONS.find(
+    (template) => template.id === templateId,
+  );
+
+  if (!definition) {
+    throw new Error(`Resume template "${templateId}" is unavailable`);
+  }
+
+  return {
+    id: definition.id,
+    name: definition.name,
+    version: definition.version,
+    thumbnailUrl: TEMPLATE_THUMBNAILS[definition.id],
+  };
+}
 
 export async function getResumeApiErrorMessage(
   response: Response,
@@ -51,10 +99,7 @@ const MOCK_RESUME_DATA: ResumePreviewData = {
   purpose: "scholarship",
 
   selectedTemplate: {
-    id: "minimal",
-    name: "Professional ATS",
-    version: 3,
-    thumbnailUrl: "/file.svg",
+    ...getResumeTemplateMetadata("minimal"),
   },
 
   content: {
@@ -85,7 +130,7 @@ const MOCK_RESUME_DATA: ResumePreviewData = {
       "education",
       "certifications",
     ],
-    hiddenSections: ["certifications"],
+    hiddenSections: [],
     accentColor: "#0563c1",
     fontScale: 1,
   },
@@ -137,16 +182,14 @@ export async function getResumePreviewData(
   const payload: unknown = await response.json();
   const snapshot = normalizeBackendPayload<ResumeRenderSnapshot>(payload);
   if ("error" in snapshot) throw new Error(snapshot.error);
+  if (!isResumeTemplateId(snapshot.templateId)) {
+    throw new Error("The selected resume template is unavailable");
+  }
   const data: ResumePreviewData = {
     resumeId: snapshot.resumeId,
     resumeName: snapshot.title,
     purpose: "general",
-    selectedTemplate: {
-      id: snapshot.templateId,
-      name: "Professional ATS",
-      version: snapshot.templateVersion,
-      thumbnailUrl: "/file.svg",
-    },
+    selectedTemplate: getResumeTemplateMetadata(snapshot.templateId),
     content: snapshot.content,
     customization: snapshot.customization,
     pdfDownloadUrl: null,
@@ -161,6 +204,51 @@ export async function getResumePreviewData(
   }
 
   return data;
+}
+
+export async function updateCurrentResumeTemplate(
+  title: string,
+  templateId: ResumeTemplateId,
+  signal?: AbortSignal,
+): Promise<CurrentResumeTemplateResult> {
+  const token =
+    typeof window === "undefined"
+      ? null
+      : localStorage.getItem("resumax_token");
+  if (!token) {
+    throw new Error("Authentication is required to update a resume template");
+  }
+
+  const response = await fetch(buildBackendUrl("/api/resumes/current"), {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    credentials: "include",
+    cache: "no-store",
+    signal,
+    body: JSON.stringify({ title, templateId }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await getResumeApiErrorMessage(
+        response,
+        "Failed to update resume template",
+      ),
+    );
+  }
+
+  const payload: unknown = await response.json();
+  const result = normalizeBackendPayload<CurrentResumeTemplateResult>(payload);
+  if ("error" in result) throw new Error(result.error);
+  if (!isResumeTemplateId(result.templateId)) {
+    throw new Error("The server returned an invalid resume template");
+  }
+
+  return result;
 }
 
 export async function exportResume(
@@ -237,6 +325,7 @@ function isResumePreviewData(value: unknown): value is ResumePreviewData {
     selectedTemplate !== null &&
     typeof selectedTemplate === "object" &&
     typeof selectedTemplate.id === "string" &&
+    isResumeTemplateId(selectedTemplate.id) &&
     typeof selectedTemplate.name === "string" &&
     typeof selectedTemplate.thumbnailUrl === "string" &&
     typeof selectedTemplate.version === "number" &&

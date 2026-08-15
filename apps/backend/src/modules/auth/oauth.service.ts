@@ -294,7 +294,7 @@ export async function findOrCreateOAuthUser(
     if (existingAccount) {
         const existingUser = await prisma.user.findUnique({
             where: { id: existingAccount.userId },
-            select: { avatar: true, isVerified: true },
+            select: { avatar: true, email: true, isVerified: true },
         });
 
         if (!existingUser) throw new Error('OAuth account user not found');
@@ -319,6 +319,10 @@ export async function findOrCreateOAuthUser(
                 where: { id: existingAccount.userId },
                 data: updateData,
             });
+        }
+
+        if (!existingUser.isVerified) {
+            await sendVerificationCode(existingUser.email);
         }
 
         return authenticatedUser(existingAccount.userId);

@@ -36,7 +36,13 @@ export function useLoginFlow() {
       setTimeout(() => closeModal(), 800);
       return true;
     } catch (error) {
-      setGeneralError(error instanceof Error ? error.message : networkFallback);
+      const message =
+        typeof error === "object" && error && "message" in error
+          ? String((error as { message?: string }).message ?? networkFallback)
+          : error instanceof Error
+            ? error.message
+            : networkFallback;
+      setGeneralError(message);
       return false;
     }
   };
