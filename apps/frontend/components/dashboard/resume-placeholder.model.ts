@@ -1,4 +1,4 @@
-import type { StepId } from '@/lib/types/dashborad.types';
+import type { StepId } from '@/lib/types/dashboard.types';
 
 export const RESUME_PLACEHOLDER_SECTION_IDS = [
   'contact',

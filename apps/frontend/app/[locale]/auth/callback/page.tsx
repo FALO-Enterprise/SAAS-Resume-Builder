@@ -61,8 +61,6 @@ function OAuthCallbackContent() {
           role: data.user.role,
           planName: data.user.plan?.name ?? "FREE",
           isVerified: data.user.isVerified ?? false,
-          planName: data.user.plan.name,
-          isVerified: data.user.isVerified ?? false,
         });
         setStatus("success");
         router.replace(`/${locale}`);

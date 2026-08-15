@@ -1,0 +1,407 @@
+.resumePage {
+  --resume-font-scale: 1;
+  --developer-accent: #d75d68;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 76mm minmax(0, 1fr);
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  overflow-wrap: break-word;
+  word-break: normal;
+  background:
+    linear-gradient(to right, #171821 0 76mm, #fff 76mm 100%);
+  color: #252733;
+  font-family: Arial, "Liberation Sans", Helvetica, sans-serif;
+  font-size: calc(9pt * var(--resume-font-scale));
+  line-height: 1.38;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.resumePage *,
+.resumePage *::before,
+.resumePage *::after {
+  box-sizing: border-box;
+}
+
+.sidebar {
+  min-width: 0;
+  min-height: 297mm;
+  padding: 13mm 8mm 12mm;
+  background: #171821;
+  color: #f7f7fa;
+}
+
+.content {
+  position: relative;
+  min-width: 0;
+  padding: 12mm 10mm 13mm 9mm;
+  background:
+    linear-gradient(135deg, rgb(215 93 104 / 4%) 0 22%, transparent 22% 100%),
+    repeating-linear-gradient(
+      115deg,
+      transparent 0 12mm,
+      rgb(23 24 33 / 1.7%) 12mm 12.25mm
+    ),
+    #fff;
+}
+
+.content > * {
+  position: relative;
+  z-index: 1;
+}
+
+.sidebarSection {
+  margin: 0 0 7mm;
+}
+
+.sidebarSection:last-child {
+  margin-bottom: 0;
+}
+
+.sidebarSectionGroup {
+  display: contents;
+}
+
+.sidebarHeading {
+  margin: 0 0 3mm;
+  padding: 0 0 2mm;
+  border-bottom: 0.5pt solid rgb(255 255 255 / 24%);
+  color: #fff;
+  font-size: calc(10.5pt * var(--resume-font-scale));
+  font-weight: 700;
+  line-height: 1.15;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+.contactAddress {
+  font-style: normal;
+}
+
+.contactList,
+.skillPills,
+.languageList,
+.sidebarEntryList,
+.sidebarBullets,
+.certificationList,
+.mainEntryList,
+.mainBullets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contactList {
+  display: grid;
+  gap: 2mm;
+}
+
+.contactItem {
+  display: grid;
+  grid-template-columns: 4mm minmax(0, 1fr);
+  align-items: start;
+  color: #d9d9df;
+  font-size: calc(7.6pt * var(--resume-font-scale));
+  line-height: 1.35;
+}
+
+.contactItem svg {
+  width: 3mm;
+  height: 3mm;
+  margin-top: 0.35mm;
+  color: #c8c9d1;
+}
+
+.contactItem a,
+.sidebarEntryTitle a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.contactItem a,
+.contactItem span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.skillGroups {
+  display: grid;
+  gap: 3.2mm;
+}
+
+.skillGroup {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.skillGroupLabel {
+  margin: 0 0 1.5mm;
+  color: #d6d6dd;
+  font-size: calc(7.5pt * var(--resume-font-scale));
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.skillPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5mm;
+}
+
+.skillPills li {
+  max-width: 100%;
+  padding: 1.15mm 2.3mm;
+  border: 0.4pt solid rgb(215 93 104 / 26%);
+  border-radius: 999px;
+  background: rgb(215 93 104 / 20%);
+  color: #ed9aa2;
+  font-size: calc(6.9pt * var(--resume-font-scale));
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.languageList {
+  display: grid;
+  gap: 2.4mm;
+}
+
+.languageList li {
+  display: grid;
+  grid-template-columns: 3mm minmax(0, 1fr);
+  align-items: center;
+  color: #e1e1e6;
+  font-size: calc(7.6pt * var(--resume-font-scale));
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.languageDot {
+  width: 1.8mm;
+  height: 1.8mm;
+  border-radius: 50%;
+  background: var(--developer-accent);
+}
+
+.sidebarEntryList {
+  display: grid;
+  gap: 3.7mm;
+}
+
+.sidebarEntry {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.sidebarEntryTitle {
+  margin: 0;
+  color: #fff;
+  font-size: calc(8pt * var(--resume-font-scale));
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.sidebarEntry time {
+  display: block;
+  margin-top: 0.65mm;
+  color: #a9aab4;
+  font-size: calc(6.6pt * var(--resume-font-scale));
+}
+
+.projectTechnologies {
+  margin: 1mm 0 0;
+  color: #ed9aa2;
+  font-size: calc(6.8pt * var(--resume-font-scale));
+  font-weight: 600;
+}
+
+.sidebarBullets {
+  display: grid;
+  gap: 1.2mm;
+  margin-top: 1.5mm;
+  padding-inline-start: 3.5mm;
+  color: #c9cad2;
+  font-size: calc(7pt * var(--resume-font-scale));
+  line-height: 1.38;
+  list-style: disc;
+}
+
+.sidebarBullets li,
+.mainBullets li {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.certificationList {
+  display: grid;
+  gap: 2.5mm;
+}
+
+.certificationList li {
+  padding-inline-start: 3.2mm;
+  color: #dadbe1;
+  font-size: calc(7pt * var(--resume-font-scale));
+  line-height: 1.35;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.certificationList li::before {
+  float: inline-start;
+  margin-inline-start: -2.7mm;
+  color: var(--developer-accent);
+  content: "•";
+}
+
+.certificationList strong,
+.certificationList span {
+  display: block;
+}
+
+.certificationList strong {
+  color: #f5f5f8;
+  font-weight: 600;
+}
+
+.certificationList span {
+  margin-top: 0.4mm;
+  color: #aeb0b9;
+}
+
+.identity {
+  margin: 0 0 7mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.identity h1 {
+  margin: 0;
+  color: #262835;
+  font-size: calc(21pt * var(--resume-font-scale));
+  font-weight: 700;
+  letter-spacing: -0.45pt;
+  line-height: 1.08;
+}
+
+.identity p {
+  margin: 1.5mm 0 0;
+  color: var(--developer-accent);
+  font-size: calc(8.6pt * var(--resume-font-scale));
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.mainSection {
+  margin: 0 0 6.5mm;
+}
+
+.mainSection:last-child {
+  margin-bottom: 0;
+}
+
+.mainHeading {
+  margin: 0 0 3mm;
+  padding: 0 0 1.6mm;
+  border-bottom: 0.65pt solid #d7d8dc;
+  color: #2b2d39;
+  font-size: calc(10.8pt * var(--resume-font-scale));
+  font-weight: 700;
+  line-height: 1.15;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+.summary {
+  margin: 0;
+  color: #585a64;
+  font-size: calc(7.9pt * var(--resume-font-scale));
+  line-height: 1.48;
+  text-align: justify;
+  text-justify: inter-word;
+  white-space: pre-line;
+  orphans: 3;
+  widows: 3;
+}
+
+.mainEntryList {
+  display: grid;
+  gap: 4.7mm;
+}
+
+.mainEntry {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.entryHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 3mm;
+}
+
+.entryHeader h3 {
+  min-width: 0;
+  margin: 0;
+  color: #2c2e3a;
+  font-size: calc(8.5pt * var(--resume-font-scale));
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.entryHeader time {
+  flex: 0 0 auto;
+  color: #777985;
+  font-size: calc(6.8pt * var(--resume-font-scale));
+  white-space: nowrap;
+}
+
+.entryOrganization {
+  margin: 0.8mm 0 0;
+  color: var(--developer-accent);
+  font-size: calc(7.5pt * var(--resume-font-scale));
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.mainBullets {
+  display: grid;
+  gap: 1mm;
+  margin-top: 1.8mm;
+  padding-inline-start: 4mm;
+  color: #555761;
+  font-size: calc(7.3pt * var(--resume-font-scale));
+  line-height: 1.38;
+  list-style: disc;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media screen {
+  .resumePage {
+    box-shadow: 0 18px 55px rgb(15 23 42 / 20%);
+  }
+}
+
+@media print {
+  :global(html),
+  :global(body) {
+    margin: 0 !important;
+    background: #fff !important;
+  }
+
+  .resumePage {
+    margin: 0;
+    box-shadow: none;
+  }
+
+  :global(.non-printable) {
+    display: none !important;
+  }
+}

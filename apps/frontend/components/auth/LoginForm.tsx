@@ -7,30 +7,50 @@ import { useLocale, useTranslations } from "next-intl";
 import AuthInput from "@/components/ui/AuthInput";
 import type { LoginData, FieldError } from "@/lib/types/auth.types";
 import { PROVIDERS } from "@/lib/placeholder-data/providors.placeholder";
-import { getOAuthStartUrl, loginWithBackend } from "@/lib/backend";
-import { persistAuthToken } from "@/lib/auth-session";
+import { getOAuthStartUrl} from "@/lib/backend";
 import Link from "next/link";
 import { useLoginFlow } from "@/hooks/mutations/useLoginFlow";
 
-// ─── Login Form ──────────────────────────────────────────────────────────────
+
+// ─── Login Form Component ───────────────────────────────────────────────────────────────
 export default function LoginForm() {
   const locale = useLocale();
   const t = useTranslations("auth");
   const isRTL = locale === "ar";
-  const [form, setForm] = useState<LoginData>({ email: "", password: "" });
+
+  const [form, setForm] = useState<LoginData>({
+    email: "",
+    password: "",
+  });
+
   const [errors, setErrors] = useState<FieldError>({});
   const [showPw, setShowPw] = useState(false);
-  const { submit, isPending, success, generalError, closeModal } = useLoginFlow();
+
+  const {
+    submit,
+    isPending,
+    success,
+    generalError,
+    closeModal,
+  } = useLoginFlow();
 
   const validate = (): boolean => {
     const e: FieldError = {};
-    if (!form.email) e.email = t("login.errors.emailRequired");
-    else if (!/\S+@\S+\.\S+/.test(form.email))
+
+    if (!form.email) {
+      e.email = t("login.errors.emailRequired");
+    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
       e.email = t("login.errors.invalidEmail");
-    if (!form.password) e.password = t("login.errors.passwordRequired");
-    else if (form.password.length < 6)
+    }
+
+    if (!form.password) {
+      e.password = t("login.errors.passwordRequired");
+    } else if (form.password.length < 6) {
       e.password = t("login.errors.passwordMin");
+    }
+
     setErrors(e);
+
     return Object.keys(e).length === 0;
   };
 
@@ -39,41 +59,7 @@ export default function LoginForm() {
 
     setErrors({});
 
-    try {
-      // ── BACKEND CONNECTION ─────────────────────────────────────────────────
-      // POST /api/auth/login-jwt   Body: { email, password }
-      // Response: { token, user } | { error }
-      // ──────────────────────────────────────────────────────────────────────
-      const data = await loginWithBackend({
-        email: form.email,
-        password: form.password,
-      });
-
-      if ("error" in data) {
-        setErrors({ general: data.error });
-        return;
-      }
-
-      persistAuthToken(data.token);
-      login({
-        id: data.user.id,
-        name: data.user.name,
-        email: data.user.email,
-        avatar: data.user.avatar,
-        role: data.user.role,
-        planName: data.user.plan.name,
-        isVerified: data.user.isVerified,
-      });
-      setSuccess(true);
-      setTimeout(() => closeModal(), 800);
-    } catch (error) {
-      setErrors({
-        general:
-          error instanceof Error ? error.message : t("login.errors.network"),
-      });
-    } finally {
-      setLoading(false);
-    }
+    await submit(form, t("login.errors.network"));
   };
 
   // ── Success state ─────────────────────────────────────────────────────────
@@ -87,9 +73,11 @@ export default function LoginForm() {
         <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-gold/30 bg-gold/15 text-[28px] text-gold">
           ✓
         </div>
+
         <p className="text-lg font-bold text-primary">
           {t("login.successTitle")}
         </p>
+
         <p className="mt-1.5 text-sm text-faint">
           {t("login.successSubtitle")}
         </p>
@@ -98,15 +86,18 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="flex flex-col gap-5" dir={isRTL ? "rtl" : "ltr"}>
+    <div
+      className="flex flex-col gap-5"
+      dir={isRTL ? "rtl" : "ltr"}
+    >
       {/* General error banner */}
-      {(errors.general || generalError) && (
+      {generalError && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           className="rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
         >
-          {errors.general || generalError}
+          {generalError}
         </motion.div>
       )}
 
@@ -117,7 +108,9 @@ export default function LoginForm() {
             key={id}
             type="button"
             aria-label={`Continue with ${label}`}
-            onClick={() => window.location.assign(getOAuthStartUrl(id, locale))}
+            onClick={() =>
+              window.location.assign(getOAuthStartUrl(id, locale))
+            }
             className="flex flex-1 items-center justify-center rounded-xl border border-edge bg-card py-3 transition-all hover:border-edge-strong hover:bg-card-hover"
           >
             <Icon size={20} className={color} />
@@ -128,36 +121,63 @@ export default function LoginForm() {
       {/* Divider — social / email */}
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-edge" />
-        <span className="text-xs text-muted">{t("login.or")}</span>
+
+        <span className="text-xs text-muted">
+          {t("login.or")}
+        </span>
+
         <div className="h-px flex-1 bg-edge" />
       </div>
 
-      {/* Fields */}
+      {/* Email */}
       <AuthInput
         icon={Mail}
         type="email"
         placeholder={t("login.emailPlaceholder")}
         value={form.email}
-        onChange={(v) => setForm((f) => ({ ...f, email: v }))}
+        onChange={(v) =>
+          setForm((f) => ({
+            ...f,
+            email: v,
+          }))
+        }
         error={errors.email}
       />
+
+      {/* Password */}
       <AuthInput
         icon={Lock}
         type={showPw ? "text" : "password"}
         placeholder={t("login.passwordPlaceholder")}
         value={form.password}
-        onChange={(v) => setForm((f) => ({ ...f, password: v }))}
+        onChange={(v) =>
+          setForm((f) => ({
+            ...f,
+            password: v,
+          }))
+        }
         error={errors.password}
         rightSlot={
           <button
             type="button"
             onClick={() => setShowPw((p) => !p)}
             className="cursor-pointer border-none bg-transparent p-1"
+            aria-label={
+              showPw
+                ? "Hide password"
+                : "Show password"
+            }
           >
             {showPw ? (
-              <EyeOff size={15} className="text-faint" />
+              <EyeOff
+                size={15}
+                className="text-faint"
+              />
             ) : (
-              <Eye size={15} className="text-faint" />
+              <Eye
+                size={15}
+                className="text-faint"
+              />
             )}
           </button>
         }
@@ -176,13 +196,18 @@ export default function LoginForm() {
 
       {/* Submit */}
       <button
+        type="button"
         onClick={handleSubmit}
         disabled={isPending}
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.75 text-[15px] font-bold text-ink shadow-[0_8px_25px_rgba(245,166,35,0.3)] transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:bg-gold/60 disabled:shadow-none"
       >
         {isPending ? (
           <>
-            <Loader2 size={16} className="animate-spin" /> {t("login.loading")}
+            <Loader2
+              size={16}
+              className="animate-spin"
+            />
+            {t("login.loading")}
           </>
         ) : (
           <>
@@ -195,6 +220,7 @@ export default function LoginForm() {
       {/* Switch to signup */}
       <p className="text-center text-sm text-faint">
         {t("login.switchText")}{" "}
+
         <Link
           href={`/${locale}/createaccount`}
           onClick={closeModal}

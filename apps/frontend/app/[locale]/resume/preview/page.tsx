@@ -47,7 +47,7 @@ import {
 import type {
   ResumePreviewData,
   ResumePurpose,
-} from "@/types/resume-preview";
+} from "@/lib/types/resumePreview.types";
 import { resolveResumeTemplate } from '@/components/resume/templates/registry';
 
 const MIN_ZOOM = 50;
