@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+<<<<<<< HEAD
 import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
+=======
+import Link from "next/link";
+import {
+  ArrowLeft,
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
   Check,
   ChevronDown,
   Download,

@@ -32,7 +32,7 @@ export class ResumeController {
     constructor(
         private readonly exportService: Pick<ResumeExportService, 'createSnapshot' | 'generatePdf' | 'generateJpg'> = resumeExportService,
         private readonly aiService: Pick<ResumeAiService, 'generate'> = resumeAiService,
-    ) {}
+    ) { }
 
     getRenderSnapshot = (req: Request<{ token: string }>, res: Response) => {
         const snapshot = renderSnapshotStore.consume(req.params.token);

@@ -8,7 +8,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Eye,
+<<<<<<< HEAD
   Lock,
+=======
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
   ShieldCheck,
   Sparkles,
   Star,
@@ -20,9 +23,12 @@ import type { TemplateCard, FilterKey } from "@/lib/types/resume.types"
 import { filters, templates, qualityItems } from "@/lib/placeholder-data/templates.placeholder"
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
+<<<<<<< HEAD
 import { useAuth } from "@/context/AuthContext";
 
 import { toast } from "sonner";
+=======
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -285,8 +291,13 @@ export default function TemplatesPage() {
                     </h2>
                   </div>
 
+<<<<<<< HEAD
                   <span className="shrink-0 rounded-full border border-gold/40 bg-gold/10 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-gold">
                     Plan: Pro & Enterprise
+=======
+                  <span className="shrink-0 rounded-full border border-gold/30 bg-gold/10 px-2.5 py-1 text-[10px] font-bold text-gold">
+                    {t("labels.premium")}
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
                   </span>
                 </div>
               </div>
@@ -321,6 +332,7 @@ export default function TemplatesPage() {
                   </div>
                 </motion.div>
 
+<<<<<<< HEAD
                 <div className="absolute bottom-5 inset-x-5 flex items-center justify-between gap-2">
                   <motion.div
                     animate={{ y: [0, 4, 0], x: [0, -2, 0] }}
@@ -347,6 +359,23 @@ export default function TemplatesPage() {
                     <ArrowRight size={14} className="shrink-0 rtl:rotate-180" />
                   </Link>
                 </div>
+=======
+                <motion.div
+                  animate={{ y: [0, 4, 0], x: [0, -2, 0] }}
+                  whileHover={{ scale: 1.06 }}
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="absolute bottom-5 left-5 rounded-2xl border border-edge bg-elevated/80 px-3 py-2 text-primary shadow-xl backdrop-blur-xl"
+                >
+                  <div className="text-[10px] text-secondary">
+                    {t("labels.atsScore")}
+                  </div>
+                  <div className="mt-0.5 text-xl font-black text-gold">98%</div>
+                </motion.div>
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
               </div>
             </motion.div>
           </motion.div>
@@ -436,6 +465,7 @@ export default function TemplatesPage() {
                         {t("labels.rank", { number: index + 1 })}
                       </div>
 
+<<<<<<< HEAD
                       <div className="absolute right-4 top-4 z-10 flex flex-col items-end gap-1.5">
                         <span className={`rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider backdrop-blur-md ${
                           template.id === 'minimal'
@@ -444,6 +474,10 @@ export default function TemplatesPage() {
                         }`}>
                           {template.id === 'minimal' ? 'Plan: Free & Pro' : 'Plan: Pro & Enterprise'}
                         </span>
+=======
+                      <div className="absolute right-4 top-4 z-10 rounded-full border border-gold/25 bg-gold/10 px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-gold backdrop-blur-md">
+                        {t(`templates.${template.id}.tag`)}
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
                       </div>
 
                       <div className="relative h-full w-full overflow-hidden rounded-[1.25rem] border border-edge bg-card p-3 shadow-inner">
@@ -505,8 +539,12 @@ export default function TemplatesPage() {
                           whileTap={{ scale: 0.96 }}
                         >
                           <Link
+<<<<<<< HEAD
                             href={`/${locale}/resume/preview?template=${template.id}`}
                             onClick={(e) => handleTemplateClick(template.id, template, e)}
+=======
+                            href={`/${locale}/dashboard?template=${template.id}`}
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
                             className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gold px-4 py-2.5 text-[12px] font-extrabold leading-none text-ink transition hover:bg-gold-light sm:text-sm"
                           >
                             <span>{t("actions.useTemplate")}</span>
@@ -605,6 +643,7 @@ export default function TemplatesPage() {
                     {t('labels.preview')}
                   </p>
 
+<<<<<<< HEAD
                   <div className="flex items-center gap-2">
                     <h3
                       id="preview-title"
@@ -620,6 +659,14 @@ export default function TemplatesPage() {
                       {previewTemplate.id === 'minimal' ? 'Plan: Free & Pro' : 'Plan: Pro & Enterprise'}
                     </span>
                   </div>
+=======
+                  <h3
+                    id="preview-title"
+                    className="mt-1 truncate text-xl font-black tracking-[-0.03em] text-primary"
+                  >
+                    {t(`templates.${previewTemplate.id}.title`)}
+                  </h3>
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
@@ -664,6 +711,7 @@ export default function TemplatesPage() {
                     </motion.button>
                   </div>
  
+<<<<<<< HEAD
                   <Link
                     href={`/${locale}/resume/preview?template=${previewTemplate.id}`}
                     onClick={(e) => handleTemplateClick(previewTemplate.id, previewTemplate, e)}
@@ -673,6 +721,8 @@ export default function TemplatesPage() {
                     <ArrowRight size={15} className="shrink-0 rtl:rotate-180" />
                   </Link>
 
+=======
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
                   <motion.button
                     type="button"
                     onClick={closePreview}
@@ -713,6 +763,7 @@ export default function TemplatesPage() {
           </motion.div>
         )}
       </AnimatePresence>
+<<<<<<< HEAD
 
       {/* Upgrade Prompt Modal */}
       <AnimatePresence>
@@ -781,6 +832,8 @@ export default function TemplatesPage() {
           </motion.div>
         )}
       </AnimatePresence>
+=======
+>>>>>>> 2d37f13c885a2bf769929a527a51cb932118d85b
  
 
       <Footer />

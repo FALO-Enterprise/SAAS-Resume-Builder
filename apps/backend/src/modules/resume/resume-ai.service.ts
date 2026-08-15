@@ -56,7 +56,6 @@ function mergeEnhancement(draft: DashboardDraftDTO, enhancement: ResumeAiEnhance
             ...draft.contact,
             title: enhancement.professionalTitle.trim() || draft.contact.title,
         },
-        summary: enhancement.summary?.trim() || draft.summary,
         experience: draft.experience.map((experience) => ({
             ...experience,
             description: descriptionById.get(experience.id) || experience.description,
@@ -70,7 +69,7 @@ export class ResumeAiService {
         private readonly dashboardRepository: DraftStore = new DashboardRepository(),
         private readonly resumeRepository: ResumeStore = new ResumeRepository(),
         private readonly generator: ResumeAiGenerator = geminiResumeAiGenerator,
-    ) {}
+    ) { }
 
     async generate(userId: string, payload: ResumeGenerationDTO): Promise<Resume> {
         const template = resolveResumeTemplate(payload.templateId);
@@ -90,7 +89,7 @@ export class ResumeAiService {
 
         try {
             const content = resumeContentSchema.parse(parsedDraft.data);
-            const enhancement = await this.generator.enhance(content, userId, payload.purpose);
+            const enhancement = await this.generator.enhance(content, userId);
             const enhancedDraft = mergeEnhancement(parsedDraft.data, enhancement);
             const validatedDraft = dashboardDraftSchema.parse(enhancedDraft);
 

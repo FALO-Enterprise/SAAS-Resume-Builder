@@ -1105,10 +1105,22 @@
     "notifications": {
       "heading": "Email Notifications",
       "description": "Manage what emails you receive from ResuMax.",
-      "resumeExported": { "title": "Resume Exports", "desc": "Notify when PDF generation completes" },
-      "securityAlerts": { "title": "Security Alerts", "desc": "Alert me about new device logins" },
-      "weeklyTips": { "title": "Career Tips & AI Advice", "desc": "Weekly tips to improve your resume score" },
-      "productUpdates": { "title": "Product News & Features", "desc": "Updates about new templates and features" }
+      "resumeExported": {
+        "title": "Resume Exports",
+        "desc": "Notify when PDF generation completes"
+      },
+      "securityAlerts": {
+        "title": "Security Alerts",
+        "desc": "Alert me about new device logins"
+      },
+      "weeklyTips": {
+        "title": "Career Tips & AI Advice",
+        "desc": "Weekly tips to improve your resume score"
+      },
+      "productUpdates": {
+        "title": "Product News & Features",
+        "desc": "Updates about new templates and features"
+      }
     },
     "billing": {
       "heading": "Billing & Subscription",

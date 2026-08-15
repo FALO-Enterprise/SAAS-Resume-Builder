@@ -37,7 +37,7 @@ export class ResumeExportService {
         private readonly resumeRepository: ResumeLookup = new ResumeRepository(),
         private readonly dashboardRepository: DraftLookup = new DashboardRepository(),
         private readonly pdfGenerator: ResumePdfGenerator = new PuppeteerResumePdfGenerator(),
-    ) {}
+    ) { }
 
     async createSnapshot(
         resumeId: string,
