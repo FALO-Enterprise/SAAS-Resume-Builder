@@ -1054,6 +1054,121 @@
       "updateFailed": "Something went wrong. Please try again."
     }
   },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage app preferences",
+    "version": "ResuMax v1.0.0",
+    "close": "Close",
+    "savePreferences": "Save Preferences",
+    "preferencesSaved": "Preferences saved!",
+    "tabs": {
+      "appearance": "Appearance",
+      "language": "Language & Region",
+      "resume": "Resume Preferences",
+      "notifications": "Notifications",
+      "billing": "Billing & Plans",
+      "security": "Security & Sessions",
+      "privacy": "Privacy & Data",
+      "about": "About ResuMax"
+    },
+    "appearance": {
+      "heading": "Appearance",
+      "description": "Customize how ResuMax looks on your screen.",
+      "themeLabel": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "accentColorLabel": "Accent Color",
+      "compactMode": "Compact Mode",
+      "compactModeDesc": "Reduce padding in sidebar and editor",
+      "reduceAnimations": "Reduce Animations",
+      "reduceAnimationsDesc": "Disable motion transitions for faster navigation"
+    },
+    "language": {
+      "heading": "Language & Region",
+      "description": "Set application language and date formatting.",
+      "interfaceLanguage": "Interface Language",
+      "dateFormatLabel": "Default Date Format on Resume",
+      "dateFormats": {
+        "mmYYYY": "MM/YYYY (e.g., 08/2026)",
+        "mmmYYYY": "MMM YYYY (e.g., Aug 2026)",
+        "yyyyMM": "YYYY-MM (e.g., 2026-08)"
+      }
+    },
+    "resume": {
+      "heading": "Resume Preferences",
+      "description": "Default defaults when generating new resumes.",
+      "paperSizeLabel": "Default Paper Size",
+      "exportFormatLabel": "Default Download Format",
+      "formats": {
+        "pdf": "PDF Document (.pdf)",
+        "docx": "Microsoft Word (.docx)"
+      },
+      "autoSave": "Auto-Save Editor Changes",
+      "autoSaveDesc": "Automatically save changes while typing"
+    },
+    "notifications": {
+      "heading": "Email Notifications",
+      "description": "Manage what emails you receive from ResuMax.",
+      "resumeExported": { "title": "Resume Exports", "desc": "Notify when PDF generation completes" },
+      "securityAlerts": { "title": "Security Alerts", "desc": "Alert me about new device logins" },
+      "weeklyTips": { "title": "Career Tips & AI Advice", "desc": "Weekly tips to improve your resume score" },
+      "productUpdates": { "title": "Product News & Features", "desc": "Updates about new templates and features" }
+    },
+    "billing": {
+      "heading": "Billing & Subscription",
+      "description": "Manage your active subscription and plan limits.",
+      "planLabel": "{plan} Plan",
+      "activeSubscription": "Active Subscription",
+      "upgradeToPro": "Upgrade to Pro",
+      "managePlan": "Manage Plan",
+      "upgradeToEnterprise": "Upgrade to Enterprise",
+      "manageEnterprise": "Manage Enterprise",
+      "planDescriptions": {
+        "free": "You are currently on the Free plan. Upgrade for unlimited AI resume enhancements and DOCX exports.",
+        "pro": "You are on the Pro plan with unlimited AI resume enhancements, DOCX exports, and advanced analytics.",
+        "enterprise": "You are on the Enterprise plan with unlimited features, priority support, and custom integrations."
+      },
+      "usageLimits": "Usage Limits",
+      "aiCreditsUsed": "AI Credits Used",
+      "resumesStored": "Resumes Stored"
+    },
+    "security": {
+      "heading": "Security & Sessions",
+      "description": "Manage password and view connected devices.",
+      "activeSessions": "Active Sessions",
+      "currentDevice": "Current Device",
+      "active": "Active",
+      "signOutAllDevices": "Sign out from all devices"
+    },
+    "privacy": {
+      "heading": "Privacy & Data",
+      "description": "Control your personal data and account deletion.",
+      "downloadData": "Download Account Data (.json)",
+      "dangerZone": "Danger Zone",
+      "dangerZoneDesc": "Permanently delete your account and all stored resumes from ResuMax. This cannot be undone.",
+      "deleteAccount": "Delete Account",
+      "errors": {
+        "userNotFound": "User information not found",
+        "deleteFailed": "Failed to delete account. Please try again."
+      }
+    },
+    "about": {
+      "heading": "About ResuMax",
+      "description": "Application metadata and support links.",
+      "version": "Version",
+      "buildDate": "Build Date",
+      "buildDateValue": "July 2026",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "deleteConfirm": {
+      "title": "Delete Account",
+      "message": "Are you sure you want to delete your account? This action cannot be undone. All your resumes and data will be permanently removed.",
+      "cancel": "Cancel",
+      "confirm": "Delete Account",
+      "deleting": "Deleting…"
+    }
+  },
   "footer": {
     "tagline": "Trusted. Global. Effortless.",
     "product": "Product",
