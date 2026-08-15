@@ -382,7 +382,7 @@
     "bottomNote": "The code expires in 10 minutes. Check your spam folder if you don't see it.",
     "success": {
       "title": "Email verified!",
-      "subtitle": "Your account is now active. Taking you to your dashboard…"
+      "subtitle": "Your account is active. Let’s personalize your ResuMax experience…"
     },
     "errors": {
       "incomplete": "Please enter the complete 6-digit code.",
@@ -956,6 +956,403 @@
       "secure": "Secure file handling",
       "preserve": "Your original information is preserved",
       "fast": "Continue without starting over"
+    }
+  },
+  "onboarding": {
+    "loading": "Preparing your quick survey...",
+    "surveyLabel": "Quick survey",
+    "saveExit": "Save & exit",
+    "progressTitle": "Build your career profile",
+    "stepCounter": "Step {current} of {total}",
+    "autoSave": "Answers are saved on this device",
+    "back": "Back",
+    "continue": "Continue",
+    "finish": "Prepare dashboard",
+    "completion": {
+      "eyebrow": "Your choices are ready",
+      "title": "Your dashboard is ready to begin.",
+      "description": "We saved your job title, education level, skills, and template to the dashboard. You can continue the rest of your resume there.",
+      "primary": "Open dashboard",
+      "edit": "Edit answers",
+      "home": "Return to home"
+    },
+    "errors": {
+      "load": "We could not load your onboarding progress.",
+      "save": "We could not save this step. Please try again.",
+      "dashboardSave": "We could not fill your dashboard automatically. Please try again."
+    },
+    "direct": {
+      "questionCounter": "Question {current} of {total}",
+      "questionLabel": "Quick question",
+      "optional": "Optional",
+      "askField": "What is your {field}?",
+      "contactAnswerDescription": "Your answer will appear directly in your resume contact section.",
+      "certificationSection": "Professional certifications",
+      "yesTitle": "Yes",
+      "yesDescription": "I want to add this information",
+      "noTitle": "No",
+      "noDescription": "Skip this section for now",
+      "hasExperienceTitle": "Do you have work experience to add?",
+      "hasExperienceDescription": "If you choose yes, we’ll ask for each detail one question at a time.",
+      "moreExperienceTitle": "Would you like to add another work experience?",
+      "moreExperienceDescription": "You can add multiple roles and they will be organized in your dashboard.",
+      "hasEducationTitle": "Would you like to add your education?",
+      "hasEducationDescription": "We’ll ask for the institution, degree, field, and graduation year separately.",
+      "moreEducationTitle": "Would you like to add another institution?",
+      "moreEducationDescription": "Choose yes to add another degree or institution.",
+      "hasCertificationTitle": "Do you have a professional certification to add?",
+      "hasCertificationDescription": "This section is optional and can be skipped.",
+      "moreCertificationTitle": "Would you like to add another certification?",
+      "moreCertificationDescription": "Choose yes to add another certification.",
+      "experienceDatesTitle": "When did you start and finish this role?",
+      "experienceDatesDescription": "Choose the dates, or mark that you still work there.",
+      "experienceDescriptionTitle": "What were your key responsibilities or achievements?",
+      "experienceDescriptionDescription": "Write a short description and include clear results or numbers when possible.",
+      "skillsQuestionTitle": "Which skills do you want to highlight?",
+      "skillsQuestionDescription": "Choose one or more skills, or add your own.",
+      "experienceAnswerDescription": "This answer maps directly to work experience {current} in your dashboard.",
+      "educationAnswerDescription": "This answer maps directly to education entry {current}.",
+      "certificationAnswerDescription": "This answer will be saved directly in your certifications section.",
+      "exactSyncNote": "Every field here maps to the same field in your dashboard",
+      "contactRequired": "Enter your full name, professional title, and a valid email to continue.",
+      "experienceEmpty": "No work experience is added. You can skip this step or add a role.",
+      "educationEmpty": "No education is added. You can skip this section or add an institution.",
+      "certificationEmpty": "Professional certifications are optional. Add one if you have it.",
+      "selectedSkills": "Skills that will appear in your dashboard",
+      "summaryContact": "Contact information",
+      "summaryExperience": "Work experiences",
+      "summaryEducation": "Education entries",
+      "summarySkills": "Skills added"
+    },
+    "quick": {
+      "questionLabel": "Question {current} of {total}",
+      "changeLater": "You can change this choice before finishing the survey.",
+      "dashboardSaveNote": "Your title, education level, template, and skills will be saved directly to the dashboard without adding made-up information.",
+      "recommended": "Best match",
+      "selectedSkills": "{count} skills selected",
+      "targetRoleQuestion": {
+        "title": "Which job title best matches your goal?",
+        "description": "Choose a title from the options tailored to your selected field.",
+        "optionDescription": "This choice will be saved as your professional title in the dashboard.",
+        "customLabel": "Can’t find your specialization?",
+        "customPlaceholder": "Enter your job title or specialization",
+        "customHint": "Typing here will use your custom title instead of a suggested option."
+      },
+      "roleOptions": {
+        "frontendDeveloper": "Front-end Developer",
+        "backendDeveloper": "Back-end Developer",
+        "fullStackDeveloper": "Full-stack Developer",
+        "softwareEngineer": "Software Engineer",
+        "dataAnalyst": "Data Analyst",
+        "cybersecuritySpecialist": "Cybersecurity Specialist",
+        "graphicDesigner": "Graphic Designer",
+        "uiUxDesigner": "UI/UX Designer",
+        "productDesigner": "Product Designer",
+        "motionDesigner": "Motion Designer",
+        "brandDesigner": "Brand Designer",
+        "contentDesigner": "Content Designer",
+        "projectCoordinator": "Project Coordinator",
+        "projectManager": "Project Manager",
+        "hrSpecialist": "HR Specialist",
+        "marketingSpecialist": "Marketing Specialist",
+        "operationsOfficer": "Operations Officer",
+        "businessDevelopmentOfficer": "Business Development Officer",
+        "accountant": "Accountant",
+        "financialAnalyst": "Financial Analyst",
+        "auditor": "Auditor",
+        "financeOfficer": "Finance Officer",
+        "payrollSpecialist": "Payroll Specialist",
+        "bankingOfficer": "Banking Officer",
+        "dietitian": "Dietitian",
+        "nurse": "Nurse",
+        "publicHealthOfficer": "Public Health Officer",
+        "pharmacist": "Pharmacist",
+        "physiotherapist": "Physiotherapist",
+        "labTechnician": "Laboratory Technician",
+        "teacher": "Teacher",
+        "trainer": "Trainer",
+        "educationCoordinator": "Education Coordinator",
+        "academicResearcher": "Academic Researcher",
+        "schoolCounselor": "School Counselor",
+        "curriculumSpecialist": "Curriculum Specialist",
+        "civilEngineer": "Civil Engineer",
+        "electricalEngineer": "Electrical Engineer",
+        "mechanicalEngineer": "Mechanical Engineer",
+        "architecturalEngineer": "Architectural Engineer",
+        "industrialEngineer": "Industrial Engineer",
+        "siteEngineer": "Site Engineer",
+        "administrativeAssistant": "Administrative Assistant",
+        "customerServiceRepresentative": "Customer Service Representative",
+        "communityOfficer": "Community Mobilization Officer",
+        "salesRepresentative": "Sales Representative",
+        "dataEntryClerk": "Data Entry Clerk",
+        "logisticsOfficer": "Logistics Officer"
+      },
+      "skillsQuestion": {
+        "title": "Which skills do you want to highlight?",
+        "description": "Choose from suggestions tailored to your field. No typing is needed.",
+        "hint": "Choose 3 to 5 skills"
+      },
+      "templateQuestion": {
+        "title": "Which resume style do you prefer?",
+        "description": "Choose one style. We marked the template that best matches your answers."
+      },
+      "templateOptions": {
+        "minimal": "Clean, clear, and suitable for most roles.",
+        "global": "Flexible for international and remote applications.",
+        "executive": "Professional for senior experience and leadership roles.",
+        "academic": "Focused on education, projects, and early careers.",
+        "developer": "Modern and structured for technology roles.",
+        "director": "Bold and balanced for creative and design roles."
+      },
+      "skillOptions": {
+        "webDevelopment": "Web development",
+        "programming": "Programming",
+        "problemSolving": "Problem solving",
+        "dataAnalysis": "Data analysis",
+        "teamwork": "Teamwork",
+        "projectManagement": "Project management",
+        "communication": "Communication",
+        "research": "Research",
+        "uiDesign": "UI design",
+        "creativity": "Creativity",
+        "marketing": "Marketing",
+        "timeManagement": "Time management",
+        "leadership": "Leadership",
+        "excel": "Microsoft Excel",
+        "customerService": "Customer service",
+        "accounting": "Accounting",
+        "reporting": "Reporting",
+        "healthEducation": "Health education",
+        "caseManagement": "Case management",
+        "teaching": "Teaching and training",
+        "engineeringDesign": "Engineering design"
+      }
+    },
+    "summary": {
+      "title": "Your profile is taking shape",
+      "description": "Every answer helps ResuMax understand the direction you want to take.",
+      "empty": "Your answers will appear here as you progress.",
+      "template": "Suggested template"
+    },
+    "templates": {
+      "executive": "Executive",
+      "developer": "Developer",
+      "director": "Creative Director",
+      "minimal": "Minimal",
+      "academic": "Academic",
+      "global": "Global"
+    },
+    "steps": {
+      "purpose": {
+        "eyebrow": "Start with your goal",
+        "title": "What do you want to achieve with ResuMax?",
+        "description": "One answer at a time. We’ll shape a more focused experience around your goal.",
+        "options": {
+          "firstResume": {
+            "title": "Create my first resume",
+            "description": "Start from scratch with clear guidance"
+          },
+          "newJob": {
+            "title": "Apply for a new job",
+            "description": "Build a resume for your next opportunity"
+          },
+          "internship": {
+            "title": "Apply for an internship",
+            "description": "Highlight education, projects, and skills"
+          },
+          "careerChange": {
+            "title": "Change my career path",
+            "description": "Reframe your experience for a new path"
+          }
+        }
+      },
+      "careerStatus": {
+        "eyebrow": "Your current stage",
+        "title": "Where are you in your career right now?",
+        "description": "This helps us order your resume and recommend the right next step.",
+        "options": {
+          "student": {
+            "title": "Student",
+            "description": "I’m currently studying"
+          },
+          "freshGraduate": {
+            "title": "Fresh graduate",
+            "description": "I recently started my career journey"
+          },
+          "employed": {
+            "title": "Currently employed",
+            "description": "I have experience and want to grow"
+          },
+          "jobSeeker": {
+            "title": "Looking for work",
+            "description": "I’m preparing for my next opportunity"
+          },
+          "careerSwitcher": {
+            "title": "Changing careers",
+            "description": "I’m moving into a new field or role"
+          }
+        }
+      },
+      "targetJob": {
+        "eyebrow": "Your destination",
+        "title": "What role are you targeting?",
+        "description": "Enter the closest job title. You can change it later.",
+        "placeholder": "Example: Front-end Developer",
+        "suggestionsLabel": "Popular choices",
+        "suggestions": [
+          "Front-end Developer",
+          "Graphic Designer",
+          "Accountant",
+          "Dietitian"
+        ]
+      },
+      "field": {
+        "eyebrow": "Your career field",
+        "title": "Which field best matches your experience or goal?",
+        "description": "We’ll personalize skills, templates, and content around your choice.",
+        "options": {
+          "technology": {
+            "title": "Technology",
+            "description": "Development, data, networks, and IT"
+          },
+          "design": {
+            "title": "Design & creative",
+            "description": "Visual design, UX, and content"
+          },
+          "business": {
+            "title": "Business & management",
+            "description": "Management, HR, and marketing"
+          },
+          "finance": {
+            "title": "Finance & accounting",
+            "description": "Accounting, auditing, and finance"
+          },
+          "health": {
+            "title": "Health & nutrition",
+            "description": "Healthcare, nutrition, and pharmacy"
+          },
+          "education": {
+            "title": "Education",
+            "description": "Teaching, training, and research"
+          },
+          "engineering": {
+            "title": "Engineering",
+            "description": "Civil, electrical, and mechanical"
+          },
+          "other": {
+            "title": "Another field",
+            "description": "Choose this if yours is not listed"
+          }
+        }
+      },
+      "experienceLevel": {
+        "eyebrow": "Your experience",
+        "title": "How much experience do you have?",
+        "description": "We’ll use this to choose the right resume length and section order.",
+        "options": {
+          "none": {
+            "title": "No experience yet",
+            "description": "We’ll focus on education and skills"
+          },
+          "junior": {
+            "title": "Less than 2 years",
+            "description": "Early career with limited experience"
+          },
+          "mid": {
+            "title": "2 to 5 years",
+            "description": "Mid-level experience and clear achievements"
+          },
+          "senior": {
+            "title": "More than 5 years",
+            "description": "Advanced experience and leadership"
+          }
+        }
+      },
+      "education": {
+        "eyebrow": "Your education",
+        "title": "What is your highest education level?",
+        "description": "This helps us understand the background behind your next career move.",
+        "majorLabel": "What is your major?",
+        "majorPlaceholder": "Example: Software Engineering",
+        "options": {
+          "highSchool": {
+            "title": "High school",
+            "description": "Secondary school certificate"
+          },
+          "diploma": {
+            "title": "Diploma",
+            "description": "Professional or academic diploma"
+          },
+          "bachelor": {
+            "title": "Bachelor’s degree",
+            "description": "Undergraduate university degree"
+          },
+          "master": {
+            "title": "Master’s degree",
+            "description": "Postgraduate study"
+          },
+          "doctorate": {
+            "title": "Doctorate",
+            "description": "Highest academic degree"
+          }
+        }
+      },
+      "skills": {
+        "eyebrow": "Your strengths",
+        "title": "What are your strongest skills?",
+        "description": "Choose the strengths that best represent how you work.",
+        "selectionLabel": "Choose 3 to 5 skills",
+        "selectionHint": "Select your strongest skills or add a new one.",
+        "customPlaceholder": "Add another skill",
+        "add": "Add",
+        "suggestions": [
+          "Communication",
+          "Teamwork",
+          "Problem solving",
+          "Time management",
+          "Microsoft Excel",
+          "Leadership",
+          "Data analysis",
+          "Customer service",
+          "Project management",
+          "Research"
+        ]
+      },
+      "hasExperience": {
+        "eyebrow": "Work experience",
+        "title": "Do you have work experience to add?",
+        "description": "No details are needed now. We only want to understand your starting point.",
+        "options": {
+          "none": {
+            "title": "No, not yet",
+            "description": "We’ll suggest education and projects first"
+          },
+          "one": {
+            "title": "Yes, one experience",
+            "description": "Adding it will be your next step"
+          },
+          "multiple": {
+            "title": "Yes, more than one",
+            "description": "We’ll order them from newest to oldest"
+          }
+        }
+      },
+      "resumeLanguage": {
+        "eyebrow": "Resume language",
+        "title": "What language should your resume use?",
+        "description": "Choose the language you feel most comfortable using. You can change it later.",
+        "options": {
+          "ar": {
+            "title": "Arabic",
+            "description": "A full right-to-left Arabic resume"
+          },
+          "en": {
+            "title": "English",
+            "description": "An English resume with left-to-right layout"
+          }
+        }
+      }
     }
   }
 }

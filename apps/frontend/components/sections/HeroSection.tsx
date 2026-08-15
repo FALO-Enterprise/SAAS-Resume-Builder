@@ -200,14 +200,18 @@ export default function HeroSection() {
               className="flex flex-wrap gap-4 mb-16"
             >
               <Link
-                  href={`/${locale}/resume/getstarted`}
+                  href={
+                    isVerified
+                      ? `/${locale}/dashboard`
+                      : `/${locale}/createaccount`
+                  }
                 className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-bold px-7 py-4 rounded-full transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(245,166,35,0.4)]"
               >
                 {isPaidUser ? t('ctaPaid') || 'Start Building' : t('cta')}
                 <ArrowRight size={18} className={`group-hover:translate-x-1 transition-transform ${isRTL ? 'rotate-180' : ''}`} />
               </Link>
               <Link
-                href={`${locale}/templates`}
+                href={`/${locale}/templates`}
                 className="flex items-center gap-2 glass border border-edge text-secondary hover:text-primary font-semibold px-7 py-4 rounded-full transition-all duration-200 hover:border-edge-strong"
               >
                 <Play size={15} className={`fill-current ${isRTL ? 'rotate-180' : ''}`} />
