@@ -659,11 +659,7 @@ export default function HeroSection() {
             >
               {/* Primary CTA */}
               <Link
-                href={
-                  isVerified
-                    ? `/${locale}/dashboard`
-                    : `/${locale}/createaccount`
-                }
+                href={`/${locale}/resume/getstarted`}
                 className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-bold px-7 py-4 rounded-full transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(245,166,35,0.4)]"
               >
                 {isPaidUser ? t("ctaPaid") || "Start Building" : t("cta")}

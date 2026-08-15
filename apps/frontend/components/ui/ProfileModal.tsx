@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, ChangeEvent, FormEvent } from "react";
+import { useState, useRef, ChangeEvent, FormEvent, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, User, Mail, Camera, Loader2 } from "lucide-react";
 import Image from "next/image";
@@ -16,6 +16,18 @@ interface ProfileModalProps {
 
 export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { user } = useAuth();
+
+  
+  useEffect(() => {
+  if (isOpen) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [isOpen]);
 
   return (
     <AnimatePresence>
