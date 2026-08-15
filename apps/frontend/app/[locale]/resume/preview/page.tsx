@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { CSSProperties, TouchEvent as ReactTouchEvent } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -15,9 +14,7 @@ import {
   Minus,
   Plus,
   RotateCcw,
-  Settings,
   Sparkles,
-  X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ResumeTemplateId } from "@shared-types/resume";
@@ -127,15 +124,6 @@ export default function ResumePreviewPage() {
   const [pageError, setPageError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
-
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
-  const [mobileZoom, setMobileZoom] = useState(MIN_MOBILE_ZOOM);
-
-  const [mobileOffset, setMobileOffset] = useState<MobilePreviewOffset>({
-    x: 0,
-    y: 0,
-  });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -427,7 +415,7 @@ export default function ResumePreviewPage() {
                       {metadata.name}
                     </span>
                     {isApplied && (
-                      <span className="absolute end-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-green text-white shadow">
+                      <span className="absolute inset-e-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-green text-white shadow">
                         <Check size={12} />
                       </span>
                     )}
@@ -478,7 +466,7 @@ export default function ResumePreviewPage() {
             type="button"
             onClick={() => void applyConfiguration()}
             disabled={isBusy || !hasPendingChanges}
-            className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black text-ink shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
+            className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
           >
             {isApplying ? (
               <LoaderCircle size={19} className="animate-spin" />

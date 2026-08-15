@@ -13,16 +13,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Logo from "@/components/ui/Logo";
-import { useAuth } from "@/context/AuthContext";
-import { buildBackendUrl } from "@/lib/backend";
-import { persistAuthToken } from "@/lib/auth-token";
-import { resetOnboardingState } from "@/lib/onboarding-storage";
-import { useCountdown } from "@/hooks/useCountdown";
+import { useVerifyAccountFlow } from "@/hooks/mutations/useVerifyAccountFlow";
 
 const CODE_LENGTH = 6;
-const RESEND_COOLDOWN = 60; // seconds
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Single OTP digit box
@@ -50,7 +45,6 @@ function OtpBox({
   onFocus: () => void;
   onBlur: () => void;
 }) {
-  // State → classes (fixed set of conditions, so no inline needed)
   const stateClasses = hasError
     ? "border-pink-light/60 bg-pink-light/[0.07] text-pink-light"
     : focused
@@ -83,39 +77,48 @@ function OtpBox({
   );
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Main page
 // ─────────────────────────────────────────────────────────────────────────────
 export default function VerifyPage() {
   const locale = useLocale();
-  const router = useRouter();
   const t = useTranslations("verify");
   const searchParams = useSearchParams();
-  const { login } = useAuth();
 
   const emailParam = searchParams.get("email") ?? "";
 
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(""));
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [resending, setResending] = useState(false);
-  const [resendSuccess, setResendSuccess] = useState(false);
+
+  const {
+    verify,
+    resend,
+    clearError,
+    isVerifying,
+    isResending,
+    generalError,
+    success,
+    resendSuccess,
+    count,
+    expired,
+  } = useVerifyAccountFlow(CODE_LENGTH);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const { count, expired, restart } = useCountdown(RESEND_COOLDOWN);
 
   useEffect(() => {
     setTimeout(() => inputRefs.current[0]?.focus(), 300);
   }, []);
 
+  const handleSubmit = async (code: string) => {
+    const result = await verify(emailParam, code, t("errors.network"));
+    if (!result.ok) {
+      setDigits(Array(CODE_LENGTH).fill(""));
+      setTimeout(() => inputRefs.current[0]?.focus(), 50);
+    }
+  };
+
   // ── Input handlers ──────────────────────────────────────────────────────
-  const handleChange = (
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, "");
     if (!raw) return;
 
@@ -123,17 +126,14 @@ export default function VerifyPage() {
     const next = [...digits];
     next[index] = digit;
     setDigits(next);
-    setError("");
+    clearError();
 
     if (index < CODE_LENGTH - 1) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace") {
       e.preventDefault();
       const next = [...digits];
@@ -145,7 +145,7 @@ export default function VerifyPage() {
         setDigits(next);
         inputRefs.current[index - 1]?.focus();
       }
-      setError("");
+      clearError();
     } else if (e.key === "ArrowLeft" && index > 0) {
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === "ArrowRight" && index < CODE_LENGTH - 1) {
@@ -158,132 +158,38 @@ export default function VerifyPage() {
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const pasted = e.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, CODE_LENGTH);
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, CODE_LENGTH);
     if (!pasted) return;
     const next = Array(CODE_LENGTH).fill("");
     pasted.split("").forEach((ch, i) => {
       next[i] = ch;
     });
     setDigits(next);
-    setError("");
+    clearError();
     const lastIndex = Math.min(pasted.length, CODE_LENGTH - 1);
     inputRefs.current[lastIndex]?.focus();
   };
 
-  // ── Submit ───────────────────────────────────────────────────────────────
-  const handleSubmit = async (code: string) => {
-    if (code.length < CODE_LENGTH) {
-      setError(t("errors.incomplete"));
-      return;
-    }
-    setLoading(true);
-    setError("");
-
-    try {
-      // ── BACKEND CONNECTION ───────────────────────────────────────────────
-      // POST /api/auth/verify
-      // Body:     { email, code }
-      // Response: { token, user }  |  { error }
-      // ────────────────────────────────────────────────────────────────────
-      const res = await fetch(buildBackendUrl("/api/auth/verify"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailParam, code }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data?.error?.message || t("errors.invalid"));
-        setDigits(Array(CODE_LENGTH).fill(""));
-        setTimeout(() => inputRefs.current[0]?.focus(), 50);
-        return;
-      }
-
-      if (data.token) persistAuthToken(data.token);
-      resetOnboardingState();
-      login({
-        id: data.user?.id,
-        name: data.user?.name ?? emailParam.split("@")[0],
-        email: data.user?.email ?? emailParam,
-        avatar: data.user?.avatar,
-        role: data.user?.role,
-        planName: data.user.plan.name,
-      });
-      setSuccess(true);
-      setTimeout(() => router.push(`/${locale}/onboarding`), 2000);
-    } catch (error) {
-      const message =
-        typeof error === "object" && error && "message" in error
-          ? String(
-              (error as { message?: string }).message ?? t("errors.network"),
-            )
-          : t("errors.network");
-      setError(message);
-      setDigits(Array(CODE_LENGTH).fill(""));
-      setTimeout(() => inputRefs.current[0]?.focus(), 50);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Auto-submit when all digits filled
-  useEffect(() => {
-    if (digits.every((d) => d !== "") && !loading && !success) {
-      handleSubmit(digits.join(""));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [digits]);
+  // useEffect(() => {
+  //   if (digits.every((d) => d !== "") && !isVerifying && !success) {
+  //     handleSubmit(digits.join(""));
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [digits]);
 
   // ── Resend ───────────────────────────────────────────────────────────────
   const handleResend = async () => {
-    if (!expired || resending) return;
-    setResending(true);
-    setResendSuccess(false);
-    setError("");
-
-    try {
-      // ── BACKEND CONNECTION ───────────────────────────────────────────────
-      // POST /api/auth/resend-code
-      // Body:     { email }
-      // Response: { success: true }  |  { error }
-      // ────────────────────────────────────────────────────────────────────
-      const res = await fetch(buildBackendUrl("/api/auth/resend-code"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailParam }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data?.error?.message || t("errors.resendFailed"));
-        return;
-      }
-
-      setResendSuccess(true);
-      setDigits(Array(CODE_LENGTH).fill(""));
-      restart();
-      setTimeout(() => {
-        inputRefs.current[0]?.focus();
-        setResendSuccess(false);
-      }, 2500);
-    } catch {
-      setError(t("errors.resendNetwork"));
-    } finally {
-      setResending(false);
-    }
+    const ok = await resend(emailParam, t("errors.resendNetwork"), () => {
+      inputRefs.current[0]?.focus();
+    });
+    if (ok) setDigits(Array(CODE_LENGTH).fill(""));
   };
 
   const filledCount = digits.filter((d) => d !== "").length;
-  const hasError = !!error;
-  const canSubmit = !loading && filledCount === CODE_LENGTH;
+  const hasError = !!generalError;
+  const canSubmit = !isVerifying && filledCount === CODE_LENGTH;
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Success screen
-  // ─────────────────────────────────────────────────────────────────────────
   if (success) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-base px-6 py-10">
@@ -293,7 +199,6 @@ export default function VerifyPage() {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-90 text-center"
         >
-          {/* Animated checkmark */}
           <motion.div
             animate={{ scale: [0, 1.2, 1] }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -309,7 +214,6 @@ export default function VerifyPage() {
             {t("success.subtitle")}
           </p>
 
-          {/* Progress bar */}
           <div className="h-0.75 overflow-hidden rounded-full bg-card">
             <motion.div
               initial={{ width: 0 }}
@@ -323,36 +227,27 @@ export default function VerifyPage() {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Main card
-  // ─────────────────────────────────────────────────────────────────────────
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-base px-6 py-10">
-      {/* Background glows */}
       <div className="pointer-events-none fixed left-[5%] top-[15%] h-125 w-125 rounded-full bg-gold/4 blur-[120px]" />
       <div className="pointer-events-none fixed bottom-[10%] right-[5%] h-100 w-100 rounded-full bg-azure/5 blur-[100px]" />
 
-      {/* Card */}
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-120 overflow-hidden rounded-[28px] border border-edge bg-elevated px-10 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)]"
       >
-        {/* Decorative glows inside card */}
         <div className="pointer-events-none absolute -top-15 -right-15 h-50 w-50 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-gold)_8%,transparent)_0%,transparent_70%)]" />
         <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-azure)_8%,transparent)_0%,transparent_70%)]" />
 
-        {/* Logo */}
         <div className="mb-9">
           <Link href={`/${locale}`} className="no-underline">
             <Logo />
           </Link>
         </div>
 
-        {/* Header */}
         <div className="mb-8">
-          {/* Icon */}
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -388,7 +283,6 @@ export default function VerifyPage() {
           </motion.p>
         </div>
 
-        {/* OTP boxes */}
         <div className="mb-7">
           <div dir="ltr" className="flex justify-center gap-1.5 sm:gap-2.5">
             {digits.map((digit, i) => (
@@ -406,14 +300,13 @@ export default function VerifyPage() {
                 onPaste={handlePaste}
                 onFocus={() => {
                   setFocusedIndex(i);
-                  setError("");
+                  clearError();
                 }}
                 onBlur={() => setFocusedIndex(null)}
               />
             ))}
           </div>
 
-          {/* Progress dots */}
           <div className="mt-4 flex justify-center gap-1.5">
             {digits.map((d, i) => (
               <motion.div
@@ -426,9 +319,8 @@ export default function VerifyPage() {
           </div>
         </div>
 
-        {/* Error message */}
         <AnimatePresence>
-          {error && (
+          {generalError && (
             <motion.div
               key="error"
               initial={{ opacity: 0, y: -8, height: 0 }}
@@ -436,12 +328,11 @@ export default function VerifyPage() {
               exit={{ opacity: 0, y: -8, height: 0 }}
               className="mb-5 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
             >
-              {error}
+              {generalError}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Resend success message */}
         <AnimatePresence>
           {resendSuccess && (
             <motion.div
@@ -457,7 +348,6 @@ export default function VerifyPage() {
           )}
         </AnimatePresence>
 
-        {/* Verify button */}
         <button
           onClick={() => handleSubmit(digits.join(""))}
           disabled={!canSubmit}
@@ -467,7 +357,7 @@ export default function VerifyPage() {
               : "cursor-not-allowed bg-gold/40"
           }`}
         >
-          {loading ? (
+          {isVerifying ? (
             <>
               <Loader2 size={16} className="animate-spin" /> {t("verifying")}
             </>
@@ -479,25 +369,23 @@ export default function VerifyPage() {
           )}
         </button>
 
-        {/* Divider */}
         <div className="mb-5 flex items-center gap-3">
           <div className="h-px flex-1 bg-edge" />
           <span className="text-xs text-muted">{t("dividerText")}</span>
           <div className="h-px flex-1 bg-edge" />
         </div>
 
-        {/* Resend row */}
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={handleResend}
-            disabled={!expired || resending}
+            disabled={!expired || isResending}
             className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${
-              expired && !resending
+              expired && !isResending
                 ? "cursor-pointer text-gold"
                 : "cursor-default text-muted"
             }`}
           >
-            {resending ? (
+            {isResending ? (
               <>
                 <Loader2 size={13} className="animate-spin" /> {t("resending")}
               </>
@@ -523,7 +411,6 @@ export default function VerifyPage() {
           )}
         </div>
 
-        {/* Back link */}
         <div className="mt-8 border-t border-edge pt-6 text-center">
           <Link
             href={`/${locale}/createaccount`}
@@ -534,7 +421,6 @@ export default function VerifyPage() {
         </div>
       </motion.div>
 
-      {/* Bottom note */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

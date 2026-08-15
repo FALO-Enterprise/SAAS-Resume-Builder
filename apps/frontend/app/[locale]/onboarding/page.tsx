@@ -42,12 +42,13 @@ import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
+import { getAccessToken } from "@/lib/auth/token";
 import { getDashboardDraft, saveDashboardDraft } from "@/lib/backend";
 import {
   loadOnboardingState,
   saveOnboardingState,
 } from "@/lib/onboarding-storage";
-import type { DashboardDraftData } from "@/lib/types/dashborad.types";
+import type { DashboardDraftData } from "@/lib/types/dashboard.types";
 import type {
   CareerField,
   EducationLevel,
@@ -56,7 +57,12 @@ import type {
   ResumeTemplateChoice,
   SurveyPurpose,
 } from "@/lib/types/onboarding.types";
-import { emptyCert, emptyEdu, emptyRole } from "@/lib/utilities/resume";
+import {
+  emptyCert,
+  emptyEdu,
+  emptyRole,
+  emptySkillGroup,
+} from "@/lib/utilities/resume";
 
 type SurveyStepId =
   | "purpose"
@@ -385,7 +391,7 @@ export default function OnboardingPage() {
   const progress = finished ? 100 : ((currentStep + 1) / STEPS.length) * 100;
 
   useEffect(() => {
-    const token = localStorage.getItem("resumax_token");
+    const token = getAccessToken();
     if (!token) {
       router.replace(`/${locale}`);
       return;
@@ -484,7 +490,7 @@ export default function OnboardingPage() {
   }
 
   async function syncToDashboard() {
-    const token = localStorage.getItem("resumax_token");
+    const token = getAccessToken();
     if (!token) {
       router.replace(`/${locale}`);
       return false;
@@ -493,6 +499,10 @@ export default function OnboardingPage() {
     setSaving(true);
     try {
       const currentDraft = await getDashboardDraft(token);
+      if ("error" in currentDraft) {
+        throw new Error(currentDraft.error);
+      }
+
       const translatedSkills = answers.skills.map((skill) =>
         t(`quick.skillOptions.${skill}`),
       );
@@ -505,6 +515,16 @@ export default function OnboardingPage() {
       const mergedSkills = Array.from(
         new Set([...currentDraft.skills, ...translatedSkills]),
       ).filter(Boolean);
+      const currentSkillGroups = currentDraft.skillGroups ?? [];
+      const primarySkillGroup =
+        currentSkillGroups[0] ?? emptySkillGroup(t("quick.skillsCategory"));
+      const mergedPrimaryGroup = {
+        ...primarySkillGroup,
+        label: primarySkillGroup.label || t("quick.skillsCategory"),
+        skills: Array.from(
+          new Set([...primarySkillGroup.skills, ...translatedSkills]),
+        ).filter(Boolean),
+      };
       const firstEducation = currentDraft.education[0] ?? emptyEdu();
 
       const nextDraft: DashboardDraftData = {
@@ -528,10 +548,15 @@ export default function OnboardingPage() {
         certifications: currentDraft.certifications.length
           ? currentDraft.certifications
           : [emptyCert()],
+        skillGroups: [mergedPrimaryGroup, ...currentSkillGroups.slice(1)],
         skills: mergedSkills,
       };
 
-      await saveDashboardDraft(token, nextDraft);
+      const savedDraft = await saveDashboardDraft(token, nextDraft);
+      if ("error" in savedDraft) {
+        throw new Error(savedDraft.error);
+      }
+
       return true;
     } catch {
       toast.error(t("errors.dashboardSave"));
@@ -629,8 +654,8 @@ export default function OnboardingPage() {
     >
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(245,166,35,0.11),transparent_42%)]" />
-        <div className="absolute -start-48 top-1/3 h-96 w-96 rounded-full bg-azure/5 blur-3xl" />
-        <div className="absolute -end-48 bottom-0 h-96 w-96 rounded-full bg-gold/6 blur-3xl" />
+        <div className="absolute -inset-s-4848 top-1/3 h-96 w-96 rounded-full bg-azure/5 blur-3xl" />
+        <div className="absolute -inset-e-48 bottom-0 h-96 w-96 rounded-full bg-gold/6 blur-3xl" />
       </div>
 
       <header className="relative z-30 border-b border-edge bg-base/85 backdrop-blur-xl">
@@ -717,7 +742,7 @@ export default function OnboardingPage() {
                     </div>
                   </div>
 
-                  <h1 className="max-w-210 font-playfair text-[clamp(34px,5.5vw,58px)] font-black leading-[1.06] tracking-[-0.025em] text-primary">
+                  <h1 className="max-w-210 font-playfair text-[clamp(34px,5.5vw,58px)] font-black leading-[1.06] tracking-tight text-primary">
                     {stepTitle()}
                   </h1>
                   <p className="mt-4 max-w-175 text-[13px] font-medium leading-6.5 text-secondary sm:text-[15px] sm:leading-7">

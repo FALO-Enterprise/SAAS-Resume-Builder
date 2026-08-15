@@ -168,14 +168,22 @@
         "name": "Global Core",
         "date": "Jan 2027",
         "tag": "Upcoming",
-        "features": ["120+ templates", "ATS optimizer", "AI suggestions"]
+        "features": [
+          "120+ templates",
+          "ATS optimizer",
+          "AI suggestions"
+        ]
       },
       "v3": {
         "version": "v3.0",
         "name": "AI-Powered",
         "date": "Q3 2027",
         "tag": "Future",
-        "features": ["GPT resume coach", "Job-match scoring", "LinkedIn sync"]
+        "features": [
+          "GPT resume coach",
+          "Job-match scoring",
+          "LinkedIn sync"
+        ]
       }
     }
   },
@@ -376,7 +384,7 @@
     "bottomNote": "The code expires in 10 minutes. Check your spam folder if you don't see it.",
     "success": {
       "title": "Email verified!",
-      "subtitle": "Your account is active. Let’s personalize your ResuMax experience…"
+      "subtitle": "Your account is now active. Taking you to your dashboard…"
     },
     "errors": {
       "incomplete": "Please enter the complete 6-digit code.",
@@ -888,7 +896,7 @@
       }
     }
   },
-    "resumePreview": {
+  "resumePreview": {
     "badge": "Generated resume",
     "title": "Your resume is ready",
     "subtitle": "Review your generated resume, choose the right template, and export the final version.",
@@ -1032,6 +1040,41 @@
       "preserve": "Your original information is preserved",
       "fast": "Continue without starting over"
     }
+  },
+  "profile": {
+    "title": "Edit Profile",
+    "avatarUpload": "Upload image",
+    "changeAvatar": "Change",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving…",
+    "errors": {
+      "updateFailed": "Something went wrong. Please try again."
+    }
+  },
+  "footer": {
+    "tagline": "Trusted. Global. Effortless.",
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "links": {
+      "features": "Features",
+      "templates": "Templates",
+      "pricing": "Pricing",
+      "changelog": "Changelog",
+      "about": "About Us",
+      "blog": "Blog",
+      "careers": "Careers",
+      "press": "Press",
+      "help": "Help Center",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    },
+    "rights": "All rights reserved.",
+    "poweredBy": "Powered by FALO Enterprise"
   },
   "onboarding": {
     "loading": "Preparing your quick survey...",
@@ -1202,7 +1245,8 @@
         "caseManagement": "Case management",
         "teaching": "Teaching and training",
         "engineeringDesign": "Engineering design"
-      }
+      },
+      "skillsCategory": "Suggested skills"
     },
     "summary": {
       "title": "Your profile is taking shape",
