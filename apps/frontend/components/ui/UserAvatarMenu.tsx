@@ -40,7 +40,7 @@ export default function UserAvatarMenu() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  if (!user || !isVerified) return null;
+  if (!user) return null;
 
   const activePlanId = (user?.planName?.toLowerCase() || "free") as keyof typeof PLAN_BADGES;
   const verifyHref = `/${locale}/verificationcode${user?.email ? `?email=${encodeURIComponent(user.email)}` : ''}`;

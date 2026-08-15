@@ -115,7 +115,7 @@ export function AuthProvider({
   };
 
   const logout = useCallback(() => {
-    clearAuthToken();
+    // clearAuthToken();
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(VERIFIED_KEY);
     setStoredUser(null);
