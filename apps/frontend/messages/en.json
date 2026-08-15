@@ -901,6 +901,7 @@
     "title": "Your resume is ready",
     "subtitle": "Review your generated resume, choose the right template, and export the final version.",
     "backToDashboard": "Back to dashboard",
+    "editResume": "Edit resume",
     "preview": {
       "title": "Resume preview",
       "subtitle": "Review the generated resume before exporting it.",
@@ -918,6 +919,9 @@
       "degrees": "degrees",
       "certificates": "certificates",
       "skillsList": "skills"
+    },
+    "labels": {
+      "ats": "ATS Ready"
     },
     "template": {
       "title": "Current template",
@@ -1109,10 +1113,22 @@
     "notifications": {
       "heading": "Email Notifications",
       "description": "Manage what emails you receive from ResuMax.",
-      "resumeExported": { "title": "Resume Exports", "desc": "Notify when PDF generation completes" },
-      "securityAlerts": { "title": "Security Alerts", "desc": "Alert me about new device logins" },
-      "weeklyTips": { "title": "Career Tips & AI Advice", "desc": "Weekly tips to improve your resume score" },
-      "productUpdates": { "title": "Product News & Features", "desc": "Updates about new templates and features" }
+      "resumeExported": {
+        "title": "Resume Exports",
+        "desc": "Notify when PDF generation completes"
+      },
+      "securityAlerts": {
+        "title": "Security Alerts",
+        "desc": "Alert me about new device logins"
+      },
+      "weeklyTips": {
+        "title": "Career Tips & AI Advice",
+        "desc": "Weekly tips to improve your resume score"
+      },
+      "productUpdates": {
+        "title": "Product News & Features",
+        "desc": "Updates about new templates and features"
+      }
     },
     "billing": {
       "heading": "Billing & Subscription",

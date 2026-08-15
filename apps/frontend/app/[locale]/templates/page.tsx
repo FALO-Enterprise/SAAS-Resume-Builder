@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Eye,
+  Lock,
   ShieldCheck,
   Sparkles,
   Star,
@@ -19,6 +20,9 @@ import type { TemplateCard, FilterKey } from "@/lib/types/resume.types"
 import { filters, templates, qualityItems } from "@/lib/placeholder-data/templates.placeholder"
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
+import { useAuth } from "@/context/AuthContext";
+
+import { toast } from "sonner";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -65,10 +69,21 @@ function getTouchDistance(touches: TouchList) {
 export default function TemplatesPage() {
    const t = useTranslations('templatesPage');
   const locale = useLocale();
- 
+  const { user } = useAuth();
+  const isFreeUser = user?.planName === 'FREE' || !user?.planName;
+
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
   const [previewTemplate, setPreviewTemplate] = useState<TemplateCard | null>(null);
+  const [upgradeModalTemplate, setUpgradeModalTemplate] = useState<TemplateCard | null>(null);
   const [previewZoom, setPreviewZoom] = useState(DEFAULT_ZOOM);
+
+  const handleTemplateClick = (templateId: string, templateCard: TemplateCard, e: React.MouseEvent) => {
+    if (isFreeUser && templateId !== 'minimal') {
+      e.preventDefault();
+      setUpgradeModalTemplate(templateCard);
+      toast.error(`The ${t(`templates.${templateCard.id}.title`)} template is reserved for Pro & Enterprise members.`);
+    }
+  };
  
   // Mirror of previewZoom readable inside native (non-React) event listeners.
   const zoomRef = useRef(previewZoom);
@@ -270,8 +285,8 @@ export default function TemplatesPage() {
                     </h2>
                   </div>
 
-                  <span className="shrink-0 rounded-full border border-gold/30 bg-gold/10 px-2.5 py-1 text-[10px] font-bold text-gold">
-                    {t("labels.premium")}
+                  <span className="shrink-0 rounded-full border border-gold/40 bg-gold/10 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-gold">
+                    Plan: Pro & Enterprise
                   </span>
                 </div>
               </div>
@@ -306,21 +321,32 @@ export default function TemplatesPage() {
                   </div>
                 </motion.div>
 
-                <motion.div
-                  animate={{ y: [0, 4, 0], x: [0, -2, 0] }}
-                  whileHover={{ scale: 1.06 }}
-                  transition={{
-                    duration: 5,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="absolute bottom-5 left-5 rounded-2xl border border-edge bg-elevated/80 px-3 py-2 text-primary shadow-xl backdrop-blur-xl"
-                >
-                  <div className="text-[10px] text-secondary">
-                    {t("labels.atsScore")}
-                  </div>
-                  <div className="mt-0.5 text-xl font-black text-gold">98%</div>
-                </motion.div>
+                <div className="absolute bottom-5 inset-x-5 flex items-center justify-between gap-2">
+                  <motion.div
+                    animate={{ y: [0, 4, 0], x: [0, -2, 0] }}
+                    whileHover={{ scale: 1.06 }}
+                    transition={{
+                      duration: 5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                    className="rounded-2xl border border-edge bg-elevated/80 px-3 py-2 text-primary shadow-xl backdrop-blur-xl"
+                  >
+                    <div className="text-[10px] text-secondary">
+                      {t("labels.atsScore")}
+                    </div>
+                    <div className="mt-0.5 text-xl font-black text-gold">98%</div>
+                  </motion.div>
+
+                  <Link
+                    href={`/${locale}/resume/preview?template=${featuredTemplate.id}`}
+                    onClick={(e) => handleTemplateClick(featuredTemplate.id, featuredTemplate, e)}
+                    className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-gold px-3.5 py-2 text-xs font-black text-ink shadow-xl transition hover:bg-gold-light"
+                  >
+                    <span>{t("actions.useTemplate")}</span>
+                    <ArrowRight size={14} className="shrink-0 rtl:rotate-180" />
+                  </Link>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -410,8 +436,14 @@ export default function TemplatesPage() {
                         {t("labels.rank", { number: index + 1 })}
                       </div>
 
-                      <div className="absolute right-4 top-4 z-10 rounded-full border border-gold/25 bg-gold/10 px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-widest text-gold backdrop-blur-md">
-                        {t(`templates.${template.id}.tag`)}
+                      <div className="absolute right-4 top-4 z-10 flex flex-col items-end gap-1.5">
+                        <span className={`rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider backdrop-blur-md ${
+                          template.id === 'minimal'
+                            ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                            : 'border-amber-500/40 bg-amber-500/10 text-amber-400'
+                        }`}>
+                          {template.id === 'minimal' ? 'Plan: Free & Pro' : 'Plan: Pro & Enterprise'}
+                        </span>
                       </div>
 
                       <div className="relative h-full w-full overflow-hidden rounded-[1.25rem] border border-edge bg-card p-3 shadow-inner">
@@ -473,7 +505,8 @@ export default function TemplatesPage() {
                           whileTap={{ scale: 0.96 }}
                         >
                           <Link
-                            href={`/${locale}/dashboard?template=${template.id}`}
+                            href={`/${locale}/resume/preview?template=${template.id}`}
+                            onClick={(e) => handleTemplateClick(template.id, template, e)}
                             className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gold px-4 py-2.5 text-[12px] font-extrabold leading-none text-ink transition hover:bg-gold-light sm:text-sm"
                           >
                             <span>{t("actions.useTemplate")}</span>
@@ -572,12 +605,21 @@ export default function TemplatesPage() {
                     {t('labels.preview')}
                   </p>
 
-                  <h3
-                    id="preview-title"
-                    className="mt-1 truncate text-xl font-black tracking-[-0.03em] text-primary"
-                  >
-                    {t(`templates.${previewTemplate.id}.title`)}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3
+                      id="preview-title"
+                      className="mt-1 truncate text-xl font-black tracking-[-0.03em] text-primary"
+                    >
+                      {t(`templates.${previewTemplate.id}.title`)}
+                    </h3>
+                    <span className={`mt-1 rounded-full border px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
+                      previewTemplate.id === 'minimal'
+                        ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                        : 'border-amber-500/40 bg-amber-500/10 text-amber-400'
+                    }`}>
+                      {previewTemplate.id === 'minimal' ? 'Plan: Free & Pro' : 'Plan: Pro & Enterprise'}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
@@ -622,6 +664,15 @@ export default function TemplatesPage() {
                     </motion.button>
                   </div>
  
+                  <Link
+                    href={`/${locale}/resume/preview?template=${previewTemplate.id}`}
+                    onClick={(e) => handleTemplateClick(previewTemplate.id, previewTemplate, e)}
+                    className="inline-flex min-h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gold px-4 py-2 text-xs font-black text-ink shadow-md transition hover:bg-gold-light hover:shadow-lg sm:text-sm"
+                  >
+                    <span>{t("actions.useTemplate")}</span>
+                    <ArrowRight size={15} className="shrink-0 rtl:rotate-180" />
+                  </Link>
+
                   <motion.button
                     type="button"
                     onClick={closePreview}
@@ -657,6 +708,74 @@ export default function TemplatesPage() {
                     draggable={false}
                   />
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Upgrade Prompt Modal */}
+      <AnimatePresence>
+        {upgradeModalTemplate && (
+          <motion.div
+            className="fixed inset-0 z-110 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setUpgradeModalTemplate(null)}
+          >
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              initial={{ opacity: 0, scale: 0.94, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 20 }}
+              transition={{ duration: 0.25, ease }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md overflow-hidden rounded-3xl border border-gold/30 bg-elevated p-6 shadow-2xl"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-gold/30 bg-gold/10 text-gold">
+                  <Lock size={22} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUpgradeModalTemplate(null)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-edge bg-card text-secondary hover:text-primary"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <h3 className="mt-4 text-xl font-black text-primary">
+                Pro Template Reserved
+              </h3>
+
+              <p className="mt-2 text-sm leading-relaxed text-secondary">
+                The <strong className="text-primary">{t(`templates.${upgradeModalTemplate.id}.title`)}</strong> template is reserved exclusively for <strong className="text-gold">Pro & Enterprise</strong> plan members.
+              </p>
+
+              <div className="mt-4 rounded-2xl border border-edge bg-card p-3 text-xs text-secondary">
+                ⚡ Free plan users are allowed to build and export with the <strong className="text-primary">Classic ATS</strong> template.
+              </div>
+
+              <div className="mt-6 flex flex-col gap-2.5">
+                <Link
+                  href={`/${locale}/pricing`}
+                  onClick={() => setUpgradeModalTemplate(null)}
+                  className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 text-sm font-extrabold text-ink shadow-lg transition hover:bg-gold-light"
+                >
+                  <Sparkles size={16} />
+                  <span>Upgrade to Pro</span>
+                </Link>
+
+                <Link
+                  href={`/${locale}/resume/preview?template=minimal`}
+                  onClick={() => setUpgradeModalTemplate(null)}
+                  className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-edge bg-card px-5 py-3 text-sm font-bold text-secondary transition hover:bg-card-hover hover:text-primary"
+                >
+                  <span>Use Classic ATS Template</span>
+                </Link>
               </div>
             </motion.div>
           </motion.div>

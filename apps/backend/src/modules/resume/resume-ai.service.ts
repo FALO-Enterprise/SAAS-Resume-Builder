@@ -69,7 +69,7 @@ export class ResumeAiService {
         private readonly dashboardRepository: DraftStore = new DashboardRepository(),
         private readonly resumeRepository: ResumeStore = new ResumeRepository(),
         private readonly generator: ResumeAiGenerator = geminiResumeAiGenerator,
-    ) {}
+    ) { }
 
     async generate(userId: string, payload: ResumeGenerationDTO): Promise<Resume> {
         const template = resolveResumeTemplate(payload.templateId);

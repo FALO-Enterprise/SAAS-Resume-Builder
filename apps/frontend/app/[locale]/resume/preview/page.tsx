@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
+  ArrowRight,
   Check,
   ChevronDown,
   Download,
@@ -12,6 +14,7 @@ import {
   LayoutTemplate,
   LoaderCircle,
   Minus,
+  Pencil,
   Plus,
   RotateCcw,
   Sparkles,
@@ -19,7 +22,10 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import type { ResumeTemplateId } from "@shared-types/resume";
 
+import { toast } from "sonner";
+import { generateCurrentResume } from "@/lib/backend";
 import { resolveResumeTemplate } from "@/components/resume/templates/registry";
+import { useAuth } from "@/context/AuthContext";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
@@ -28,6 +34,7 @@ import {
   exportResume,
   getResumePreviewData,
   getResumeTemplateMetadata,
+  isResumeTemplateId,
   updateCurrentResumeTemplate,
   type ResumeExportFormat,
 } from "@/lib/resume-preview-api";
@@ -105,6 +112,9 @@ export default function ResumePreviewPage() {
   const templates = useTranslations("templatesPage");
   const isRTL = locale === "ar";
 
+  const { user } = useAuth();
+  const isFreeUser = user?.planName === "FREE" || !user?.planName;
+
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
   const [resumeData, setResumeData] = useState<ResumePreviewData | null>(null);
   const [draftTemplateId, setDraftTemplateId] =
@@ -132,15 +142,46 @@ export default function ResumePreviewPage() {
       try {
         setIsLoading(true);
         setPageError(null);
+        const searchParams = new URLSearchParams(window.location.search);
         const resumeId =
-          new URLSearchParams(window.location.search).get("resumeId")?.trim() ||
+          searchParams.get("resumeId")?.trim() ||
           "resume-123";
+        const templateParam = searchParams.get("template")?.trim();
         const data = await getResumePreviewData(resumeId, controller.signal);
 
         if (controller.signal.aborted) return;
-        setResumeData(data);
-        setDraftTemplateId(data.selectedTemplate.id);
-        setAppliedTemplateId(data.selectedTemplate.id);
+
+        let activeTemplateId = data.selectedTemplate.id;
+        let activeMetadata = data.selectedTemplate;
+
+        if (templateParam && isResumeTemplateId(templateParam)) {
+          activeTemplateId = templateParam;
+          activeMetadata = getResumeTemplateMetadata(templateParam);
+        }
+
+        if (isFreeUser && activeTemplateId !== "minimal") {
+          activeTemplateId = "minimal";
+          activeMetadata = getResumeTemplateMetadata("minimal");
+          setActionError("Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.");
+        } else if (templateParam && isResumeTemplateId(templateParam)) {
+          const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
+          if (token) {
+            void updateCurrentResumeTemplate(
+              data.resumeName,
+              templateParam,
+              controller.signal,
+            ).catch((err) => {
+              console.warn("Failed to persist template selection:", err);
+            });
+          }
+        }
+
+        setResumeData({
+          ...data,
+          selectedTemplate: activeMetadata,
+        });
+        setDraftTemplateId(activeTemplateId);
+        setAppliedTemplateId(activeTemplateId);
         setDraftPurpose(data.purpose);
         setAppliedPurpose(data.purpose);
       } catch (error) {
@@ -187,6 +228,12 @@ export default function ResumePreviewPage() {
 
   const selectTemplate = (templateId: ResumeTemplateId) => {
     if (isBusy) return;
+    if (isFreeUser && templateId !== "minimal") {
+      const msg = "This template is reserved for Pro & Enterprise members. Upgrade to Pro to use this template.";
+      setActionError(msg);
+      toast.error(msg);
+      return;
+    }
     setDraftTemplateId(templateId);
     setActionError(null);
     setActionSuccess(null);
@@ -195,40 +242,62 @@ export default function ResumePreviewPage() {
   const applyConfiguration = async () => {
     if (!resumeData || isBusy || !hasPendingChanges) return;
 
+    const toastId = toast.loading("Applying changes and re-generating preview...");
     try {
       setIsApplying(true);
       setActionError(null);
       setActionSuccess(null);
       setIsExportMenuOpen(false);
 
-      const result = await updateCurrentResumeTemplate(
-        resumeData.resumeName,
-        draftTemplateId,
-      );
-      const metadata = getResumeTemplateMetadata(result.templateId);
+      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
 
-      releaseDownloadUrl(resumeData.pdfDownloadUrl);
-      releaseDownloadUrl(resumeData.jpgDownloadUrl);
-      setResumeData((current) =>
-        current
-          ? {
-              ...current,
-              selectedTemplate: metadata,
-              purpose: draftPurpose,
-              pdfDownloadUrl: null,
-              jpgDownloadUrl: null,
-              updatedAt: result.updatedAt || new Date().toISOString(),
-            }
-          : current,
-      );
-      setDraftTemplateId(result.templateId);
-      setAppliedTemplateId(result.templateId);
-      setAppliedPurpose(draftPurpose);
-      setActionSuccess(configuration("generatedSuccessfully"));
+      if (draftPurpose !== appliedPurpose && token) {
+        await generateCurrentResume(token, {
+          title: resumeData.resumeName,
+          templateId: draftTemplateId,
+          purpose: draftPurpose,
+        });
+
+        const freshData = await getResumePreviewData(resumeData.resumeId);
+        releaseDownloadUrl(resumeData.pdfDownloadUrl);
+        releaseDownloadUrl(resumeData.jpgDownloadUrl);
+        setResumeData(freshData);
+        setDraftTemplateId(freshData.selectedTemplate.id);
+        setAppliedTemplateId(freshData.selectedTemplate.id);
+        setAppliedPurpose(draftPurpose);
+      } else {
+        const result = await updateCurrentResumeTemplate(
+          resumeData.resumeName,
+          draftTemplateId,
+        );
+        const metadata = getResumeTemplateMetadata(result.templateId);
+
+        releaseDownloadUrl(resumeData.pdfDownloadUrl);
+        releaseDownloadUrl(resumeData.jpgDownloadUrl);
+        setResumeData((current) =>
+          current
+            ? {
+                ...current,
+                selectedTemplate: metadata,
+                purpose: draftPurpose,
+                pdfDownloadUrl: null,
+                jpgDownloadUrl: null,
+                updatedAt: result.updatedAt || new Date().toISOString(),
+              }
+            : current,
+        );
+        setDraftTemplateId(result.templateId);
+        setAppliedTemplateId(result.templateId);
+        setAppliedPurpose(draftPurpose);
+      }
+
+      const successMsg = configuration("generatedSuccessfully");
+      setActionSuccess(successMsg);
+      toast.success(successMsg, { id: toastId });
     } catch (error) {
-      setActionError(
-        error instanceof Error ? error.message : configuration("generateError"),
-      );
+      const errorMsg = error instanceof Error ? error.message : configuration("generateError");
+      setActionError(errorMsg);
+      toast.error(errorMsg, { id: toastId });
     } finally {
       setIsApplying(false);
     }
@@ -247,11 +316,18 @@ export default function ResumePreviewPage() {
 
     if (existingUrl) {
       triggerDownload(existingUrl, selectedExportFormat);
+      toast.success(`Downloading ${selectedExportFormat.toUpperCase()}...`);
       return;
     }
 
-    if (resumeData.creditsRemaining <= 0) return;
+    if (resumeData.creditsRemaining <= 0 && isFreeUser) {
+      const msg = "Free plan users are allowed 1 download attempt. Upgrade to Pro for unlimited exports.";
+      setActionError(msg);
+      toast.error(msg);
+      return;
+    }
 
+    const toastId = toast.loading(`Preparing ${selectedExportFormat.toUpperCase()} download...`);
     try {
       const format = selectedExportFormat;
       setExportingFormat(format);
@@ -277,11 +353,13 @@ export default function ResumePreviewPage() {
           : current,
       );
       triggerDownload(result.downloadUrl, format);
-      setActionSuccess(configuration("exportedSuccessfully"));
+      const successMsg = configuration("exportedSuccessfully");
+      setActionSuccess(successMsg);
+      toast.success(successMsg, { id: toastId });
     } catch (error) {
-      setActionError(
-        error instanceof Error ? error.message : t("status.errorText"),
-      );
+      const errorMsg = error instanceof Error ? error.message : t("status.errorText");
+      setActionError(errorMsg);
+      toast.error(errorMsg, { id: toastId });
     } finally {
       setExportingFormat(null);
     }
@@ -347,7 +425,7 @@ export default function ResumePreviewPage() {
             </Link>
             <div className="hidden h-6 w-px bg-edge sm:block" />
             <Link
-              href={`/${locale}/dashboard`}
+              href={`/${locale}/dashboard?template=${draftTemplateId}`}
               className="hidden min-h-11 items-center gap-2 text-sm font-semibold text-secondary no-underline hover:text-gold sm:flex"
             >
               <ArrowLeft size={16} className={isRTL ? "rotate-180" : ""} />
@@ -365,68 +443,82 @@ export default function ResumePreviewPage() {
       <div className="mx-auto grid w-full max-w-[1600px] items-start gap-6 px-4 py-6 sm:px-6 lg:px-8 xl:grid-cols-[360px_minmax(0,1fr)]">
         <aside className="flex flex-col gap-5 xl:sticky xl:top-22">
           <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                <LayoutTemplate size={19} className="text-gold" />
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
+                  <LayoutTemplate size={19} className="text-gold" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-secondary">
+                    {configuration("selectedTemplate")}
+                  </p>
+                  <h2 className="mt-1 truncate text-base font-black">
+                    {selectedMetadata.name}
+                  </h2>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-secondary">
-                  {configuration("selectedTemplate")}
-                </p>
-                <h2 className="mt-1 truncate text-base font-black">
-                  {selectedMetadata.name}
-                </h2>
+              <span className="shrink-0 inline-flex items-center gap-1 rounded-full border border-green/30 bg-green/10 px-2.5 py-1 text-[11px] font-bold text-green">
+                <Check size={12} />
+                <span>{t("template.selected")}</span>
+              </span>
+            </div>
+
+            {/* Selected Template Preview Card */}
+            <div className="mt-4 overflow-hidden rounded-2xl border border-gold/30 bg-card p-3 shadow-sm">
+              <div className="flex items-center gap-3.5">
+                <div className="relative aspect-4/5 w-16 shrink-0 overflow-hidden rounded-xl border border-edge bg-elevated shadow-inner">
+                  {selectedMetadata.thumbnailUrl ? (
+                    <Image
+                      src={selectedMetadata.thumbnailUrl}
+                      alt={selectedMetadata.name}
+                      fill
+                      unoptimized
+                      className="object-contain p-1"
+                      sizes="64px"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gold/10 text-gold">
+                      <LayoutTemplate size={20} />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`rounded-md border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
+                      selectedMetadata.id === 'minimal'
+                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                        : 'border-amber-500/30 bg-amber-500/10 text-amber-400'
+                    }`}>
+                      {selectedMetadata.id === 'minimal' ? 'Plan: Free & Pro' : 'Plan: Pro & Enterprise'}
+                    </span>
+                    <span className="text-[11px] font-medium text-secondary">
+                      {templates("labels.ats")}
+                    </span>
+                  </div>
+                  <h3 className="mt-1.5 truncate text-sm font-black text-primary">
+                    {selectedMetadata.name}
+                  </h3>
+                  <p className="mt-0.5 text-xs text-secondary">
+                    {t("template.subtitle")}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-3 gap-2" role="listbox">
-              {SELECTABLE_TEMPLATE_IDS.map((templateId) => {
-                const metadata = getResumeTemplateMetadata(templateId);
-                const isSelected = templateId === draftTemplateId;
-                const isApplied = templateId === appliedTemplateId;
-
-                return (
-                  <button
-                    key={templateId}
-                    type="button"
-                    role="option"
-                    aria-selected={isSelected}
-                    aria-label={t("template.selectAria", {
-                      template: metadata.name,
-                    })}
-                    disabled={isBusy}
-                    onClick={() => selectTemplate(templateId)}
-                    className={`relative rounded-xl border p-2 text-start transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
-                      isSelected
-                        ? "border-gold bg-gold/10 ring-2 ring-gold/20"
-                        : "border-edge bg-card hover:border-gold/40"
-                    }`}
-                  >
-                    <span
-                      className={`block aspect-4/5 overflow-hidden rounded-lg bg-linear-to-br ${TEMPLATE_ACCENTS[templateId]}`}
-                    >
-                      <span className="mx-auto mt-2 block h-[82%] w-[72%] rounded-sm bg-white/90 p-1 shadow-md">
-                        <span className="block h-1.5 w-2/3 rounded-full bg-current opacity-45" />
-                        <span className="mt-1 block h-px w-full bg-current opacity-20" />
-                        <span className="mt-1 block h-px w-4/5 bg-current opacity-20" />
-                      </span>
-                    </span>
-                    <span className="mt-2 block truncate text-[10px] font-black">
-                      {metadata.name}
-                    </span>
-                    {isApplied && (
-                      <span className="absolute inset-e-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-green text-white shadow">
-                        <Check size={12} />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+            {/* Change Template Action */}
+            <div className="mt-4">
+              <Link
+                href={`/${locale}/templates`}
+                className="group flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-edge bg-card px-4 py-2.5 text-sm font-bold text-primary transition-all hover:border-gold/50 hover:bg-gold/10 hover:text-gold"
+              >
+                <Sparkles size={15} className="text-gold" />
+                <span>{t("template.changeButton")}</span>
+                <ArrowRight
+                  size={15}
+                  className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
+                />
+              </Link>
             </div>
-
-            <p className="mt-3 text-xs leading-5 text-secondary">
-              {t("template.subtitle")}
-            </p>
           </section>
 
           <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
@@ -462,21 +554,31 @@ export default function ResumePreviewPage() {
             </select>
           </section>
 
-          <button
-            type="button"
-            onClick={() => void applyConfiguration()}
-            disabled={isBusy || !hasPendingChanges}
-            className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
+          {hasPendingChanges && (
+            <button
+              type="button"
+              onClick={() => void applyConfiguration()}
+              disabled={isBusy}
+              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black text-ink shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
+            >
+              {isApplying ? (
+                <LoaderCircle size={19} className="animate-spin" />
+              ) : (
+                <Sparkles size={19} />
+              )}
+              {isApplying
+                ? configuration("generating")
+                : configuration("generate")}
+            </button>
+          )}
+
+          <Link
+            href={`/${locale}/dashboard?template=${draftTemplateId}`}
+            className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-gold/40 hover:bg-card hover:text-gold"
           >
-            {isApplying ? (
-              <LoaderCircle size={19} className="animate-spin" />
-            ) : (
-              <LayoutTemplate size={19} />
-            )}
-            {isApplying
-              ? configuration("generating")
-              : templates("actions.useTemplate")}
-          </button>
+            <Pencil size={15} className="text-gold" />
+            <span>{t("editResume")}</span>
+          </Link>
 
           <div aria-live="polite" className="space-y-3">
             {hasPendingChanges && !actionError && (

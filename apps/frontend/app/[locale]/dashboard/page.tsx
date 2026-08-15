@@ -1599,6 +1599,8 @@ export default function DashboardPage() {
   const templateFromQuery = RESUME_TEMPLATE_IDS.find(
     (templateId) => templateId === templateQueryValue,
   ) ?? null;
+  const autoGenerate = searchParams.get('generate') === 'true' || searchParams.get('autoGenerate') === 'true';
+  const autoGenerateTriggered = useRef(false);
   const isRTL = locale === "ar";
   const { user, logout } = useAuth();
   const [currentStep, setCurrentStep] = useState<StepId>('contact');
@@ -1796,6 +1798,79 @@ export default function DashboardPage() {
       if (autosaveTimer.current === timer) autosaveTimer.current = null;
     };
   }, [certs, completedSteps, contact, currentStep, draftLoaded, education, experience, handleDashboardRequestError, projects, sectionOrder, selectedTemplate, skillGroups, summary]);
+
+  useEffect(() => {
+    if (!draftLoaded || !autoGenerate || autoGenerateTriggered.current) return;
+    autoGenerateTriggered.current = true;
+
+    const token = localStorage.getItem('resumax_token');
+    if (!token) {
+      toast.error('Please sign in before generating your resume.');
+      return;
+    }
+
+    const currentFullName = contact.fullName.trim() || user?.name || '';
+    if (!currentFullName) {
+      toast.info('Template selected! Please complete your information to generate your resume.');
+      return;
+    }
+
+    async function triggerAutoGenerate() {
+      const activeTemplate = selectedTemplate;
+      const finalCompletedSteps = new Set(completedSteps);
+      finalCompletedSteps.add('education');
+      const finalDraft: DashboardDraftData = {
+        template: activeTemplate,
+        currentStep: 'education',
+        completedSteps: [...finalCompletedSteps],
+        sectionOrder,
+        contact: {
+          ...contact,
+          fullName: currentFullName,
+          email: contact.email || user?.email || '',
+        },
+        summary,
+        skillGroups,
+        experience,
+        projects,
+        education,
+        certifications: certs,
+        skills: skillGroups.flatMap(group => group.skills),
+      };
+
+      setIsFinishing(true);
+      setCompleted(finalCompletedSteps);
+
+      if (autosaveTimer.current !== null) {
+        window.clearTimeout(autosaveTimer.current);
+        autosaveTimer.current = null;
+      }
+
+      try {
+        await saveQueue.current;
+        await saveDashboardDraft(token!, finalDraft);
+        lastQueuedDraft.current = serializeDashboardDraft(finalDraft);
+
+        const resume = await generateCurrentResume(token!, {
+          title: `${currentFullName} Resume`,
+          templateId: activeTemplate,
+        });
+
+        router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resume.id)}`);
+      } catch (error) {
+        if (handleDashboardRequestError(error)) {
+          setIsFinishing(false);
+          return;
+        }
+
+        console.error('Resume auto-generation failed:', error);
+        toast.error(error instanceof Error ? error.message : 'Could not generate your resume.');
+        setIsFinishing(false);
+      }
+    }
+
+    void triggerAutoGenerate();
+  }, [autoGenerate, certs, completedSteps, contact, draftLoaded, education, experience, handleDashboardRequestError, locale, projects, router, sectionOrder, selectedTemplate, skillGroups, summary, user]);
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
   const nextStep = STEPS[currentIndex + 1];

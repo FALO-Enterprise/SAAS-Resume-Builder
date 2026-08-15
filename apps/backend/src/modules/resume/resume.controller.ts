@@ -9,13 +9,30 @@ import { ResumeExportError, resumeExportService, type ResumeExportService } from
 import { renderSnapshotStore } from './pdf/render-snapshot.store';
 import { ResumeAiGenerationError, resumeAiService, type ResumeAiService } from './resume-ai.service';
 
+export class FreeExportTracker {
+    private userExportCounts = new Map<string, number>();
+
+    getExportCount(userId: string): number {
+        return this.userExportCounts.get(userId) ?? 0;
+    }
+
+    incrementExportCount(userId: string): number {
+        const current = this.getExportCount(userId);
+        const updated = current + 1;
+        this.userExportCounts.set(userId, updated);
+        return updated;
+    }
+}
+
+export const freeExportTracker = new FreeExportTracker();
+
 export class ResumeController {
     private service = resumeService;
 
     constructor(
         private readonly exportService: Pick<ResumeExportService, 'createSnapshot' | 'generatePdf' | 'generateJpg'> = resumeExportService,
         private readonly aiService: Pick<ResumeAiService, 'generate'> = resumeAiService,
-    ) {}
+    ) { }
 
     getRenderSnapshot = (req: Request<{ token: string }>, res: Response) => {
         const snapshot = renderSnapshotStore.consume(req.params.token);
@@ -27,7 +44,8 @@ export class ResumeController {
 
     getPreview = async (req: Request<{ rid: string }>, res: Response) => {
         try {
-            const snapshot = await this.exportService.createSnapshot(req.params.rid, req.user.id);
+            const isFreePlan = req.plan?.name === 'FREE';
+            const snapshot = await this.exportService.createSnapshot(req.params.rid, req.user.id, {}, isFreePlan);
             res.ok(snapshot);
         } catch (error) {
             this.handleExportError(error, res);
@@ -39,6 +57,14 @@ export class ResumeController {
             return res.error({ message: 'Your plan does not include resume export', statusCode: HttpErrorStatus.Forbidden });
         }
 
+        const isFreePlan = req.plan.name === 'FREE';
+        if (isFreePlan && freeExportTracker.getExportCount(req.user.id) >= 1) {
+            return res.error({
+                message: 'Free plan users are allowed 1 download attempt. Upgrade to Pro for unlimited exports.',
+                statusCode: HttpErrorStatus.Forbidden,
+            });
+        }
+
         const parsed = resumeExportSchema.safeParse(req.body ?? {});
         if (!parsed.success) {
             return res.error({
@@ -47,8 +73,18 @@ export class ResumeController {
             });
         }
 
+        if (isFreePlan && parsed.data.templateId && parsed.data.templateId !== 'minimal') {
+            return res.error({
+                message: 'Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.',
+                statusCode: HttpErrorStatus.Forbidden,
+            });
+        }
+
         try {
-            const pdf = await this.exportService.generatePdf(req.params.rid, req.user.id, parsed.data);
+            const pdf = await this.exportService.generatePdf(req.params.rid, req.user.id, parsed.data, isFreePlan);
+            if (isFreePlan) {
+                freeExportTracker.incrementExportCount(req.user.id);
+            }
             const filename = `resume-${req.params.rid.replace(/[^a-zA-Z0-9_-]/g, '') || 'export'}.pdf`;
             res.status(200)
                 .set({
@@ -65,8 +101,16 @@ export class ResumeController {
     };
 
     exportJpg = async (req: Request<{ rid: string }, Buffer, ResumeExportInput>, res: Response) => {
-        if (!req.plan.canExportPDF || req.plan.name === 'FREE') {
+        if (!req.plan.canExportPDF) {
             return res.error({ message: 'Your plan does not include JPG export', statusCode: HttpErrorStatus.Forbidden });
+        }
+
+        const isFreePlan = req.plan.name === 'FREE';
+        if (isFreePlan && freeExportTracker.getExportCount(req.user.id) >= 1) {
+            return res.error({
+                message: 'Free plan users are allowed 1 download attempt. Upgrade to Pro for unlimited exports.',
+                statusCode: HttpErrorStatus.Forbidden,
+            });
         }
 
         const parsed = resumeExportSchema.safeParse(req.body ?? {});
@@ -77,8 +121,18 @@ export class ResumeController {
             });
         }
 
+        if (isFreePlan && parsed.data.templateId && parsed.data.templateId !== 'minimal') {
+            return res.error({
+                message: 'Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.',
+                statusCode: HttpErrorStatus.Forbidden,
+            });
+        }
+
         try {
-            const jpg = await this.exportService.generateJpg(req.params.rid, req.user.id, parsed.data);
+            const jpg = await this.exportService.generateJpg(req.params.rid, req.user.id, parsed.data, isFreePlan);
+            if (isFreePlan) {
+                freeExportTracker.incrementExportCount(req.user.id);
+            }
             const filename = `resume-${req.params.rid.replace(/[^a-zA-Z0-9_-]/g, '') || 'export'}.jpg`;
             res.status(200)
                 .set({
@@ -144,6 +198,13 @@ export class ResumeController {
             });
         }
 
+        if (req.plan.name === 'FREE' && parsed.data.templateId !== 'minimal') {
+            return res.error({
+                message: 'Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.',
+                statusCode: HttpErrorStatus.Forbidden,
+            });
+        }
+
         const resume = await this.service.upsertCurrentResume(req.user.id, parsed.data);
         return res.ok(resume);
     };
@@ -154,6 +215,13 @@ export class ResumeController {
             return res.error({
                 message: parsed.error.issues.map((issue) => issue.message).join('; '),
                 statusCode: HttpErrorStatus.BadRequest,
+            });
+        }
+
+        if (req.plan.name === 'FREE' && parsed.data.templateId !== 'minimal') {
+            return res.error({
+                message: 'Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.',
+                statusCode: HttpErrorStatus.Forbidden,
             });
         }
 

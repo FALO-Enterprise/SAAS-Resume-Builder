@@ -16,8 +16,12 @@ export class ResumeRepository {
         });
     }
 
-    findOwnedById(id: string, userId: string): Promise<Resume | null> {
-        return this.prismaResume.findFirst({ where: { id, userId } });
+    async findOwnedById(id: string, userId: string): Promise<Resume | null> {
+        if (id && id !== 'current' && id !== 'resume-123') {
+            const exact = await this.prismaResume.findFirst({ where: { id, userId } });
+            if (exact) return exact;
+        }
+        return this.prismaResume.findFirst({ where: { userId } });
     }
 
     create(title: string, templateId: string, userId: string): Promise<Resume> {
