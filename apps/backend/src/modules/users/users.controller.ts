@@ -10,9 +10,12 @@ export class UserController {
     getUsers = async (req: Request<{}, {}, {}, { page: string; limit: string }>, res: Response) => {
         const page = Number(req.query.page);
         const limit = Number(req.query.limit);
-        const users = await this.service.getUsers(page, limit);
+        const { users, meta } = await this.service.getUsers(page, limit);
 
-        res.ok(users);
+        // res.ok() doesn't carry pagination metadata, so this is built
+        // manually — same {success, data, meta} envelope shape the response
+        // contract already defines (response.middleware.ts).
+        res.status(200).json({ success: true, data: users, meta });
     }
 
     getUser = async (req: Request<{ uid: string }>, res: Response) => {

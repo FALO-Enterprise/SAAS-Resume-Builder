@@ -6,8 +6,12 @@ export class UserRepository {
     private prismaUser = prisma.user;
 
 
-    findAll(query: Prisma.UserWhereInput): Promise<User[]> {
-        return this.prismaUser.findMany({ where: query });
+    findAll(query: Prisma.UserWhereInput, skip?: number, take?: number): Promise<User[]> {
+        return this.prismaUser.findMany({ where: query, skip, take });
+    }
+
+    count(query: Prisma.UserWhereInput): Promise<number> {
+        return this.prismaUser.count({ where: query });
     }
 
     findById(id: string): Promise<User | null> {
