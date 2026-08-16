@@ -41,7 +41,14 @@ export class AuthController {
             res.create({ user, message: 'Verification code sent' });
         } catch (err) {
             if (req.file?.filename) {
-                await deleteUploadedAsset(req.file.filename);
+                // Best-effort cleanup — must not let a failure here (e.g. the
+                // file already being gone, or a permissions issue) escape
+                // and override the actual error response below.
+                try {
+                    await deleteUploadedAsset(req.file.filename);
+                } catch (cleanupError) {
+                    console.error('Failed to clean up uploaded asset:', cleanupError);
+                }
             }
 
             const message = err instanceof Error ? err.message : 'Internal server error';
@@ -104,19 +111,20 @@ export class AuthController {
             return;
         }
 
-        const user = await this.authService.findUserForVerification(email);
-        if (!user) {
-            res.error({ message: 'User not found', statusCode: HttpErrorStatus.NotFound });
-            return;
+        // Always return the same response regardless of whether the email is
+        // registered or already verified — mirrors forgotPassword's
+        // anti-enumeration design (see below) so this endpoint can't be used
+        // to probe account existence/verification state.
+        try {
+            const user = await this.authService.findUserForVerification(email);
+            if (user && !user.isVerified) {
+                await resendVerificationCode(user.email);
+            }
+        } catch (error) {
+            console.error('Failed to resend verification code:', error);
         }
 
-        if (user.isVerified) {
-            res.error({ message: 'Account is already verified', statusCode: HttpErrorStatus.BadRequest });
-            return;
-        }
-
-        await resendVerificationCode(user.email);
-        res.status(200).json({ success: true, message: 'Verification code resent' });
+        res.status(200).json({ success: true, message: 'If an account exists and needs verification, a new code has been sent.' });
     }
 
     public async forgotPassword(
@@ -231,13 +239,30 @@ export class AuthController {
                 return;
             }
 
-            console.log(req.session, 'before i set the req.session');
-            req.session.userId = userData.id;
+            // Regenerate the session ID on login so a session cookie that
+            // existed before authentication (e.g. established pre-login via
+            // the OAuth start flow, which calls req.session.save()) can't be
+            // reused by whoever holds it to ride the now-authenticated
+            // session — classic session fixation.
+            req.session.regenerate((regenerateError) => {
+                if (regenerateError) {
+                    console.error('Session regeneration failed:', regenerateError);
+                    res.error({ statusCode: HttpErrorStatus.InternalServerError, message: 'Internal server error' });
+                    return;
+                }
 
-            //  express session => create new entity  { 12345: { userId:123213} } => save memory
-            // express session on  response it will send the cookie with same key on session memory [abc] and sign it with my secret
+                req.session.userId = userData.id;
 
-            res.ok(userData);
+                req.session.save((saveError) => {
+                    if (saveError) {
+                        console.error('Session save failed:', saveError);
+                        res.error({ statusCode: HttpErrorStatus.InternalServerError, message: 'Internal server error' });
+                        return;
+                    }
+
+                    res.ok(userData);
+                });
+            });
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Internal server error';
             if (message === 'Please verify your email before logging in') {

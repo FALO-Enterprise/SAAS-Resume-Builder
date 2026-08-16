@@ -93,10 +93,6 @@ export class AuthService {
 
         //if no email => return error
         if (!foundUser) return null;
-        // Check if user is verified
-        if (!foundUser.isVerified) {
-            throw new Error('Please verify your email before logging in');
-        }
 
         const isPasswordMatch = await verifyArgonHash(
             payload.password,
@@ -104,6 +100,15 @@ export class AuthService {
         )
 
         if (!isPasswordMatch) return null;
+
+        // Only reveal the "please verify" state after the password has
+        // already been confirmed correct. Checking isVerified before the
+        // password comparison let an unauthenticated caller confirm an
+        // email is registered (and unverified) via this endpoint just by
+        // supplying any password — a pure enumeration oracle.
+        if (!foundUser.isVerified) {
+            throw new Error('Please verify your email before logging in');
+        }
 
         return this.attachPlan(foundUser);
     }

@@ -11,6 +11,7 @@ import session from 'express-session'
 import { responseEnhancer } from './common/middlewares/response.middleware'
 import { errorHandler } from './common/middlewares/error.middleware'
 import path from 'path'
+import { getEnvOrThrow } from './common/utils/util'
 
 const app = express()
 
@@ -32,7 +33,10 @@ app.use(
 app.use(express.urlencoded());
 app.use(
     session({
-        secret: process.env.SESSION_SECRET || 'dev-secret',
+        // No silent fallback: a deployment that forgets to set this would
+        // otherwise sign every session cookie with the publicly-known
+        // literal 'dev-secret', letting anyone forge valid session cookies.
+        secret: getEnvOrThrow('SESSION_SECRET'),
         resave: false,
         saveUninitialized: false,
         cookie: {
