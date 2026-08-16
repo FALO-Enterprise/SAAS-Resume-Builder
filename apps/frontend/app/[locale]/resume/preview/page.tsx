@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
-  ArrowRight,
   Check,
   ChevronDown,
   Download,
@@ -20,7 +19,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import type { ResumeTemplateId } from "@shared-types/resume";
+import { RESUME_TEMPLATE_IDS, type ResumeTemplateId } from "@shared-types/resume";
 
 import { toast } from "sonner";
 import { generateCurrentResume } from "@/lib/backend";
@@ -35,6 +34,7 @@ import {
   getResumePreviewData,
   getResumeTemplateMetadata,
   isResumeTemplateId,
+  setStoredResumePurpose,
   updateCurrentResumeTemplate,
   type ResumeExportFormat,
 } from "@/lib/resume-preview-api";
@@ -48,11 +48,11 @@ const MAX_ZOOM = 150;
 const ZOOM_STEP = 5;
 const DEFAULT_ZOOM = 95;
 
-const SELECTABLE_TEMPLATE_IDS = [
-  "minimal",
-  "executive",
-  "developer",
-] as const satisfies readonly ResumeTemplateId[];
+// Derived from the full template list so every valid ResumeTemplateId is
+// selectable here — a hardcoded subset meant a resume on "director",
+// "academic" or "global" showed no template as "applied" and couldn't be
+// reselected from this screen.
+const SELECTABLE_TEMPLATE_IDS = RESUME_TEMPLATE_IDS;
 
 const RESUME_PURPOSES: ResumePurpose[] = [
   "job",
@@ -88,6 +88,9 @@ const TEMPLATE_ACCENTS: Record<
   minimal: "from-slate-100 via-white to-slate-50",
   executive: "from-cyan-950 via-teal-800 to-cyan-700",
   developer: "from-slate-950 via-slate-900 to-rose-950",
+  director: "from-fuchsia-950 via-purple-800 to-fuchsia-700",
+  academic: "from-stone-100 via-white to-stone-50",
+  global: "from-emerald-950 via-teal-800 to-emerald-700",
 };
 
 function triggerDownload(url: string, format: ResumeExportFormat) {
@@ -196,7 +199,7 @@ export default function ResumePreviewPage() {
 
     void loadPreview();
     return () => controller.abort();
-  }, [t]);
+  }, [t, isFreeUser]);
 
   useEffect(() => {
     function closeExportMenu(event: PointerEvent) {
@@ -270,9 +273,13 @@ export default function ResumePreviewPage() {
         setAppliedPurpose(newPurpose);
       } else {
         setAppliedPurpose(newPurpose);
+        // The backend has no field for this yet (see getStoredResumePurpose
+        // in resume-preview-api.ts) — remember it locally so it survives a
+        // reload instead of silently reverting to "general".
+        setStoredResumePurpose(resumeData.resumeId, newPurpose);
       }
 
-      const successMsg = `Resume rewritten for ${purposeLabel} using Gemini AI!`;
+      const successMsg = configuration("generatedSuccessfully");
       setActionSuccess(successMsg);
       toast.success(successMsg, { id: toastId });
     } catch (error) {
@@ -551,19 +558,49 @@ export default function ResumePreviewPage() {
               </div>
             </div>
 
-            {/* Change Template Action */}
-            <div className="mt-4">
-              <Link
-                href={`/${locale}/templates`}
-                className="group flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-edge bg-card px-4 py-2.5 text-sm font-bold text-primary transition-all hover:border-gold/50 hover:bg-gold/10 hover:text-gold"
-              >
-                <Sparkles size={15} className="text-gold" />
-                <span>{t("template.changeButton")}</span>
-                <ArrowRight
-                  size={15}
-                  className="transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5"
-                />
-              </Link>
+            <div className="mt-5 grid grid-cols-3 gap-2" role="listbox">
+              {SELECTABLE_TEMPLATE_IDS.map((templateId) => {
+                const metadata = getResumeTemplateMetadata(templateId);
+                const isSelected = templateId === draftTemplateId;
+                const isApplied = templateId === appliedTemplateId;
+
+                return (
+                  <button
+                    key={templateId}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    aria-label={t("template.selectAria", {
+                      template: metadata.name,
+                    })}
+                    disabled={isBusy}
+                    onClick={() => selectTemplate(templateId)}
+                    className={`relative rounded-xl border p-2 text-start transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
+                      isSelected
+                        ? "border-gold bg-gold/10 ring-2 ring-gold/20"
+                        : "border-edge bg-card hover:border-gold/40"
+                    }`}
+                  >
+                    <span
+                      className={`block aspect-4/5 overflow-hidden rounded-lg bg-linear-to-br ${TEMPLATE_ACCENTS[templateId]}`}
+                    >
+                      <span className="mx-auto mt-2 block h-[82%] w-[72%] rounded-sm bg-white/90 p-1 shadow-md">
+                        <span className="block h-1.5 w-2/3 rounded-full bg-current opacity-45" />
+                        <span className="mt-1 block h-px w-full bg-current opacity-20" />
+                        <span className="mt-1 block h-px w-4/5 bg-current opacity-20" />
+                      </span>
+                    </span>
+                    <span className="mt-2 block truncate text-[10px] font-black">
+                      {metadata.name}
+                    </span>
+                    {isApplied && (
+                      <span className="absolute inset-e-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-green text-white shadow">
+                        <Check size={12} />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </section>
 
@@ -598,31 +635,15 @@ export default function ResumePreviewPage() {
             </select>
           </section>
 
-          {hasPendingChanges && (
-            <button
-              type="button"
-              onClick={() => void applyConfiguration()}
-              disabled={isBusy}
-              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black text-ink shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
-            >
-              {isApplying ? (
-                <LoaderCircle size={19} className="animate-spin" />
-              ) : (
-                <Sparkles size={19} />
-              )}
-              {isApplying
-                ? configuration("generating")
-                : configuration("generate")}
-            </button>
-          )}
-
-          <Link
-            href={`/${locale}/dashboard?template=${draftTemplateId}`}
-            className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-gold/40 hover:bg-card hover:text-gold"
+          <button
+            type="button"
+            onClick={() => void applyConfiguration()}
+            disabled={isBusy || !hasPendingChanges}
+            className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 font-black text-ink shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
           >
             <Pencil size={15} className="text-gold" />
             <span>{t("editResume")}</span>
-          </Link>
+          </button>
 
           <div aria-live="polite" className="space-y-3">
             {hasPendingChanges && !actionError && (

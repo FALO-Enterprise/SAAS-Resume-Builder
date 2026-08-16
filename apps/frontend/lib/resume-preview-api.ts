@@ -192,7 +192,7 @@ export async function getResumePreviewData(
   const data: ResumePreviewData = {
     resumeId: snapshot.resumeId,
     resumeName: snapshot.title,
-    purpose: snapshotPurpose,
+    purpose: getStoredResumePurpose(snapshot.resumeId) ?? "general",
     selectedTemplate: getResumeTemplateMetadata(snapshot.templateId),
     content: snapshot.content,
     customization: snapshot.customization,
@@ -341,7 +341,33 @@ function isResumePreviewData(value: unknown): value is ResumePreviewData {
   );
 }
 
-function isResumePurpose(value: unknown): value is ResumePurpose {
+const RESUME_PURPOSE_STORAGE_PREFIX = "resumax_resume_purpose:";
+
+// The backend's Resume model has no `purpose` field, and the update call
+// only ever sends {title, templateId} — persisting purpose server-side is a
+// schema/API change out of scope here. Until that lands, remember the
+// user's choice per-resume in localStorage so a reload doesn't silently
+// reset it to "general" despite the UI reporting the change as applied.
+export function getStoredResumePurpose(resumeId: string): ResumePurpose | null {
+  if (typeof window === "undefined") return null;
+  const stored = window.localStorage.getItem(
+    `${RESUME_PURPOSE_STORAGE_PREFIX}${resumeId}`,
+  );
+  return stored && isResumePurpose(stored) ? stored : null;
+}
+
+export function setStoredResumePurpose(
+  resumeId: string,
+  purpose: ResumePurpose,
+): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(
+    `${RESUME_PURPOSE_STORAGE_PREFIX}${resumeId}`,
+    purpose,
+  );
+}
+
+export function isResumePurpose(value: unknown): value is ResumePurpose {
   return (
     value === "job" ||
     value === "internship" ||
