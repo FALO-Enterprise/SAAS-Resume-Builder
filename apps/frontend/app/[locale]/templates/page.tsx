@@ -100,7 +100,8 @@ export default function TemplatesPage() {
     return templates.filter((template) => template.category === activeFilter);
   }, [activeFilter]);
  
-  const [featuredTemplate] = templates;
+  const featuredTemplate =
+    templates.find((template) => template.id === "director") ?? templates[0];
  
   const closePreview = useCallback(() => {
     setPreviewTemplate(null);
@@ -457,7 +458,7 @@ export default function TemplatesPage() {
                               src={template.image}
                               alt={t(`templates.${template.id}.title`)}
                               fill
-                              priority={template.id === "executive"}
+                              priority={template.id === "director"}
                               unoptimized
                               className="object-contain object-center drop-shadow-2xl"
                               sizes="(max-width: 768px) 82vw, (max-width: 1280px) 50vw, 33vw"
