@@ -7,6 +7,7 @@ const enhancedExperienceSchema = z.object({
 
 export const resumeAiEnhancementSchema = z.object({
     professionalTitle: z.string().max(200),
+    summary: z.string().max(2000).optional(),
     experiences: z.array(enhancedExperienceSchema).max(30),
     skills: z.array(z.string().max(200)).max(100),
 });

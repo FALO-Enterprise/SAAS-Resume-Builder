@@ -6,6 +6,6 @@ export type ResumeAiInput = z.infer<typeof resumeContentSchema>;
 export type ResumeAiEnhancement = z.infer<typeof resumeAiEnhancementSchema>;
 
 export interface ResumeAiGenerator {
-    enhance(input: ResumeAiInput, userId: string): Promise<ResumeAiEnhancement>;
+    enhance(input: ResumeAiInput, userId: string, purpose?: string): Promise<ResumeAiEnhancement>;
 }
 

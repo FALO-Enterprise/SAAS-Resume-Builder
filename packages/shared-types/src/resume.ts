@@ -130,6 +130,17 @@ export type ResumeRenderSnapshot = {
   content: ResumeContent;
   customization: ResumeCustomization;
   createdAt: string;
+  hasWatermark?: boolean;
+  purpose?: string;
+};
+
+export const TEMPLATE_PLAN_CONFIG: Record<ResumeTemplateId, { requiredPlan: "FREE" | "PRO" | "ENTERPRISE"; badgeText: string; isFreeCompatible: boolean }> = {
+  minimal: { requiredPlan: "FREE", badgeText: "Free & Pro", isFreeCompatible: true },
+  developer: { requiredPlan: "PRO", badgeText: "Pro & Enterprise", isFreeCompatible: false },
+  executive: { requiredPlan: "PRO", badgeText: "Pro & Enterprise", isFreeCompatible: false },
+  director: { requiredPlan: "PRO", badgeText: "Pro & Enterprise", isFreeCompatible: false },
+  academic: { requiredPlan: "PRO", badgeText: "Pro & Enterprise", isFreeCompatible: false },
+  global: { requiredPlan: "PRO", badgeText: "Pro & Enterprise", isFreeCompatible: false },
 };
 
 export const DEFAULT_RESUME_CUSTOMIZATION: ResumeCustomization = {

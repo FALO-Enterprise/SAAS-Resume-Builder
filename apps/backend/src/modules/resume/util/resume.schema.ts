@@ -21,6 +21,7 @@ export const resumeUpdateSchema = resumeCreateSchema.partial();
 export const resumeGenerationSchema = z.object({
     title: z.string().trim().min(1).max(200),
     templateId: z.enum(RESUME_TEMPLATE_IDS),
+    purpose: z.string().trim().optional(),
 }).strict();
 
 export type ResumeGenerationDTO = z.infer<typeof resumeGenerationSchema>;

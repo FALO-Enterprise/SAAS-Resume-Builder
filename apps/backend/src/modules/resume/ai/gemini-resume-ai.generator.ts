@@ -12,6 +12,17 @@ Writing goals:
 - Avoid keyword stuffing, generic filler, first-person pronouns, decorative symbols, tables, and unsupported claims.
 - Keep the same language as the source content.
 
+Professional summary:
+- Rewrite and produce a compelling 2 to 4 sentence professional summary (50 to 90 words) tailored strictly to the specified target purpose:
+  * job: Focus on career background, key competencies, and immediate value delivery for industry roles.
+  * internship: Emphasize learning capacity, academic achievements, foundational skills, and enthusiasm for practical experience.
+  * scholarship: Focus on academic excellence, leadership, research interests, and commitment to field advancement.
+  * academic: Highlight research focus, teaching experience, scholarly credentials, and academic contributions.
+  * promotion: Focus on track record of success, leadership, cross-functional impact, and readiness for higher scope.
+  * government: Emphasize public service commitment, regulatory compliance, operational stability, and reliability.
+  * general: A balanced, versatile summary highlighting core skills and professional background.
+- Keep the summary grounded in the source data without inventing unsupported credentials or metrics.
+
 Professional title:
 - Produce a specific title of roughly 3 to 8 words based on the existing title, roles, education, and explicit skills.
 - Do not add seniority, specialization, or credentials unless supported by the source.
@@ -42,6 +53,10 @@ const RESUME_ENHANCEMENT_JSON_SCHEMA = {
             type: 'string',
             description: 'A specific ATS-friendly professional title, roughly 3 to 8 words, supported by the source.',
         },
+        summary: {
+            type: 'string',
+            description: 'A compelling 2 to 4 sentence professional summary tailored specifically to the target purpose (job, internship, scholarship, academic, promotion, government, general).',
+        },
         experiences: {
             type: 'array',
             description: 'Every source experience in the original order, keyed by its unchanged id.',
@@ -63,7 +78,7 @@ const RESUME_ENHANCEMENT_JSON_SCHEMA = {
             items: { type: 'string' },
         },
     },
-    required: ['professionalTitle', 'experiences', 'skills'],
+    required: ['professionalTitle', 'summary', 'experiences', 'skills'],
 } as const;
 
 export class GeminiAiProviderError extends Error {
@@ -94,10 +109,12 @@ export class GeminiResumeAiGenerator implements ResumeAiGenerator {
         this.client = client;
     }
 
-    async enhance(input: ResumeAiInput, _userId: string) {
+    async enhance(input: ResumeAiInput, _userId: string, purpose = 'general') {
         try {
             const providerInput = {
+                targetPurpose: purpose,
                 currentProfessionalTitle: input.contact.title,
+                currentSummary: input.summary,
                 experience: input.experience,
                 education: input.education,
                 certifications: input.certifications,

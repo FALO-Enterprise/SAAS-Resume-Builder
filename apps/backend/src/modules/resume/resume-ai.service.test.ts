@@ -10,6 +10,7 @@ import { GeminiAiProviderError } from './ai/gemini-resume-ai.generator';
 
 const draft: DashboardDraftDTO = {
     template: 'minimal',
+    purpose: 'general',
     currentStep: 'skills',
     completedSteps: ['contact', 'experience', 'education', 'skills'],
     sectionOrder: [...DEFAULT_RESUME_CUSTOMIZATION.sectionOrder],
@@ -90,6 +91,7 @@ function createService(options?: { missingDraft?: boolean; generatorError?: Erro
             if (options?.generatorError) throw options.generatorError;
             return {
                 professionalTitle: 'Senior Platform Engineer',
+                summary: 'Driven platform engineer focused on reliable high-throughput distributed services.',
                 experiences: [
                     { id: 'experience-1', description: 'Built reliable TypeScript services.' },
                     { id: 'unknown-id', description: 'This must not be merged.' },
@@ -118,7 +120,7 @@ test('enhances supported resume text while preserving factual dashboard data', a
     assert.deepEqual(saved?.skills, ['TypeScript', 'Distributed Systems']);
     assert.equal(saved?.contact.fullName, draft.contact.fullName);
     assert.equal(saved?.experience[0]?.company, draft.experience[0]?.company);
-    assert.equal(saved?.summary, draft.summary);
+    assert.equal(saved?.summary, 'Driven platform engineer focused on reliable high-throughput distributed services.');
     assert.deepEqual(saved?.skillGroups, draft.skillGroups);
     assert.deepEqual(saved?.projects, draft.projects);
     assert.equal(saved?.contact.github, draft.contact.github);

@@ -32,8 +32,40 @@ export default async function ResumeRenderPage({ searchParams }: RenderPageProps
   const Template = template.component;
 
   return (
-    <main data-resume-render-ready="true">
+    <main data-resume-render-ready="true" style={{ position: 'relative' }}>
       <Template resume={snapshot.content} customization={snapshot.customization} />
+      {snapshot.hasWatermark && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '12px',
+            left: '0',
+            right: '0',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 99999,
+            pointerEvents: 'none',
+          }}
+        >
+          <div
+            style={{
+              background: 'rgba(15, 23, 42, 0.88)',
+              color: '#ffffff',
+              padding: '6px 16px',
+              borderRadius: '20px',
+              fontSize: '11px',
+              fontWeight: 700,
+              fontFamily: 'system-ui, sans-serif',
+              letterSpacing: '0.05em',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            ⚡ Created with ResuMax Free Plan • Upgrade to Pro to remove watermark
+          </div>
+        </div>
+      )}
     </main>
   );
 }

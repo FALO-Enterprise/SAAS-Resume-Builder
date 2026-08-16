@@ -7,14 +7,16 @@ const intlMiddleware = createMiddleware(routing);
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  const isDashboardRoute = pathname.includes("/dashboard");
+  const isProtectedRoute =
+    pathname.includes("/dashboard") || pathname.includes("/onboarding");
 
   const token = request.cookies.get("resumax_token")?.value;
 
-  if (isDashboardRoute && !token) {
+  if (isProtectedRoute && !token) {
     const url = request.nextUrl.clone();
 
-    url.pathname = "/";
+    const locale = pathname.split("/")[1] === "ar" ? "ar" : "en";
+    url.pathname = `/${locale}`;
 
     url.searchParams.set("message", "login-required");
 

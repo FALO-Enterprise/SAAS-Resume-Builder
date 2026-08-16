@@ -17,6 +17,7 @@ import { PuppeteerResumePdfGenerator } from './pdf/puppeteer-resume-pdf.generato
 
 type ResumeLookup = {
     findOwnedById(resumeId: string, userId: string): Promise<Resume | null>;
+    upsertForUser?(title: string, templateId: string, templateName: string, userId: string): Promise<Resume>;
 };
 type DraftLookup = {
     findByUserId(userId: string): Promise<unknown>;
@@ -36,20 +37,38 @@ export class ResumeExportService {
         private readonly resumeRepository: ResumeLookup = new ResumeRepository(),
         private readonly dashboardRepository: DraftLookup = new DashboardRepository(),
         private readonly pdfGenerator: ResumePdfGenerator = new PuppeteerResumePdfGenerator(),
-    ) {}
+    ) { }
 
     async createSnapshot(
         resumeId: string,
         userId: string,
         input: ResumeExportInput = {},
+        hasWatermark = false,
     ): Promise<ResumeRenderSnapshot> {
-        const [resume, draft] = await Promise.all([
+        let [resume, draft] = await Promise.all([
             this.resumeRepository.findOwnedById(resumeId, userId),
             this.dashboardRepository.findByUserId(userId),
         ]);
 
-        if (!resume) throw new ResumeExportError('Resume not found', 'NOT_FOUND');
         if (!draft) throw new ResumeExportError('Resume data is unavailable', 'INVALID_RESUME');
+
+        if (!resume && this.resumeRepository.upsertForUser) {
+            const draftTemplate = typeof (draft as { template?: unknown }).template === 'string'
+                ? (draft as { template: string }).template
+                : 'minimal';
+            const targetTemplate = resolveResumeTemplate(input.templateId ?? draftTemplate) ?? resolveResumeTemplate('minimal')!;
+            const contactName = typeof (draft as { contact?: { fullName?: string } }).contact?.fullName === 'string'
+                ? (draft as { contact: { fullName: string } }).contact.fullName.trim()
+                : '';
+            resume = await this.resumeRepository.upsertForUser(
+                contactName ? `${contactName} Resume` : 'My Resume',
+                targetTemplate.id,
+                targetTemplate.name,
+                userId,
+            );
+        }
+
+        if (!resume) throw new ResumeExportError('Resume not found', 'NOT_FOUND');
 
         const parsedContent = resumeContentSchema.safeParse(draft);
         const parsedDraftCustomization = resumeDraftCustomizationSchema.safeParse(draft);
@@ -71,6 +90,10 @@ export class ResumeExportService {
                 : [...DEFAULT_RESUME_CUSTOMIZATION.hiddenSections],
         };
 
+        const draftPurpose = typeof (draft as { purpose?: unknown }).purpose === 'string'
+            ? (draft as { purpose: string }).purpose
+            : 'general';
+
         return structuredClone({
             resumeId: resume.id,
             title: resume.title,
@@ -79,11 +102,13 @@ export class ResumeExportService {
             content: parsedContent.data,
             customization,
             createdAt: new Date().toISOString(),
+            hasWatermark,
+            purpose: draftPurpose,
         });
     }
 
-    async generatePdf(resumeId: string, userId: string, input: ResumeExportInput = {}) {
-        const snapshot = await this.createSnapshot(resumeId, userId, input);
+    async generatePdf(resumeId: string, userId: string, input: ResumeExportInput = {}, hasWatermark = false) {
+        const snapshot = await this.createSnapshot(resumeId, userId, input, hasWatermark);
         try {
             return await this.pdfGenerator.generate(snapshot);
         } catch (error) {
@@ -96,8 +121,8 @@ export class ResumeExportService {
         }
     }
 
-    async generateJpg(resumeId: string, userId: string, input: ResumeExportInput = {}) {
-        const snapshot = await this.createSnapshot(resumeId, userId, input);
+    async generateJpg(resumeId: string, userId: string, input: ResumeExportInput = {}, hasWatermark = false) {
+        const snapshot = await this.createSnapshot(resumeId, userId, input, hasWatermark);
         try {
             return await this.pdfGenerator.generateJpg(snapshot);
         } catch (error) {

@@ -3,22 +3,50 @@ import { randomUUID } from "node:crypto"
 import { RESUME_TEMPLATE_DEFINITIONS } from "@resumax/shared-types"
 import prisma from "./prisma.service"
 
-async function main() {
+const TEMPLATE_METADATA: Record<string, { thumbnail: string; isPremium: boolean }> = {
+    executive: {
+        thumbnail: "https://i.imgur.com/oPsyIDT.png",
+        isPremium: true,
+    },
+    developer: {
+        thumbnail: "https://i.imgur.com/UFjkAoq.png",
+        isPremium: false,
+    },
+    director: {
+        thumbnail: "https://i.imgur.com/bIVtQW4.png",
+        isPremium: true,
+    },
+    minimal: {
+        thumbnail: "https://i.imgur.com/KnsEIYe.png",
+        isPremium: false,
+    },
+    academic: {
+        thumbnail: "https://i.imgur.com/cL8Rls0.png",
+        isPremium: false,
+    },
+    global: {
+        thumbnail: "https://i.imgur.com/uaye0sJ.png",
+        isPremium: true,
+    },
+};
 
+async function main() {
     for (const template of RESUME_TEMPLATE_DEFINITIONS) {
+        const meta = TEMPLATE_METADATA[template.id] ?? { thumbnail: null, isPremium: false };
         await prisma.template.upsert({
             where: { id: template.id },
             create: {
                 id: template.id,
                 name: template.name,
-                thumbnail: null,
-                isPremium: false,
+                thumbnail: meta.thumbnail,
+                isPremium: meta.isPremium,
             },
             update: {
                 name: template.name,
-                isPremium: false,
+                thumbnail: meta.thumbnail,
+                isPremium: meta.isPremium,
             },
-        })
+        });
     }
 
     const plans = [

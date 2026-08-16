@@ -1,42 +1,62 @@
 import type {
-  CertItem,
-  EducationItem,
   ExperienceItem,
+  EducationItem,
+  CertItem,
   ProjectItem,
   SkillGroupItem,
 } from '../types/dashboard.types';
 
 export const emptyRole = (): ExperienceItem => ({
   id: crypto.randomUUID(),
-  jobTitle: '', company: '', location: '', current: false,
-  startMonth: '', startYear: '', endMonth: '', endYear: '', description: '',
+  jobTitle: '',
+  company: '',
+  location: '',
+  current: false,
+  startMonth: '',
+  startYear: '',
+  endMonth: '',
+  endYear: '',
+  description: '',
 });
 
 export const emptyEdu = (): EducationItem => ({
   id: crypto.randomUUID(),
-  institution: '', degree: '', field: '', gradYear: '', location: '', country: '',
-  startMonth: '', startYear: '', endMonth: '', endYear: '', current: false,
+  institution: '',
+  degree: '',
+  field: '',
+  location: '',
+  country: '',
+  startMonth: '',
+  startYear: '',
+  endMonth: '',
+  endYear: '',
+  current: false,
+  gradYear: '',
 });
 
 export const emptyCert = (): CertItem => ({
   id: crypto.randomUUID(),
-  name: '', org: '',
+  name: '',
+  org: '',
 });
 
 export const emptyProject = (): ProjectItem => ({
   id: crypto.randomUUID(),
-  name: '', technologies: [], link: '', startMonth: '', startYear: '', description: '',
+  name: '',
+  technologies: [],
+  link: '',
+  startMonth: '',
+  startYear: '',
+  description: '',
 });
 
-export const emptySkillGroup = (label = ''): SkillGroupItem => ({
+export const emptySkillGroup = (label: string = ''): SkillGroupItem => ({
   id: crypto.randomUUID(),
   label,
   skills: [],
 });
 
 export const defaultSkillGroups = (): SkillGroupItem[] => [
-  emptySkillGroup('Frontend'),
-  emptySkillGroup('Backend'),
-  emptySkillGroup('Tools'),
-  emptySkillGroup('Other Skills'),
-];
+  emptySkillGroup('Technical Skills'),
+  emptySkillGroup('Soft Skills'),
+];

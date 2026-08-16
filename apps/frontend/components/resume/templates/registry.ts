@@ -3,6 +3,9 @@ import { RESUME_TEMPLATE_DEFINITIONS, type ResumeTemplateId } from '@shared-type
 import { ProfessionalAtsTemplate, type ResumeTemplateProps } from './ProfessionalAtsTemplate';
 import { ExecutiveTealTemplate } from './ExecutiveTealTemplate';
 import { DeveloperSidebarTemplate } from './DeveloperSidebarTemplate';
+import { CreativeDirectorTemplate } from './CreativeDirectorTemplate';
+import { AcademicCvTemplate } from './AcademicCvTemplate';
+import { GlobalProfessionalTemplate } from './GlobalProfessionalTemplate';
 
 export interface TemplateDefinition {
   id: ResumeTemplateId;
@@ -14,10 +17,10 @@ export interface TemplateDefinition {
 const templateComponents: Record<ResumeTemplateId, ComponentType<ResumeTemplateProps>> = {
   executive: ExecutiveTealTemplate,
   developer: DeveloperSidebarTemplate,
-  director: ProfessionalAtsTemplate,
+  director: CreativeDirectorTemplate,
   minimal: ProfessionalAtsTemplate,
-  academic: ProfessionalAtsTemplate,
-  global: ProfessionalAtsTemplate,
+  academic: AcademicCvTemplate,
+  global: GlobalProfessionalTemplate,
 };
 
 export const resumeTemplateDefinitions: readonly TemplateDefinition[] =

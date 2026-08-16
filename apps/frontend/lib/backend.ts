@@ -326,7 +326,7 @@ export type GeneratedResume = {
 
 export async function generateCurrentResume(
     token: string,
-    input: { title: string; templateId: ResumeTemplateId },
+    input: { title: string; templateId: ResumeTemplateId; purpose?: string },
 ): Promise<GeneratedResume> {
     try {
         const { data } = await apiClient.post(
