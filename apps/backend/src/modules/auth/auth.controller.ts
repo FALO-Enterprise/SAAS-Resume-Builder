@@ -64,10 +64,13 @@ export class AuthController {
             return;
         }
 
-        const entry = verifyVerificationCode(email, code);
-        if (!entry) {
-            console.log('Invalid or expired verification code for:', email);
-            res.error({ statusCode: HttpErrorStatus.BadRequest, message: 'Invalid or expired verification code' });
+        const result = verifyVerificationCode(email, code);
+        if (!result.success) {
+            console.log('Verification failed for:', email, result.reason);
+            const statusCode = result.reason === 'TOO_MANY_ATTEMPTS'
+                ? HttpErrorStatus.TooManyRequests
+                : HttpErrorStatus.BadRequest;
+            res.error({ statusCode, message: result.message });
             return;
         }
 
