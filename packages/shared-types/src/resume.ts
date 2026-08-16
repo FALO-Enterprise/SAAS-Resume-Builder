@@ -21,7 +21,7 @@ export const RESUME_TEMPLATE_DEFINITIONS = [
   { id: "developer", name: "Developer Sidebar", version: 1 },
   { id: "director", name: "Creative Director", version: 1 },
   { id: "minimal", name: "Classic ATS", version: 3 },
-  { id: "academic", name: "Academic", version: 1 },
+  { id: "academic", name: "Academic CV", version: 1 },
   { id: "global", name: "Global Professional", version: 1 },
 ] as const satisfies ReadonlyArray<{
   id: ResumeTemplateId;
