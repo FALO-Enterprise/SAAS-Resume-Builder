@@ -10,6 +10,18 @@ import {
 
 type TokenStatus = "checking" | "valid" | "invalid";
 
+// apiClient's response interceptor rejects with a plain normalized object
+// ({message, status, code} — see lib/api/client.ts), never an Error
+// instance, so `error instanceof Error` never matches a real backend
+// failure here. Check for the actual shape instead.
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === "object" && error && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string" && message) return message;
+  }
+  return fallback;
+}
+
 export function useResetPasswordFlow(token: string | null, networkFallback: string) {
   const locale = useLocale();
   const router = useRouter();
@@ -44,7 +56,7 @@ export function useResetPasswordFlow(token: string | null, networkFallback: stri
         if (cancelled) return;
         // Keep the form usable during a temporary validation outage; the
         // reset endpoint still performs the authoritative token check.
-        setGeneralError(error instanceof Error ? error.message : networkFallback);
+        setGeneralError(getErrorMessage(error, networkFallback));
         setTokenStatus("valid");
       });
 
@@ -66,7 +78,7 @@ export function useResetPasswordFlow(token: string | null, networkFallback: stri
       setTimeout(() => router.push(`/${locale}`), 1500);
       return true;
     } catch (error) {
-      const message = error instanceof Error ? error.message.toLowerCase() : "";
+      const message = getErrorMessage(error, "").toLowerCase();
       const looksLikeTokenIssue =
         message.includes("reset link") ||
         message.includes("expired") ||
@@ -77,7 +89,7 @@ export function useResetPasswordFlow(token: string | null, networkFallback: stri
       if (looksLikeTokenIssue) {
         setTokenStatus("invalid");
       } else {
-        setGeneralError(error instanceof Error ? error.message : resetFailedFallback);
+        setGeneralError(getErrorMessage(error, resetFailedFallback));
       }
       return false;
     }

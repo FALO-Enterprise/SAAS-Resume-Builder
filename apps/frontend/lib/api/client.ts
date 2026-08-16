@@ -29,7 +29,12 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    if (error.response?.status === 401) {
+    // Only clear the token when the failing request actually carried the
+    // current session's Authorization header — a 401 from an unauthenticated
+    // call (login, register, forgot/reset-password, resend-code) is about
+    // that request's own credentials, not the still-valid session token, and
+    // clearing it here would silently sign the user out as a side effect.
+    if (error.response?.status === 401 && error.config?.headers?.Authorization) {
       clearAccessToken();
     }
 

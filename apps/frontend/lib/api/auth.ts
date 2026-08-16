@@ -8,15 +8,20 @@ type Envelope<T> = {
   error?: string | { message?: string };
 };
 
-function unwrap<T>(payload: Envelope<T> | T, fallback: string): T {
-  if (payload && typeof payload === "object" && "success" in payload) {
+function unwrap<T>(payload: Envelope<T> | T | undefined, fallback: string): T {
+  // Handle 204 No Content - success with no body
+  if (payload === undefined || payload === null) {
+    throw new Error(fallback);
+  }
+
+  if (typeof payload === "object" && "success" in payload) {
     const env = payload as Envelope<T>;
     if (env.success) {
       if (env.data === undefined) throw new Error(fallback);
       return env.data;
     }
     const err = typeof env.error === "string" ? env.error : env.error?.message;
-    throw new Error(err || fallback); 
+    throw new Error(err || fallback);
   }
   return payload as T;
 }
@@ -49,6 +54,12 @@ export const verifyCode = async (input: {
   email: string;
   code: string;
 }): Promise<AuthSession> => {
+  // Use the default validateStatus so a non-2xx response (invalid/expired
+  // code, missing fields, etc.) rejects the promise instead of resolving —
+  // unwrap() only recognizes the {success:false,...} envelope shape and
+  // silently returns anything else as-is, which previously let a rejected
+  // verification through as if it had succeeded. The backend's /auth/verify
+  // never returns 204, so there's no real no-body-success case to special-case.
   const { data } = await api.post<Envelope<AuthSession> | AuthSession>(
     API_ENDPOINTS.auth.verify,
     input,

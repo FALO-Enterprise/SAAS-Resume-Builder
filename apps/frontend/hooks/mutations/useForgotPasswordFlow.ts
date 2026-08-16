@@ -6,6 +6,18 @@ import { useRequestPasswordResetMutation } from "@/hooks/mutations/useAuthMutati
 
 const DEFAULT_RESEND_COOLDOWN = 60;
 
+// apiClient's response interceptor rejects with a plain normalized object
+// ({message, status, code} — see lib/api/client.ts), never an Error
+// instance, so `error instanceof Error` never matches a real backend
+// failure here. Check for the actual shape instead.
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === "object" && error && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string" && message) return message;
+  }
+  return fallback;
+}
+
 export function useForgotPasswordFlow(resendCooldown = DEFAULT_RESEND_COOLDOWN) {
   const requestResetMutation = useRequestPasswordResetMutation();
   const { count, expired, restart } = useCountdown(resendCooldown);
@@ -34,7 +46,7 @@ export function useForgotPasswordFlow(resendCooldown = DEFAULT_RESEND_COOLDOWN) 
       return true;
     } catch (error) {
       if (isMounted.current) {
-        setGeneralError(error instanceof Error ? error.message : networkFallback);
+        setGeneralError(getErrorMessage(error, networkFallback));
       }
       return false;
     }
@@ -57,7 +69,7 @@ export function useForgotPasswordFlow(resendCooldown = DEFAULT_RESEND_COOLDOWN) 
       return true;
     } catch (error) {
       if (isMounted.current) {
-        setGeneralError(error instanceof Error ? error.message : networkFallback);
+        setGeneralError(getErrorMessage(error, networkFallback));
       }
       return false;
     }

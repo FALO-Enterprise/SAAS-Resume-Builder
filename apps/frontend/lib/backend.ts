@@ -227,6 +227,9 @@ export async function resetPasswordWithBackend(input: {
 
 export async function verifyEmailCodeWithBackend(input: { email: string; code: string }) {
     try {
+        // Default validateStatus rejects on non-2xx, so an invalid/expired
+        // code surfaces as a real error instead of resolving with a body we
+        // then have to fake a session out of. /auth/verify never returns 204.
         const { data } = await apiClient.post(API_ENDPOINTS.auth.verify, input);
         return normalizeBackendPayload<AuthSession>(data);
     } catch (error) {
