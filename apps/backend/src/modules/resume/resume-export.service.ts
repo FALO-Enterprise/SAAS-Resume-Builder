@@ -90,6 +90,10 @@ export class ResumeExportService {
                 : [...DEFAULT_RESUME_CUSTOMIZATION.hiddenSections],
         };
 
+        const draftPurpose = typeof (draft as { purpose?: unknown }).purpose === 'string'
+            ? (draft as { purpose: string }).purpose
+            : 'general';
+
         return structuredClone({
             resumeId: resume.id,
             title: resume.title,
@@ -99,6 +103,7 @@ export class ResumeExportService {
             customization,
             createdAt: new Date().toISOString(),
             hasWatermark,
+            purpose: draftPurpose,
         });
     }
 

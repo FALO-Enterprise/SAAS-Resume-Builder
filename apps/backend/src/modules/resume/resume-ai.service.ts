@@ -35,7 +35,7 @@ export class ResumeAiGenerationError extends Error {
     }
 }
 
-function mergeEnhancement(draft: DashboardDraftDTO, enhancement: ResumeAiEnhancement): DashboardDraftDTO {
+function mergeEnhancement(draft: DashboardDraftDTO, enhancement: ResumeAiEnhancement, purpose?: string): DashboardDraftDTO {
     const descriptionById = new Map(
         enhancement.experiences.map((experience) => [experience.id, experience.description.trim()]),
     );
@@ -52,10 +52,12 @@ function mergeEnhancement(draft: DashboardDraftDTO, enhancement: ResumeAiEnhance
 
     return {
         ...draft,
+        purpose: purpose || draft.purpose || 'general',
         contact: {
             ...draft.contact,
             title: enhancement.professionalTitle.trim() || draft.contact.title,
         },
+        summary: enhancement.summary?.trim() || draft.summary,
         experience: draft.experience.map((experience) => ({
             ...experience,
             description: descriptionById.get(experience.id) || experience.description,
@@ -89,8 +91,8 @@ export class ResumeAiService {
 
         try {
             const content = resumeContentSchema.parse(parsedDraft.data);
-            const enhancement = await this.generator.enhance(content, userId);
-            const enhancedDraft = mergeEnhancement(parsedDraft.data, enhancement);
+            const enhancement = await this.generator.enhance(content, userId, payload.purpose);
+            const enhancedDraft = mergeEnhancement(parsedDraft.data, enhancement, payload.purpose);
             const validatedDraft = dashboardDraftSchema.parse(enhancedDraft);
 
             await this.dashboardRepository.upsert(userId, validatedDraft);

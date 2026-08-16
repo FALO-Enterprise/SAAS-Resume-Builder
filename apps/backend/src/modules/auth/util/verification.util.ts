@@ -1,8 +1,21 @@
-import { randomInt } from 'node:crypto';
+import { randomInt, timingSafeEqual } from 'node:crypto';
 import nodemailer from 'nodemailer';
 
-const verificationCodes = new Map<string, { code: string; expiresAt: number }>();
-const CODE_TTL_MS = 10 * 60 * 1000;
+export interface VerificationEntry {
+    code: string;
+    expiresAt: number;
+    attempts: number;
+}
+
+export type VerificationFailureReason = 'NOT_FOUND' | 'EXPIRED' | 'TOO_MANY_ATTEMPTS' | 'INVALID_CODE';
+
+export type VerificationResult =
+    | { success: true; entry: VerificationEntry }
+    | { success: false; reason: VerificationFailureReason; message: string; remainingAttempts?: number };
+
+const verificationCodes = new Map<string, VerificationEntry>();
+export const CODE_TTL_MS = 10 * 60 * 1000;
+export const MAX_VERIFICATION_ATTEMPTS = 5;
 
 function normalizeEmail(email: string) {
     return email.trim().toLowerCase();
@@ -12,6 +25,22 @@ function generateCode() {
     return randomInt(0, 1000000).toString().padStart(6, '0');
 }
 
+function safeCompare(a: string, b: string): boolean {
+    if (typeof a !== 'string' || typeof b !== 'string') return false;
+    const bufA = Buffer.from(a);
+    const bufB = Buffer.from(b);
+    if (bufA.length !== bufB.length) return false;
+    return timingSafeEqual(bufA, bufB);
+}
+
+export function _resetVerificationStore() {
+    verificationCodes.clear();
+}
+
+export function _getVerificationEntry(email: string): VerificationEntry | undefined {
+    return verificationCodes.get(normalizeEmail(email));
+}
+
 export async function sendVerificationCode(email: string) {
     const normalizedEmail = normalizeEmail(email);
     const code = generateCode();
@@ -19,6 +48,7 @@ export async function sendVerificationCode(email: string) {
     verificationCodes.set(normalizedEmail, {
         code,
         expiresAt: Date.now() + CODE_TTL_MS,
+        attempts: 0,
     });
 
     console.log(`Verification code generated for ${normalizedEmail}: ${code}`);
@@ -30,7 +60,7 @@ export async function resendVerificationCode(email: string) {
     return sendVerificationCode(email);
 }
 
-export function verifyVerificationCode(email: string, code: string) {
+export function verifyVerificationCode(email: string, code: string): VerificationResult {
     const normalizedEmail = normalizeEmail(email);
     const entry = verificationCodes.get(normalizedEmail);
 
@@ -38,23 +68,62 @@ export function verifyVerificationCode(email: string, code: string) {
 
     if (!entry) {
         console.log(`No verification code found for ${normalizedEmail}`);
-        return null;
+        return {
+            success: false,
+            reason: 'NOT_FOUND',
+            message: 'Invalid or expired verification code',
+        };
     }
 
     if (Date.now() > entry.expiresAt) {
         verificationCodes.delete(normalizedEmail);
         console.log(`Verification code expired for ${normalizedEmail}`);
-        return null;
+        return {
+            success: false,
+            reason: 'EXPIRED',
+            message: 'Verification code has expired. Please request a new code.',
+        };
     }
 
-    if (entry.code !== code) {
-        console.log(`Code mismatch for ${normalizedEmail}. Expected: ${entry.code}, Got: ${code}`);
-        return null;
+    if (entry.attempts >= MAX_VERIFICATION_ATTEMPTS) {
+        verificationCodes.delete(normalizedEmail);
+        console.log(`Verification code exceeded maximum attempts for ${normalizedEmail}`);
+        return {
+            success: false,
+            reason: 'TOO_MANY_ATTEMPTS',
+            message: 'Too many failed verification attempts. This code is no longer valid. Please request a new code.',
+        };
     }
 
+    entry.attempts += 1;
+
+    if (!safeCompare(entry.code, code)) {
+        console.log(`Code mismatch for ${normalizedEmail}. Attempt ${entry.attempts}/${MAX_VERIFICATION_ATTEMPTS}`);
+        if (entry.attempts >= MAX_VERIFICATION_ATTEMPTS) {
+            verificationCodes.delete(normalizedEmail);
+            return {
+                success: false,
+                reason: 'TOO_MANY_ATTEMPTS',
+                message: 'Too many failed verification attempts. This code is no longer valid. Please request a new code.',
+                remainingAttempts: 0,
+            };
+        }
+
+        return {
+            success: false,
+            reason: 'INVALID_CODE',
+            message: 'Invalid verification code',
+            remainingAttempts: MAX_VERIFICATION_ATTEMPTS - entry.attempts,
+        };
+    }
+
+    // Code matched - delete entry to prevent reuse
     verificationCodes.delete(normalizedEmail);
     console.log(`Code verified successfully for ${normalizedEmail}`);
-    return entry;
+    return {
+        success: true,
+        entry,
+    };
 }
 
 async function sendVerificationEmail(email: string, code: string) {

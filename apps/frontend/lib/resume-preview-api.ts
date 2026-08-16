@@ -185,10 +185,14 @@ export async function getResumePreviewData(
   if (!isResumeTemplateId(snapshot.templateId)) {
     throw new Error("The selected resume template is unavailable");
   }
+  const snapshotPurpose = typeof snapshot.purpose === "string" && isResumePurpose(snapshot.purpose)
+    ? snapshot.purpose
+    : "general";
+
   const data: ResumePreviewData = {
     resumeId: snapshot.resumeId,
     resumeName: snapshot.title,
-    purpose: "general",
+    purpose: snapshotPurpose,
     selectedTemplate: getResumeTemplateMetadata(snapshot.templateId),
     content: snapshot.content,
     customization: snapshot.customization,
