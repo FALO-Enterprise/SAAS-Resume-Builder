@@ -146,14 +146,22 @@
         "name": "الأساس",
         "date": "أغسطس 2026",
         "tag": "الحالي",
-        "features": ["منشئ سيرة ذاتية أساسي", "5 قوالب ابتدائية", "تصدير PDF"]
+        "features": [
+          "منشئ سيرة ذاتية أساسي",
+          "5 قوالب ابتدائية",
+          "تصدير PDF"
+        ]
       },
       "v15": {
         "version": "v1.5",
         "name": "التوسع",
         "date": "نوفمبر 2026",
         "tag": "قادم",
-        "features": ["30 قالباً", "دعم متعدد اللغات", "منشئ خطاب التقديم"]
+        "features": [
+          "30 قالباً",
+          "دعم متعدد اللغات",
+          "منشئ خطاب التقديم"
+        ]
       },
       "v2": {
         "version": "v2.0",
@@ -1198,5 +1206,403 @@
     },
     "rights": "جميع الحقوق محفوظة.",
     "poweredBy": "مدعوم من FALO Enterprise"
+  },
+  "onboarding": {
+    "loading": "نجهّز استبيانك السريع...",
+    "surveyLabel": "استبيان سريع",
+    "saveExit": "حفظ وخروج",
+    "progressTitle": "إعداد ملفك المهني",
+    "stepCounter": "الخطوة {current} من {total}",
+    "autoSave": "تُحفظ إجاباتك على هذا الجهاز",
+    "back": "السابق",
+    "continue": "متابعة",
+    "finish": "تجهيز لوحة التحكم",
+    "completion": {
+      "eyebrow": "اكتملت اختياراتك",
+      "title": "لوحة التحكم جاهزة لتبدأ.",
+      "description": "حفظنا المسمى الوظيفي والمؤهل التعليمي والمهارات والقالب داخل لوحة التحكم، ويمكنك متابعة بقية بيانات سيرتك من هناك.",
+      "primary": "فتح لوحة التحكم",
+      "edit": "تعديل الإجابات",
+      "home": "العودة للرئيسية"
+    },
+    "errors": {
+      "load": "تعذر تحميل تقدمك في الأسئلة.",
+      "save": "تعذر حفظ هذه الخطوة. حاول مرة أخرى.",
+      "dashboardSave": "تعذر تعبئة بيانات لوحة التحكم تلقائيًا. حاول مرة أخرى."
+    },
+    "direct": {
+      "questionCounter": "السؤال {current} من {total}",
+      "questionLabel": "سؤال سريع",
+      "optional": "اختياري",
+      "askField": "ما هو {field}؟",
+      "contactAnswerDescription": "ستظهر إجابتك مباشرة في قسم معلومات التواصل داخل سيرتك.",
+      "certificationSection": "الشهادات المهنية",
+      "yesTitle": "نعم",
+      "yesDescription": "أريد إضافة هذه البيانات",
+      "noTitle": "لا",
+      "noDescription": "تجاوز هذا القسم الآن",
+      "hasExperienceTitle": "هل لديك خبرة عملية تريد إضافتها؟",
+      "hasExperienceDescription": "إذا اخترت نعم، سنسألك عن كل معلومة بسؤال منفصل.",
+      "moreExperienceTitle": "هل تريد إضافة خبرة عملية أخرى؟",
+      "moreExperienceDescription": "يمكنك إضافة أكثر من وظيفة، وسنرتبها داخل لوحة التحكم.",
+      "hasEducationTitle": "هل تريد إضافة بياناتك التعليمية؟",
+      "hasEducationDescription": "سنطلب اسم المؤسسة والدرجة والتخصص وسنة التخرج، كلٌ بسؤال مستقل.",
+      "moreEducationTitle": "هل تريد إضافة مؤسسة تعليمية أخرى؟",
+      "moreEducationDescription": "اختر نعم لإضافة درجة أو مؤسسة إضافية.",
+      "hasCertificationTitle": "هل لديك شهادة مهنية تريد إضافتها؟",
+      "hasCertificationDescription": "هذا القسم اختياري ويمكنك تجاوزه إن لم تكن لديك شهادات.",
+      "moreCertificationTitle": "هل تريد إضافة شهادة مهنية أخرى؟",
+      "moreCertificationDescription": "اختر نعم لإضافة شهادة إضافية.",
+      "experienceDatesTitle": "متى بدأت وانتهت هذه الوظيفة؟",
+      "experienceDatesDescription": "اختر التواريخ، أو فعّل خيار أنك ما زلت تعمل فيها.",
+      "experienceDescriptionTitle": "ما أبرز مسؤولياتك أو إنجازاتك؟",
+      "experienceDescriptionDescription": "اكتب وصفًا قصيرًا، ويفضل ذكر نتائج أو أرقام واضحة.",
+      "skillsQuestionTitle": "ما المهارات التي تريد إبرازها؟",
+      "skillsQuestionDescription": "اختر مهارة أو أكثر، أو أضف مهارة خاصة بك.",
+      "experienceAnswerDescription": "إجابة مرتبطة مباشرة بالخبرة رقم {current} داخل لوحة التحكم.",
+      "educationAnswerDescription": "إجابة مرتبطة مباشرة ببيانات التعليم رقم {current}.",
+      "certificationAnswerDescription": "ستُحفظ الإجابة مباشرة في قسم الشهادات المهنية.",
+      "exactSyncNote": "كل حقل هنا يقابله نفس الحقل داخل لوحة التحكم",
+      "contactRequired": "أدخل الاسم الكامل والمسمى الوظيفي وبريدًا إلكترونيًا صحيحًا للمتابعة.",
+      "experienceEmpty": "لا توجد خبرة عملية مضافة. يمكنك تجاوز هذه الخطوة أو إضافة وظيفة.",
+      "educationEmpty": "لا توجد بيانات تعليمية مضافة. يمكنك تجاوز القسم أو إضافة مؤسسة تعليمية.",
+      "certificationEmpty": "الشهادات المهنية اختيارية. أضف شهادة إذا كانت لديك.",
+      "selectedSkills": "المهارات التي ستظهر في لوحة التحكم",
+      "summaryContact": "بيانات التواصل",
+      "summaryExperience": "الخبرات المضافة",
+      "summaryEducation": "المؤسسات التعليمية",
+      "summarySkills": "المهارات المضافة"
+    },
+    "quick": {
+      "questionLabel": "السؤال {current} من {total}",
+      "changeLater": "يمكنك تعديل اختيارك لاحقًا قبل إنهاء الاستبيان.",
+      "dashboardSaveNote": "سيتم حفظ المسمى والمؤهل والقالب والمهارات مباشرة داخل لوحة التحكم دون إضافة بيانات وهمية.",
+      "recommended": "الأنسب لك",
+      "selectedSkills": "{count} مهارات مختارة",
+      "targetRoleQuestion": {
+        "title": "ما المسمى الوظيفي الأقرب لهدفك؟",
+        "description": "اختر مسمى من الخيارات المناسبة للمجال الذي حددته.",
+        "optionDescription": "سيُحفظ هذا الاختيار في خانة المسمى الوظيفي داخل لوحة التحكم.",
+        "customLabel": "لم تجد تخصصك ضمن الخيارات؟",
+        "customPlaceholder": "اكتب المسمى الوظيفي أو التخصص",
+        "customHint": "عند الكتابة هنا سيتم اعتماد المسمى المخصص بدل الخيار الجاهز."
+      },
+      "roleOptions": {
+        "frontendDeveloper": "مطوّر واجهات أمامية",
+        "backendDeveloper": "مطوّر واجهات خلفية",
+        "fullStackDeveloper": "مطوّر Full Stack",
+        "softwareEngineer": "مهندس برمجيات",
+        "dataAnalyst": "محلل بيانات",
+        "cybersecuritySpecialist": "أخصائي أمن سيبراني",
+        "graphicDesigner": "مصمم جرافيك",
+        "uiUxDesigner": "مصمم UI/UX",
+        "productDesigner": "مصمم منتجات",
+        "motionDesigner": "مصمم موشن جرافيك",
+        "brandDesigner": "مصمم هوية بصرية",
+        "contentDesigner": "مصمم محتوى",
+        "projectCoordinator": "منسق مشاريع",
+        "projectManager": "مدير مشاريع",
+        "hrSpecialist": "أخصائي موارد بشرية",
+        "marketingSpecialist": "أخصائي تسويق",
+        "operationsOfficer": "مسؤول عمليات",
+        "businessDevelopmentOfficer": "مسؤول تطوير أعمال",
+        "accountant": "محاسب",
+        "financialAnalyst": "محلل مالي",
+        "auditor": "مدقق حسابات",
+        "financeOfficer": "مسؤول مالي",
+        "payrollSpecialist": "أخصائي رواتب",
+        "bankingOfficer": "موظف خدمات مصرفية",
+        "dietitian": "أخصائي تغذية",
+        "nurse": "ممرض/ة",
+        "publicHealthOfficer": "مسؤول صحة عامة",
+        "pharmacist": "صيدلي/ة",
+        "physiotherapist": "أخصائي علاج طبيعي",
+        "labTechnician": "فني مختبر",
+        "teacher": "معلم/ة",
+        "trainer": "مدرب/ة",
+        "educationCoordinator": "منسق تعليم",
+        "academicResearcher": "باحث أكاديمي",
+        "schoolCounselor": "مرشد تربوي",
+        "curriculumSpecialist": "أخصائي مناهج",
+        "civilEngineer": "مهندس مدني",
+        "electricalEngineer": "مهندس كهرباء",
+        "mechanicalEngineer": "مهندس ميكانيكا",
+        "architecturalEngineer": "مهندس معماري",
+        "industrialEngineer": "مهندس صناعي",
+        "siteEngineer": "مهندس موقع",
+        "administrativeAssistant": "مساعد إداري",
+        "customerServiceRepresentative": "ممثل خدمة عملاء",
+        "communityOfficer": "مسؤول تعبئة مجتمعية",
+        "salesRepresentative": "مندوب مبيعات",
+        "dataEntryClerk": "مدخل بيانات",
+        "logisticsOfficer": "مسؤول لوجستي"
+      },
+      "skillsQuestion": {
+        "title": "ما المهارات التي تريد إبرازها؟",
+        "description": "اختر من الاقتراحات المناسبة لمجالك. لن تحتاج إلى كتابة أي شيء.",
+        "hint": "اختر من 3 إلى 5 مهارات"
+      },
+      "templateQuestion": {
+        "title": "أي تصميم تفضّل لسيرتك؟",
+        "description": "اختر نمطًا واحدًا، وقد وضعنا علامة على القالب الأنسب لإجاباتك."
+      },
+      "templateOptions": {
+        "minimal": "بسيط وواضح ومناسب لمعظم الوظائف.",
+        "global": "مرن ومناسب للتقديم الدولي والعمل عن بُعد.",
+        "executive": "احترافي للخبرات المتقدمة والمناصب القيادية.",
+        "academic": "يركز على التعليم والمشاريع وبداية المسيرة.",
+        "developer": "حديث ومنظم للمجالات التقنية والبرمجية.",
+        "director": "جريء ومتوازن للمجالات الإبداعية والتصميم."
+      },
+      "skillOptions": {
+        "webDevelopment": "تطوير الويب",
+        "programming": "البرمجة",
+        "problemSolving": "حل المشكلات",
+        "dataAnalysis": "تحليل البيانات",
+        "teamwork": "العمل الجماعي",
+        "projectManagement": "إدارة المشاريع",
+        "communication": "التواصل",
+        "research": "البحث",
+        "uiDesign": "تصميم واجهات المستخدم",
+        "creativity": "الإبداع",
+        "marketing": "التسويق",
+        "timeManagement": "إدارة الوقت",
+        "leadership": "القيادة",
+        "excel": "Microsoft Excel",
+        "customerService": "خدمة العملاء",
+        "accounting": "المحاسبة",
+        "reporting": "إعداد التقارير",
+        "healthEducation": "التثقيف الصحي",
+        "caseManagement": "إدارة الحالات",
+        "teaching": "التدريس والتدريب",
+        "engineeringDesign": "التصميم الهندسي"
+      },
+      "skillsCategory": "المهارات المقترحة"
+    },
+    "summary": {
+      "title": "ملفك يتشكل الآن",
+      "description": "كل إجابة تساعد ResuMax على فهم الاتجاه الذي تريد الوصول إليه.",
+      "empty": "ستظهر إجاباتك هنا أثناء التقدم.",
+      "template": "القالب المقترح"
+    },
+    "templates": {
+      "executive": "التنفيذي",
+      "developer": "المطور",
+      "director": "المدير الإبداعي",
+      "minimal": "البسيط",
+      "academic": "الأكاديمي",
+      "global": "العالمي"
+    },
+    "steps": {
+      "purpose": {
+        "eyebrow": "لنبدأ بهدفك",
+        "title": "ما هدفك من استخدام ResuMax؟",
+        "description": "إجابة واحدة في كل مرة لنصنع تجربة أقرب إلى هدفك.",
+        "options": {
+          "firstResume": {
+            "title": "إنشاء أول سيرة ذاتية",
+            "description": "ابدأ بخطوات واضحة من الصفر"
+          },
+          "newJob": {
+            "title": "التقديم لوظيفة جديدة",
+            "description": "جهّز سيرة موجهة للفرصة القادمة"
+          },
+          "internship": {
+            "title": "التقديم لتدريب",
+            "description": "أبرز تعليمك ومشاريعك ومهاراتك"
+          },
+          "careerChange": {
+            "title": "تغيير مساري المهني",
+            "description": "أعد تقديم خبراتك لمسار جديد"
+          }
+        }
+      },
+      "careerStatus": {
+        "eyebrow": "وضعك الحالي",
+        "title": "أين أنت حاليًا في مسارك المهني؟",
+        "description": "هذا يساعدنا على ترتيب أقسام السيرة واقتراح خطوتك التالية.",
+        "options": {
+          "student": {
+            "title": "طالب",
+            "description": "ما زلت في مرحلة الدراسة"
+          },
+          "freshGraduate": {
+            "title": "خريج جديد",
+            "description": "بدأت رحلتي المهنية مؤخرًا"
+          },
+          "employed": {
+            "title": "أعمل حاليًا",
+            "description": "لدي خبرة وأبحث عن تطور"
+          },
+          "jobSeeker": {
+            "title": "أبحث عن عمل",
+            "description": "أستعد لفرصتي القادمة"
+          },
+          "careerSwitcher": {
+            "title": "أغيّر مجالي المهني",
+            "description": "أنتقل إلى تخصص أو دور جديد"
+          }
+        }
+      },
+      "targetJob": {
+        "eyebrow": "وجهتك المهنية",
+        "title": "ما الوظيفة التي تستهدفها؟",
+        "description": "اكتب المسمى الأقرب لهدفك، ويمكنك تعديله لاحقًا.",
+        "placeholder": "مثال: Front-end Developer",
+        "suggestionsLabel": "اختيارات شائعة",
+        "suggestions": [
+          "Front-end Developer",
+          "Graphic Designer",
+          "Accountant",
+          "Dietitian"
+        ]
+      },
+      "field": {
+        "eyebrow": "مجالك المهني",
+        "title": "ما المجال الأقرب لخبرتك أو هدفك؟",
+        "description": "سنخصص المهارات والقالب والمحتوى المقترح بناءً على اختيارك.",
+        "options": {
+          "technology": {
+            "title": "البرمجة والتكنولوجيا",
+            "description": "تطوير، بيانات، شبكات وتقنية"
+          },
+          "design": {
+            "title": "التصميم والإبداع",
+            "description": "تصميم بصري، تجربة مستخدم ومحتوى"
+          },
+          "business": {
+            "title": "الإدارة والأعمال",
+            "description": "إدارة، موارد بشرية وتسويق"
+          },
+          "finance": {
+            "title": "المحاسبة والمالية",
+            "description": "محاسبة، تدقيق وخدمات مالية"
+          },
+          "health": {
+            "title": "الصحة والتغذية",
+            "description": "رعاية صحية، تغذية وصيدلة"
+          },
+          "education": {
+            "title": "التعليم",
+            "description": "تدريس، تدريب وبحث أكاديمي"
+          },
+          "engineering": {
+            "title": "الهندسة",
+            "description": "هندسة مدنية، كهربائية وميكانيكية"
+          },
+          "other": {
+            "title": "مجال آخر",
+            "description": "اختره إذا لم تجد مجالك"
+          }
+        }
+      },
+      "experienceLevel": {
+        "eyebrow": "خبرتك المهنية",
+        "title": "ما مستوى خبرتك؟",
+        "description": "سنستخدمه لاختيار طول السيرة وترتيب أقسامها بشكل مناسب.",
+        "options": {
+          "none": {
+            "title": "لا أملك خبرة",
+            "description": "سنبني السيرة حول التعليم والمهارات"
+          },
+          "junior": {
+            "title": "أقل من سنتين",
+            "description": "بداية مهنية مع خبرات محدودة"
+          },
+          "mid": {
+            "title": "من سنتين إلى 5 سنوات",
+            "description": "خبرة متوسطة وإنجازات واضحة"
+          },
+          "senior": {
+            "title": "أكثر من 5 سنوات",
+            "description": "خبرة متقدمة ومسؤوليات قيادية"
+          }
+        }
+      },
+      "education": {
+        "eyebrow": "خلفيتك التعليمية",
+        "title": "ما أعلى مؤهل تعليمي لديك؟",
+        "description": "يساعدنا ذلك على فهم الخلفية التي تنطلق منها في خطوتك المهنية القادمة.",
+        "majorLabel": "ما تخصصك؟",
+        "majorPlaceholder": "مثال: هندسة البرمجيات",
+        "options": {
+          "highSchool": {
+            "title": "ثانوية عامة",
+            "description": "شهادة المدرسة الثانوية"
+          },
+          "diploma": {
+            "title": "دبلوم",
+            "description": "دبلوم مهني أو أكاديمي"
+          },
+          "bachelor": {
+            "title": "بكالوريوس",
+            "description": "درجة جامعية أولى"
+          },
+          "master": {
+            "title": "ماجستير",
+            "description": "دراسات عليا"
+          },
+          "doctorate": {
+            "title": "دكتوراه",
+            "description": "أعلى درجة أكاديمية"
+          }
+        }
+      },
+      "skills": {
+        "eyebrow": "نقاط قوتك",
+        "title": "ما أهم مهاراتك؟",
+        "description": "اختر نقاط القوة التي تعبّر بشكل أفضل عن طريقة عملك.",
+        "selectionLabel": "اختر من 3 إلى 5 مهارات",
+        "selectionHint": "اختر المهارات الأقرب لك أو أضف مهارة جديدة.",
+        "customPlaceholder": "أضف مهارة أخرى",
+        "add": "إضافة",
+        "suggestions": [
+          "التواصل",
+          "العمل الجماعي",
+          "حل المشكلات",
+          "إدارة الوقت",
+          "Microsoft Excel",
+          "القيادة",
+          "تحليل البيانات",
+          "خدمة العملاء",
+          "إدارة المشاريع",
+          "البحث"
+        ]
+      },
+      "hasExperience": {
+        "eyebrow": "الخبرة العملية",
+        "title": "هل لديك خبرة عملية تريد إضافتها؟",
+        "description": "لن نطلب منك التفاصيل الآن؛ نريد فقط فهم نقطة البداية المناسبة لك.",
+        "options": {
+          "none": {
+            "title": "لا، ليس لدي خبرة بعد",
+            "description": "سنقترح عليك إضافة التعليم والمشاريع"
+          },
+          "one": {
+            "title": "نعم، لدي خبرة واحدة",
+            "description": "ستكون إضافة الخبرة هي خطوتك التالية"
+          },
+          "multiple": {
+            "title": "نعم، لدي أكثر من خبرة",
+            "description": "سنرتب خبراتك من الأحدث إلى الأقدم"
+          }
+        }
+      },
+      "resumeLanguage": {
+        "eyebrow": "لغة السيرة",
+        "title": "بأي لغة تريد إنشاء سيرتك؟",
+        "description": "اختر اللغة التي تشعر براحة أكبر في استخدامها، ويمكنك تغييرها لاحقًا.",
+        "options": {
+          "ar": {
+            "title": "العربية",
+            "description": "سيرة عربية كاملة باتجاه من اليمين لليسار"
+          },
+          "en": {
+            "title": "الإنجليزية",
+            "description": "Resume in English with left-to-right layout"
+          }
+        }
+      }
+    }
   }
 }

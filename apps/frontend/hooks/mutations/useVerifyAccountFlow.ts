@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 import { useAuth } from "@/context/AuthContext";
 import { useCountdown } from "@/hooks/useCountdown";
 import { setAccessToken } from "@/lib/auth/token";
+import { resetOnboardingState } from "@/lib/onboarding-storage";
 import {
   useResendCodeMutation,
   useVerifyCodeMutation,
@@ -67,8 +68,10 @@ export function useVerifyAccountFlow(
       });
 
       if (!isMounted.current) return { ok: true };
+      resetOnboardingState(data.user?.id);
+      resetOnboardingState();
       setSuccess(true);
-      setTimeout(() => router.push(`/${locale}`), 2000);
+      setTimeout(() => router.push(`/${locale}/onboarding`), 2000);
       return { ok: true };
     } catch (error) {
       const message =
