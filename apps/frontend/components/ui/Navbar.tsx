@@ -17,7 +17,7 @@ export default function Navbar() {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const { user, openLogin, closeModal, isVerified } = useAuth();
+  const { user, openLogin, closeModal } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -160,7 +160,7 @@ export default function Navbar() {
                   <Globe size={13} />
                   {locale === "en" ? "العربية" : "English"}
                 </button>
-                {!isVerified && (
+                {!user && (
                   <Link
                     href={`/${locale}/createaccount`}
                     onClick={closeModal}
@@ -171,7 +171,7 @@ export default function Navbar() {
                 )}
               </div>
 
-              {!isVerified && (
+              {!user && (
                 <button
                   onClick={() => {
                     setMobileOpen(false);
