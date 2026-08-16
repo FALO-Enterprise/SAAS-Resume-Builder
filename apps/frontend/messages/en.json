@@ -836,37 +836,37 @@
     },
     "templates": {
       "executive": {
-        "title": "The Executive",
+        "title": "Executive Teal",
         "tag": "High Performance",
         "description": "Optimized for finance, leadership, and high-stakes corporate roles. Clean margins and a single-column layout for maximum impact.",
         "field": "Finance / Mgmt"
       },
       "developer": {
-        "title": "The Developer",
+        "title": "Developer Sidebar",
         "tag": "Density Focus",
         "description": "Designed for software engineering and data science. Features a multi-column layout to highlight technical stack and repositories.",
         "field": "Tech / STEM"
       },
       "director": {
-        "title": "The Director",
+        "title": "Creative Director",
         "tag": "Artistic Edge",
         "description": "A bold, high-contrast design for creative directors and designers. Uses asymmetrical elements and refined typography.",
         "field": "Design / Art"
       },
       "minimal": {
-        "title": "The Minimal",
+        "title": "Classic ATS",
         "tag": "Clean Cut",
         "description": "A precise, distraction-free template for modern professionals who want clarity, whitespace, and fast scanning.",
         "field": "Business / General"
       },
       "academic": {
-        "title": "The Academic",
+        "title": "Academic CV",
         "tag": "Research Ready",
         "description": "Structured for academic CVs, publications, research experience, teaching roles, and graduate applications.",
         "field": "Education / Research"
       },
       "global": {
-        "title": "The Global",
+        "title": "Global Professional",
         "tag": "International",
         "description": "A globally polished resume layout built for international applications, languages, certifications, and remote roles.",
         "field": "Global / Remote"
@@ -1386,12 +1386,12 @@
       "template": "Suggested template"
     },
     "templates": {
-      "executive": "Executive",
-      "developer": "Developer",
+      "executive": "Executive Teal",
+      "developer": "Developer Sidebar",
       "director": "Creative Director",
-      "minimal": "Minimal",
-      "academic": "Academic",
-      "global": "Global"
+      "minimal": "Classic ATS",
+      "academic": "Academic CV",
+      "global": "Global Professional"
     },
     "steps": {
       "purpose": {
