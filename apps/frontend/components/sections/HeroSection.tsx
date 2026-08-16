@@ -258,6 +258,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Play, Sparkles, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { hasCompletedOnboarding } from "@/lib/onboarding-storage";
 
 import { templates } from "@/lib/placeholder-data/templates.placeholder";
 
@@ -554,11 +555,18 @@ export default function HeroSection() {
   const isRTL = locale === "ar";
 
   const { isVerified, user } = useAuth();
+  const onboardingCompleted =
+    isVerified && hasCompletedOnboarding(user?.id);
 
   // Check whether the user has a paid plan.
   const currentPlanId = user?.planName?.toLowerCase() ?? "free";
 
   const isPaidUser = isVerified && currentPlanId !== "free";
+  const primaryHref = !isVerified
+    ? `/${locale}/createaccount`
+    : onboardingCompleted
+      ? `/${locale}/dashboard`
+      : `/${locale}/onboarding`;
 
   return (
     <section className="relative min-h-screen flex justify-center items-center overflow-hidden">
@@ -659,7 +667,7 @@ export default function HeroSection() {
             >
               {/* Primary CTA */}
               <Link
-                href={`/${locale}/resume/getstarted`}
+                href={primaryHref}
                 className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-bold px-7 py-4 rounded-full transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(245,166,35,0.4)]"
               >
                 {isPaidUser ? t("ctaPaid") || "Start Building" : t("cta")}
