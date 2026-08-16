@@ -356,9 +356,25 @@ export async function findOrCreateOAuthUser(
                 console.error(`Failed to send verification code to OAuth user ${email}:`, verifyError);
             }
         } else {
-            const updateData: { isVerified?: boolean; avatar?: string | null } = {};
-            // Keep existing user's isVerified status unchanged — if they were
-            // never verified via email, they still need to verify
+            const updateData: { isVerified?: boolean; avatar?: string | null; password?: string } = {};
+
+            if (!user.isVerified) {
+                // This is the first time this OAuth identity is being linked
+                // to an existing, never-verified row — the exact moment a
+                // pre-account-hijack would surface: someone could have
+                // registered this email with a password of their own
+                // choosing and never verified it, hoping the real owner
+                // later signs up (or signs in) and inherits that row. The
+                // provider has just cryptographically proven control of the
+                // mailbox, which is at least as strong a signal as our own
+                // email-code check, so treat it as verification — and
+                // critically, invalidate whatever password is on the row so
+                // a planted credential can never authenticate this account
+                // again.
+                updateData.isVerified = true;
+                updateData.password = await createArgonHash(randomBytes(32).toString('base64url'));
+            }
+
             if (!user.avatar && profile.avatar) updateData.avatar = profile.avatar;
 
             if (Object.keys(updateData).length > 0) {
