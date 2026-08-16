@@ -97,8 +97,8 @@ export default function DashboardResumePlaceholder({ currentStep, order }: { cur
           <span className="h-2 w-2 shrink-0 rounded-full bg-azure-light shadow-[0_0_12px_rgba(59,130,246,0.85)]" />
         </div>
 
-        <div className="relative mx-auto aspect-[210/297] w-full overflow-hidden rounded-xl bg-white p-[6%] shadow-[0_12px_35px_rgba(15,23,42,0.18)]">
-          <div className="flex h-full flex-col gap-2">
+        <div className="relative mx-auto aspect-210/297 w-full rounded-xl bg-white p-[6%] shadow-[0_12px_35px_rgba(15,23,42,0.18)]">
+          <div className="flex min-h-full flex-col gap-2">
             {resumeOrder.map((sectionId) => {
               switch (sectionId) {
                 case 'contact':
@@ -108,7 +108,7 @@ export default function DashboardResumePlaceholder({ currentStep, order }: { cur
                       id="contact"
                       currentStep={currentStep}
                       label={sectionLabel('contact')}
-                      className="min-h-16"
+                      className="flex-1"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex flex-1 flex-col gap-1.5 pt-0.5">
@@ -129,7 +129,7 @@ export default function DashboardResumePlaceholder({ currentStep, order }: { cur
 
                 case 'summary':
                   return (
-                    <PlaceholderSection key="summary" id="summary" currentStep={currentStep} label={sectionLabel('summary')} className="min-h-12">
+                    <PlaceholderSection key="summary" id="summary" currentStep={currentStep} label={sectionLabel('summary')} className="flex-1">
                       <div className="flex flex-col gap-1.5">
                         <SkeletonLine />
                         <SkeletonLine width="91%" />
@@ -140,41 +140,31 @@ export default function DashboardResumePlaceholder({ currentStep, order }: { cur
 
                 case 'experience':
                   return (
-                    <PlaceholderSection key="experience" id="experience" currentStep={currentStep} label={sectionLabel('experience')} className="min-h-0 flex-[1.35]">
+                    <PlaceholderSection key="experience" id="experience" currentStep={currentStep} label={sectionLabel('experience')} className="flex-[1.35]">
                       <div className="flex flex-col gap-1.5">
                         <SkeletonLine width="65%" />
                         <SkeletonLine width="40%" />
                         <SkeletonLine />
-                        <SkeletonLine width="93%" />
-                        <SkeletonLine width="86%" />
-                        <SkeletonLine width="55%" />
-                        <div className="pt-1" />
-                        <SkeletonLine width="62%" />
-                        <SkeletonLine width="42%" />
-                        <SkeletonLine width="91%" />
-                        <SkeletonLine width="76%" />
                       </div>
                     </PlaceholderSection>
                   );
 
                 case 'projects':
                   return (
-                    <PlaceholderSection key="projects" id="projects" currentStep={currentStep} label={sectionLabel('projects')} className="min-h-0 flex-1">
+                    <PlaceholderSection key="projects" id="projects" currentStep={currentStep} label={sectionLabel('projects')} className="flex-1">
                       <div className="flex flex-col gap-1.5">
                         <SkeletonLine width="70%" />
                         <SkeletonLine width="48%" />
                         <SkeletonLine />
-                        <SkeletonLine width="87%" />
-                        <SkeletonLine width="68%" />
                       </div>
                     </PlaceholderSection>
                   );
 
                 case 'skills':
                   return (
-                    <PlaceholderSection key="skills" id="skills" currentStep={currentStep} label={sectionLabel('skills')} className="min-h-0 flex-1">
+                    <PlaceholderSection key="skills" id="skills" currentStep={currentStep} label={sectionLabel('skills')} className="flex-1">
                       <div className="grid grid-cols-[1fr_0.85fr] gap-x-1.5 gap-y-2">
-                        {Array.from({ length: 12 }, (_, index) => (
+                        {Array.from({ length: 6 }, (_, index) => (
                           <SkeletonLine key={index} width={index % 3 === 0 ? '82%' : '100%'} />
                         ))}
                       </div>
@@ -183,18 +173,11 @@ export default function DashboardResumePlaceholder({ currentStep, order }: { cur
 
                 case 'education':
                   return (
-                    <PlaceholderSection key="education" id="education" currentStep={currentStep} label={sectionLabel('education')} className="min-h-0 flex-[1.1]">
+                    <PlaceholderSection key="education" id="education" currentStep={currentStep} label={sectionLabel('education')} className="flex-[1.1]">
                       <div className="flex flex-col gap-1.5">
                         <SkeletonLine width="86%" />
                         <SkeletonLine width="68%" />
                         <SkeletonLine width="52%" />
-                        <div className="pt-1" />
-                        <SkeletonLine width="90%" />
-                        <SkeletonLine width="63%" />
-                        <SkeletonLine width="48%" />
-                        <div className="pt-1" />
-                        <SkeletonLine width="78%" />
-                        <SkeletonLine width="58%" />
                       </div>
                     </PlaceholderSection>
                   );

@@ -1773,7 +1773,13 @@ export default function DashboardPage() {
       lastQueuedDraft.current = serialized;
       saveQueue.current = saveQueue.current
         .then(async () => {
-          await saveDashboardDraft(token, draft);
+          const result = await saveDashboardDraft(token, draft);
+          // A backend-side save failure can resolve with HTTP 200 and
+          // {success:false, ...}; without this check it was treated as a
+          // successful save, silently clearing the error state.
+          if (result && typeof result === 'object' && 'error' in result) {
+            throw new Error(result.error);
+          }
           saveErrorShown.current = false;
           toast.dismiss(DASHBOARD_SAVE_ERROR_TOAST_ID);
         })
@@ -1950,7 +1956,10 @@ export default function DashboardPage() {
 
     try {
       await saveQueue.current;
-      await saveDashboardDraft(token, finalDraft);
+      const saveResult = await saveDashboardDraft(token, finalDraft);
+      if (saveResult && typeof saveResult === 'object' && 'error' in saveResult) {
+        throw new Error(saveResult.error);
+      }
       lastQueuedDraft.current = serializeDashboardDraft(finalDraft);
 
       const resume = await generateCurrentResume(token, {
@@ -2041,7 +2050,7 @@ export default function DashboardPage() {
         <div className="hidden h-16 shrink-0 md:block" aria-hidden />
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-15 lg:pt-13">
-          <div className="mx-auto grid w-full max-w-[1240px] grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_280px] 2xl:grid-cols-[minmax(0,860px)_300px] 2xl:gap-10">
+          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_280px] 2xl:grid-cols-[minmax(0,860px)_300px] 2xl:gap-10">
             <div className="min-w-0 max-w-215 xl:max-w-none">
               <AnimatePresence mode="wait">
                 <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
