@@ -75,13 +75,31 @@ function ProfileModalContent({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Tracks the currently-live object URL (if any) so it can be revoked —
+  // without this, picking a new avatar before submitting leaked the
+  // previous blob for the life of the page.
+  const previewObjectUrlRef = useRef<string | null>(null);
+
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (previewObjectUrlRef.current) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
+      }
+      const objectUrl = URL.createObjectURL(file);
+      previewObjectUrlRef.current = objectUrl;
       setSelectedFile(file);
-      setPreview(URL.createObjectURL(file));
+      setPreview(objectUrl);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (previewObjectUrlRef.current) {
+        URL.revokeObjectURL(previewObjectUrlRef.current);
+      }
+    };
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
