@@ -1037,7 +1037,9 @@
       "ready": "Your file is ready to upload",
       "remove": "Remove selected file",
       "invalidType": "Please select a PDF, DOC, or DOCX file.",
-      "tooLarge": "The selected file must be smaller than 10 MB."
+      "tooLarge": "The selected file must be smaller than 10 MB.",
+      "notAvailable": "AI-powered resume import isn't available yet. Continue with the guided builder instead — we'll help you recreate your resume quickly.",
+      "continueManually": "Continue with guided builder"
     },
     "trust": {
       "secure": "Secure file handling",
