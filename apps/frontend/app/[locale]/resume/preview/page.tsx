@@ -510,7 +510,7 @@ export default function ResumePreviewPage() {
                         ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
                         : 'border-amber-500/30 bg-amber-500/10 text-amber-400'
                     }`}>
-                      {selectedMetadata.id === 'minimal' ? 'Plan: Free & Pro' : 'Plan: Pro & Enterprise'}
+                      {selectedMetadata.id === 'minimal' ? 'Free & Pro' : 'Pro & Enterprise'}
                     </span>
                     <span className="text-[11px] font-medium text-secondary">
                       {templates("labels.ats")}
@@ -578,7 +578,7 @@ export default function ResumePreviewPage() {
               type="button"
               onClick={() => void applyConfiguration()}
               disabled={isBusy}
-              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 text-base font-black text-ink shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
+              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 font-black text-ink shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
             >
               {isApplying ? (
                 <LoaderCircle size={19} className="animate-spin" />

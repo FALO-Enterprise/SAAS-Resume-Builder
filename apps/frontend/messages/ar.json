@@ -824,9 +824,6 @@
       "premium": "قالب مميز",
       "trusted": "قوالب احترافية جاهزة للتقديم",
       "atsScore": "درجة ATS",
-      "zoomIn": "تكبير",
-      "zoomOut": "تصغير",
-      "zoomControl": "نسبة تكبير المعاينة",
       "rank": "#{number}"
     },
     "stats": {

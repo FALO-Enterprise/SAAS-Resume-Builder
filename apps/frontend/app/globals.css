@@ -41,6 +41,9 @@
   --color-edge: var(--edge);
   --color-edge-strong: var(--edge-strong);
 
+  --animate-hero-wall-drift: hero-wall-drift var(--row-speed, 52s) linear infinite;
+  --animate-hero-bloom-pulse: hero-bloom-pulse 7s ease-in-out infinite;
+
   /* Utilities */
   --text-sm: 13px;
 }
@@ -110,6 +113,10 @@
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -345,4 +352,62 @@ body {
 /* Placeholder color for inputs — swaps with theme */
 input::placeholder {
   color: var(--placeholder);
+}
+.hero-wall-mask {
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 14%,
+      #000 86%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to right,
+      transparent 0,
+      #000 8%,
+      #000 92%,
+      transparent 100%
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 14%,
+      #000 86%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to right,
+      transparent 0,
+      #000 8%,
+      #000 92%,
+      transparent 100%
+    );
+}
+
+@keyframes hero-wall-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(
+      calc(-50% - var(--tile-gap) / 2),
+      0,
+      0
+    );
+  }
+}
+
+@keyframes hero-bloom-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
