@@ -855,9 +855,6 @@
       "premium": "Premium",
       "trusted": "Professional templates ready to apply",
       "atsScore": "ATS Score",
-      "zoomIn": "Zoom in",
-      "zoomOut": "Zoom out",
-      "zoomControl": "Preview zoom percentage",
       "rank": "#{number}"
     },
     "stats": {
