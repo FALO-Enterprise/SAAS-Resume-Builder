@@ -352,3 +352,89 @@ export async function generateCurrentResume(
         throw createApiRequestError(error, 'Could not generate your resume');
     }
 }
+
+export type BillingSubscriptionDetails = {
+    plan: 'FREE' | 'PRO' | 'ENTERPRISE';
+    status: 'ACTIVE' | 'CANCELED' | 'EXPIRED' | 'PAST_DUE';
+    currentPeriodStart: string | null;
+    currentPeriodEnd: string | null;
+    cancelAtPeriodEnd: boolean;
+    updatePaymentUrl: string | null;
+    cancelUrl: string | null;
+    paddleSubscriptionId: string | null;
+    price: number;
+};
+
+export type CheckoutSessionResponse = {
+    clientToken: string;
+    environment: 'sandbox' | 'production';
+    priceId: string;
+    planId: string;
+    customData: {
+        userId: string;
+        userEmail?: string;
+        planId: string;
+    };
+};
+
+export async function getBillingSubscription(token: string): Promise<BillingSubscriptionDetails> {
+    try {
+        const { data } = await apiClient.get('/api/payments/subscription', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        const normalized = normalizeBackendPayload<BillingSubscriptionDetails>(data);
+        if ('error' in normalized) throw new Error(normalized.error);
+        return normalized;
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not fetch billing subscription');
+    }
+}
+
+export async function createCheckoutSession(token: string, planId: string): Promise<CheckoutSessionResponse> {
+    try {
+        const { data } = await apiClient.post(
+            '/api/payments/checkout-session',
+            { planId },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const normalized = normalizeBackendPayload<CheckoutSessionResponse>(data);
+        if ('error' in normalized) throw new Error(normalized.error);
+        return normalized;
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not create checkout session');
+    }
+}
+
+export async function syncBillingCheckout(
+    token: string,
+    payload: { planId: string; transactionId?: string }
+): Promise<{ success: boolean; plan: 'FREE' | 'PRO' | 'ENTERPRISE'; status: string; transactionId?: string | null; currentPeriodEnd?: string | null }> {
+    try {
+        const { data } = await apiClient.post(
+            '/api/payments/sync-checkout',
+            payload,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const normalized = normalizeBackendPayload<{ success: boolean; plan: 'FREE' | 'PRO' | 'ENTERPRISE'; status: string; transactionId?: string | null; currentPeriodEnd?: string | null }>(data);
+        if ('error' in normalized) throw new Error(normalized.error);
+        return normalized;
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not synchronize payment state');
+    }
+}
+
+export async function cancelBillingSubscription(token: string, immediately = false): Promise<{ success: boolean; message: string }> {
+    try {
+        const { data } = await apiClient.post(
+            '/api/payments/cancel',
+            { immediately },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const normalized = normalizeBackendPayload<{ success: boolean; message: string }>(data);
+        if ('error' in normalized) throw new Error(normalized.error);
+        return normalized;
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not cancel subscription');
+    }
+}
+

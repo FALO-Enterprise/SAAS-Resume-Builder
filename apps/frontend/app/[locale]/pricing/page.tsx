@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, ChevronDown, ArrowRight } from "lucide-react";
+import { Check, X, ChevronDown, ArrowRight, LoaderCircle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { PLANS, type PlanId } from "@/lib/placeholder-data/plans.placeholder";
@@ -13,6 +13,10 @@ import {
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
+import { createCheckoutSession, syncBillingCheckout } from "@/lib/backend";
+import { openPaddleCheckout } from "@/lib/paddle/paddle";
+import PaymentSuccessModal from "@/components/payment/PaymentSuccessModal";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cell renderer — handles boolean | string values in table
@@ -106,11 +110,109 @@ export default function PricingPage() {
   const locale = useLocale();
   const isRTL = locale === "ar";
   const router = useRouter();
-  const { isVerified, user } = useAuth();
+  const { isVerified, user, updateUser } = useAuth();
   const currentPlanId = (user?.planName?.toLowerCase() ?? "free") as PlanId;
+  const [checkingOutPlan, setCheckingOutPlan] = useState<string | null>(null);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [upgradedPlanName, setUpgradedPlanName] = useState<string>("PRO");
+  const [upgradedTransactionId, setUpgradedTransactionId] = useState<string | null>(null);
 
   const goToRegister = (planId: PlanId) => {
     router.push(`/${locale}/createaccount?plan=${planId}`);
+  };
+
+  const handlePlanAction = async (planId: PlanId) => {
+    if (!isVerified || !user) {
+      goToRegister(planId);
+      return;
+    }
+
+    if (planId === "free") {
+      toast.info(
+        locale === "ar"
+          ? "أنت بالفعل على الخطة المجانية، أو يمكنك إدارة اشتراكك من الإعدادات"
+          : "You can manage or cancel your active subscription in Settings."
+      );
+      return;
+    }
+
+    try {
+      setCheckingOutPlan(planId);
+      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
+      if (!token) {
+        goToRegister(planId);
+        return;
+      }
+
+      const session = await createCheckoutSession(token, planId);
+
+      if (!session.priceId || session.priceId.includes('default')) {
+        toast.error(
+          locale === "ar"
+            ? "يرجى إضافة معرف السعر PADDLE_PRICE_ID الخاص بك في ملف .env أولاً"
+            : "Please set your real Paddle Price ID in .env (e.g. pri_01...)"
+        );
+        return;
+      }
+
+      if (session.priceId.startsWith('pro_')) {
+        toast.error(
+          locale === "ar"
+            ? "لقد استخدمت معرف المنتج (pro_...) بدلاً من معرف السعر (pri_...). يرجى نسخ معرف السعر من لوحة تحكم Paddle."
+            : "You provided a Product ID (pro_...) instead of a Price ID (pri_...). Please copy the Price ID from Paddle dashboard."
+        );
+        return;
+      }
+
+      const opened = await openPaddleCheckout({
+        priceId: session.priceId,
+        userId: user.id,
+        userEmail: user.email,
+        planId: session.planId,
+        locale: locale === "ar" ? "ar" : "en",
+        onSuccess: async (checkoutData) => {
+          const targetPlan = session.planId.toUpperCase();
+          const transactionId = (checkoutData as { transaction_id?: string; id?: string })?.transaction_id || (checkoutData as { transaction_id?: string; id?: string })?.id || null;
+
+          toast.success(
+            locale === "ar"
+              ? `أهلاً بك في باقة ${targetPlan}! تم ترقية حسابك بنجاح.`
+              : `Welcome to ${targetPlan}! Your account is now active.`
+          );
+
+          try {
+            await syncBillingCheckout(token, {
+              planId: targetPlan,
+              transactionId: transactionId || undefined,
+            });
+          } catch (err) {
+            console.error("Auto sync checkout error:", err);
+          }
+
+          updateUser({
+            ...user,
+            planName: targetPlan as "PRO" | "ENTERPRISE",
+          });
+
+          setUpgradedPlanName(targetPlan);
+          setUpgradedTransactionId(transactionId);
+          setSuccessModalOpen(true);
+        },
+      });
+
+      if (!opened) {
+        toast.error(
+          locale === "ar"
+            ? "تعذر فتح نافذة الدفع، يرجى المحاولة لاحقاً"
+            : "Could not open checkout overlay. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error(error instanceof Error ? error.message : "Checkout initialization failed");
+    } finally {
+      setCheckingOutPlan(null);
+    }
   };
 
   return (
@@ -139,8 +241,8 @@ export default function PricingPage() {
           <motion.h1
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mb-4 font-playfair text-[clamp(36px,5vw,60px)] font-black leading-[1.1]"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-5 font-playfair text-[clamp(32px,5vw,56px)] font-black leading-[1.08] tracking-tight"
           >
             <span className="text-primary">{t("pricing.hero.titleLine1")}</span>
             <br />
@@ -153,7 +255,7 @@ export default function PricingPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mx-auto max-w-130 text-[17px] leading-[1.7] text-secondary"
+            className="mx-auto max-w-xl text-base leading-[1.7] text-secondary"
           >
             {t("pricing.hero.subtitle")}
           </motion.p>
@@ -219,6 +321,11 @@ export default function PricingPage() {
                     <div className="text-[17px] font-bold text-primary">
                       <div className="flex items-center gap-2">
                         <span>{planName}</span>
+                        {isCurrentPlan && (
+                          <span className="rounded-full bg-gold/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold">
+                            {t("pricing.plans.currentPlan")}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="text-xs text-muted">
@@ -232,10 +339,10 @@ export default function PricingPage() {
                 {/* Price */}
                 <div className="mb-6">
                   <div className="flex items-baseline gap-1">
-                    <span className="mt-2 self-start text-[13px] font-medium text-secondary">
+                    <span className="text-[13px] font-semibold text-secondary">
                       $
                     </span>
-                    <span className="font-playfair text-[52px] font-black leading-none text-primary">
+                    <span className="font-playfair text-[44px] font-black leading-none text-primary">
                       {plan.monthlyPrice}
                     </span>
                     {!isFree && (
@@ -249,11 +356,9 @@ export default function PricingPage() {
                 {/* CTA button */}
                 <button
                   type="button"
-                  onClick={() => {
-                    if (!isVerified || !isCurrentPlan) goToRegister(plan.id);
-                  }}
-                  disabled={isVerified && isCurrentPlan}
-                  aria-disabled={isVerified && isCurrentPlan}
+                  onClick={() => void handlePlanAction(plan.id)}
+                  disabled={(isVerified && isCurrentPlan) || checkingOutPlan === plan.id}
+                  aria-disabled={(isVerified && isCurrentPlan) || checkingOutPlan === plan.id}
                   className={`mb-7 w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none ${isVerified && isCurrentPlan
                       ? "pointer-events-none border border-edge bg-primary/5 text-primary/55"
                       : isDowngradeToFree
@@ -423,6 +528,13 @@ export default function PricingPage() {
           </motion.div>
         )}
       </div>
+
+      <PaymentSuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        planName={upgradedPlanName}
+        transactionId={upgradedTransactionId}
+      />
 
       <Footer />
     </main>

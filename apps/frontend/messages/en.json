@@ -453,6 +453,37 @@
         }
       }
     },
+    "successModal": {
+      "badge": "Upgrade Successful",
+      "welcomeTitle": "Welcome to ResuMax {plan}!",
+      "welcomeSubtitle": "Your payment was processed successfully. You now have full access to all {plan} features, premium templates, and unlimited AI resume generation.",
+      "receiptTitle": "Subscription Details",
+      "planLabel": "Active Plan",
+      "statusLabel": "Status",
+      "statusActive": "Active (Paid)",
+      "transactionLabel": "Transaction ID",
+      "billingCycleLabel": "Billing Cycle",
+      "billingCycleValue": "Monthly Subscription",
+      "unlockedFeaturesTitle": "What's now unlocked:",
+      "features": {
+        "pro": [
+          "All Premium Resume Templates (Executive, Developer, Creative, Academic)",
+          "Unlimited High-Resolution PDF & JPG Exports",
+          "Multiple Standalone Resume Drafts",
+          "Priority AI Content Generation & Tailoring",
+          "No Watermarks on any downloads"
+        ],
+        "enterprise": [
+          "All Pro Features Included",
+          "Full Team Collaboration Workspace",
+          "Advanced AI Resume Coach & Optimizer",
+          "Unlimited High-Speed Puppeteer Exports",
+          "Dedicated 24/7 Priority Support"
+        ]
+      },
+      "ctaDashboard": "Go to Dashboard",
+      "ctaBuilder": "Open Resume Preview"
+    },
     "table": {
       "title": "Compare all features",
       "subtitle": "Everything side by side so you can pick with confidence.",

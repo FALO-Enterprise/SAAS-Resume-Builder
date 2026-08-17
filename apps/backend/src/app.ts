@@ -7,6 +7,7 @@ import { authRouter } from './modules/auth/auth.routes'
 import { userRouter } from './modules/users/users.routes'
 import { templateRouter } from './modules/template/template.routes'
 import { dashboardRouter } from './modules/dashboard/dashboard.routes'
+import { paymentRouter } from './modules/payment/payment.routes'
 import session from 'express-session'
 import { responseEnhancer } from './common/middlewares/response.middleware'
 import { errorHandler } from './common/middlewares/error.middleware'
@@ -19,7 +20,11 @@ if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
 
-app.use(express.json())
+app.use(express.json({
+    verify: (req, _res, buf) => {
+        (req as unknown as { rawBody?: Buffer }).rawBody = buf;
+    },
+}))
 app.use(responseEnhancer);
 app.use(cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
@@ -29,8 +34,8 @@ app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
   })
-);app.use(express.urlencoded({ extended: true }));
-app.use(express.urlencoded());
+);
+app.use(express.urlencoded({ extended: true }));
 app.use(
     session({
         // No silent fallback: a deployment that forgets to set this would
@@ -55,6 +60,7 @@ app.use('/api/users', userRouter)
 app.use('/api/resumes', resumeRouter)
 app.use('/api/templates', templateRouter)
 app.use('/api/dashboard', dashboardRouter)
+app.use('/api/payments', paymentRouter)
 
 app.use(errorHandler)
 

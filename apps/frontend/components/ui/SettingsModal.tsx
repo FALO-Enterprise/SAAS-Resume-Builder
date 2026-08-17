@@ -22,6 +22,7 @@ import {
   ExternalLink,
   Laptop,
   ChevronDown,
+  LoaderCircle,
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { useLocale, useTranslations } from "next-intl";
@@ -29,6 +30,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useDeleteUserMutation } from "@/hooks/queries/useUser";
+import { toast } from "sonner";
+import {
+  getBillingSubscription,
+  cancelBillingSubscription,
+  type BillingSubscriptionDetails,
+} from "@/lib/backend";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -106,6 +113,42 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   });
 
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [billingDetails, setBillingDetails] = useState<BillingSubscriptionDetails | null>(null);
+  const [loadingBilling, setLoadingBilling] = useState(false);
+  const [cancelingBilling, setCancelingBilling] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
+      if (token) {
+        setLoadingBilling(true);
+        getBillingSubscription(token)
+          .then((res) => setBillingDetails(res))
+          .catch((err) => console.error("Could not fetch billing details:", err))
+          .finally(() => setLoadingBilling(false));
+      }
+    }
+  }, [isOpen]);
+
+  const handleCancelSubscription = async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
+    if (!token) return;
+    try {
+      setCancelingBilling(true);
+      await cancelBillingSubscription(token);
+      toast.success(
+        locale === "ar"
+          ? "تم إلغاء الاشتراك بنجاح"
+          : "Subscription canceled successfully."
+      );
+      const updated = await getBillingSubscription(token);
+      setBillingDetails(updated);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to cancel subscription");
+    } finally {
+      setCancelingBilling(false);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -471,78 +514,123 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     </div>
   );
 
-  const renderBilling = () => (
-    <div className="space-y-6">
-      <div className="border-b border-edge pb-3">
-        <h3 className="font-semibold text-primary">{t("billing.heading")}</h3>
-        <p className="text-xs text-secondary">{t("billing.description")}</p>
-      </div>
+  const renderBilling = () => {
+    const currentPlanName = billingDetails?.plan || activePlanId;
+    const isPaid = currentPlanName === "PRO" || currentPlanName === "ENTERPRISE";
 
-      {/* Active Plan Card */}
-      <div
-        className={`rounded-xl border p-4 space-y-3 ${
-          activePlanId === "ENTERPRISE"
-            ? "border-violet-500/30 bg-violet-500/5"
-            : activePlanId === "PRO"
-              ? "border-gold/30 bg-gold/5"
-              : "border-blue-500/30 bg-blue-500/5"
-        }`}
-      >
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <span
-              className={`text-xs font-bold uppercase tracking-wider ${
-                activePlanId === "ENTERPRISE"
-                  ? "text-violet-400"
-                  : activePlanId === "PRO"
-                    ? "text-gold"
-                    : "text-blue-400"
-              }`}
-            >
-              {t("billing.planLabel", { plan: activePlanId })}
-            </span>
-            <p className="text-[11px] text-secondary">
-              {t("billing.activeSubscription")}
-            </p>
-          </div>
-
-          <div className="flex gap-2">
-            {activePlanId === "FREE" && (
-              <button className="text-xs font-semibold bg-gold text-ink px-4 py-2 rounded-lg hover:opacity-90 cursor-pointer transition-opacity">
-                {t("billing.upgradeToPro")}
-              </button>
-            )}
-
-            {activePlanId === "PRO" && (
-              <>
-                <button className="text-xs font-semibold bg-blue-500/20 border border-blue-500/30 text-blue-400 px-4 py-2 rounded-lg hover:bg-blue-500/30 cursor-pointer transition-colors">
-                  {t("billing.managePlan")}
-                </button>
-                <button className="text-xs font-semibold bg-violet-500/20 border border-violet-500/30 text-violet-400 px-4 py-2 rounded-lg hover:bg-violet-500/30 cursor-pointer transition-colors">
-                  {t("billing.upgradeToEnterprise")}
-                </button>
-              </>
-            )}
-
-            {activePlanId === "ENTERPRISE" && (
-              <Link
-                href={`/${locale}/pricing`}
-                className="text-xs font-semibold bg-violet-500/20 border border-violet-500/30 text-violet-400 px-4 py-2 rounded-lg hover:bg-violet-500/30 cursor-pointer transition-colors"
-              >
-                {t("billing.manageEnterprise")}
-              </Link>
-            )}
-          </div>
+    return (
+      <div className="space-y-6">
+        <div className="border-b border-edge pb-3">
+          <h3 className="font-semibold text-primary">{t("billing.heading")}</h3>
+          <p className="text-xs text-secondary">{t("billing.description")}</p>
         </div>
 
-        <p className="text-xs text-secondary">
-          {activePlanId === "ENTERPRISE"
-            ? t("billing.planDescriptions.enterprise")
-            : activePlanId === "PRO"
-              ? t("billing.planDescriptions.pro")
-              : t("billing.planDescriptions.free")}
-        </p>
-      </div>
+        {/* Active Plan Card */}
+        <div
+          className={`rounded-xl border p-4 space-y-3 ${
+            currentPlanName === "ENTERPRISE"
+              ? "border-violet-500/30 bg-violet-500/5"
+              : currentPlanName === "PRO"
+                ? "border-gold/30 bg-gold/5"
+                : "border-blue-500/30 bg-blue-500/5"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs font-bold uppercase tracking-wider ${
+                    currentPlanName === "ENTERPRISE"
+                      ? "text-violet-400"
+                      : currentPlanName === "PRO"
+                        ? "text-gold"
+                        : "text-blue-400"
+                  }`}
+                >
+                  {t("billing.planLabel", { plan: currentPlanName })}
+                </span>
+                {billingDetails?.status && (
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
+                    billingDetails.status === 'ACTIVE'
+                      ? 'bg-green/15 text-green'
+                      : 'bg-red-500/15 text-red-400'
+                  }`}>
+                    {billingDetails.status}
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-secondary">
+                {billingDetails?.currentPeriodEnd ? (
+                  `${locale === "ar" ? "تاريخ التجديد:" : "Next billing / expiry:"} ${new Date(billingDetails.currentPeriodEnd).toLocaleDateString()}`
+                ) : (
+                  t("billing.activeSubscription")
+                )}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              {currentPlanName === "FREE" && (
+                <Link
+                  href={`/${locale}/pricing`}
+                  onClick={onClose}
+                  className="text-xs font-semibold bg-gold text-ink px-4 py-2 rounded-lg hover:opacity-90 cursor-pointer transition-opacity"
+                >
+                  {t("billing.upgradeToPro")}
+                </Link>
+              )}
+
+              {isPaid && billingDetails?.updatePaymentUrl && (
+                <a
+                  href={billingDetails.updatePaymentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-semibold bg-primary/10 border border-edge text-primary px-3 py-2 rounded-lg hover:bg-primary/20 transition-colors"
+                >
+                  <span>{locale === "ar" ? "تحديث وسيلة الدفع" : "Update Payment"}</span>
+                  <ExternalLink size={12} />
+                </a>
+              )}
+
+              {isPaid && (
+                <button
+                  type="button"
+                  onClick={() => void handleCancelSubscription()}
+                  disabled={cancelingBilling || billingDetails?.cancelAtPeriodEnd}
+                  className="text-xs font-semibold bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg hover:bg-red-500/20 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {cancelingBilling ? (
+                    <span className="inline-flex items-center gap-1">
+                      <LoaderCircle size={12} className="animate-spin" />
+                      <span>{locale === "ar" ? "جاري الإلغاء..." : "Canceling..."}</span>
+                    </span>
+                  ) : billingDetails?.cancelAtPeriodEnd ? (
+                    locale === "ar" ? "تمت جدولة الإلغاء" : "Cancellation Scheduled"
+                  ) : (
+                    locale === "ar" ? "إلغاء الاشتراك" : "Cancel Plan"
+                  )}
+                </button>
+              )}
+
+              {currentPlanName === "PRO" && (
+                <Link
+                  href={`/${locale}/pricing`}
+                  onClick={onClose}
+                  className="text-xs font-semibold bg-violet-500/20 border border-violet-500/30 text-violet-400 px-3 py-2 rounded-lg hover:bg-violet-500/30 transition-colors"
+                >
+                  {t("billing.upgradeToEnterprise")}
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <p className="text-xs text-secondary">
+            {currentPlanName === "ENTERPRISE"
+              ? t("billing.planDescriptions.enterprise")
+              : currentPlanName === "PRO"
+                ? t("billing.planDescriptions.pro")
+                : t("billing.planDescriptions.free")}
+          </p>
+        </div>
 
       {/* Usage */}
       <div className="space-y-3">
@@ -572,6 +660,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       </div>
     </div>
   );
+};
 
   const renderSecurity = () => (
     <div className="space-y-6">

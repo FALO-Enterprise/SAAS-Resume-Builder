@@ -125,17 +125,31 @@ model Plan {
 }
 
 model Subscription {
-  id         String             @id @default(cuid())
-  userId     String             @unique
-  planId     String
-  status     SubscriptionStatus @default(ACTIVE)
-  startDate  DateTime           @default(now())
-  endDate    DateTime?
-  canceledAt DateTime?
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
-  Plan       Plan               @relation(fields: [planId], references: [id])
-  User       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  planId               String
+  status               SubscriptionStatus @default(ACTIVE)
+  startDate            DateTime           @default(now())
+  endDate              DateTime?
+  canceledAt           DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  paddleCustomerId     String?
+  paddleSubscriptionId String?            @unique
+  paddlePriceId        String?
+  paddleTransactionId  String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  updatePaymentUrl     String?
+  cancelUrl            String?
+
+  Plan                 Plan               @relation(fields: [planId], references: [id])
+  User                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([paddleCustomerId])
+  @@index([paddleSubscriptionId])
 }
 
 enum Role {
