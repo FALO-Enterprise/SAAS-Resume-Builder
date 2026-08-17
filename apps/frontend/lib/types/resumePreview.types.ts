@@ -18,6 +18,7 @@ export type SelectedResumeTemplate = {
   name: string;
   version: number;
   thumbnailUrl: string;
+  supportsPhoto?: boolean;
 };
 
 export type ResumePreviewData = {

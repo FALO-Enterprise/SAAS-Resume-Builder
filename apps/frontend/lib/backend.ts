@@ -273,9 +273,10 @@ export async function deleteUserWithBackend(id: string) {
     }
 }
 
-export async function getDashboardDraft(token: string) {
+export async function getDashboardDraft(token: string, resumeId?: string) {
     try {
         const { data } = await apiClient.get(API_ENDPOINTS.auth.dashboard, {
+            params: resumeId ? { resumeId } : {},
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -303,11 +304,12 @@ export function createDashboardDraftPayload(draft: DashboardDraftData) {
     };
 }
 
-export async function saveDashboardDraft(token: string, draft: DashboardDraftData) {
+export async function saveDashboardDraft(token: string, draft: DashboardDraftData, resumeId?: string) {
     try {
         const payload = createDashboardDraftPayload(draft);
 
         const { data } = await apiClient.put(API_ENDPOINTS.auth.dashboard, payload, {
+            params: resumeId ? { resumeId } : {},
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -330,12 +332,14 @@ export type GeneratedResume = {
 export async function generateCurrentResume(
     token: string,
     input: { title: string; templateId: ResumeTemplateId; purpose?: string },
+    resumeId?: string,
 ): Promise<GeneratedResume> {
     try {
         const { data } = await apiClient.post(
             API_ENDPOINTS.resumes.generate,
             input,
             {
+                params: resumeId ? { resumeId } : {},
                 headers: { Authorization: `Bearer ${token}` },
                 timeout: 75_000,
             },

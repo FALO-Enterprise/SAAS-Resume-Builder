@@ -9,11 +9,12 @@ import { geminiResumeAiGenerator, GeminiAiProviderError } from './ai/gemini-resu
 
 type DraftStore = {
     findByUserId(userId: string): Promise<unknown>;
-    upsert(userId: string, draft: DashboardDraftDTO): Promise<unknown>;
+    findByResumeId?(resumeId: string, userId: string): Promise<unknown>;
+    upsert(userId: string, draft: DashboardDraftDTO, resumeId?: string): Promise<unknown>;
 };
 
 type ResumeStore = {
-    upsertForUser(title: string, templateId: string, templateName: string, userId: string): Promise<Resume>;
+    upsertForUser(title: string, templateId: string, templateName: string, userId: string, resumeId?: string): Promise<Resume>;
 };
 
 export type ResumeAiGenerationErrorCode =
@@ -73,13 +74,15 @@ export class ResumeAiService {
         private readonly generator: ResumeAiGenerator = geminiResumeAiGenerator,
     ) { }
 
-    async generate(userId: string, payload: ResumeGenerationDTO): Promise<Resume> {
+    async generate(userId: string, payload: ResumeGenerationDTO, resumeId?: string): Promise<Resume> {
         const template = resolveResumeTemplate(payload.templateId);
         if (!template) {
             throw new ResumeAiGenerationError('Template not found', 'INVALID_TEMPLATE');
         }
 
-        const storedDraft = await this.dashboardRepository.findByUserId(userId);
+        const storedDraft = resumeId && this.dashboardRepository.findByResumeId
+            ? await this.dashboardRepository.findByResumeId(resumeId, userId)
+            : await this.dashboardRepository.findByUserId(userId);
         if (!storedDraft) {
             throw new ResumeAiGenerationError('Complete the dashboard before generating a resume', 'DRAFT_NOT_FOUND');
         }
@@ -95,8 +98,8 @@ export class ResumeAiService {
             const enhancedDraft = mergeEnhancement(parsedDraft.data, enhancement, payload.purpose);
             const validatedDraft = dashboardDraftSchema.parse(enhancedDraft);
 
-            await this.dashboardRepository.upsert(userId, validatedDraft);
-            return await this.resumeRepository.upsertForUser(payload.title, template.id, template.name, userId);
+            await this.dashboardRepository.upsert(userId, validatedDraft, resumeId);
+            return await this.resumeRepository.upsertForUser(payload.title, template.id, template.name, userId, resumeId);
         } catch (error) {
             if (error instanceof ResumeAiGenerationError) throw error;
             if (error instanceof GeminiAiProviderError && error.code === 'NOT_CONFIGURED') {

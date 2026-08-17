@@ -5,11 +5,13 @@ import { dashboardService } from './dashboard.service';
 
 export class DashboardController {
     getDraft = async (req: Request, res: Response) => {
-        const draft = await dashboardService.getDraft(req.user);
+        const resumeId = typeof req.query.resumeId === 'string' ? req.query.resumeId : undefined;
+        const draft = await dashboardService.getDraft(req.user, resumeId);
         res.ok(draft);
     };
 
     saveDraft = async (req: Request<{}, {}, DashboardDraftInput>, res: Response) => {
+        const resumeId = typeof req.query.resumeId === 'string' ? req.query.resumeId : undefined;
         const parsed = dashboardDraftSchema.safeParse(req.body);
         if (!parsed.success) {
             res.error({
@@ -19,7 +21,7 @@ export class DashboardController {
             return;
         }
 
-        const draft = await dashboardService.saveDraft(req.user.id, parsed.data);
+        const draft = await dashboardService.saveDraft(req.user.id, parsed.data, resumeId);
         res.ok(draft);
     };
 }

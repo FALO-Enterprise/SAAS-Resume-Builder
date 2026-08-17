@@ -17,16 +17,17 @@ export const RESUME_TEMPLATE_IDS = [
 export type ResumeTemplateId = (typeof RESUME_TEMPLATE_IDS)[number];
 
 export const RESUME_TEMPLATE_DEFINITIONS = [
-  { id: "executive", name: "Executive Teal", version: 1 },
-  { id: "developer", name: "Developer Sidebar", version: 1 },
-  { id: "director", name: "Creative Director", version: 1 },
-  { id: "minimal", name: "Classic ATS", version: 3 },
-  { id: "academic", name: "Academic CV", version: 1 },
-  { id: "global", name: "Global Professional", version: 1 },
+  { id: "executive", name: "Executive Teal", version: 1, supportsPhoto: true },
+  { id: "developer", name: "Developer Sidebar", version: 1, supportsPhoto: true },
+  { id: "director", name: "Creative Director", version: 1, supportsPhoto: true },
+  { id: "minimal", name: "Classic ATS", version: 3, supportsPhoto: false },
+  { id: "academic", name: "Academic CV", version: 1, supportsPhoto: true },
+  { id: "global", name: "Global Professional", version: 1, supportsPhoto: true },
 ] as const satisfies ReadonlyArray<{
   id: ResumeTemplateId;
   name: string;
   version: number;
+  supportsPhoto: boolean;
 }>;
 
 export const RESUME_SECTION_IDS = [
@@ -49,6 +50,7 @@ export type ResumeContact = {
   linkedin: string;
   github: string;
   portfolio: string;
+  photo?: string;
 };
 
 export type ResumeExperience = {
@@ -120,6 +122,7 @@ export type ResumeCustomization = {
   hiddenSections: ResumeSectionId[];
   accentColor: string;
   fontScale: number;
+  fontFamily?: string;
 };
 
 export type ResumeRenderSnapshot = {

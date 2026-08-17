@@ -12,7 +12,7 @@
   background:
     linear-gradient(to right, #171821 0 76mm, #fff 76mm 100%);
   color: #252733;
-  font-family: Arial, "Liberation Sans", Helvetica, sans-serif;
+  font-family: var(--resume-font-family, Arial, "Liberation Sans", Helvetica, sans-serif);
   font-size: calc(9pt * var(--resume-font-scale));
   line-height: 1.38;
   font-synthesis: none;
@@ -33,6 +33,23 @@
   padding: 13mm 8mm 12mm;
   background: #171821;
   color: #f7f7fa;
+}
+
+.avatarWrapper {
+  width: 22mm;
+  height: 22mm;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--resume-accent, #0284c7);
+  margin: 0 auto 5mm;
+  background: #ffffff;
+  box-shadow: 0 2mm 5mm rgba(0, 0, 0, 0.3);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .content {

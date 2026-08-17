@@ -34,9 +34,30 @@
 .identityBlock {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatarWrapper {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--resume-accent, #c25e2e);
+  flex-shrink: 0;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.identityText {
+  flex: 1;
+  min-width: 0;
 }
 
 .fullName {

@@ -8,23 +8,9 @@ import { resumeExportSchema, type ResumeExportInput } from './resume-export.sche
 import { ResumeExportError, resumeExportService, type ResumeExportService } from './resume-export.service';
 import { renderSnapshotStore } from './pdf/render-snapshot.store';
 import { ResumeAiGenerationError, resumeAiService, type ResumeAiService } from './resume-ai.service';
-
-export class FreeExportTracker {
-    private userExportCounts = new Map<string, number>();
-
-    getExportCount(userId: string): number {
-        return this.userExportCounts.get(userId) ?? 0;
-    }
-
-    incrementExportCount(userId: string): number {
-        const current = this.getExportCount(userId);
-        const updated = current + 1;
-        this.userExportCounts.set(userId, updated);
-        return updated;
-    }
-}
-
-export const freeExportTracker = new FreeExportTracker();
+import { planUsageService } from '../plan/plan-usage.service';
+import { dashboardService } from '../dashboard/dashboard.service';
+import { resolveResumeTemplate } from './resume-template.registry';
 
 export class ResumeController {
     private service = resumeService;
@@ -58,9 +44,10 @@ export class ResumeController {
         }
 
         const isFreePlan = req.plan.name === 'FREE';
-        if (isFreePlan && freeExportTracker.getExportCount(req.user.id) >= 1) {
+        const exportCheck = planUsageService.canExport(req.user.id, req.plan.name, 'pdf');
+        if (!exportCheck.allowed) {
             return res.error({
-                message: 'Free plan users are allowed 1 download attempt. Upgrade to Pro for unlimited exports.',
+                message: exportCheck.reason ?? 'PDF export limit reached for your plan',
                 statusCode: HttpErrorStatus.Forbidden,
             });
         }
@@ -82,9 +69,7 @@ export class ResumeController {
 
         try {
             const pdf = await this.exportService.generatePdf(req.params.rid, req.user.id, parsed.data, isFreePlan);
-            if (isFreePlan) {
-                freeExportTracker.incrementExportCount(req.user.id);
-            }
+            planUsageService.recordExport(req.user.id, 'pdf');
             const filename = `resume-${req.params.rid.replace(/[^a-zA-Z0-9_-]/g, '') || 'export'}.pdf`;
             res.status(200)
                 .set({
@@ -106,9 +91,10 @@ export class ResumeController {
         }
 
         const isFreePlan = req.plan.name === 'FREE';
-        if (isFreePlan && freeExportTracker.getExportCount(req.user.id) >= 1) {
+        const exportCheck = planUsageService.canExport(req.user.id, req.plan.name, 'jpg');
+        if (!exportCheck.allowed) {
             return res.error({
-                message: 'Free plan users are allowed 1 download attempt. Upgrade to Pro for unlimited exports.',
+                message: exportCheck.reason ?? 'JPG export limit reached for your plan',
                 statusCode: HttpErrorStatus.Forbidden,
             });
         }
@@ -130,9 +116,7 @@ export class ResumeController {
 
         try {
             const jpg = await this.exportService.generateJpg(req.params.rid, req.user.id, parsed.data, isFreePlan);
-            if (isFreePlan) {
-                freeExportTracker.incrementExportCount(req.user.id);
-            }
+            planUsageService.recordExport(req.user.id, 'jpg');
             const filename = `resume-${req.params.rid.replace(/[^a-zA-Z0-9_-]/g, '') || 'export'}.jpg`;
             res.status(200)
                 .set({
@@ -145,6 +129,67 @@ export class ResumeController {
                 .send(jpg);
         } catch (error) {
             this.handleExportError(error, res);
+        }
+    };
+
+    createNewDraft = async (req: Request, res: Response) => {
+        try {
+            const userId = req.user.id;
+            const planName = req.plan?.name ?? 'FREE';
+
+            // 1. Get current total resumes count
+            const existingResumes = await this.service.getResumes(userId);
+            const currentCount = existingResumes.length;
+
+            // 2. Check plan draft limits (total & daily)
+            const check = planUsageService.canCreateDraft(userId, planName, currentCount);
+            if (!check.allowed) {
+                return res.error({
+                    message: check.reason ?? 'Draft creation limit reached for your plan',
+                    statusCode: HttpErrorStatus.Forbidden,
+                });
+            }
+
+            // 3. Fetch latest draft details to copy
+            const currentDraft = await dashboardService.getDraft({ id: userId, email: req.user.email });
+            const templateId = (currentDraft?.template as string) || 'minimal';
+            const contactName = (currentDraft?.contact as { fullName?: string })?.fullName?.trim() || '';
+            const baseTitle = contactName ? `${contactName} Resume` : 'My Resume';
+            const title = currentCount > 0 ? `${baseTitle} (Copy ${currentCount + 1})` : baseTitle;
+
+            // 4. Check template reuse frequency
+            const templateUsageCount = existingResumes.filter((r) => r.templateId === templateId).length;
+            const templateCheck = planUsageService.canUseTemplate(planName, templateId, templateUsageCount);
+            const finalTemplateId = templateCheck.allowed ? templateId : 'minimal';
+
+            // 5. Create new resume record
+            const newResume = await this.service.createResume({
+                title,
+                templateId: finalTemplateId,
+                userId,
+            });
+
+            // 6. Persist dedicated standalone draft for this new resume
+            await dashboardService.saveDraft(userId, {
+                ...currentDraft,
+                template: finalTemplateId,
+            }, newResume.id);
+
+            // 7. Record daily creation
+            planUsageService.recordDraftCreation(userId);
+
+            return res.create({
+                id: newResume.id,
+                title: newResume.title,
+                templateId: newResume.templateId,
+                updatedAt: newResume.updatedAt,
+            });
+        } catch (error) {
+            console.error('Error creating new draft:', error);
+            return res.error({
+                message: error instanceof Error ? error.message : 'Failed to create new draft',
+                statusCode: HttpErrorStatus.BadRequest,
+            });
         }
     };
 
@@ -165,8 +210,25 @@ export class ResumeController {
     getResumes = async (req: Request<{}, {}, {}, { page: string; limit: string }>, res: Response) => {
         const page = Number(req.query.page);
         const limit = Number(req.query.limit);
-        const resumes = await this.service.getResumes(page, limit);
+        const userId = req.user.id;
+        const resumes = await this.service.getResumes(userId, page, limit);
         res.ok(resumes);
+    };
+
+    getDrafts = async (req: Request, res: Response) => {
+        const userId = req.user.id;
+        const resumes = await this.service.getResumes(userId);
+        const drafts = resumes.map((resume) => {
+            const template = resolveResumeTemplate(resume.templateId);
+            return {
+                id: resume.id,
+                title: resume.title,
+                templateName: template ? template.name : (resume.templateId || 'Minimal'),
+                updatedAt: (resume.updatedAt instanceof Date ? resume.updatedAt : new Date(resume.updatedAt)).toISOString(),
+                thumbnailUrl: `/templates/${resume.templateId || 'minimal'}.png`,
+            };
+        });
+        res.ok(drafts);
     };
 
     getResume = async (req: Request<{ rid: string }>, res: Response) => {
@@ -176,7 +238,7 @@ export class ResumeController {
         }
 
         const resume = await this.service.getResume(id);
-        if (!resume) {
+        if (!resume || resume.userId !== req.user.id) {
             return res.error({ message: 'Resume not found', statusCode: HttpErrorStatus.NotFound });
         }
 
@@ -190,6 +252,7 @@ export class ResumeController {
     };
 
     upsertCurrentResume = async (req: Request<{}, {}, ResumeGenerationDTO>, res: Response) => {
+        const resumeId = typeof req.query.resumeId === 'string' ? req.query.resumeId : undefined;
         const parsed = resumeGenerationSchema.safeParse(req.body);
         if (!parsed.success) {
             return res.error({
@@ -205,11 +268,12 @@ export class ResumeController {
             });
         }
 
-        const resume = await this.service.upsertCurrentResume(req.user.id, parsed.data);
+        const resume = await this.service.upsertCurrentResume(req.user.id, parsed.data, resumeId);
         return res.ok(resume);
     };
 
     generateCurrentResume = async (req: Request<{}, {}, ResumeGenerationDTO>, res: Response) => {
+        const resumeId = typeof req.query.resumeId === 'string' ? req.query.resumeId : undefined;
         const parsed = resumeGenerationSchema.safeParse(req.body);
         if (!parsed.success) {
             return res.error({
@@ -226,7 +290,7 @@ export class ResumeController {
         }
 
         try {
-            const resume = await this.aiService.generate(req.user.id, parsed.data);
+            const resume = await this.aiService.generate(req.user.id, parsed.data, resumeId);
             return res.ok(resume);
         } catch (error) {
             if (error instanceof ResumeAiGenerationError) {
@@ -255,6 +319,11 @@ export class ResumeController {
             return res.error({ message: 'Resume id required', statusCode: HttpErrorStatus.BadRequest });
         }
 
+        const existing = await this.service.getResume(id);
+        if (!existing || existing.userId !== req.user.id) {
+            return res.error({ message: 'Resume not found', statusCode: HttpErrorStatus.NotFound });
+        }
+
         const payload = zodValidation(resumeUpdateSchema, req.body, 'RESUME');
         const resume = await this.service.updateResume(id, payload);
         res.ok(resume);
@@ -266,11 +335,16 @@ export class ResumeController {
             return res.error({ message: 'Resume id required', statusCode: HttpErrorStatus.BadRequest });
         }
 
+        const existing = await this.service.getResume(id);
+        if (!existing || existing.userId !== req.user.id) {
+            return res.error({ message: 'Resume not found', statusCode: HttpErrorStatus.NotFound });
+        }
+
         const deleted = await this.service.deleteResume(id);
         if (!deleted) {
             return res.error({ message: 'Resume not found', statusCode: HttpErrorStatus.NotFound });
         }
 
-        res.ok({});
+        res.ok({ success: true });
     };
 }

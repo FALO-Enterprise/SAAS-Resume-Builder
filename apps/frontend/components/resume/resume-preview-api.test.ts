@@ -41,7 +41,8 @@ test("maps preview metadata for each live template", () => {
     id: "minimal",
     name: "Classic ATS",
     version: 3,
-    thumbnailUrl: "https://i.imgur.com/KnsEIYe.png",
+    thumbnailUrl: "https://i.imgur.com/glF9QYl.png",
+    supportsPhoto: false,
   });
   assert.equal(getResumeTemplateMetadata("executive").name, "Executive Teal");
   assert.equal(

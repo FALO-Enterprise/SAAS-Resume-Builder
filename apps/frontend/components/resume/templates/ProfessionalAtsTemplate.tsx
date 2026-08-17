@@ -18,6 +18,7 @@ export interface ResumeTemplateProps {
 type ResumePageStyle = CSSProperties & {
   "--resume-accent": string;
   "--resume-font-scale": number;
+  "--resume-font-family"?: string;
 };
 
 function hasText(value: string | null | undefined): value is string {
@@ -88,10 +89,12 @@ export function ProfessionalAtsTemplate({
     customization?.accentColor ?? DEFAULT_RESUME_CUSTOMIZATION.accentColor;
   const fontScale =
     customization?.fontScale ?? DEFAULT_RESUME_CUSTOMIZATION.fontScale;
+  const fontFamily = customization?.fontFamily;
   const sectionOrder = getVisibleSectionOrder(resume, customization);
   const pageStyle: ResumePageStyle = {
     "--resume-accent": accentColor,
     "--resume-font-scale": fontScale,
+    ...(fontFamily ? { "--resume-font-family": fontFamily } : {}),
   };
 
   const contactItems = [

@@ -20,17 +20,91 @@ export function toPersistenceData(draft: DashboardDraftDTO) {
 }
 
 export class DashboardRepository {
-    findByUserId(userId: string) {
-        return prisma.dashboardDraft.findUnique({ where: { userId } });
+    async findByUserId(userId: string) {
+        return prisma.dashboardDraft.findFirst({
+            where: { userId },
+            orderBy: { updatedAt: 'desc' },
+        });
     }
 
-    upsert(userId: string, draft: DashboardDraftDTO) {
+    async findByResumeId(resumeId: string, userId: string) {
+        if (resumeId && resumeId !== 'current' && resumeId !== 'resume-123') {
+            const draft = await prisma.dashboardDraft.findFirst({
+                where: {
+                    OR: [
+                        { resumeId },
+                        { id: resumeId },
+                    ],
+                    userId,
+                },
+            });
+            if (draft) return draft;
+        }
+
+        return this.findByUserId(userId);
+    }
+
+    async upsert(userId: string, draft: DashboardDraftDTO, resumeId?: string) {
         const data = toPersistenceData(draft);
 
-        return prisma.dashboardDraft.upsert({
+        if (resumeId && resumeId !== 'current' && resumeId !== 'resume-123') {
+            const existing = await prisma.dashboardDraft.findFirst({
+                where: {
+                    OR: [
+                        { resumeId },
+                        { id: resumeId },
+                    ],
+                    userId,
+                },
+            });
+
+            if (existing) {
+                return prisma.dashboardDraft.update({
+                    where: { id: existing.id },
+                    data: {
+                        ...data,
+                        resumeId,
+                    },
+                });
+            }
+
+            return prisma.dashboardDraft.create({
+                data: {
+                    userId,
+                    resumeId,
+                    ...data,
+                },
+            });
+        }
+
+        const latest = await prisma.dashboardDraft.findFirst({
             where: { userId },
-            create: { userId, ...data },
-            update: data,
+            orderBy: { updatedAt: 'desc' },
+        });
+
+        if (latest) {
+            return prisma.dashboardDraft.update({
+                where: { id: latest.id },
+                data,
+            });
+        }
+
+        return prisma.dashboardDraft.create({
+            data: {
+                userId,
+                ...data,
+            },
+        });
+    }
+
+    async createForResume(userId: string, resumeId: string, draft: DashboardDraftDTO) {
+        const data = toPersistenceData(draft);
+        return prisma.dashboardDraft.create({
+            data: {
+                userId,
+                resumeId,
+                ...data,
+            },
         });
     }
 }

@@ -7,8 +7,8 @@ import { resolveResumeTemplate } from './resume-template.registry';
 class ResumeService {
     private repository = new ResumeRepository();
 
-    getResumes(_page: number, _limit: number): Promise<Resume[]> {
-        return this.repository.findAll({});
+    getResumes(userId: string, _page?: number, _limit?: number): Promise<Resume[]> {
+        return this.repository.findAll({ userId });
     }
 
     getResume(id: string): Promise<Resume | null> {
@@ -19,10 +19,10 @@ class ResumeService {
         return this.repository.create(payload.title, payload.templateId, payload.userId);
     }
 
-    public upsertCurrentResume(userId: string, payload: ResumeGenerationDTO): Promise<Resume> {
+    public upsertCurrentResume(userId: string, payload: ResumeGenerationDTO, resumeId?: string): Promise<Resume> {
         const template = resolveResumeTemplate(payload.templateId);
         if (!template) throw new Error('Template not found');
-        return this.repository.upsertForUser(payload.title, template.id, template.name, userId);
+        return this.repository.upsertForUser(payload.title, template.id, template.name, userId, resumeId);
     }
 
     public updateResume(id: string, payload: UpdateResumeDTO): Promise<Resume> {
