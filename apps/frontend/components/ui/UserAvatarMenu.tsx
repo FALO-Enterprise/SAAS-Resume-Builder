@@ -15,21 +15,11 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
+import { getInitials } from "@/lib/utilities/getName";
+import { PLAN_BADGES } from "@/lib/placeholder-data/plans.placeholder";
 import ProfileModal from "./ProfileModal";
 import SettingsModal from "./SettingsModal";
 
-const PLAN_BADGES = {
-  free: "border-slate-500/20 bg-slate-500/10 text-slate-300",
-  pro: "border-gold/20 bg-gold/10 text-gold",
-  enterprise: "border-violet-500/20 bg-violet-500/10 text-violet-300",
-} as const;
-
-function getInitials(name?: string) {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  const initials = parts.length > 1 ? parts[0][0] + parts[1][0] : parts[0].slice(0, 2);
-  return initials.toUpperCase();
-}
 
 export default function UserAvatarMenu() {
   const t = useTranslations("nav");
