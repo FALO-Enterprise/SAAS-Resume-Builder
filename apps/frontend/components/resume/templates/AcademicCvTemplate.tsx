@@ -18,6 +18,7 @@ export interface ResumeTemplateProps {
 type PageStyle = CSSProperties & {
   "--resume-accent": string;
   "--resume-font-scale": number;
+  "--resume-font-family"?: string;
 };
 
 function hasText(value: string | null | undefined): value is string {
@@ -75,6 +76,7 @@ export function AcademicCvTemplate({
   const accentColor = customization?.accentColor ?? "#1e3a8a";
   const fontScale =
     customization?.fontScale ?? DEFAULT_RESUME_CUSTOMIZATION.fontScale;
+  const fontFamily = customization?.fontFamily;
 
   // For Academic CVs, standard academic ordering places Education first
   const rawVisible = getVisibleSectionOrder(resume, customization);
@@ -87,6 +89,7 @@ export function AcademicCvTemplate({
   const pageStyle: PageStyle = {
     "--resume-accent": accentColor,
     "--resume-font-scale": fontScale,
+    ...(fontFamily ? { "--resume-font-family": fontFamily } : {}),
   };
 
   const contactItems = [
@@ -117,12 +120,26 @@ export function AcademicCvTemplate({
       data-resume-template="academic"
     >
       <header className={styles.header}>
-        {hasText(resume.contact.fullName) && (
-          <h1 className={styles.fullName}>{resume.contact.fullName.trim()}</h1>
-        )}
-        {hasText(resume.contact.title) && (
-          <p className={styles.jobTitle}>{resume.contact.title.trim()}</p>
-        )}
+        <div className={styles.headerTop}>
+          {hasText(resume.contact.photo) && (
+            <div className={styles.avatarWrapper}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={resume.contact.photo.trim()}
+                alt={resume.contact.fullName || "Profile photo"}
+                className={styles.avatarImage}
+              />
+            </div>
+          )}
+          <div className={styles.headerTitleBlock}>
+            {hasText(resume.contact.fullName) && (
+              <h1 className={styles.fullName}>{resume.contact.fullName.trim()}</h1>
+            )}
+            {hasText(resume.contact.title) && (
+              <p className={styles.jobTitle}>{resume.contact.title.trim()}</p>
+            )}
+          </div>
+        </div>
 
         {contactItems.length > 0 && (
           <ul className={styles.contactList}>

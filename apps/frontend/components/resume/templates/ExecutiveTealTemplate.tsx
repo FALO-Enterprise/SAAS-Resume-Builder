@@ -13,6 +13,7 @@ import styles from "./ExecutiveTealTemplate.module.css";
 
 type ExecutivePageStyle = CSSProperties & {
   "--resume-font-scale": number;
+  "--resume-font-family"?: string;
 };
 
 function hasText(value: string | null | undefined): value is string {
@@ -480,6 +481,7 @@ export function ExecutiveTealTemplate({
 }: ResumeTemplateProps) {
   const fontScale =
     customization?.fontScale ?? DEFAULT_RESUME_CUSTOMIZATION.fontScale;
+  const fontFamily = customization?.fontFamily;
   const visibleSections = getVisibleSectionOrder(resume, customization).filter(
     (section) => hasSectionContent(section, resume),
   );
@@ -491,6 +493,7 @@ export function ExecutiveTealTemplate({
   );
   const pageStyle: ExecutivePageStyle = {
     "--resume-font-scale": fontScale,
+    ...(fontFamily ? { "--resume-font-family": fontFamily } : {}),
   };
 
   return (
@@ -509,9 +512,20 @@ export function ExecutiveTealTemplate({
               <p>{resume.contact.title.trim()}</p>
             )}
           </div>
-          <div className={styles.monogram} aria-hidden="true">
-            {getMonogram(resume.contact.fullName)}
-          </div>
+          {hasText(resume.contact.photo) ? (
+            <div className={styles.avatarWrapper}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={resume.contact.photo.trim()}
+                alt={resume.contact.fullName || "Profile photo"}
+                className={styles.avatarImage}
+              />
+            </div>
+          ) : (
+            <div className={styles.monogram} aria-hidden="true">
+              {getMonogram(resume.contact.fullName)}
+            </div>
+          )}
         </div>
         <ContactDetails resume={resume} />
       </header>

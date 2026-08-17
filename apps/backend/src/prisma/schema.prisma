@@ -16,17 +16,18 @@ model User {
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   isVerified          Boolean              @default(false)
-  dashboardDraft      DashboardDraft?
+  dashboardDrafts     DashboardDraft[]
   oauthAccounts       OAuthAccount[]
   oauthLoginCodes     OAuthLoginCode[]
   passwordResetTokens PasswordResetToken[]
-  resumes             Resume?
+  resumes             Resume[]
   Subscription        Subscription?
 }
 
 model DashboardDraft {
   id             String   @id @default(cuid())
-  userId         String   @unique
+  userId         String
+  resumeId       String?  @unique
   template       String?
   currentStep    String   @default("contact")
   completedSteps String[] @default([])
@@ -42,6 +43,9 @@ model DashboardDraft {
   projects       Json     @default("[]")
   sectionOrder   String[] @default([])
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume         Resume?  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model OAuthAccount {
@@ -94,14 +98,17 @@ model Template {
 }
 
 model Resume {
-  id         String   @id @default(cuid())
+  id         String          @id @default(cuid())
   title      String
   templateId String
-  userId     String   @unique
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  template   Template @relation(fields: [templateId], references: [id])
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  template   Template        @relation(fields: [templateId], references: [id])
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  draft      DashboardDraft?
+
+  @@index([userId])
 }
 
 model Plan {

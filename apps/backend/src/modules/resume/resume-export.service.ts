@@ -21,6 +21,7 @@ type ResumeLookup = {
 };
 type DraftLookup = {
     findByUserId(userId: string): Promise<unknown>;
+    findByResumeId?(resumeId: string, userId: string): Promise<unknown>;
 };
 
 export class ResumeExportError extends Error {
@@ -47,7 +48,9 @@ export class ResumeExportService {
     ): Promise<ResumeRenderSnapshot> {
         let [resume, draft] = await Promise.all([
             this.resumeRepository.findOwnedById(resumeId, userId),
-            this.dashboardRepository.findByUserId(userId),
+            this.dashboardRepository.findByResumeId
+                ? this.dashboardRepository.findByResumeId(resumeId, userId)
+                : this.dashboardRepository.findByUserId(userId),
         ]);
 
         if (!draft) throw new ResumeExportError('Resume data is unavailable', 'INVALID_RESUME');

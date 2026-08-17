@@ -3,8 +3,9 @@ import { DashboardRepository } from './dashboard.repository';
 import { dashboardDraftSchema, type DashboardDraftDTO } from './dashboard.schema';
 
 type DraftStore = {
-    findByUserId(userId: string): Promise<Record<string, unknown> | null>;
-    upsert(userId: string, draft: DashboardDraftDTO): Promise<object>;
+    findByUserId(userId: string): Promise<unknown>;
+    findByResumeId?(resumeId: string, userId: string): Promise<unknown>;
+    upsert(userId: string, draft: DashboardDraftDTO, resumeId?: string): Promise<object>;
 };
 
 const EMPTY_CONTACT = {
@@ -16,13 +17,17 @@ const EMPTY_CONTACT = {
     linkedin: '',
     github: '',
     portfolio: '',
+    photo: '',
 };
 
 export class DashboardService {
     constructor(private readonly repository: DraftStore = new DashboardRepository()) { }
 
-    async getDraft(user: { id: string; email: string }) {
-        const draft = await this.repository.findByUserId(user.id);
+    async getDraft(user: { id: string; email: string }, resumeId?: string) {
+        const draft = resumeId && this.repository.findByResumeId
+            ? await this.repository.findByResumeId(resumeId, user.id)
+            : await this.repository.findByUserId(user.id);
+
         if (draft) {
             const parseResult = dashboardDraftSchema.safeParse(draft);
             if (parseResult.success) {
@@ -31,7 +36,7 @@ export class DashboardService {
 
             console.warn(
                 'Invalid persisted dashboard draft. Returning defaults for user.',
-                { userId: user.id, issues: parseResult.error.issues },
+                { userId: user.id, resumeId, issues: parseResult.error.issues },
             );
         }
 
@@ -52,8 +57,8 @@ export class DashboardService {
         } satisfies DashboardDraftDTO;
     }
 
-    saveDraft(userId: string, draft: DashboardDraftDTO) {
-        return this.repository.upsert(userId, draft);
+    saveDraft(userId: string, draft: DashboardDraftDTO, resumeId?: string) {
+        return this.repository.upsert(userId, draft, resumeId);
     }
 }
 

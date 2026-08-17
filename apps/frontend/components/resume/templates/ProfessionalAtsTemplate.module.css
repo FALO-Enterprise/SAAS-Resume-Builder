@@ -10,7 +10,7 @@
   word-break: normal;
   background: #fff;
   color: #000;
-  font-family: Arial, "Liberation Sans", Helvetica, sans-serif;
+  font-family: var(--resume-font-family, Arial, "Liberation Sans", Helvetica, sans-serif);
   font-size: calc(12pt * var(--resume-font-scale));
   line-height: 1.33;
   font-synthesis: none;

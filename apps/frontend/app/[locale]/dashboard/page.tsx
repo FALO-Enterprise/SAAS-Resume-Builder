@@ -1517,7 +1517,7 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
     { key: 'linkedin', label: t('fields.linkedin.label'), icon: Link2, placeholder: t('fields.linkedin.placeholder'), hint: t('fields.linkedin.hint'), optional: true },
     { key: 'portfolio', label: t('fields.portfolio.label'), icon: Link2, placeholder: t('fields.portfolio.placeholder'), hint: t('fields.portfolio.hint'), optional: true },
   ];
-  const filledCount = Object.values(data).filter(v => v.trim()).length;
+  const filledCount = Object.values(data).filter(v => (v || '').trim()).length;
 
   return (
     <div>
@@ -1564,7 +1564,7 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
               />
             ) : (
               <FieldCard label={f.label} icon={f.icon} type={f.type} placeholder={f.placeholder}
-                value={data[f.key]} onChange={v => onChange(f.key, v)} error={errors[f.key]} hint={f.hint} optional={f.optional} />
+                value={data[f.key] ?? ''} onChange={v => onChange(f.key, v)} error={errors[f.key]} hint={f.hint} optional={f.optional} />
             )}
           </motion.div>
         ))}
@@ -1595,6 +1595,7 @@ export default function DashboardPage() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const resumeIdParam = searchParams.get('resumeId')?.trim() || undefined;
   const templateQueryValue = searchParams.get('template');
   const templateFromQuery = RESUME_TEMPLATE_IDS.find(
     (templateId) => templateId === templateQueryValue,
@@ -1656,7 +1657,7 @@ export default function DashboardPage() {
       return () => window.clearTimeout(timer);
     }
 
-    getDashboardDraft(token)
+    getDashboardDraft(token, resumeIdParam)
       .then((draft) => {
         if (cancelled) return;
 
@@ -1773,7 +1774,7 @@ export default function DashboardPage() {
       lastQueuedDraft.current = serialized;
       saveQueue.current = saveQueue.current
         .then(async () => {
-          const result = await saveDashboardDraft(token, draft);
+          const result = await saveDashboardDraft(token, draft, resumeIdParam);
           // A backend-side save failure can resolve with HTTP 200 and
           // {success:false, ...}; without this check it was treated as a
           // successful save, silently clearing the error state.
@@ -1803,7 +1804,7 @@ export default function DashboardPage() {
       window.clearTimeout(timer);
       if (autosaveTimer.current === timer) autosaveTimer.current = null;
     };
-  }, [certs, completedSteps, contact, currentStep, draftLoaded, education, experience, handleDashboardRequestError, projects, sectionOrder, selectedTemplate, skillGroups, summary]);
+  }, [certs, completedSteps, contact, currentStep, draftLoaded, education, experience, handleDashboardRequestError, projects, sectionOrder, selectedTemplate, skillGroups, summary, resumeIdParam]);
 
   useEffect(() => {
     if (!draftLoaded || !autoGenerate || autoGenerateTriggered.current) return;
@@ -1854,7 +1855,7 @@ export default function DashboardPage() {
 
       try {
         await saveQueue.current;
-        await saveDashboardDraft(token!, finalDraft);
+        await saveDashboardDraft(token!, finalDraft, resumeIdParam);
         lastQueuedDraft.current = serializeDashboardDraft(finalDraft);
 
         const resume = await generateCurrentResume(token!, {
@@ -1862,7 +1863,7 @@ export default function DashboardPage() {
           templateId: activeTemplate,
         });
 
-        router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resume.id)}`);
+        router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resumeIdParam || resume.id)}`);
       } catch (error) {
         if (handleDashboardRequestError(error)) {
           setIsFinishing(false);
@@ -1956,7 +1957,7 @@ export default function DashboardPage() {
 
     try {
       await saveQueue.current;
-      const saveResult = await saveDashboardDraft(token, finalDraft);
+      const saveResult = await saveDashboardDraft(token, finalDraft, resumeIdParam);
       if (saveResult && typeof saveResult === 'object' && 'error' in saveResult) {
         throw new Error(saveResult.error);
       }
@@ -1967,7 +1968,7 @@ export default function DashboardPage() {
         templateId: selectedTemplate,
       });
 
-      router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resume.id)}`);
+      router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resumeIdParam || resume.id)}`);
     } catch (error) {
       if (handleDashboardRequestError(error)) {
         setIsFinishing(false);

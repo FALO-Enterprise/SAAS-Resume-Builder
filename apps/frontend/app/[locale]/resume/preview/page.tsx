@@ -3,27 +3,37 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
+  Camera,
   Check,
   ChevronDown,
   Download,
   FileText,
+  FolderClock,
   ImageIcon,
   LayoutTemplate,
   LoaderCircle,
   Minus,
   Pencil,
+  Pin,
   Plus,
   RotateCcw,
+  SlidersHorizontal,
   Sparkles,
+  Trash2,
+  Upload,
+  User,
+  X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import type { ResumeTemplateId } from "@shared-types/resume";
+import { DEFAULT_RESUME_CUSTOMIZATION, type ResumeCustomization, type ResumeTemplateId } from "@shared-types/resume";
+import ResumeCustomizePanel, { FONT_FAMILIES } from "@/components/resume/ResumeCustomizePanel";
 
 import { toast } from "sonner";
-import { generateCurrentResume } from "@/lib/backend";
+import { buildBackendUrl, generateCurrentResume, saveDashboardDraft } from "@/lib/backend";
 import { resolveResumeTemplate } from "@/components/resume/templates/registry";
 import { useAuth } from "@/context/AuthContext";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
@@ -31,12 +41,17 @@ import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import UserAvatarMenu from "@/components/ui/UserAvatarMenu";
 import {
+  createNewClonedDraft,
+  deleteResumeDraft,
   exportResume,
   getResumePreviewData,
   getResumeTemplateMetadata,
+  getUserResumesList,
   isResumeTemplateId,
+  renameResumeDraft,
   updateCurrentResumeTemplate,
   type ResumeExportFormat,
+  type UserResumeSummary,
 } from "@/lib/resume-preview-api";
 import type {
   ResumePreviewData,
@@ -94,6 +109,10 @@ function releaseDownloadUrl(url: string | null) {
 
 export default function ResumePreviewPage() {
   const locale = useLocale();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const resumeIdParam = searchParams.get("resumeId")?.trim() || "";
+  const templateParam = searchParams.get("template")?.trim() || "";
   const t = useTranslations("resumePreview");
   const configuration = useTranslations("resumePreview.configuration");
   const templates = useTranslations("templatesPage");
@@ -114,6 +133,18 @@ export default function ResumePreviewPage() {
   const [selectedExportFormat, setSelectedExportFormat] =
     useState<ResumeExportFormat>("pdf");
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false);
+  const [localCustomization, setLocalCustomization] = useState<ResumeCustomization | null>(null);
+  const [localFontFamily, setLocalFontFamily] = useState<string>(FONT_FAMILIES[0].value);
+  const [savedDrafts, setSavedDrafts] = useState<UserResumeSummary[]>([]);
+  const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
+  const [editingDraftTitle, setEditingDraftTitle] = useState("");
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [isCreatingDraft, setIsCreatingDraft] = useState(false);
+  const [deletingDraftId, setDeletingDraftId] = useState<string | null>(null);
+  const [downloadingDraftId, setDownloadingDraftId] = useState<string | null>(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isApplying, setIsApplying] = useState(false);
   const [exportingFormat, setExportingFormat] =
@@ -129,11 +160,7 @@ export default function ResumePreviewPage() {
       try {
         setIsLoading(true);
         setPageError(null);
-        const searchParams = new URLSearchParams(window.location.search);
-        const resumeId =
-          searchParams.get("resumeId")?.trim() ||
-          "resume-123";
-        const templateParam = searchParams.get("template")?.trim();
+        const resumeId = resumeIdParam || "resume-123";
         const data = await getResumePreviewData(resumeId, controller.signal);
 
         if (controller.signal.aborted) return;
@@ -157,6 +184,7 @@ export default function ResumePreviewPage() {
               data.resumeName,
               templateParam,
               controller.signal,
+              resumeId,
             ).catch((err) => {
               console.warn("Failed to persist template selection:", err);
             });
@@ -171,6 +199,11 @@ export default function ResumePreviewPage() {
         setAppliedTemplateId(activeTemplateId);
         setDraftPurpose(data.purpose);
         setAppliedPurpose(data.purpose);
+
+        const draftsList = await getUserResumesList(controller.signal);
+        if (!controller.signal.aborted) {
+          setSavedDrafts(draftsList);
+        }
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") return;
         setPageError(
@@ -183,7 +216,7 @@ export default function ResumePreviewPage() {
 
     void loadPreview();
     return () => controller.abort();
-  }, [t,isFreeUser]);
+  }, [t, isFreeUser, resumeIdParam, templateParam]);
 
   useEffect(() => {
     function closeExportMenu(event: PointerEvent) {
@@ -213,6 +246,294 @@ export default function ResumePreviewPage() {
     draftTemplateId !== appliedTemplateId || draftPurpose !== appliedPurpose;
   const isBusy = isApplying || exportingFormat !== null;
 
+  const handleRenameDraft = async (id: string, newTitle: string) => {
+    const trimmed = newTitle.trim();
+    if (!trimmed) {
+      toast.error(locale === "ar" ? "يرجى إدخال اسم للمسودة" : "Please enter a draft name");
+      return;
+    }
+
+    try {
+      setIsRenaming(true);
+      const success = await renameResumeDraft(id, trimmed, draftTemplateId);
+      if (success) {
+        if (resumeData && (id === resumeData.resumeId || id === "current" || id === "resume-123")) {
+          setResumeData((prev) => prev ? { ...prev, resumeName: trimmed } : prev);
+        }
+        setSavedDrafts((prev) =>
+          prev.map((draft) => (draft.id === id ? { ...draft, title: trimmed } : draft))
+        );
+        toast.success(locale === "ar" ? "تم تغيير اسم المسودة بنجاح" : "Draft renamed successfully");
+        setEditingDraftId(null);
+      } else {
+        toast.error(locale === "ar" ? "تعذر تغيير اسم المسودة" : "Failed to rename draft");
+      }
+    } catch {
+      toast.error(locale === "ar" ? "تعذر تغيير اسم المسودة" : "Failed to rename draft");
+    } finally {
+      setIsRenaming(false);
+    }
+  };
+
+  const handleRenameCurrentDraft = async () => {
+    if (isCreatingDraft) return;
+    try {
+      setIsCreatingDraft(true);
+      const newDraft = await createNewClonedDraft();
+      toast.success(
+        locale === "ar"
+          ? "تم إنشاء مسودة جديدة بنجاح"
+          : "New draft created successfully"
+      );
+      router.push(`/${locale}/dashboard?resumeId=${encodeURIComponent(newDraft.id)}&template=${encodeURIComponent(newDraft.templateId)}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create draft");
+    } finally {
+      setIsCreatingDraft(false);
+    }
+  };
+
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new window.Image();
+        img.onload = () => {
+          const maxDim = 500;
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(event.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.85));
+        };
+        img.onerror = reject;
+        img.src = event.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !resumeData) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(
+        locale === "ar"
+          ? "حجم الصورة كبير جداً (الحد الأقصى 5 ميغابايت)"
+          : "Photo is too large (max 5MB)"
+      );
+      return;
+    }
+
+    try {
+      setIsUploadingPhoto(true);
+      const dataUrl = await compressImage(file);
+
+      const nextContent = {
+        ...resumeData.content,
+        contact: {
+          ...resumeData.content.contact,
+          photo: dataUrl,
+        },
+      };
+
+      setResumeData((prev) => (prev ? { ...prev, content: nextContent } : prev));
+
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("resumax_token")
+          : null;
+      if (token) {
+        await saveDashboardDraft(
+          token,
+          {
+            template: draftTemplateId,
+            currentStep: "contact",
+            completedSteps: ["contact"],
+            sectionOrder: resumeData.customization?.sectionOrder || [],
+            contact: nextContent.contact,
+            summary: nextContent.summary,
+            skillGroups: nextContent.skillGroups,
+            experience: nextContent.experience,
+            projects: nextContent.projects,
+            education: nextContent.education,
+            certifications: nextContent.certifications,
+            skills: nextContent.skills,
+          },
+          resumeData.resumeId
+        );
+      }
+
+      toast.success(
+        locale === "ar"
+          ? "تم تحديث الصورة الشخصية بنجاح"
+          : "Profile photo updated successfully"
+      );
+    } catch (err) {
+      toast.error(
+        locale === "ar" ? "فشل تحديث الصورة" : "Failed to update photo"
+      );
+    } finally {
+      setIsUploadingPhoto(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    if (!resumeData || isUploadingPhoto) return;
+
+    try {
+      setIsUploadingPhoto(true);
+      const nextContent = {
+        ...resumeData.content,
+        contact: {
+          ...resumeData.content.contact,
+          photo: "",
+        },
+      };
+
+      setResumeData((prev) => (prev ? { ...prev, content: nextContent } : prev));
+
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("resumax_token")
+          : null;
+      if (token) {
+        await saveDashboardDraft(
+          token,
+          {
+            template: draftTemplateId,
+            currentStep: "contact",
+            completedSteps: ["contact"],
+            sectionOrder: resumeData.customization?.sectionOrder || [],
+            contact: nextContent.contact,
+            summary: nextContent.summary,
+            skillGroups: nextContent.skillGroups,
+            experience: nextContent.experience,
+            projects: nextContent.projects,
+            education: nextContent.education,
+            certifications: nextContent.certifications,
+            skills: nextContent.skills,
+          },
+          resumeData.resumeId
+        );
+      }
+
+      toast.success(
+        locale === "ar" ? "تم حذف الصورة بنجاح" : "Profile photo removed"
+      );
+    } catch (err) {
+      toast.error(
+        locale === "ar" ? "فشل حذف الصورة" : "Failed to remove photo"
+      );
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  const handleCreateNewDraft = async () => {
+    if (isCreatingDraft) return;
+    try {
+      setIsCreatingDraft(true);
+      const newDraft = await createNewClonedDraft();
+      toast.success(
+        locale === "ar"
+          ? "تم إنشاء مسودة جديدة بنجاح"
+          : "New draft created successfully"
+      );
+      router.push(`/${locale}/dashboard?resumeId=${encodeURIComponent(newDraft.id)}&template=${encodeURIComponent(newDraft.templateId)}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create draft");
+    } finally {
+      setIsCreatingDraft(false);
+    }
+  };
+
+  const handleDeleteDraft = async (e: React.MouseEvent, draftId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (deletingDraftId) return;
+
+    const confirmMsg = locale === "ar"
+      ? "هل أنت متأكد من رغبتك في حذف هذه المسودة؟"
+      : "Are you sure you want to delete this draft?";
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      setDeletingDraftId(draftId);
+      const success = await deleteResumeDraft(draftId);
+      if (success) {
+        toast.success(locale === "ar" ? "تم حذف المسودة بنجاح" : "Draft deleted successfully");
+        setSavedDrafts((prev) => prev.filter((d) => d.id !== draftId));
+
+        if (resumeData && (draftId === resumeData.resumeId || draftId === "current")) {
+          const remaining = savedDrafts.filter((d) => d.id !== draftId);
+          if (remaining.length > 0) {
+            window.location.href = `/${locale}/resume/preview?resumeId=${remaining[0].id}&template=${remaining[0].templateId}`;
+          } else {
+            window.location.href = `/${locale}/dashboard`;
+          }
+        }
+      } else {
+        toast.error(locale === "ar" ? "تعذر حذف المسودة" : "Failed to delete draft");
+      }
+    } catch {
+      toast.error(locale === "ar" ? "تعذر حذف المسودة" : "Failed to delete draft");
+    } finally {
+      setDeletingDraftId(null);
+    }
+  };
+
+  const handleDownloadDraft = async (e: React.MouseEvent, draftId: string, templateId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (downloadingDraftId) return;
+
+    const toastId = toast.loading(
+      locale === "ar" ? "جاري تجهيز تحميل المسودة..." : "Preparing draft download..."
+    );
+
+    try {
+      setDownloadingDraftId(draftId);
+      const resolvedTemplate = isResumeTemplateId(templateId) ? templateId : undefined;
+      const result = await exportResume(draftId, "pdf", undefined, resolvedTemplate);
+      triggerDownload(result.downloadUrl, "pdf");
+      toast.success(
+        locale === "ar" ? "تم التحميل بنجاح!" : "Draft downloaded successfully!",
+        { id: toastId }
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : (locale === "ar" ? "فشل تحميل المسودة" : "Failed to download draft"),
+        { id: toastId }
+      );
+    } finally {
+      setDownloadingDraftId(null);
+    }
+  };
+
 
   const handlePurposeSelect = async (newPurpose: ResumePurpose) => {
     if (!resumeData || isBusy) return;
@@ -234,7 +555,7 @@ export default function ResumePreviewPage() {
           title: resumeData.resumeName,
           templateId: draftTemplateId,
           purpose: newPurpose,
-        });
+        }, resumeData.resumeId);
 
         const freshData = await getResumePreviewData(resumeData.resumeId);
         releaseDownloadUrl(resumeData.pdfDownloadUrl);
@@ -277,7 +598,7 @@ export default function ResumePreviewPage() {
           title: resumeData.resumeName,
           templateId: draftTemplateId,
           purpose: draftPurpose,
-        });
+        }, resumeData.resumeId);
 
         const freshData = await getResumePreviewData(resumeData.resumeId);
         releaseDownloadUrl(resumeData.pdfDownloadUrl);
@@ -290,6 +611,8 @@ export default function ResumePreviewPage() {
         const result = await updateCurrentResumeTemplate(
           resumeData.resumeName,
           draftTemplateId,
+          undefined,
+          resumeData.resumeId,
         );
         const metadata = getResumeTemplateMetadata(result.templateId);
 
@@ -438,7 +761,7 @@ export default function ResumePreviewPage() {
 
   return (
     <main className="min-h-screen bg-base text-primary">
-      <header className="sticky top-0 z-50 border-b border-edge bg-base/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-edge bg-base/90 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-4">
             <Link href={`/${locale}`} className="shrink-0 no-underline">
@@ -487,14 +810,14 @@ export default function ResumePreviewPage() {
             {/* Selected Template Preview Card */}
             <div className="mt-4 overflow-hidden rounded-2xl border border-gold/30 bg-card p-3 shadow-sm">
               <div className="flex items-center gap-3.5">
-                <div className="relative aspect-4/5 w-16 shrink-0 overflow-hidden rounded-xl border border-edge bg-elevated shadow-inner">
+                <div className="relative aspect-4/5 w-16 shrink-0 overflow-hidden rounded-xl border border-edge bg-white shadow-inner">
                   {selectedMetadata.thumbnailUrl ? (
                     <Image
                       src={selectedMetadata.thumbnailUrl}
                       alt={selectedMetadata.name}
                       fill
                       unoptimized
-                      className="object-contain p-1"
+                      className="object-cover"
                       sizes="64px"
                     />
                   ) : (
@@ -573,6 +896,95 @@ export default function ResumePreviewPage() {
             </select>
           </section>
 
+          {/* Profile Photo Section (for templates supporting photo) */}
+          {selectedMetadata.supportsPhoto !== false && (
+            <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
+                    <Camera size={19} className="text-gold" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-secondary">
+                      {locale === "ar" ? "الصورة الشخصية" : "Profile Photo"}
+                    </p>
+                    <h2 className="mt-0.5 text-sm font-black text-primary">
+                      {resumeData.content.contact.photo
+                        ? (locale === "ar" ? "تعديل الصورة" : "Manage Photo")
+                        : (locale === "ar" ? "إضافة صورة" : "Add Photo")}
+                    </h2>
+                  </div>
+                </div>
+                {Boolean(resumeData.content.contact.photo) && (
+                  <button
+                    type="button"
+                    onClick={() => void handleRemovePhoto()}
+                    disabled={isUploadingPhoto}
+                    className="flex items-center gap-1 text-xs font-semibold text-red-400 transition-colors hover:text-red-300 cursor-pointer"
+                    title={locale === "ar" ? "حذف الصورة" : "Remove photo"}
+                  >
+                    <Trash2 size={13} />
+                    <span>{locale === "ar" ? "حذف" : "Remove"}</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="mt-4 flex items-center gap-3.5 rounded-2xl border border-edge bg-card p-3 shadow-sm">
+                {resumeData.content.contact.photo ? (
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-gold/40 bg-white shadow-md">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={resumeData.content.contact.photo}
+                      alt="Profile photo"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-dashed border-edge bg-elevated text-secondary">
+                    <User size={22} className="text-secondary/70" />
+                  </div>
+                )}
+
+                <div className="flex-1 min-w-0">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    onChange={(e) => void handlePhotoUpload(e)}
+                    className="hidden"
+                    id="resume-profile-photo-input"
+                  />
+                  <label
+                    htmlFor="resume-profile-photo-input"
+                    className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition-all cursor-pointer ${
+                      isUploadingPhoto
+                        ? "opacity-50 pointer-events-none bg-gold/10 border-gold/20 text-gold"
+                        : "bg-gold/10 border-gold/30 text-gold hover:bg-gold/20"
+                    }`}
+                  >
+                    {isUploadingPhoto ? (
+                      <LoaderCircle size={14} className="animate-spin" />
+                    ) : (
+                      <Upload size={14} />
+                    )}
+                    <span>
+                      {isUploadingPhoto
+                        ? (locale === "ar" ? "جاري الرفع..." : "Uploading...")
+                        : resumeData.content.contact.photo
+                        ? (locale === "ar" ? "تغيير الصورة" : "Change Photo")
+                        : (locale === "ar" ? "رفع صورة" : "Upload Photo")}
+                    </span>
+                  </label>
+                  <p className="mt-1 text-[11px] text-secondary">
+                    {locale === "ar"
+                      ? "PNG أو JPG (الحد الأقصى 5MB)"
+                      : "PNG, JPG or WebP (max 5MB)"}
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
+
           {hasPendingChanges && (
             <button
               type="button"
@@ -592,36 +1004,35 @@ export default function ResumePreviewPage() {
           )}
 
           <Link
-            href={`/${locale}/dashboard?template=${draftTemplateId}`}
+            href={`/${locale}/dashboard?resumeId=${encodeURIComponent(resumeData?.resumeId ?? '')}&template=${draftTemplateId}`}
             className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-gold/40 hover:bg-card hover:text-gold"
           >
             <Pencil size={15} className="text-gold" />
             <span>{t("editResume")}</span>
           </Link>
 
-          <div aria-live="polite" className="space-y-3">
-            {hasPendingChanges && !actionError && (
-              <p className="rounded-xl border border-gold/25 bg-gold/10 px-3 py-2.5 text-xs leading-5 text-gold">
-                {t("template.changeHint")}
-              </p>
-            )}
-            {actionSuccess && (
-              <p className="rounded-xl border border-green/20 bg-green/10 px-3 py-2.5 text-xs leading-5 text-green">
-                {actionSuccess}
-              </p>
-            )}
-            {actionError && (
-              <p
-                role="alert"
-                className="rounded-xl border border-red-400/20 bg-red-400/10 px-3 py-2.5 text-xs leading-5 text-red-400"
-              >
-                {actionError}
-              </p>
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (!localCustomization && resumeData) {
+                setLocalCustomization({ ...resumeData.customization });
+                const existingFont = resumeData.customization.fontFamily;
+                if (existingFont) setLocalFontFamily(existingFont);
+              }
+              setIsCustomizePanelOpen(true);
+            }}
+            className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-gold/40 hover:bg-card hover:text-gold"
+          >
+            <SlidersHorizontal size={15} className="text-gold" />
+            <span>Customize Resume</span>
+          </button>
         </aside>
 
-        <section className="overflow-hidden rounded-[28px] border border-edge bg-elevated shadow-[0_24px_80px_var(--shadow-color)] xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col">
+        <section className={`overflow-hidden rounded-[28px] border border-edge bg-elevated shadow-[0_24px_80px_var(--shadow-color)] xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col transition-all duration-300 ${
+          isCustomizePanelOpen
+            ? "relative z-[55] ring-2 ring-gold/40 shadow-[0_24px_100px_rgba(0,0,0,0.5)]"
+            : ""
+        }`}>
           <div className="shrink-0 border-b border-edge px-5 py-5 sm:px-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
@@ -631,9 +1042,58 @@ export default function ResumePreviewPage() {
                     {configuration("preview")}
                   </h1>
                 </div>
-                <p className="mt-2 truncate text-sm font-bold">
-                  {resumeData.resumeName}
-                </p>
+                {editingDraftId === `header-${resumeData.resumeId}` ? (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      void handleRenameDraft(resumeData.resumeId, editingDraftTitle);
+                    }}
+                    className="mt-2 flex items-center gap-1.5 max-w-sm"
+                  >
+                    <input
+                      type="text"
+                      value={editingDraftTitle}
+                      onChange={(e) => setEditingDraftTitle(e.target.value)}
+                      disabled={isRenaming}
+                      autoFocus
+                      className="min-h-8 flex-1 rounded-lg border border-gold bg-card px-2.5 text-xs font-bold text-primary outline-none focus:ring-1 focus:ring-gold"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isRenaming}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold text-ink hover:opacity-90 transition-opacity shrink-0"
+                      title={locale === "ar" ? "حفظ" : "Save"}
+                    >
+                      <Check size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingDraftId(null)}
+                      disabled={isRenaming}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge bg-card hover:bg-soft transition-colors shrink-0"
+                      title={locale === "ar" ? "إلغاء" : "Cancel"}
+                    >
+                      <X size={14} />
+                    </button>
+                  </form>
+                ) : (
+                  <div className="mt-2 flex items-center gap-2">
+                    <p className="truncate text-sm font-bold">
+                      {resumeData.resumeName}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingDraftId(`header-${resumeData.resumeId}`);
+                        setEditingDraftTitle(resumeData.resumeName);
+                      }}
+                      className="opacity-60 hover:opacity-100 p-1 text-gold transition-opacity"
+                      title={locale === "ar" ? "إعادة تسمية" : "Rename draft"}
+                    >
+                      <Pencil size={13} />
+                    </button>
+                  </div>
+                )}
                 <p className="mt-1 text-xs text-secondary">
                   {configuration("lastUpdated")}: {updatedAt}
                 </p>
@@ -755,12 +1215,16 @@ export default function ResumePreviewPage() {
           <div className="relative flex min-h-180 flex-1 items-start justify-center overflow-auto bg-soft p-5 sm:p-8 xl:min-h-0">
             {TemplateComponent ? (
               <div
-                className="flex w-full shrink-0 justify-center transition-[zoom] duration-200"
+                className={`flex w-full shrink-0 justify-center transition-all duration-300 ease-out ${
+                  isCustomizePanelOpen
+                    ? "-translate-x-28 md:-translate-x-36 xl:-translate-x-44 rtl:translate-x-28 rtl:md:translate-x-36 rtl:xl:translate-x-44"
+                    : "translate-x-0"
+                }`}
                 style={{ zoom: zoom / 100 }}
               >
                 <TemplateComponent
                   resume={resumeData.content}
-                  customization={resumeData.customization}
+                  customization={localCustomization ?? resumeData.customization}
                 />
               </div>
             ) : (
@@ -771,6 +1235,46 @@ export default function ResumePreviewPage() {
           </div>
         </section>
       </div>
+
+      {resumeData && (
+        <ResumeCustomizePanel
+          isOpen={isCustomizePanelOpen}
+          onClose={() => setIsCustomizePanelOpen(false)}
+          customization={localCustomization ?? resumeData.customization}
+          fontFamily={localFontFamily}
+          resumeContent={resumeData.content}
+          TemplateComponent={TemplateComponent}
+          resumeName={resumeData.resumeName}
+          onCustomizationChange={(updated) => {
+            const font = updated.fontFamily || localFontFamily;
+            const withFont = { ...updated, fontFamily: font };
+            setLocalCustomization(withFont);
+            setResumeData((current) =>
+              current ? { ...current, customization: withFont } : current
+            );
+          }}
+          onFontFamilyChange={(font) => {
+            setLocalFontFamily(font);
+            const updated = { ...(localCustomization ?? resumeData.customization), fontFamily: font };
+            setLocalCustomization(updated);
+            setResumeData((current) =>
+              current ? { ...current, customization: updated } : current
+            );
+          }}
+          onReset={() => {
+            const defaultCustomization: ResumeCustomization = {
+              ...DEFAULT_RESUME_CUSTOMIZATION,
+              fontFamily: FONT_FAMILIES[0].value,
+            };
+            setLocalCustomization(defaultCustomization);
+            setLocalFontFamily(FONT_FAMILIES[0].value);
+            setResumeData((current) =>
+              current ? { ...current, customization: defaultCustomization } : current
+            );
+            toast.success("Resume styling reset to default");
+          }}
+        />
+      )}
     </main>
   );
 }

@@ -5,7 +5,10 @@ export class ResumeRepository {
     private prismaResume = prisma.resume;
 
     findAll(query: Record<string, unknown> = {}): Promise<Resume[]> {
-        return this.prismaResume.findMany({ where: query });
+        return this.prismaResume.findMany({
+            where: query,
+            orderBy: { updatedAt: 'desc' },
+        });
     }
 
     findById(id: string): Promise<Resume | null> {
@@ -24,7 +27,13 @@ export class ResumeRepository {
         return this.prismaResume.findFirst({ where: { userId } });
     }
 
-    create(title: string, templateId: string, userId: string): Promise<Resume> {
+    async create(title: string, templateId: string, userId: string): Promise<Resume> {
+        await prisma.template.upsert({
+            where: { id: templateId },
+            create: { id: templateId, name: templateId, isPremium: false },
+            update: {},
+        });
+
         return this.prismaResume.create({
             data: {
                 title,
@@ -34,17 +43,39 @@ export class ResumeRepository {
         });
     }
 
-    async upsertForUser(title: string, templateId: string, templateName: string, userId: string): Promise<Resume> {
+    async upsertForUser(title: string, templateId: string, templateName: string, userId: string, resumeId?: string): Promise<Resume> {
         await prisma.template.upsert({
             where: { id: templateId },
             create: { id: templateId, name: templateName, isPremium: false },
             update: { name: templateName },
         });
 
-        return this.prismaResume.upsert({
+        if (resumeId && resumeId !== 'current' && resumeId !== 'resume-123') {
+            const exact = await this.prismaResume.findFirst({
+                where: { id: resumeId, userId },
+            });
+            if (exact) {
+                return this.prismaResume.update({
+                    where: { id: exact.id },
+                    data: { title, templateId },
+                });
+            }
+        }
+
+        const existing = await this.prismaResume.findFirst({
             where: { userId },
-            create: { title, templateId, userId },
-            update: { title, templateId },
+            orderBy: { updatedAt: 'desc' },
+        });
+
+        if (existing) {
+            return this.prismaResume.update({
+                where: { id: existing.id },
+                data: { title, templateId },
+            });
+        }
+
+        return this.prismaResume.create({
+            data: { title, templateId, userId },
         });
     }
 

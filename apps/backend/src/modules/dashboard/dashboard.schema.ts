@@ -25,6 +25,7 @@ export const contactSchema = z.object({
     linkedin: z.string().max(500).default(''),
     github: z.string().max(500).default(''),
     portfolio: z.string().max(500).default(''),
+    photo: z.string().max(10_000_000).optional(),
 });
 
 export const experienceSchema = z.object({

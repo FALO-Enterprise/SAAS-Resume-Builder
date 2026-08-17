@@ -18,6 +18,7 @@ export interface ResumeTemplateProps {
 type PageStyle = CSSProperties & {
   "--resume-accent": string;
   "--resume-font-scale": number;
+  "--resume-font-family"?: string;
 };
 
 function hasText(value: string | null | undefined): value is string {
@@ -76,10 +77,12 @@ export function CreativeDirectorTemplate({
     customization?.accentColor ?? "#c25e2e";
   const fontScale =
     customization?.fontScale ?? DEFAULT_RESUME_CUSTOMIZATION.fontScale;
+  const fontFamily = customization?.fontFamily;
   const sectionOrder = getVisibleSectionOrder(resume, customization);
   const pageStyle: PageStyle = {
     "--resume-accent": accentColor,
     "--resume-font-scale": fontScale,
+    ...(fontFamily ? { "--resume-font-family": fontFamily } : {}),
   };
 
   const contactItems = [
@@ -117,7 +120,17 @@ export function CreativeDirectorTemplate({
       <header className={styles.header}>
         <div className={styles.topBadge}>Creative Portfolio & Resume</div>
         <div className={styles.identityBlock}>
-          <div>
+          {hasText(resume.contact.photo) && (
+            <div className={styles.avatarWrapper}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={resume.contact.photo.trim()}
+                alt={resume.contact.fullName || "Profile photo"}
+                className={styles.avatarImage}
+              />
+            </div>
+          )}
+          <div className={styles.identityText}>
             {hasText(resume.contact.fullName) && (
               <h1 className={styles.fullName}>
                 {resume.contact.fullName.trim()}

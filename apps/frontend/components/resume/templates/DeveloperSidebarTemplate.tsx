@@ -17,6 +17,7 @@ import styles from "./DeveloperSidebarTemplate.module.css";
 
 type DeveloperPageStyle = CSSProperties & {
   "--resume-font-scale": number;
+  "--resume-font-family"?: string;
 };
 
 type ContactItem = {
@@ -161,8 +162,10 @@ export function DeveloperSidebarTemplate({
 }: ResumeTemplateProps) {
   const fontScale =
     customization?.fontScale ?? DEFAULT_RESUME_CUSTOMIZATION.fontScale;
+  const fontFamily = customization?.fontFamily;
   const pageStyle: DeveloperPageStyle = {
     "--resume-font-scale": fontScale,
+    ...(fontFamily ? { "--resume-font-family": fontFamily } : {}),
   };
   const visibleSectionOrder = getVisibleSectionOrder(resume, customization);
   const sidebarOrder = visibleSectionOrder.filter((section) =>
@@ -500,6 +503,16 @@ export function DeveloperSidebarTemplate({
       data-resume-template="developer"
     >
       <aside className={styles.sidebar}>
+        {hasText(resume.contact.photo) && (
+          <div className={styles.avatarWrapper}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={resume.contact.photo.trim()}
+              alt={resume.contact.fullName || "Profile photo"}
+              className={styles.avatarImage}
+            />
+          </div>
+        )}
         {contactItems.length > 0 && (
           <SidebarSection title="Contact Info">
             <address className={styles.contactAddress}>

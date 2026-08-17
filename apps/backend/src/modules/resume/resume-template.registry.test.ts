@@ -9,6 +9,7 @@ test("resolves the stable Classic ATS template definition", () => {
     id: "minimal",
     name: "Classic ATS",
     version: 3,
+    supportsPhoto: false,
   });
 });
 

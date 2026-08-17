@@ -27,12 +27,12 @@ export type CurrentResumeTemplateResult = {
 };
 
 const TEMPLATE_THUMBNAILS: Record<ResumeTemplateId, string> = {
-  executive: "https://i.imgur.com/oPsyIDT.png",
-  developer: "https://i.imgur.com/UFjkAoq.png",
-  director: "https://i.imgur.com/bIVtQW4.png",
-  minimal: "https://i.imgur.com/KnsEIYe.png",
-  academic: "https://i.imgur.com/cL8Rls0.png",
-  global: "https://i.imgur.com/uaye0sJ.png",
+  executive: "https://i.imgur.com/ptI7HFp.png",
+  developer: "https://i.imgur.com/D91CvTh.png",
+  director: "https://i.imgur.com/PWtfFl4.png",
+  minimal: "https://i.imgur.com/glF9QYl.png",
+  academic: "https://i.imgur.com/E6LVnlU.png",
+  global: "https://i.imgur.com/WUJ3Hwx.png",
 };
 
 const TEMPLATE_IDS = new Set<ResumeTemplateId>(
@@ -59,6 +59,7 @@ export function getResumeTemplateMetadata(
     name: definition.name,
     version: definition.version,
     thumbnailUrl: TEMPLATE_THUMBNAILS[definition.id],
+    supportsPhoto: definition.supportsPhoto,
   };
 }
 
@@ -214,6 +215,7 @@ export async function updateCurrentResumeTemplate(
   title: string,
   templateId: ResumeTemplateId,
   signal?: AbortSignal,
+  resumeId?: string,
 ): Promise<CurrentResumeTemplateResult> {
   const token =
     typeof window === "undefined"
@@ -223,7 +225,11 @@ export async function updateCurrentResumeTemplate(
     throw new Error("Authentication is required to update a resume template");
   }
 
-  const response = await fetch(buildBackendUrl("/api/resumes/current"), {
+  const endpoint = resumeId && resumeId !== "current" && resumeId !== "resume-123"
+    ? `/api/resumes/current?resumeId=${encodeURIComponent(resumeId)}`
+    : "/api/resumes/current";
+
+  const response = await fetch(buildBackendUrl(endpoint), {
     method: "PUT",
     headers: {
       Accept: "application/json",
@@ -377,4 +383,131 @@ export function isResumePurpose(value: unknown): value is ResumePurpose {
     value === "government" ||
     value === "general"
   );
+}
+
+export type UserResumeSummary = {
+  id: string;
+  title: string;
+  templateId: string;
+  updatedAt: string;
+  createdAt: string;
+};
+
+export async function getUserResumesList(signal?: AbortSignal): Promise<UserResumeSummary[]> {
+  const token = typeof window === "undefined" ? null : localStorage.getItem("resumax_token");
+  if (!token) return [];
+
+  try {
+    const response = await fetch(buildBackendUrl("/api/resumes"), {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include",
+      cache: "no-store",
+      signal,
+    });
+
+    if (!response.ok) return [];
+    const payload: unknown = await response.json();
+    const data = normalizeBackendPayload<UserResumeSummary[]>(payload);
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function renameResumeDraft(
+  resumeId: string,
+  newTitle: string,
+  templateId?: ResumeTemplateId,
+): Promise<boolean> {
+  const token = typeof window === "undefined" ? null : localStorage.getItem("resumax_token");
+  if (!token) return false;
+
+  try {
+    if (!resumeId || resumeId === "current" || resumeId === "resume-123") {
+      const response = await fetch(buildBackendUrl("/api/resumes/current"), {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        cache: "no-store",
+        body: JSON.stringify({ title: newTitle, templateId: templateId ?? "minimal" }),
+      });
+      return response.ok;
+    }
+
+    const response = await fetch(buildBackendUrl(`/api/resumes/${encodeURIComponent(resumeId)}`), {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include",
+      cache: "no-store",
+      body: JSON.stringify({ title: newTitle }),
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function createNewClonedDraft(): Promise<{ id: string; title: string; templateId: string }> {
+  const token = typeof window === "undefined" ? null : localStorage.getItem("resumax_token");
+  if (!token) {
+    throw new Error("Authentication is required to create a new draft");
+  }
+
+  const response = await fetch(buildBackendUrl("/api/resumes/new-draft"), {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    credentials: "include",
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      await getResumeApiErrorMessage(response, "Failed to create new draft"),
+    );
+  }
+
+  const payload: unknown = await response.json();
+  const data = normalizeBackendPayload<{ id: string; title: string; templateId: string }>(payload);
+  if ('error' in data) {
+    throw new Error(data.error);
+  }
+  return data;
+}
+
+export async function deleteResumeDraft(resumeId: string): Promise<boolean> {
+  const token = typeof window === "undefined" ? null : localStorage.getItem("resumax_token");
+  if (!token || !resumeId) return false;
+
+  try {
+    const response = await fetch(buildBackendUrl(`/api/resumes/${encodeURIComponent(resumeId)}`), {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
