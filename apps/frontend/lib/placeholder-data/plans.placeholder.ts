@@ -38,3 +38,10 @@ export const PLANS = [
     isPopular: false,
   },
 ] as const;
+
+
+export const PLAN_BADGES = {
+  free: "border-slate-500/20 bg-slate-500/10 text-slate-300",
+  pro: "border-gold/20 bg-gold/10 text-gold",
+  enterprise: "border-violet-500/20 bg-violet-500/10 text-violet-300",
+} as const;
