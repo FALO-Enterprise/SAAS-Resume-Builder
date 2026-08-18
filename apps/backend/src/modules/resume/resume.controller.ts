@@ -39,12 +39,13 @@ export class ResumeController {
     };
 
     exportPdf = async (req: Request<{ rid: string }, Buffer, ResumeExportInput>, res: Response) => {
-        if (!req.plan.canExportPDF) {
+        if (!req.plan?.canExportPDF) {
             return res.error({ message: 'Your plan does not include resume export', statusCode: HttpErrorStatus.Forbidden });
         }
 
-        const isFreePlan = req.plan.name === 'FREE';
-        const exportCheck = planUsageService.canExport(req.user.id, req.plan.name, 'pdf');
+        const planName = req.plan?.name || 'FREE';
+        const isFreePlan = planName === 'FREE';
+        const exportCheck = planUsageService.canExport(req.user.id, planName, 'pdf');
         if (!exportCheck.allowed) {
             return res.error({
                 message: exportCheck.reason ?? 'PDF export limit reached for your plan',
@@ -69,7 +70,7 @@ export class ResumeController {
 
         try {
             const pdf = await this.exportService.generatePdf(req.params.rid, req.user.id, parsed.data, isFreePlan);
-            planUsageService.recordExport(req.user.id, 'pdf');
+            await planUsageService.recordExport(req.user.id, 'pdf');
             const filename = `resume-${req.params.rid.replace(/[^a-zA-Z0-9_-]/g, '') || 'export'}.pdf`;
             res.status(200)
                 .set({
@@ -86,12 +87,13 @@ export class ResumeController {
     };
 
     exportJpg = async (req: Request<{ rid: string }, Buffer, ResumeExportInput>, res: Response) => {
-        if (!req.plan.canExportPDF) {
+        const isFreePlan = req.plan?.name === 'FREE';
+        if (!req.plan?.canExportPDF || isFreePlan) {
             return res.error({ message: 'Your plan does not include JPG export', statusCode: HttpErrorStatus.Forbidden });
         }
 
-        const isFreePlan = req.plan.name === 'FREE';
-        const exportCheck = planUsageService.canExport(req.user.id, req.plan.name, 'jpg');
+        const planName = req.plan?.name || 'PRO';
+        const exportCheck = planUsageService.canExport(req.user.id, planName, 'jpg');
         if (!exportCheck.allowed) {
             return res.error({
                 message: exportCheck.reason ?? 'JPG export limit reached for your plan',
@@ -116,7 +118,7 @@ export class ResumeController {
 
         try {
             const jpg = await this.exportService.generateJpg(req.params.rid, req.user.id, parsed.data, isFreePlan);
-            planUsageService.recordExport(req.user.id, 'jpg');
+            await planUsageService.recordExport(req.user.id, 'jpg');
             const filename = `resume-${req.params.rid.replace(/[^a-zA-Z0-9_-]/g, '') || 'export'}.jpg`;
             res.status(200)
                 .set({
@@ -273,7 +275,7 @@ export class ResumeController {
     };
 
     generateCurrentResume = async (req: Request<{}, {}, ResumeGenerationDTO>, res: Response) => {
-        const resumeId = typeof req.query.resumeId === 'string' ? req.query.resumeId : undefined;
+        const resumeId = typeof req.query?.resumeId === 'string' ? req.query.resumeId : undefined;
         const parsed = resumeGenerationSchema.safeParse(req.body);
         if (!parsed.success) {
             return res.error({
@@ -282,15 +284,26 @@ export class ResumeController {
             });
         }
 
-        if (req.plan.name === 'FREE' && parsed.data.templateId !== 'minimal') {
+        const planName = req.plan?.name || 'FREE';
+        if (planName === 'FREE' && parsed.data.templateId !== 'minimal') {
             return res.error({
                 message: 'Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.',
                 statusCode: HttpErrorStatus.Forbidden,
             });
         }
 
+        const tokensNeeded = planUsageService.getAiTokensPerBuild(planName);
+        const aiCheck = await planUsageService.canConsumeAiTokens(req.user.id, planName, tokensNeeded);
+        if (!aiCheck.allowed) {
+            return res.error({
+                message: aiCheck.reason ?? 'AI token limit reached for your plan. Upgrade your plan for more AI generations.',
+                statusCode: HttpErrorStatus.Forbidden,
+            });
+        }
+
         try {
             const resume = await this.aiService.generate(req.user.id, parsed.data, resumeId);
+            await planUsageService.recordAiTokens(req.user.id, tokensNeeded);
             return res.ok(resume);
         } catch (error) {
             if (error instanceof ResumeAiGenerationError) {

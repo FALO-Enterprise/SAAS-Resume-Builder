@@ -30,6 +30,7 @@
 
 .documentTitle {
   margin: 0;
+  color: var(--resume-accent, #000);
   font-size: calc(16pt * var(--resume-font-scale));
   font-weight: 700;
   line-height: 1.15;
@@ -61,7 +62,7 @@
 }
 
 .contactList a {
-  color: var(--resume-accent);
+  color: var(--resume-accent, #0563c1);
   text-decoration: underline;
   text-underline-offset: 0.5pt;
 }
@@ -83,8 +84,8 @@
 .sectionHeading {
   margin: 0 0 3mm;
   padding-bottom: 1.4mm;
-  border-bottom: 1.5pt solid #000;
-  color: #000;
+  border-bottom: 1.5pt solid var(--resume-accent, #000);
+  color: var(--resume-accent, #000);
   font-size: calc(14pt * var(--resume-font-scale));
   font-weight: 700;
   font-style: italic;
@@ -225,6 +226,8 @@
   .resumePage {
     margin: 0;
     box-shadow: none;
+    max-height: 297mm;
+    overflow: hidden;
   }
 
   :global(.non-printable) {

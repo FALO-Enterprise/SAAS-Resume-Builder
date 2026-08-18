@@ -13,6 +13,7 @@ import styles from "./ExecutiveTealTemplate.module.css";
 
 type ExecutivePageStyle = CSSProperties & {
   "--resume-font-scale": number;
+  "--resume-accent"?: string;
   "--resume-font-family"?: string;
 };
 
@@ -491,8 +492,11 @@ export function ExecutiveTealTemplate({
   const rightSections = visibleSections.filter(
     (section) => !LEFT_SECTIONS.has(section),
   );
+  const accentColor =
+    customization?.accentColor ?? DEFAULT_RESUME_CUSTOMIZATION.accentColor;
   const pageStyle: ExecutivePageStyle = {
     "--resume-font-scale": fontScale,
+    "--resume-accent": accentColor,
     ...(fontFamily ? { "--resume-font-family": fontFamily } : {}),
   };
 

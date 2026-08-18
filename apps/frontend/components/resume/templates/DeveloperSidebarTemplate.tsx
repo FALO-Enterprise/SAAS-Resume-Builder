@@ -17,6 +17,7 @@ import styles from "./DeveloperSidebarTemplate.module.css";
 
 type DeveloperPageStyle = CSSProperties & {
   "--resume-font-scale": number;
+  "--resume-accent"?: string;
   "--resume-font-family"?: string;
 };
 
@@ -163,8 +164,11 @@ export function DeveloperSidebarTemplate({
   const fontScale =
     customization?.fontScale ?? DEFAULT_RESUME_CUSTOMIZATION.fontScale;
   const fontFamily = customization?.fontFamily;
+  const accentColor =
+    customization?.accentColor ?? DEFAULT_RESUME_CUSTOMIZATION.accentColor;
   const pageStyle: DeveloperPageStyle = {
     "--resume-font-scale": fontScale,
+    "--resume-accent": accentColor,
     ...(fontFamily ? { "--resume-font-family": fontFamily } : {}),
   };
   const visibleSectionOrder = getVisibleSectionOrder(resume, customization);

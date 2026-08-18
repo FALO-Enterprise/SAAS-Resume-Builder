@@ -353,6 +353,15 @@ export async function generateCurrentResume(
     }
 }
 
+export type UserUsageDetails = {
+    aiCreditsUsed: number;
+    aiCreditsLimit: number;
+    resumesExported: number;
+    resumesExportLimit: number;
+    resumesStored: number;
+    resumesStoreLimit: number;
+};
+
 export type BillingSubscriptionDetails = {
     plan: 'FREE' | 'PRO' | 'ENTERPRISE';
     status: 'ACTIVE' | 'CANCELED' | 'EXPIRED' | 'PAST_DUE';
@@ -363,6 +372,7 @@ export type BillingSubscriptionDetails = {
     cancelUrl: string | null;
     paddleSubscriptionId: string | null;
     price: number;
+    usage?: UserUsageDetails;
 };
 
 export type CheckoutSessionResponse = {

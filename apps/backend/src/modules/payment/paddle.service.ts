@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import prisma from '../../prisma/prisma.service';
 import { PlanType, SubscriptionStatus } from '@prisma/client';
+import { planUsageService } from '../plan/plan-usage.service';
 
 export type PaddleEnvironment = 'sandbox' | 'production';
 
@@ -361,6 +362,7 @@ export class PaddleService {
 
         if (!subscription) {
             const freePlan = await prisma.plan.findUnique({ where: { name: PlanType.FREE } });
+            const usage = await planUsageService.getUserUsage(userId, PlanType.FREE);
             return {
                 plan: PlanType.FREE,
                 status: 'ACTIVE',
@@ -370,8 +372,11 @@ export class PaddleService {
                 cancelUrl: null,
                 paddleSubscriptionId: null,
                 price: freePlan?.price ?? 0,
+                usage,
             };
         }
+
+        const usage = await planUsageService.getUserUsage(userId, subscription.Plan.name);
 
         return {
             plan: subscription.Plan.name,
@@ -383,6 +388,7 @@ export class PaddleService {
             cancelUrl: subscription.cancelUrl,
             paddleSubscriptionId: subscription.paddleSubscriptionId,
             price: subscription.Plan.price,
+            usage,
         };
     }
 
