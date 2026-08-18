@@ -392,9 +392,13 @@ input::placeholder {
     transform: translate3d(0, 0, 0);
   }
 
+  /* --drift-sign flips the offset for RTL. The row sits at the deck's
+     inline-start edge, so it must drift toward inline-end — physically left
+     in LTR, right in RTL. Reversing playback is not enough: the sign of the
+     travel itself has to flip, or the wall slides off and leaves a void. */
   to {
     transform: translate3d(
-      calc(-50% - var(--tile-gap) / 2),
+      calc((-50% - var(--tile-gap) / 2) * var(--drift-sign, 1)),
       0,
       0
     );

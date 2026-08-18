@@ -1309,6 +1309,8 @@ function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSec
     PRO: t('plans.pro'),
     ENTERPRISE: t('plans.enterprise'),
   };
+  // Enterprise is the top tier — there is nothing to upgrade to, so the CTA is hidden.
+  const isEnterprise = activePlanId === 'ENTERPRISE';
   const ctaLabel = activePlanId === 'FREE' ? t('upgrade') : t('managePlan');
 
   const moveSection = (id: ResumeStepId, destinationIndex: number) => {
@@ -1482,17 +1484,19 @@ function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSec
           </div>
 
           {/* Right */}
-          <Link
-            href={`/${locale}/pricing`}
-            className="group flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold text-gold transition-colors hover:bg-gold/10"
-          >
-            {ctaLabel}
-            <ArrowRight
-              size={13}
-              className={`transition-transform group-hover:translate-x-0.5 ${isRTL ? "-rotate-180" : ""}`}
-              
-            />
-          </Link>
+          {!isEnterprise && (
+            <Link
+              href={`/${locale}/pricing`}
+              className="group flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold text-gold transition-colors hover:bg-gold/10"
+            >
+              {ctaLabel}
+              <ArrowRight
+                size={13}
+                className={`transition-transform group-hover:translate-x-0.5 ${isRTL ? "-rotate-180" : ""}`}
+
+              />
+            </Link>
+          )}
         </div>
       </div>
     </aside>

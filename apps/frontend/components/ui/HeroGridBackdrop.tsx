@@ -51,7 +51,7 @@ export default function HeroGridBackdrop() {
       ref={rootRef}
       aria-hidden="true"
       data-paused="false"
-      className="pointer-events-none absolute inset-0 overflow-hidden [--deck-w:calc((100vw+100vh)*0.7072)] [--tile-w:max(104px,calc(var(--deck-w)/8.5))] [--tile-gap:calc(var(--tile-w)/9)]"
+      className="pointer-events-none absolute inset-0 overflow-hidden [--deck-w:calc((100vw+100vh)*0.7072)] [--tile-w:max(104px,calc(var(--deck-w)/8.5))] [--tile-gap:calc(var(--tile-w)/9)] [--drift-sign:1] rtl:[--drift-sign:-1]"
     >
       <div className="absolute inset-0 bg-linear-to-br from-ink via-soft to-ink" />
 
@@ -64,7 +64,7 @@ export default function HeroGridBackdrop() {
               <div
                 key={rowIndex}
                 data-paused={false}
-                className="flex w-max shrink-0 gap-(--tile-gap) opacity-(--row-opacity) animate-hero-wall-drift [animation-duration:var(--row-speed)] [animation-timing-function:linear] [animation-iteration-count:infinite] rtl:[animation-direction:reverse] motion-reduce:animation-none data-[paused=true]:[animation-play-state:paused]"
+                className="flex w-max shrink-0 gap-(--tile-gap) opacity-(--row-opacity) animate-hero-wall-drift [animation-duration:var(--row-speed)] [animation-timing-function:linear] [animation-iteration-count:infinite] motion-reduce:animate-none data-[paused=true]:[animation-play-state:paused]"
                 style={
                   {
                     marginInlineStart: `calc(var(--tile-w) * ${row.offset})`,
@@ -102,11 +102,11 @@ export default function HeroGridBackdrop() {
 
       <div
         data-paused={false}
-        className="absolute inset-x-[6%] -bottom-22.5 h-70 bg-[radial-gradient(ellipse_55%_60%_at_50%_60%,rgba(245,166,35,0.2),transparent_72%)] blur-[30px] opacity-[0.7] animate-hero-bloom-pulse [animation-duration:7s] [animation-timing-function:ease-in-out] [animation-iteration-count:infinite] motion-reduce:animation-none data-[paused=true]:[animation-play-state:paused]"
+        className="absolute inset-x-[6%] -bottom-22.5 h-70 bg-[radial-gradient(ellipse_55%_60%_at_50%_60%,rgba(245,166,35,0.2),transparent_72%)] blur-[30px] opacity-[0.7] animate-hero-bloom-pulse [animation-duration:7s] [animation-timing-function:ease-in-out] [animation-iteration-count:infinite] motion-reduce:animate-none data-[paused=true]:[animation-play-state:paused]"
       />
 
-      <div className="absolute left-1/4 top-16 h-80 w-80 rounded-full bg-gold/10 blur-[110px]" />
-      <div className="absolute bottom-24 right-1/4 h-80 w-80 rounded-full bg-azure/10 blur-[110px]" />
+      <div className="absolute inset-s-1/4 top-16 h-80 w-80 rounded-full bg-gold/10 blur-[110px]" />
+      <div className="absolute bottom-24 inset-e-1/4 h-80 w-80 rounded-full bg-azure/10 blur-[110px]" />
       <div className="absolute left-1/2 top-1/2 h-105 w-105 -translate-x-1/2 -translate-y-1/2 rounded-full bg-vilot/5 blur-[120px]" />
     </div>
   );
