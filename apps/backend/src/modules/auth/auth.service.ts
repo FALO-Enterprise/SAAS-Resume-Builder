@@ -6,6 +6,7 @@ import { AuthenticatedUserDTO, LoginDTO, LoginResponseDTO, RegisterDTO, Register
 import { createArgonHash, verifyArgonHash } from "./util/argon.util";
 import { removeFields } from "../../common/utils/object.util";
 import { userService } from "../users/users.service";
+import type { PublicUser } from "../users/users.schema";
 import prisma from "../../prisma/prisma.service";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 
@@ -31,7 +32,9 @@ export class AuthService {
         };
     }
 
-    private async attachPlan(user: Awaited<ReturnType<typeof this._userService.findByEmail>>): Promise<AuthenticatedUserDTO> {
+    // Takes an already-password-free user: the hash must never reach a DTO that
+    // gets serialised to the client.
+    private async attachPlan(user: PublicUser | null): Promise<AuthenticatedUserDTO> {
         if (!user) throw new Error('User not found.');
 
         const subscription = await prisma.subscription.findUnique({
@@ -46,7 +49,7 @@ export class AuthService {
         if (!subscription) throw new Error('Active plan not found for user.');
 
         return {
-            ...removeFields(user, ['password']),
+            ...user,
             plan: subscription.Plan
         };
     }
@@ -81,7 +84,7 @@ export class AuthService {
         });
 
         return {
-            ...removeFields(userData, ['password']),
+            ...userData,
             plan: { id: freePlan.id, name: freePlan.name }
         };
 
@@ -110,7 +113,7 @@ export class AuthService {
             throw new Error('Please verify your email before logging in');
         }
 
-        return this.attachPlan(foundUser);
+        return this.attachPlan(removeFields(foundUser, ['password']));
     }
 
     public async markUserAsVerified(userId: string): Promise<RegisterResponseDTO> {

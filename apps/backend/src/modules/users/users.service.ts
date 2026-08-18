@@ -1,6 +1,5 @@
-/* eslint-disable */
 import { UserRepository } from "./users.repository";
-import { User } from "./users.schema";
+import { PublicUser, User } from "./users.schema";
 import type { PaginationMeta } from "../../common/middlewares/response.middleware";
 
 const DEFAULT_PAGE_LIMIT = 20;
@@ -9,7 +8,7 @@ const MAX_PAGE_LIMIT = 100;
 class UserService {
     private repository = new UserRepository();
 
-    async getUsers(page: number, limit: number): Promise<{ users: User[]; meta: PaginationMeta }> {
+    async getUsers(page: number, limit: number): Promise<{ users: PublicUser[]; meta: PaginationMeta }> {
         const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
         const safeLimit = Number.isFinite(limit) && limit > 0
             ? Math.min(Math.floor(limit), MAX_PAGE_LIMIT)
@@ -32,7 +31,7 @@ class UserService {
         };
     }
 
-    getUser(id: string): Promise<User | null> {
+    getUser(id: string): Promise<PublicUser | null> {
         return this.repository.findById(id);
     }
 
@@ -40,11 +39,11 @@ class UserService {
         return this.repository.findByEmail(email);
     }
 
-    public createUser(name: string, email: string, password: string, avatar?: string): Promise<User> {
+    public createUser(name: string, email: string, password: string, avatar?: string): Promise<PublicUser> {
         return this.repository.create(name, email, password, avatar);
     }
 
-    updateUser(id: string, name?: string, email?: string, avatar?: string): Promise<User> {
+    updateUser(id: string, name?: string, email?: string, avatar?: string): Promise<PublicUser> {
         return this.repository.update(id, name, email, avatar);
     }
 
@@ -56,7 +55,7 @@ class UserService {
         return this.repository.findById(id).then(user => !!user);
     }
 
-    public markUserAsVerified(id: string): Promise<User> {
+    public markUserAsVerified(id: string): Promise<PublicUser> {
         return this.repository.markAsVerified(id);
     }
 }

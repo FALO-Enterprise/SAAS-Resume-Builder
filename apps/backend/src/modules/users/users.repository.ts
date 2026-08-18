@@ -1,27 +1,31 @@
 import { Prisma, Role } from "@prisma/client";
-import { User } from "./users.schema";
+import { PublicUser, User } from "./users.schema";
 import prisma from "../../prisma/prisma.service";
+
+const withoutPassword = { password: true } as const;
 
 export class UserRepository {
     private prismaUser = prisma.user;
 
 
-    findAll(query: Prisma.UserWhereInput, skip?: number, take?: number): Promise<User[]> {
-        return this.prismaUser.findMany({ where: query, skip, take });
+    findAll(query: Prisma.UserWhereInput, skip?: number, take?: number): Promise<PublicUser[]> {
+        return this.prismaUser.findMany({ where: query, skip, take, omit: withoutPassword });
     }
 
     count(query: Prisma.UserWhereInput): Promise<number> {
         return this.prismaUser.count({ where: query });
     }
 
-    findById(id: string): Promise<User | null> {
+    findById(id: string): Promise<PublicUser | null> {
         return this.prismaUser.findUnique({
             where: {
                 id
-            }
+            },
+            omit: withoutPassword
         });
     }
 
+    
     findByEmail(email: string): Promise<User | null> {
         return this.prismaUser.findUnique({
             where: {
@@ -31,7 +35,7 @@ export class UserRepository {
     }
 
 
-    create(name: string, email: string, password: string, avatar?: string, role: Role = Role.USER, isVerified?: boolean): Promise<User> {
+    create(name: string, email: string, password: string, avatar?: string, role: Role = Role.USER, isVerified?: boolean): Promise<PublicUser> {
         const user: Omit<User, 'id'> = {
             name,
             email,
@@ -44,19 +48,21 @@ export class UserRepository {
         }
 
         return this.prismaUser.create({
-            data: user
+            data: user,
+            omit: withoutPassword
         });
     }
 
-    markAsVerified(id: string): Promise<User> {
+    markAsVerified(id: string): Promise<PublicUser> {
         return this.prismaUser.update({
             where: { id },
-            data: { isVerified: true }
+            data: { isVerified: true },
+            omit: withoutPassword
         });
     }
 
 
-    update(id: string, name?: string, email?: string, avatar?: string, role?: Role): Promise<User> {
+    update(id: string, name?: string, email?: string, avatar?: string, role?: Role): Promise<PublicUser> {
         return this.prismaUser.update({
             where: {
                 id
@@ -66,7 +72,8 @@ export class UserRepository {
                 email,
                 avatar,
                 role
-            } satisfies Prisma.UserUpdateInput
+            } satisfies Prisma.UserUpdateInput,
+            omit: withoutPassword
         });
 
     }
