@@ -5,6 +5,7 @@ import { getMessages } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { PreferencesProvider } from "@/context/PreferencesContext";
 import AuthModal from "@/components/auth/AuthModal";
 import HtmlDirSync from "@/components/ui/HtmlDirSync";
 import { Toaster } from "sonner";
@@ -37,16 +38,18 @@ export default async function LocaleLayout({
       <NextIntlClientProvider messages={messages}>
         <HtmlDirSync />
         <ThemeProvider>
-          <AuthProvider>
-            <Toaster
-              position="top-right"
-              richColors
-              closeButton
-            />
-            <RouteNotification />
-            {children}
-            <AuthModal />
-          </AuthProvider>
+          <PreferencesProvider>
+            <AuthProvider>
+              <Toaster
+                position="top-right"
+                richColors
+                closeButton
+              />
+              <RouteNotification />
+              {children}
+              <AuthModal />
+            </AuthProvider>
+          </PreferencesProvider>
         </ThemeProvider>
       </NextIntlClientProvider>
     </Providers>

@@ -5,7 +5,6 @@
     "templates": "Templates",
     "pricing": "Pricing",
     "getStarted": "Get Started",
-    "profile": "Profile",
     "settings": "Settings",
     "signIn": "Sign In",
     "dashboard": "Dashboard",
@@ -1075,124 +1074,106 @@
       "fast": "Continue without starting over"
     }
   },
-  "profile": {
-    "title": "Edit Profile",
-    "avatarUpload": "Upload image",
-    "changeAvatar": "Change",
-    "nameLabel": "Name",
-    "emailLabel": "Email",
-    "cancel": "Cancel",
-    "saveChanges": "Save Changes",
-    "saving": "Saving…",
-    "errors": {
-      "updateFailed": "Something went wrong. Please try again."
-    }
-  },
   "settings": {
     "title": "Settings",
-    "subtitle": "Manage app preferences",
+    "subtitle": "Manage your app preferences",
     "version": "ResuMax v1.0.0",
     "close": "Close",
-    "savePreferences": "Save Preferences",
-    "preferencesSaved": "Preferences saved!",
     "tabs": {
-      "appearance": "Appearance",
-      "language": "Language & Region",
-      "resume": "Resume Preferences",
+      "general": "General",
       "notifications": "Notifications",
-      "billing": "Billing & Plans",
-      "security": "Security & Sessions",
-      "privacy": "Privacy & Data",
-      "about": "About ResuMax"
+      "billing": "Billing",
+      "security": "Security",
+      "privacy": "Privacy",
+      "about": "About"
     },
-    "appearance": {
-      "heading": "Appearance",
-      "description": "Customize how ResuMax looks on your screen.",
+    "general": {
+      "heading": "General",
+      "description": "Your profile, plan, and app preferences.",
+      "changePhoto": "Change photo",
+      "avatarHint": "JPG, PNG, GIF or WebP. Up to 5 MB.",
+      "avatarTooLarge": "That image is larger than 5 MB.",
+      "avatarInvalidType": "Choose a JPG, PNG, GIF or WebP image.",
+      "nameLabel": "Name",
+      "nameHelp": "Shown in the app. The name printed on a resume is set on each resume.",
+      "emailLabel": "Email",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveFailed": "Couldn't save",
+      "planHeading": "Plan",
+      "managePlan": "Manage plan",
+      "preferencesHeading": "Preferences",
       "themeLabel": "Theme",
       "light": "Light",
       "dark": "Dark",
-      "accentColorLabel": "Accent Color",
-      "compactMode": "Compact Mode",
-      "compactModeDesc": "Reduce padding in sidebar and editor",
-      "reduceAnimations": "Reduce Animations",
-      "reduceAnimationsDesc": "Disable motion transitions for faster navigation"
-    },
-    "language": {
-      "heading": "Language & Region",
-      "description": "Set application language and date formatting.",
-      "interfaceLanguage": "Interface Language",
-      "dateFormatLabel": "Default Date Format on Resume",
-      "dateFormats": {
-        "mmYYYY": "MM/YYYY (e.g., 08/2026)",
-        "mmmYYYY": "MMM YYYY (e.g., Aug 2026)",
-        "yyyyMM": "YYYY-MM (e.g., 2026-08)"
+      "system": "System",
+      "languageLabel": "Language",
+      "languageHelp": "Interface language. Resume content language is set per resume.",
+      "reduceMotion": "Reduce motion",
+      "reduceMotionDesc": "Minimise animations and transitions across the app",
+      "defaultsHeading": "New resume defaults",
+      "exportFormatLabel": "Default download format",
+      "exportFormatHelp": "Pre-selects this format in the resume export menu.",
+      "formats": {
+        "pdf": "PDF (.pdf)",
+        "jpg": "Image (.jpg)"
       }
     },
-    "resume": {
-      "heading": "Resume Preferences",
-      "description": "Default defaults when generating new resumes.",
-      "paperSizeLabel": "Default Paper Size",
-      "exportFormatLabel": "Default Download Format",
-      "formats": {
-        "pdf": "PDF Document (.pdf)",
-        "docx": "Microsoft Word (.docx)"
-      },
-      "autoSave": "Auto-Save Editor Changes",
-      "autoSaveDesc": "Automatically save changes while typing"
-    },
     "notifications": {
-      "heading": "Email Notifications",
-      "description": "Manage what emails you receive from ResuMax.",
+      "heading": "Email notifications",
+      "description": "Manage the messages ResuMax sends you.",
       "resumeExported": {
-        "title": "Resume Exports",
-        "desc": "Notify when PDF generation completes"
+        "title": "Resume exported",
+        "desc": "Notify me when a PDF finishes generating"
       },
       "securityAlerts": {
-        "title": "Security Alerts",
-        "desc": "Alert me about new device logins"
+        "title": "Security alerts",
+        "desc": "Alert me when a new device signs in"
       },
       "weeklyTips": {
-        "title": "Career Tips & AI Advice",
-        "desc": "Weekly tips to improve your resume score"
+        "title": "Career tips and AI assistance",
+        "desc": "Weekly tips for improving your resume score"
       },
       "productUpdates": {
-        "title": "Product News & Features",
+        "title": "Product news and new features",
         "desc": "Updates about new templates and features"
       }
     },
     "billing": {
-      "heading": "Billing & Subscription",
+      "heading": "Billing and subscription",
       "description": "Manage your active subscription and plan limits.",
       "planLabel": "{plan} Plan",
-      "activeSubscription": "Active Subscription",
+      "renewsOn": "Renews {date}",
       "upgradeToPro": "Upgrade to Pro",
-      "managePlan": "Manage Plan",
       "upgradeToEnterprise": "Upgrade to Enterprise",
-      "manageEnterprise": "Manage Enterprise",
+      "updatePayment": "Update payment",
+      "cancelPlan": "Cancel plan",
+      "canceling": "Canceling…",
+      "cancellationScheduled": "Cancellation scheduled",
+      "cancelSuccess": "Subscription canceled successfully.",
+      "cancelFailed": "Failed to cancel subscription",
       "planDescriptions": {
-        "free": "You are currently on the Free plan. Upgrade for unlimited AI resume enhancements and DOCX exports.",
-        "pro": "You are on the Pro plan with unlimited AI resume enhancements, DOCX exports, and advanced analytics.",
-        "enterprise": "You are on the Enterprise plan with unlimited features, priority support, and custom integrations."
-      },
-      "usageLimits": "Usage Limits",
-      "aiCreditsUsed": "AI Credits Used",
-      "resumesStored": "Resumes Stored"
+        "free": "You're on the Free plan. Upgrade for unlimited AI enhancements and more exports.",
+        "pro": "You're on Pro, with unlimited AI enhancements and advanced analytics.",
+        "enterprise": "You're on Enterprise, with unlimited features and priority support."
+      }
     },
     "security": {
-      "heading": "Security & Sessions",
-      "description": "Manage password and view connected devices.",
-      "activeSessions": "Active Sessions",
-      "currentDevice": "Current Device",
-      "active": "Active",
-      "signOutAllDevices": "Sign out from all devices"
+      "heading": "Security",
+      "description": "Your sign-in details and password.",
+      "accountEmail": "Account email",
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "passwordHeading": "Password",
+      "passwordDesc": "We'll email you a secure link to set a new password.",
+      "changePassword": "Change password"
     },
     "privacy": {
-      "heading": "Privacy & Data",
+      "heading": "Privacy and data",
       "description": "Control your personal data and account deletion.",
-      "downloadData": "Download Account Data (.json)",
-      "dangerZone": "Danger Zone",
-      "dangerZoneDesc": "Permanently delete your account and all stored resumes from ResuMax. This cannot be undone.",
-      "deleteAccount": "Delete Account",
+      "dangerZone": "Danger zone",
+      "dangerZoneDesc": "Permanently delete your account and every stored resume. This cannot be undone.",
+      "deleteAccount": "Delete account",
       "errors": {
         "userNotFound": "User information not found",
         "deleteFailed": "Failed to delete account. Please try again."
@@ -1200,18 +1181,16 @@
     },
     "about": {
       "heading": "About ResuMax",
-      "description": "Application metadata and support links.",
+      "description": "Application details.",
       "version": "Version",
-      "buildDate": "Build Date",
-      "buildDateValue": "July 2026",
-      "termsOfService": "Terms of Service",
-      "privacyPolicy": "Privacy Policy"
+      "buildDate": "Build date",
+      "buildDateValue": "July 2026"
     },
     "deleteConfirm": {
-      "title": "Delete Account",
-      "message": "Are you sure you want to delete your account? This action cannot be undone. All your resumes and data will be permanently removed.",
+      "title": "Delete account",
+      "message": "Are you sure you want to delete your account? This cannot be undone. All your resumes and data will be permanently removed.",
       "cancel": "Cancel",
-      "confirm": "Delete Account",
+      "confirm": "Delete account",
       "deleting": "Deleting…"
     }
   },

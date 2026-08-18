@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,14 +10,12 @@ import {
   LogOut,
   ChevronDown,
   TriangleAlert,
-  User as UserIcon,
   Settings,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
 import { getInitials } from "@/lib/utilities/getName";
 import { PLAN_BADGES } from "@/lib/placeholder-data/plans.placeholder";
-import ProfileModal from "./ProfileModal";
 import SettingsModal from "./SettingsModal";
 
 
@@ -27,8 +25,8 @@ export default function UserAvatarMenu() {
   const { user, logout, isVerified } = useAuth();
 
   const [open, setOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   if (!user) return null;
 
@@ -39,6 +37,7 @@ export default function UserAvatarMenu() {
     <>
       <div className="relative">
         <button
+          ref={triggerRef}
           onClick={() => setOpen(!open)}
           className="relative flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-transparent border border-edge cursor-pointer transition-all delay-200"
         >
@@ -123,19 +122,8 @@ export default function UserAvatarMenu() {
                   </span>
                 </div>
 
-                {/* Profile */}
-                <button
-                  onClick={() => {
-                    setOpen(false);
-                    setIsProfileOpen(true);
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-secondary hover:bg-card-hover hover:text-primary transition-colors cursor-pointer"
-                >
-                  <UserIcon size={14} />
-                  {t("profile")}
-                </button>
-
-                {/* Settings */}
+                {/* Settings — also where the profile (avatar, name) is edited,
+                    under the General section. */}
                 <button
                   onClick={() => {
                     setOpen(false);
@@ -174,14 +162,12 @@ export default function UserAvatarMenu() {
         </AnimatePresence>
       </div>
 
-      {/* Independent Popups */}
-      <ProfileModal
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
-      />
       <SettingsModal
         isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+        onClose={() => {
+          setIsSettingsOpen(false);
+          triggerRef.current?.focus();
+        }}
       />
     </>
   );
