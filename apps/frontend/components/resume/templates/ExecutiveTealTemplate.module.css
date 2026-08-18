@@ -1,8 +1,8 @@
 .resumePage {
   --resume-font-scale: 1;
-  --executive-teal: #087682;
-  --executive-teal-dark: #075f69;
-  --executive-teal-soft: #edf8f8;
+  --executive-teal: var(--resume-accent, #087682);
+  --executive-teal-dark: color-mix(in srgb, var(--resume-accent, #087682) 80%, black);
+  --executive-teal-soft: color-mix(in srgb, var(--resume-accent, #087682) 12%, white);
   box-sizing: border-box;
   width: 210mm;
   min-height: 297mm;
@@ -399,6 +399,8 @@
   .resumePage {
     margin: 0;
     box-shadow: none;
+    max-height: 297mm;
+    overflow: hidden;
   }
 
   :global(.non-printable) {

@@ -1,8 +1,7 @@
 .resumePage {
   position: relative;
   box-sizing: border-box;
-  width: 100%;
-  max-width: 210mm;
+  width: 210mm;
   min-height: 297mm;
   margin: 0 auto;
   padding: 14mm 16mm;
@@ -22,7 +21,7 @@
   position: relative;
   margin-bottom: 22px;
   padding-bottom: 18px;
-  border-bottom: 2px solid #1c1917;
+  border-bottom: 2.5px solid var(--resume-accent, #c25e2e);
 }
 
 .topBadge {
@@ -280,4 +279,24 @@
   border-radius: 3px;
   margin-right: 4px;
   margin-top: 4px;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media screen {
+  .resumePage {
+    box-shadow: 0 18px 55px rgb(15 23 42 / 20%);
+  }
+}
+
+@media print {
+  .resumePage {
+    margin: 0;
+    box-shadow: none;
+    max-height: 297mm;
+    overflow: hidden;
+  }
 }

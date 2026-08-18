@@ -1,8 +1,7 @@
 .resumePage {
   position: relative;
   box-sizing: border-box;
-  width: 100%;
-  max-width: 210mm;
+  width: 210mm;
   min-height: 297mm;
   margin: 0 auto;
   padding: 14mm 16mm;
@@ -20,9 +19,9 @@
 
 .header {
   position: relative;
-  background: #f0fdf4;
-  border: 1px solid #dcfce7;
-  border-left: 4px solid var(--resume-accent, #0f766e);
+  background: color-mix(in srgb, var(--resume-accent, #0f766e) 8%, white);
+  border: 1px solid color-mix(in srgb, var(--resume-accent, #0f766e) 22%, white);
+  border-left: 5px solid var(--resume-accent, #0f766e);
   padding: 16px 20px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -78,7 +77,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #0f766e;
+  background: var(--resume-accent, #0f766e);
   color: #ffffff;
   font-size: 10px;
   font-weight: 800;
@@ -101,7 +100,7 @@
 }
 
 .contactGrid a {
-  color: #0f766e;
+  color: var(--resume-accent, #0f766e);
   text-decoration: none;
   font-weight: 600;
 }
@@ -235,4 +234,24 @@
 
 .descriptionList li {
   margin-bottom: 4px;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media screen {
+  .resumePage {
+    box-shadow: 0 18px 55px rgb(15 23 42 / 20%);
+  }
+}
+
+@media print {
+  .resumePage {
+    margin: 0;
+    box-shadow: none;
+    max-height: 297mm;
+    overflow: hidden;
+  }
 }

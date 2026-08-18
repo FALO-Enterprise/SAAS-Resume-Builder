@@ -32,13 +32,23 @@ export default async function ResumeRenderPage({ searchParams }: RenderPageProps
   const Template = template.component;
 
   return (
-    <main data-resume-render-ready="true" style={{ position: 'relative' }}>
+    <main
+      data-resume-render-ready="true"
+      style={{
+        position: 'relative',
+        width: '210mm',
+        minHeight: '297mm',
+        margin: '0 auto',
+        padding: 0,
+        boxSizing: 'border-box',
+      }}
+    >
       <Template resume={snapshot.content} customization={snapshot.customization} />
       {snapshot.hasWatermark && (
         <div
           style={{
             position: 'absolute',
-            bottom: '12px',
+            bottom: '8px',
             left: '0',
             right: '0',
             display: 'flex',
@@ -52,9 +62,9 @@ export default async function ResumeRenderPage({ searchParams }: RenderPageProps
             style={{
               background: 'rgba(15, 23, 42, 0.88)',
               color: '#ffffff',
-              padding: '6px 16px',
+              padding: '4px 14px',
               borderRadius: '20px',
-              fontSize: '11px',
+              fontSize: '10px',
               fontWeight: 700,
               fontFamily: 'system-ui, sans-serif',
               letterSpacing: '0.05em',

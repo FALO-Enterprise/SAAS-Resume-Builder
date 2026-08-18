@@ -167,22 +167,14 @@
         "name": "Global Core",
         "date": "Jan 2027",
         "tag": "Upcoming",
-        "features": [
-          "120+ templates",
-          "ATS optimizer",
-          "AI suggestions"
-        ]
+        "features": ["120+ templates", "ATS optimizer", "AI suggestions"]
       },
       "v3": {
         "version": "v3.0",
         "name": "AI-Powered",
         "date": "Q3 2027",
         "tag": "Future",
-        "features": [
-          "GPT resume coach",
-          "Job-match scoring",
-          "LinkedIn sync"
-        ]
+        "features": ["GPT resume coach", "Job-match scoring", "LinkedIn sync"]
       }
     }
   },

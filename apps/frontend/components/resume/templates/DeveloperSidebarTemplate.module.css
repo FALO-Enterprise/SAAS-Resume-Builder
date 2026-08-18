@@ -1,6 +1,9 @@
 .resumePage {
   --resume-font-scale: 1;
-  --developer-accent: #d75d68;
+  --developer-accent: var(--resume-accent, #d75d68);
+  --developer-accent-soft: color-mix(in srgb, var(--developer-accent) 22%, transparent);
+  --developer-accent-border: color-mix(in srgb, var(--developer-accent) 38%, transparent);
+  --developer-accent-light: color-mix(in srgb, var(--developer-accent) 70%, white);
   box-sizing: border-box;
   display: grid;
   grid-template-columns: 76mm minmax(0, 1fr);
@@ -41,7 +44,7 @@
   height: 22mm;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid var(--resume-accent, #0284c7);
+  border: 2px solid var(--developer-accent);
   margin: 0 auto 5mm;
   background: #ffffff;
   box-shadow: 0 2mm 5mm rgba(0, 0, 0, 0.3);
@@ -58,7 +61,7 @@
   min-width: 0;
   padding: 12mm 10mm 13mm 9mm;
   background:
-    linear-gradient(135deg, rgb(215 93 104 / 4%) 0 22%, transparent 22% 100%),
+    linear-gradient(135deg, color-mix(in srgb, var(--developer-accent) 7%, transparent) 0 22%, transparent 22% 100%),
     repeating-linear-gradient(
       115deg,
       transparent 0 12mm,
@@ -173,10 +176,10 @@
 .skillPills li {
   max-width: 100%;
   padding: 1.15mm 2.3mm;
-  border: 0.4pt solid rgb(215 93 104 / 26%);
+  border: 0.4pt solid var(--developer-accent-border);
   border-radius: 999px;
-  background: rgb(215 93 104 / 20%);
-  color: #ed9aa2;
+  background: var(--developer-accent-soft);
+  color: var(--developer-accent-light);
   font-size: calc(6.9pt * var(--resume-font-scale));
   line-height: 1.15;
   overflow-wrap: anywhere;
@@ -231,7 +234,7 @@
 
 .projectTechnologies {
   margin: 1mm 0 0;
-  color: #ed9aa2;
+  color: var(--developer-accent-light);
   font-size: calc(6.8pt * var(--resume-font-scale));
   font-weight: 600;
 }
@@ -323,7 +326,7 @@
 .mainHeading {
   margin: 0 0 3mm;
   padding: 0 0 1.6mm;
-  border-bottom: 0.65pt solid #d7d8dc;
+  border-bottom: 1.2pt solid color-mix(in srgb, var(--developer-accent) 45%, #d7d8dc);
   color: #2b2d39;
   font-size: calc(10.8pt * var(--resume-font-scale));
   font-weight: 700;
@@ -417,6 +420,8 @@
   .resumePage {
     margin: 0;
     box-shadow: none;
+    max-height: 297mm;
+    overflow: hidden;
   }
 
   :global(.non-printable) {
