@@ -3,6 +3,7 @@ import prisma from '../../prisma/prisma.service';
 import { createArgonHash } from './util/argon.util';
 import type { AuthenticatedUserDTO } from './types/auth.dto';
 import { sendVerificationCode } from './util/verification.util';
+import { notificationEmailService } from '../email/notification-email.service';
 
 export const OAUTH_PROVIDERS = ['google', 'github', 'linkedin'] as const;
 export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
@@ -348,10 +349,15 @@ export async function findOrCreateOAuthUser(
                 },
             });
 
-            // Send verification email for new OAuth registrations
+            // Send verification email and welcome email for new OAuth registrations
             try {
                 await sendVerificationCode(email);
                 console.log(`Verification code sent to OAuth user: ${email}`);
+                void notificationEmailService.sendWelcomeEmail({
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                }).catch(() => {});
             } catch (verifyError) {
                 console.error(`Failed to send verification code to OAuth user ${email}:`, verifyError);
             }

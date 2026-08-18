@@ -3,6 +3,7 @@ import { paddleService, PaddleWebhookEvent } from './paddle.service';
 import { PlanType, SubscriptionStatus } from '@prisma/client';
 import prisma from '../../prisma/prisma.service';
 import { HttpErrorStatus } from '../../common/utils/util.types';
+import { notificationEmailService } from '../email/notification-email.service';
 
 export class PaymentController {
     /**
@@ -129,6 +130,16 @@ export class PaymentController {
                 },
                 include: { Plan: true },
             });
+
+            const dbUser = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { id: true, email: true, name: true },
+            });
+            if (dbUser) {
+                void notificationEmailService.sendPlanUpdateEmail(dbUser, subscription.Plan.name).catch((err) => {
+                    console.warn('Failed to send plan update email in syncCheckout:', err);
+                });
+            }
 
             return res.ok({
                 success: true,

@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { DashboardDraftData } from './types/dashboard.types';
 import type { ResumeTemplateId } from '@shared-types/resume';
 import { PlanName } from "./types/auth.types";
+import { getAccessToken } from "./auth/token";
 // import type { NormalizedApiError } from "@/lib/api/client";
 
 
@@ -73,33 +74,36 @@ type BackendErrorPayload = {
 function backendErrorMessage(error: unknown, fallback: string) {
     if (!error || typeof error !== 'object') return fallback;
 
-    const source = error as BackendErrorPayload;
-    const responseData = source.response?.data;
-    const payload = responseData && typeof responseData === 'object'
-        ? responseData as BackendErrorPayload
-        : source;
-    const fromMessage = payload.message;
-    const fromError = payload.error;
+    const source = error as { message?: unknown; error?: unknown; status?: unknown; response?: { data?: unknown } };
 
-    if (typeof fromMessage === 'string' && fromMessage.trim()) return fromMessage;
-    if (typeof fromError === "string") return fromError;
-    if (fromError && typeof fromError === "object" && "message" in fromError) {
-        const nestedMessage = (fromError as { message?: unknown }).message;
-        if (typeof nestedMessage === 'string' && nestedMessage.trim()) return nestedMessage;
+    if (typeof source.message === 'string' && source.message.trim()) {
+        return source.message;
     }
 
+    const responseData = source.response?.data;
+    const payload = responseData && typeof responseData === 'object'
+        ? responseData as { message?: unknown; error?: unknown }
+        : null;
+
+    if (payload) {
+        if (typeof payload.message === 'string' && payload.message.trim()) return payload.message;
+        if (typeof payload.error === 'string' && payload.error.trim()) return payload.error;
+    }
+
+    if (typeof source.error === 'string' && source.error.trim()) return source.error;
     if (error instanceof Error && error.message) return error.message;
+
     return fallback;
 }
 
 function backendErrorStatus(error: unknown): number | null {
     if (!error || typeof error !== 'object') return null;
 
-    const source = error as BackendErrorPayload;
+    const source = error as { status?: unknown; statusCode?: unknown; response?: { status?: unknown } };
     const status = [
-        source.response?.status,
         source.status,
         source.statusCode,
+        source.response?.status,
     ].find((value): value is number => typeof value === 'number');
 
     return status ?? null;
@@ -387,10 +391,11 @@ export type CheckoutSessionResponse = {
     };
 };
 
-export async function getBillingSubscription(token: string): Promise<BillingSubscriptionDetails> {
+export async function getBillingSubscription(token?: string): Promise<BillingSubscriptionDetails> {
     try {
+        const authToken = token || getAccessToken();
         const { data } = await apiClient.get('/api/payments/subscription', {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
         });
         const normalized = normalizeBackendPayload<BillingSubscriptionDetails>(data);
         if ('error' in normalized) throw new Error(normalized.error);
@@ -445,6 +450,37 @@ export async function cancelBillingSubscription(token: string, immediately = fal
         return normalized;
     } catch (error) {
         throw createApiRequestError(error, 'Could not cancel subscription');
+    }
+}
+
+export async function fetchBackendPreferences(token: string): Promise<Record<string, boolean> | null> {
+    try {
+        const { data } = await apiClient.get('/api/users/me/preferences', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const normalized = normalizeBackendPayload<Record<string, boolean>>(data);
+        if (normalized && !('error' in normalized)) {
+            return normalized;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+export async function updateBackendPreferences(token: string, preferences: Record<string, boolean>): Promise<Record<string, boolean> | null> {
+    try {
+        const { data } = await apiClient.patch('/api/users/me/preferences', preferences, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const normalized = normalizeBackendPayload<Record<string, boolean>>(data);
+        if (normalized && !('error' in normalized)) {
+            return normalized;
+        }
+        return null;
+    } catch (error) {
+        console.warn('Failed to sync preferences to backend:', error);
+        return null;
     }
 }
 

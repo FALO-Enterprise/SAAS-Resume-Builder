@@ -9,6 +9,7 @@ import { userService } from "../users/users.service";
 import type { PublicUser } from "../users/users.schema";
 import prisma from "../../prisma/prisma.service";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { notificationEmailService } from "../email/notification-email.service";
 
 const PASSWORD_RESET_TTL_MS = 15 * 60 * 1000;
 
@@ -83,6 +84,14 @@ export class AuthService {
             }
         });
 
+        void notificationEmailService.sendWelcomeEmail({
+            id: userData.id,
+            email: userData.email,
+            name: userData.name,
+        }).catch((err) => {
+            console.warn('Failed to send welcome email during registration:', err);
+        });
+
         return {
             ...userData,
             plan: { id: freePlan.id, name: freePlan.name }
@@ -118,6 +127,15 @@ export class AuthService {
 
     public async markUserAsVerified(userId: string): Promise<RegisterResponseDTO> {
         const user = await this._userService.markUserAsVerified(userId);
+        if (user) {
+            void notificationEmailService.sendWelcomeEmail({
+                id: user.id,
+                email: user.email,
+                name: user.name,
+            }).catch((err) => {
+                console.warn('Failed to send welcome email:', err);
+            });
+        }
         return this.attachPlan(user);
     }
 

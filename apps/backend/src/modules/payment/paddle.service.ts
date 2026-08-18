@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import prisma from '../../prisma/prisma.service';
 import { PlanType, SubscriptionStatus } from '@prisma/client';
 import { planUsageService } from '../plan/plan-usage.service';
+import { notificationEmailService } from '../email/notification-email.service';
 
 export type PaddleEnvironment = 'sandbox' | 'production';
 
@@ -235,6 +236,13 @@ export class PaddleService {
         });
 
         console.log(`[PaddleService] Subscription activated for user ${userId} -> Plan: ${planType}`);
+        
+        const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true } });
+        if (user) {
+            void notificationEmailService.sendPlanUpdateEmail(user, planType).catch((err) => {
+                console.warn('Failed to send plan update email:', err);
+            });
+        }
         return { success: true, message: `Subscription activated for user ${userId}` };
     }
 
@@ -276,12 +284,20 @@ export class PaddleService {
         });
 
         console.log(`[PaddleService] Subscription updated for ${subscription.userId} -> Plan: ${targetPlan.name}`);
+
+        const user = await prisma.user.findUnique({ where: { id: subscription.userId }, select: { id: true, email: true, name: true } });
+        if (user) {
+            void notificationEmailService.sendPlanUpdateEmail(user, targetPlan.name, subscription.Plan.name).catch((err) => {
+                console.warn('Failed to send plan update email:', err);
+            });
+        }
         return { success: true, message: `Subscription updated for ${subscription.userId}` };
     }
 
     private async handleSubscriptionCanceled(data: PaddleWebhookEvent['data']) {
         const subscription = await prisma.subscription.findUnique({
             where: { paddleSubscriptionId: data.id },
+            include: { Plan: true },
         });
 
         if (!subscription) {
@@ -303,6 +319,13 @@ export class PaddleService {
         });
 
         console.log(`[PaddleService] Subscription canceled for user ${subscription.userId}`);
+
+        const user = await prisma.user.findUnique({ where: { id: subscription.userId }, select: { id: true, email: true, name: true } });
+        if (user) {
+            void notificationEmailService.sendPlanUpdateEmail(user, 'FREE', subscription.Plan.name).catch((err) => {
+                console.warn('Failed to send plan update email:', err);
+            });
+        }
         return { success: true, message: `Subscription canceled for user ${subscription.userId}` };
     }
 

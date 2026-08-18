@@ -11,5 +11,6 @@ export const userSchema = z.object({
     isVerified: z.boolean().default(false),
     createdAt: z.date(),
     updatedAt: z.date(),
-    password: z.string().min(8) // hash value
+    password: z.string().min(8), // hash value
+    notificationSettings: z.any().nullable(),
 }) satisfies ZodType<User>

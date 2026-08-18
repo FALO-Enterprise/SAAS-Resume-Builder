@@ -9,6 +9,10 @@ const userController = new UserController();
 
 router.use(isAuthenticated);
 
+// Preferences endpoints for current authenticated user
+router.get('/me/preferences', userController.getPreferences);
+router.patch('/me/preferences', userController.updatePreferences);
+
 // GET /api/users - Enumerates every account, so admins only.
 router.get('/', isAdmin, userController.getUsers);
 

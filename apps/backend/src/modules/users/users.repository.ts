@@ -36,19 +36,15 @@ export class UserRepository {
 
 
     create(name: string, email: string, password: string, avatar?: string, role: Role = Role.USER, isVerified?: boolean): Promise<PublicUser> {
-        const user: Omit<User, 'id'> = {
-            name,
-            email,
-            role,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            password,
-            isVerified: isVerified || false,
-            avatar: avatar || null
-        }
-
         return this.prismaUser.create({
-            data: user,
+            data: {
+                name,
+                email,
+                role,
+                password,
+                isVerified: isVerified || false,
+                avatar: avatar || null
+            },
             omit: withoutPassword
         });
     }

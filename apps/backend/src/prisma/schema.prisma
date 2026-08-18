@@ -7,21 +7,22 @@ datasource db {
 }
 
 model User {
-  id                  String               @id @default(uuid())
-  name                String
-  email               String               @unique
-  avatar              String?
-  password            String
-  role                Role                 @default(USER)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  isVerified          Boolean              @default(false)
-  dashboardDrafts     DashboardDraft[]
-  oauthAccounts       OAuthAccount[]
-  oauthLoginCodes     OAuthLoginCode[]
-  passwordResetTokens PasswordResetToken[]
-  resumes             Resume[]
-  Subscription        Subscription?
+  id                   String               @id @default(uuid())
+  name                 String
+  email                String               @unique
+  avatar               String?
+  password             String
+  role                 Role                 @default(USER)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  isVerified           Boolean              @default(false)
+  notificationSettings Json?
+  dashboardDrafts      DashboardDraft[]
+  oauthAccounts        OAuthAccount[]
+  oauthLoginCodes      OAuthLoginCode[]
+  passwordResetTokens  PasswordResetToken[]
+  resumes              Resume[]
+  Subscription         Subscription?
 }
 
 model DashboardDraft {
@@ -42,9 +43,7 @@ model DashboardDraft {
   projects       Json     @default("[]")
   sectionOrder   String[] @default([])
   resumeId       String?  @unique
-  resumeId       String?  @unique
   resume         Resume?  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -107,7 +106,6 @@ model Resume {
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
   draft      DashboardDraft?
-  draft      DashboardDraft?
   template   Template        @relation(fields: [templateId], references: [id])
   user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -141,12 +139,7 @@ model Subscription {
   cancelUrl            String?
   currentPeriodEnd     DateTime?
   currentPeriodStart   DateTime?
-  cancelAtPeriodEnd    Boolean            @default(false)
-  cancelUrl            String?
-  currentPeriodEnd     DateTime?
-  currentPeriodStart   DateTime?
   paddleCustomerId     String?
-  paddlePriceId        String?
   paddlePriceId        String?
   paddleSubscriptionId String?            @unique
   paddleTransactionId  String?

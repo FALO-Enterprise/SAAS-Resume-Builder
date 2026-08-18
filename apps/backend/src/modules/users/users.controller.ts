@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import { userService } from "./users.service";
 import { HttpErrorStatus } from "../../common/utils/util.types";
+import { notificationEmailService } from "../email/notification-email.service";
 
 const BACKEND_URL = process.env.BACKEND_PUBLIC_URL || "http://localhost:3001";
 
@@ -61,5 +62,26 @@ export class UserController {
             return res.status(404).json({ error: 'User not found' });
         }
         res.ok({});
+    };
+
+    getPreferences = async (req: Request, res: Response) => {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.error({ message: 'Unauthorized', statusCode: HttpErrorStatus.Unauthorized });
+        }
+
+        const prefs = await notificationEmailService.getUserPreferences(userId);
+        return res.ok(prefs);
+    };
+
+    updatePreferences = async (req: Request, res: Response) => {
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.error({ message: 'Unauthorized', statusCode: HttpErrorStatus.Unauthorized });
+        }
+
+        const settings = req.body as Record<string, boolean>;
+        const updated = await notificationEmailService.updateUserPreferences(userId, settings);
+        return res.ok(updated);
     };
 }

@@ -101,7 +101,23 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const setNotification = useCallback(
     (key: keyof NotificationPreferences, value: boolean) => {
       const current = getSnapshot();
-      write({ ...current, notifications: { ...current.notifications, [key]: value } });
+      const updatedNotifications = { ...current.notifications, [key]: value };
+      write({ ...current, notifications: updatedNotifications });
+
+      try {
+        const authRaw = window.localStorage.getItem('auth_session') || window.localStorage.getItem('session');
+        if (authRaw) {
+          const parsed = JSON.parse(authRaw);
+          const token = parsed?.token || parsed?.state?.token;
+          if (token && typeof token === 'string') {
+            import('@/lib/backend').then(({ updateBackendPreferences }) => {
+              void updateBackendPreferences(token, updatedNotifications);
+            }).catch(() => {});
+          }
+        }
+      } catch {
+        // localStorage parse failure
+      }
     },
     [write],
   );

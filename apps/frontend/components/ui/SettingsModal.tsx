@@ -44,6 +44,7 @@ import {
 } from "@/hooks/queries/useUser";
 import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
 import { getInitials } from "@/lib/utilities/getName";
+import { getAccessToken } from "@/lib/auth/token";
 import { toast } from "sonner";
 import {
   getBillingSubscription,
@@ -274,14 +275,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   useEffect(() => {
     if (!isOpen) return;
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("resumax_token")
-        : null;
+    const token = getAccessToken();
     if (!token) return;
     getBillingSubscription(token)
       .then((res) => setBillingDetails(res))
-      .catch((err) => console.error("Could not fetch billing details:", err));
+      .catch((err) => {
+        console.warn("Could not fetch billing details:", err);
+      });
   }, [isOpen]);
 
   // Release the last object URL when the modal unmounts.
