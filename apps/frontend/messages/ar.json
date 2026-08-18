@@ -5,7 +5,6 @@
     "templates": "القوالب",
     "pricing": "الأسعار",
     "getStarted": "ابدأ الآن",
-    "profile": "الملف الشخصي",
     "settings": "الإعدادات",
     "signIn": "تسجيل الدخول",
     "dashboard": "لوحة التحكم",
@@ -1075,70 +1074,50 @@
       "fast": "المتابعة دون البدء من جديد"
     }
   },
-  "profile": {
-    "title": "تعديل الملف الشخصي",
-    "avatarUpload": "رفع صورة",
-    "changeAvatar": "تغيير",
-    "nameLabel": "الاسم",
-    "emailLabel": "البريد الإلكتروني",
-    "cancel": "إلغاء",
-    "saveChanges": "حفظ التغييرات",
-    "saving": "جارٍ الحفظ…",
-    "errors": {
-      "updateFailed": "حدث خطأ ما. حاول مرة أخرى."
-    }
-  },
   "settings": {
     "title": "الإعدادات",
     "subtitle": "إدارة تفضيلات التطبيق",
     "version": "ResuMax الإصدار 1.0.0",
     "close": "إغلاق",
-    "savePreferences": "حفظ التفضيلات",
-    "preferencesSaved": "تم حفظ التفضيلات!",
     "tabs": {
-      "appearance": "المظهر",
-      "language": "اللغة والمنطقة",
-      "resume": "تفضيلات السيرة الذاتية",
+      "general": "عام",
       "notifications": "الإشعارات",
-      "billing": "الفوترة والباقات",
-      "security": "الأمان والجلسات",
-      "privacy": "الخصوصية والبيانات",
-      "about": "حول ResuMax"
+      "billing": "الفوترة",
+      "security": "الأمان",
+      "privacy": "الخصوصية",
+      "about": "حول"
     },
-    "appearance": {
-      "heading": "المظهر",
-      "description": "خصص طريقة ظهور ResuMax على شاشتك.",
+    "general": {
+      "heading": "عام",
+      "description": "ملفك الشخصي وباقتك وتفضيلات التطبيق.",
+      "changePhoto": "تغيير الصورة",
+      "avatarHint": "JPG أو PNG أو GIF أو WebP. حتى 5 ميغابايت.",
+      "avatarTooLarge": "حجم الصورة أكبر من 5 ميغابايت.",
+      "avatarInvalidType": "اختر صورة بصيغة JPG أو PNG أو GIF أو WebP.",
+      "nameLabel": "الاسم",
+      "nameHelp": "يظهر داخل التطبيق. أما الاسم المطبوع على السيرة الذاتية فيُحدَّد في كل سيرة على حدة.",
+      "emailLabel": "البريد الإلكتروني",
+      "saving": "جارٍ الحفظ…",
+      "saved": "تم الحفظ",
+      "saveFailed": "تعذّر الحفظ",
+      "planHeading": "الباقة",
+      "managePlan": "إدارة الباقة",
+      "preferencesHeading": "التفضيلات",
       "themeLabel": "السمة",
       "light": "فاتح",
       "dark": "داكن",
-      "accentColorLabel": "لون التمييز",
-      "compactMode": "الوضع المضغوط",
-      "compactModeDesc": "تقليل الحشو في الشريط الجانبي والمحرر",
-      "reduceAnimations": "تقليل الحركات",
-      "reduceAnimationsDesc": "تعطيل انتقالات الحركة لتصفح أسرع"
-    },
-    "language": {
-      "heading": "اللغة والمنطقة",
-      "description": "حدد لغة التطبيق وتنسيق التاريخ.",
-      "interfaceLanguage": "لغة الواجهة",
-      "dateFormatLabel": "تنسيق التاريخ الافتراضي في السيرة الذاتية",
-      "dateFormats": {
-        "mmYYYY": "شهر/سنة (مثال: 08/2026)",
-        "mmmYYYY": "شهر سنة (مثال: أغسطس 2026)",
-        "yyyyMM": "سنة-شهر (مثال: 2026-08)"
-      }
-    },
-    "resume": {
-      "heading": "تفضيلات السيرة الذاتية",
-      "description": "الإعدادات الافتراضية عند إنشاء سير ذاتية جديدة.",
-      "paperSizeLabel": "حجم الورق الافتراضي",
+      "system": "النظام",
+      "languageLabel": "اللغة",
+      "languageHelp": "لغة الواجهة. أما لغة محتوى السيرة الذاتية فتُحدَّد في كل سيرة على حدة.",
+      "reduceMotion": "تقليل الحركة",
+      "reduceMotionDesc": "تقليل الرسوم المتحركة والانتقالات في التطبيق",
+      "defaultsHeading": "الإعدادات الافتراضية للسير الذاتية الجديدة",
       "exportFormatLabel": "صيغة التحميل الافتراضية",
+      "exportFormatHelp": "يتم اختيار هذه الصيغة مسبقًا في قائمة تصدير السيرة الذاتية.",
       "formats": {
-        "pdf": "مستند PDF (.pdf)",
-        "docx": "مستند Word (.docx)"
-      },
-      "autoSave": "الحفظ التلقائي أثناء التحرير",
-      "autoSaveDesc": "حفظ التغييرات تلقائيًا أثناء الكتابة"
+        "pdf": "PDF (.pdf)",
+        "jpg": "صورة (.jpg)"
+      }
     },
     "notifications": {
       "heading": "إشعارات البريد الإلكتروني",
@@ -1164,32 +1143,34 @@
       "heading": "الفوترة والاشتراك",
       "description": "إدارة اشتراكك النشط وحدود باقتك.",
       "planLabel": "باقة {plan}",
-      "activeSubscription": "اشتراك نشط",
+      "renewsOn": "يتجدد في {date}",
       "upgradeToPro": "الترقية إلى Pro",
-      "managePlan": "إدارة الباقة",
       "upgradeToEnterprise": "الترقية إلى Enterprise",
-      "manageEnterprise": "إدارة Enterprise",
+      "updatePayment": "تحديث وسيلة الدفع",
+      "cancelPlan": "إلغاء الاشتراك",
+      "canceling": "جارٍ الإلغاء…",
+      "cancellationScheduled": "تمت جدولة الإلغاء",
+      "cancelSuccess": "تم إلغاء الاشتراك بنجاح.",
+      "cancelFailed": "فشل إلغاء الاشتراك",
       "planDescriptions": {
-        "free": "أنت حاليًا على الباقة المجانية. رقّ للحصول على تحسينات ذكاء اصطناعي غير محدودة وتصدير DOCX.",
-        "pro": "أنت على باقة Pro مع تحسينات ذكاء اصطناعي غير محدودة، تصدير DOCX، وتحليلات متقدمة.",
-        "enterprise": "أنت على باقة Enterprise مع ميزات غير محدودة، دعم ذو أولوية، وتكاملات مخصصة."
-      },
-      "usageLimits": "حدود الاستخدام",
-      "aiCreditsUsed": "رصيد الذكاء الاصطناعي المستخدم",
-      "resumesStored": "السير الذاتية المخزّنة"
+        "free": "أنت حاليًا على الباقة المجانية. رقّ للحصول على تحسينات ذكاء اصطناعي غير محدودة والمزيد من عمليات التصدير.",
+        "pro": "أنت على باقة Pro مع تحسينات ذكاء اصطناعي غير محدودة وتحليلات متقدمة.",
+        "enterprise": "أنت على باقة Enterprise مع ميزات غير محدودة ودعم ذي أولوية."
+      }
     },
     "security": {
-      "heading": "الأمان والجلسات",
-      "description": "إدارة كلمة المرور وعرض الأجهزة المتصلة.",
-      "activeSessions": "الجلسات النشطة",
-      "currentDevice": "الجهاز الحالي",
-      "active": "نشط",
-      "signOutAllDevices": "تسجيل الخروج من جميع الأجهزة"
+      "heading": "الأمان",
+      "description": "بيانات تسجيل الدخول وكلمة المرور.",
+      "accountEmail": "البريد الإلكتروني للحساب",
+      "verified": "موثَّق",
+      "unverified": "غير موثَّق",
+      "passwordHeading": "كلمة المرور",
+      "passwordDesc": "سنرسل إليك رابطًا آمنًا عبر البريد لتعيين كلمة مرور جديدة.",
+      "changePassword": "تغيير كلمة المرور"
     },
     "privacy": {
       "heading": "الخصوصية والبيانات",
       "description": "تحكم في بياناتك الشخصية وحذف الحساب.",
-      "downloadData": "تنزيل بيانات الحساب (.json)",
       "dangerZone": "منطقة الخطر",
       "dangerZoneDesc": "حذف حسابك وجميع السير الذاتية المخزنة من ResuMax نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
       "deleteAccount": "حذف الحساب",
@@ -1200,12 +1181,10 @@
     },
     "about": {
       "heading": "حول ResuMax",
-      "description": "بيانات التطبيق وروابط الدعم.",
+      "description": "بيانات التطبيق.",
       "version": "الإصدار",
       "buildDate": "تاريخ الإصدار",
-      "buildDateValue": "يوليو 2026",
-      "termsOfService": "شروط الخدمة",
-      "privacyPolicy": "سياسة الخصوصية"
+      "buildDateValue": "يوليو 2026"
     },
     "deleteConfirm": {
       "title": "حذف الحساب",

@@ -57,6 +57,8 @@
 
 :root,
 [data-theme="dark"] {
+  color-scheme: dark;
+
   /* surfaces */
   --bg-base: #0a0b0f;
   --bg-soft: #0d0f18;
@@ -83,6 +85,8 @@
 }
 
 [data-theme="light"] {
+  color-scheme: light;
+
   /* swap Tailwind utility tokens */
   --color-ink: #f5f4f0;
   --color-ink-soft: #ffffff;
@@ -414,4 +418,39 @@ input::placeholder {
   50% {
     opacity: 1;
   }
+}
+
+/* ============================================
+   REDUCE MOTION
+   Honours both the OS setting and the in-app preference
+   (<html data-reduce-motion="true">, set pre-paint by
+   PREFERENCES_INIT_SCRIPT so mount animations never start).
+
+   Motion is cut to ~0 rather than removed outright: a 0.01ms
+   duration still fires transitionend/animationend, so JS that
+   waits on those events keeps working.
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+[data-reduce-motion="true"] *,
+[data-reduce-motion="true"] *::before,
+[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+[data-reduce-motion="true"] {
+  scroll-behavior: auto !important;
 }

@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { buildBackendUrl, generateCurrentResume, saveDashboardDraft } from "@/lib/backend";
 import { resolveResumeTemplate } from "@/components/resume/templates/registry";
 import { useAuth } from "@/context/AuthContext";
+import { usePreferences } from "@/context/PreferencesContext";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
@@ -119,6 +120,7 @@ export default function ResumePreviewPage() {
   const isRTL = locale === "ar";
 
   const { user } = useAuth();
+  const { preferences } = usePreferences();
   const isFreeUser = user?.planName === "FREE" || !user?.planName;
 
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
@@ -130,8 +132,13 @@ export default function ResumePreviewPage() {
   const [draftPurpose, setDraftPurpose] = useState<ResumePurpose>("general");
   const [appliedPurpose, setAppliedPurpose] = useState<ResumePurpose>("general");
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
-  const [selectedExportFormat, setSelectedExportFormat] =
-    useState<ResumeExportFormat>("pdf");
+  // The picker starts on the account default and only diverges once the user
+  // picks a format here, so changing the default in Settings is reflected
+  // immediately without clobbering an in-progress choice.
+  const [exportFormatOverride, setSelectedExportFormat] =
+    useState<ResumeExportFormat | null>(null);
+  const selectedExportFormat =
+    exportFormatOverride ?? preferences.defaultExportFormat;
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false);
   const [localCustomization, setLocalCustomization] = useState<ResumeCustomization | null>(null);
