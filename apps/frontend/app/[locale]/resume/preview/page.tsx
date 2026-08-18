@@ -29,11 +29,21 @@ import {
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { DEFAULT_RESUME_CUSTOMIZATION, type ResumeCustomization, type ResumeTemplateId } from "@shared-types/resume";
-import ResumeCustomizePanel, { FONT_FAMILIES } from "@/components/resume/ResumeCustomizePanel";
+import {
+  DEFAULT_RESUME_CUSTOMIZATION,
+  type ResumeCustomization,
+  type ResumeTemplateId,
+} from "@shared-types/resume";
+import ResumeCustomizePanel, {
+  FONT_FAMILIES,
+} from "@/components/resume/ResumeCustomizePanel";
 
 import { toast } from "sonner";
-import { buildBackendUrl, generateCurrentResume, saveDashboardDraft } from "@/lib/backend";
+import {
+  buildBackendUrl,
+  generateCurrentResume,
+  saveDashboardDraft,
+} from "@/lib/backend";
 import { resolveResumeTemplate } from "@/components/resume/templates/registry";
 import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
@@ -63,8 +73,24 @@ const MIN_ZOOM = 50;
 const MAX_ZOOM = 150;
 const ZOOM_STEP = 5;
 const DEFAULT_ZOOM = 95;
+const MIN_MOBILE_ZOOM = 1;
+const MAX_MOBILE_ZOOM = 3;
+const MOBILE_PREVIEW_PADDING = 20;
 
+type MobilePreviewOffset = {
+  x: number;
+  y: number;
+};
 
+type MobileGestureState = {
+  mode: "idle" | "pan" | "pinch";
+  startDistance: number;
+  startScale: number;
+  startTouchX: number;
+  startTouchY: number;
+  startOffsetX: number;
+  startOffsetY: number;
+};
 const RESUME_PURPOSES: ResumePurpose[] = [
   "job",
   "internship",
@@ -91,7 +117,6 @@ const FORMAT_TRANSLATION_KEYS: Record<ResumeExportFormat, string> = {
   pdf: "formats.pdf",
   jpg: "formats.jpg",
 };
-
 
 function triggerDownload(url: string, format: ResumeExportFormat) {
   const anchor = document.createElement("a");
@@ -124,13 +149,25 @@ export default function ResumePreviewPage() {
   const isFreeUser = user?.planName === "FREE" || !user?.planName;
 
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
+  const mobilePreviewViewportRef = useRef<HTMLDivElement | null>(null);
+  const mobilePreviewDocumentRef = useRef<HTMLDivElement | null>(null);
+  const mobileGestureRef = useRef<MobileGestureState>({
+    mode: "idle",
+    startDistance: 0,
+    startScale: MIN_MOBILE_ZOOM,
+    startTouchX: 0,
+    startTouchY: 0,
+    startOffsetX: 0,
+    startOffsetY: 0,
+  });
   const [resumeData, setResumeData] = useState<ResumePreviewData | null>(null);
   const [draftTemplateId, setDraftTemplateId] =
     useState<ResumeTemplateId>("minimal");
   const [appliedTemplateId, setAppliedTemplateId] =
     useState<ResumeTemplateId>("minimal");
   const [draftPurpose, setDraftPurpose] = useState<ResumePurpose>("general");
-  const [appliedPurpose, setAppliedPurpose] = useState<ResumePurpose>("general");
+  const [appliedPurpose, setAppliedPurpose] =
+    useState<ResumePurpose>("general");
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   // The picker starts on the account default and only diverges once the user
   // picks a format here, so changing the default in Settings is reflected
@@ -140,16 +177,30 @@ export default function ResumePreviewPage() {
   const selectedExportFormat =
     exportFormatOverride ?? preferences.defaultExportFormat;
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isMobilePreviewReady, setIsMobilePreviewReady] = useState(false);
+  const [mobileFitScale, setMobileFitScale] = useState(1);
+  const [mobilePreviewHeight, setMobilePreviewHeight] = useState(420);
+  const [mobileZoom, setMobileZoom] = useState(MIN_MOBILE_ZOOM);
+  const [mobileOffset, setMobileOffset] = useState<MobilePreviewOffset>({
+    x: 0,
+    y: 0,
+  });
   const [isCustomizePanelOpen, setIsCustomizePanelOpen] = useState(false);
-  const [localCustomization, setLocalCustomization] = useState<ResumeCustomization | null>(null);
-  const [localFontFamily, setLocalFontFamily] = useState<string>(FONT_FAMILIES[0].value);
+  const [localCustomization, setLocalCustomization] =
+    useState<ResumeCustomization | null>(null);
+  const [localFontFamily, setLocalFontFamily] = useState<string>(
+    FONT_FAMILIES[0].value,
+  );
   const [savedDrafts, setSavedDrafts] = useState<UserResumeSummary[]>([]);
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   const [editingDraftTitle, setEditingDraftTitle] = useState("");
   const [isRenaming, setIsRenaming] = useState(false);
   const [isCreatingDraft, setIsCreatingDraft] = useState(false);
   const [deletingDraftId, setDeletingDraftId] = useState<string | null>(null);
-  const [downloadingDraftId, setDownloadingDraftId] = useState<string | null>(null);
+  const [downloadingDraftId, setDownloadingDraftId] = useState<string | null>(
+    null,
+  );
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -166,6 +217,9 @@ export default function ResumePreviewPage() {
     async function loadPreview() {
       try {
         setIsLoading(true);
+        setIsMobilePreviewReady(false);
+        setMobileZoom(MIN_MOBILE_ZOOM);
+        setMobileOffset({ x: 0, y: 0 });
         setPageError(null);
         const resumeId = resumeIdParam || "resume-123";
         const data = await getResumePreviewData(resumeId, controller.signal);
@@ -183,9 +237,14 @@ export default function ResumePreviewPage() {
         if (isFreeUser && activeTemplateId !== "minimal") {
           activeTemplateId = "minimal";
           activeMetadata = getResumeTemplateMetadata("minimal");
-          setActionError("Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.");
+          setActionError(
+            "Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.",
+          );
         } else if (templateParam && isResumeTemplateId(templateParam)) {
-          const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
+          const token =
+            typeof window !== "undefined"
+              ? localStorage.getItem("resumax_token")
+              : null;
           if (token) {
             void updateCurrentResumeTemplate(
               data.resumeName,
@@ -218,7 +277,8 @@ export default function ResumePreviewPage() {
           setSavedDrafts(draftsList);
         }
       } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
         setPageError(
           error instanceof Error ? error.message : t("status.errorText"),
         );
@@ -244,7 +304,10 @@ export default function ResumePreviewPage() {
     }
 
     function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setIsExportMenuOpen(false);
+      if (event.key === "Escape") {
+        setIsExportMenuOpen(false);
+        setIsMobileSidebarOpen(false);
+      }
     }
 
     document.addEventListener("pointerdown", closeExportMenu);
@@ -255,6 +318,198 @@ export default function ResumePreviewPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isMobileSidebarOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobileSidebarOpen]);
+
+  useEffect(() => {
+    const desktopMediaQuery = window.matchMedia("(min-width: 1280px)");
+    const handleDesktopLayout = (event: MediaQueryListEvent) => {
+      if (event.matches) setIsMobileSidebarOpen(false);
+    };
+
+    desktopMediaQuery.addEventListener("change", handleDesktopLayout);
+    return () => {
+      desktopMediaQuery.removeEventListener("change", handleDesktopLayout);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const viewport = mobilePreviewViewportRef.current;
+    const documentElement = mobilePreviewDocumentRef.current;
+    if (!viewport || !documentElement) return;
+
+    const measureMobilePreview = () => {
+      const documentWidth = documentElement.offsetWidth;
+      const documentHeight = documentElement.offsetHeight;
+      if (documentWidth <= 0 || documentHeight <= 0) return;
+
+      const availableWidth = Math.max(
+        1,
+        viewport.clientWidth - MOBILE_PREVIEW_PADDING,
+      );
+      const nextFitScale = Math.min(1, availableWidth / documentWidth);
+      const nextHeight = Math.max(
+        320,
+        Math.ceil(documentHeight * nextFitScale) + MOBILE_PREVIEW_PADDING,
+      );
+
+      setMobileFitScale(nextFitScale);
+      setMobilePreviewHeight(nextHeight);
+      setIsMobilePreviewReady(true);
+    };
+
+    measureMobilePreview();
+    const resizeObserver = new ResizeObserver(measureMobilePreview);
+    resizeObserver.observe(viewport);
+    resizeObserver.observe(documentElement);
+    window.addEventListener("resize", measureMobilePreview);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", measureMobilePreview);
+    };
+  }, [isLoading, resumeData, draftTemplateId, localCustomization]);
+
+  const resetMobilePreview = () => {
+    mobileGestureRef.current.mode = "idle";
+    setMobileZoom(MIN_MOBILE_ZOOM);
+    setMobileOffset({ x: 0, y: 0 });
+  };
+
+  const clampMobileOffset = (
+    x: number,
+    y: number,
+    scale: number,
+  ): MobilePreviewOffset => {
+    const viewport = mobilePreviewViewportRef.current;
+    const documentElement = mobilePreviewDocumentRef.current;
+
+    if (!viewport || !documentElement || scale <= MIN_MOBILE_ZOOM) {
+      return { x: 0, y: 0 };
+    }
+
+    const baseWidth = documentElement.offsetWidth * mobileFitScale;
+    const baseHeight = documentElement.offsetHeight * mobileFitScale;
+    const scaledWidth = baseWidth * scale;
+    const scaledHeight = baseHeight * scale;
+    const viewportWidth = Math.max(
+      0,
+      viewport.clientWidth - MOBILE_PREVIEW_PADDING,
+    );
+    const maxX = Math.max(0, (scaledWidth - viewportWidth) / 2);
+    const maxY = Math.max(0, scaledHeight - baseHeight);
+
+    return {
+      x: Math.min(Math.max(x, -maxX), maxX),
+      y: Math.min(Math.max(y, -maxY), 0),
+    };
+  };
+
+  const getTouchDistance = (event: React.TouchEvent<HTMLDivElement>) => {
+    const firstTouch = event.touches[0];
+    const secondTouch = event.touches[1];
+
+    return Math.hypot(
+      secondTouch.clientX - firstTouch.clientX,
+      secondTouch.clientY - firstTouch.clientY,
+    );
+  };
+
+  const handleMobileTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length === 2) {
+      mobileGestureRef.current = {
+        mode: "pinch",
+        startDistance: getTouchDistance(event),
+        startScale: mobileZoom,
+        startTouchX: 0,
+        startTouchY: 0,
+        startOffsetX: mobileOffset.x,
+        startOffsetY: mobileOffset.y,
+      };
+      return;
+    }
+
+    if (event.touches.length === 1 && mobileZoom > MIN_MOBILE_ZOOM) {
+      const touch = event.touches[0];
+      mobileGestureRef.current = {
+        mode: "pan",
+        startDistance: 0,
+        startScale: mobileZoom,
+        startTouchX: touch.clientX,
+        startTouchY: touch.clientY,
+        startOffsetX: mobileOffset.x,
+        startOffsetY: mobileOffset.y,
+      };
+    }
+  };
+
+  const handleMobileTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const gesture = mobileGestureRef.current;
+
+    if (event.touches.length === 2 && gesture.mode === "pinch") {
+      event.preventDefault();
+      const distance = getTouchDistance(event);
+      const nextScale = Math.min(
+        Math.max(
+          gesture.startScale * (distance / gesture.startDistance),
+          MIN_MOBILE_ZOOM,
+        ),
+        MAX_MOBILE_ZOOM,
+      );
+
+      setMobileZoom(nextScale);
+      setMobileOffset(
+        clampMobileOffset(
+          gesture.startOffsetX,
+          gesture.startOffsetY,
+          nextScale,
+        ),
+      );
+      return;
+    }
+
+    if (
+      event.touches.length === 1 &&
+      gesture.mode === "pan" &&
+      mobileZoom > MIN_MOBILE_ZOOM
+    ) {
+      event.preventDefault();
+      const touch = event.touches[0];
+      const nextX = gesture.startOffsetX + touch.clientX - gesture.startTouchX;
+      const nextY = gesture.startOffsetY + touch.clientY - gesture.startTouchY;
+      setMobileOffset(clampMobileOffset(nextX, nextY, mobileZoom));
+    }
+  };
+
+  const handleMobileTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (event.touches.length === 1 && mobileZoom > MIN_MOBILE_ZOOM) {
+      const touch = event.touches[0];
+      mobileGestureRef.current = {
+        mode: "pan",
+        startDistance: 0,
+        startScale: mobileZoom,
+        startTouchX: touch.clientX,
+        startTouchY: touch.clientY,
+        startOffsetX: mobileOffset.x,
+        startOffsetY: mobileOffset.y,
+      };
+      return;
+    }
+
+    mobileGestureRef.current.mode = "idle";
+    if (mobileZoom <= MIN_MOBILE_ZOOM) resetMobilePreview();
+  };
+
   const hasPendingChanges =
     draftTemplateId !== appliedTemplateId || draftPurpose !== appliedPurpose;
   const isBusy = isApplying || exportingFormat !== null;
@@ -262,7 +517,11 @@ export default function ResumePreviewPage() {
   const handleRenameDraft = async (id: string, newTitle: string) => {
     const trimmed = newTitle.trim();
     if (!trimmed) {
-      toast.error(locale === "ar" ? "يرجى إدخال اسم للمسودة" : "Please enter a draft name");
+      toast.error(
+        locale === "ar"
+          ? "يرجى إدخال اسم للمسودة"
+          : "Please enter a draft name",
+      );
       return;
     }
 
@@ -270,19 +529,36 @@ export default function ResumePreviewPage() {
       setIsRenaming(true);
       const success = await renameResumeDraft(id, trimmed, draftTemplateId);
       if (success) {
-        if (resumeData && (id === resumeData.resumeId || id === "current" || id === "resume-123")) {
-          setResumeData((prev) => prev ? { ...prev, resumeName: trimmed } : prev);
+        if (
+          resumeData &&
+          (id === resumeData.resumeId ||
+            id === "current" ||
+            id === "resume-123")
+        ) {
+          setResumeData((prev) =>
+            prev ? { ...prev, resumeName: trimmed } : prev,
+          );
         }
         setSavedDrafts((prev) =>
-          prev.map((draft) => (draft.id === id ? { ...draft, title: trimmed } : draft))
+          prev.map((draft) =>
+            draft.id === id ? { ...draft, title: trimmed } : draft,
+          ),
         );
-        toast.success(locale === "ar" ? "تم تغيير اسم المسودة بنجاح" : "Draft renamed successfully");
+        toast.success(
+          locale === "ar"
+            ? "تم تغيير اسم المسودة بنجاح"
+            : "Draft renamed successfully",
+        );
         setEditingDraftId(null);
       } else {
-        toast.error(locale === "ar" ? "تعذر تغيير اسم المسودة" : "Failed to rename draft");
+        toast.error(
+          locale === "ar" ? "تعذر تغيير اسم المسودة" : "Failed to rename draft",
+        );
       }
     } catch {
-      toast.error(locale === "ar" ? "تعذر تغيير اسم المسودة" : "Failed to rename draft");
+      toast.error(
+        locale === "ar" ? "تعذر تغيير اسم المسودة" : "Failed to rename draft",
+      );
     } finally {
       setIsRenaming(false);
     }
@@ -296,11 +572,15 @@ export default function ResumePreviewPage() {
       toast.success(
         locale === "ar"
           ? "تم إنشاء مسودة جديدة بنجاح"
-          : "New draft created successfully"
+          : "New draft created successfully",
       );
-      router.push(`/${locale}/dashboard?resumeId=${encodeURIComponent(newDraft.id)}&template=${encodeURIComponent(newDraft.templateId)}`);
+      router.push(
+        `/${locale}/dashboard?resumeId=${encodeURIComponent(newDraft.id)}&template=${encodeURIComponent(newDraft.templateId)}`,
+      );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create draft");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create draft",
+      );
     } finally {
       setIsCreatingDraft(false);
     }
@@ -353,7 +633,7 @@ export default function ResumePreviewPage() {
       toast.error(
         locale === "ar"
           ? "حجم الصورة كبير جداً (الحد الأقصى 5 ميغابايت)"
-          : "Photo is too large (max 5MB)"
+          : "Photo is too large (max 5MB)",
       );
       return;
     }
@@ -370,7 +650,9 @@ export default function ResumePreviewPage() {
         },
       };
 
-      setResumeData((prev) => (prev ? { ...prev, content: nextContent } : prev));
+      setResumeData((prev) =>
+        prev ? { ...prev, content: nextContent } : prev,
+      );
 
       const token =
         typeof window !== "undefined"
@@ -393,18 +675,18 @@ export default function ResumePreviewPage() {
             certifications: nextContent.certifications,
             skills: nextContent.skills,
           },
-          resumeData.resumeId
+          resumeData.resumeId,
         );
       }
 
       toast.success(
         locale === "ar"
           ? "تم تحديث الصورة الشخصية بنجاح"
-          : "Profile photo updated successfully"
+          : "Profile photo updated successfully",
       );
     } catch (err) {
       toast.error(
-        locale === "ar" ? "فشل تحديث الصورة" : "Failed to update photo"
+        locale === "ar" ? "فشل تحديث الصورة" : "Failed to update photo",
       );
     } finally {
       setIsUploadingPhoto(false);
@@ -427,7 +709,9 @@ export default function ResumePreviewPage() {
         },
       };
 
-      setResumeData((prev) => (prev ? { ...prev, content: nextContent } : prev));
+      setResumeData((prev) =>
+        prev ? { ...prev, content: nextContent } : prev,
+      );
 
       const token =
         typeof window !== "undefined"
@@ -450,16 +734,16 @@ export default function ResumePreviewPage() {
             certifications: nextContent.certifications,
             skills: nextContent.skills,
           },
-          resumeData.resumeId
+          resumeData.resumeId,
         );
       }
 
       toast.success(
-        locale === "ar" ? "تم حذف الصورة بنجاح" : "Profile photo removed"
+        locale === "ar" ? "تم حذف الصورة بنجاح" : "Profile photo removed",
       );
     } catch (err) {
       toast.error(
-        locale === "ar" ? "فشل حذف الصورة" : "Failed to remove photo"
+        locale === "ar" ? "فشل حذف الصورة" : "Failed to remove photo",
       );
     } finally {
       setIsUploadingPhoto(false);
@@ -474,11 +758,15 @@ export default function ResumePreviewPage() {
       toast.success(
         locale === "ar"
           ? "تم إنشاء مسودة جديدة بنجاح"
-          : "New draft created successfully"
+          : "New draft created successfully",
       );
-      router.push(`/${locale}/dashboard?resumeId=${encodeURIComponent(newDraft.id)}&template=${encodeURIComponent(newDraft.templateId)}`);
+      router.push(
+        `/${locale}/dashboard?resumeId=${encodeURIComponent(newDraft.id)}&template=${encodeURIComponent(newDraft.templateId)}`,
+      );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create draft");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create draft",
+      );
     } finally {
       setIsCreatingDraft(false);
     }
@@ -489,19 +777,27 @@ export default function ResumePreviewPage() {
     e.stopPropagation();
     if (deletingDraftId) return;
 
-    const confirmMsg = locale === "ar"
-      ? "هل أنت متأكد من رغبتك في حذف هذه المسودة؟"
-      : "Are you sure you want to delete this draft?";
+    const confirmMsg =
+      locale === "ar"
+        ? "هل أنت متأكد من رغبتك في حذف هذه المسودة؟"
+        : "Are you sure you want to delete this draft?";
     if (!window.confirm(confirmMsg)) return;
 
     try {
       setDeletingDraftId(draftId);
       const success = await deleteResumeDraft(draftId);
       if (success) {
-        toast.success(locale === "ar" ? "تم حذف المسودة بنجاح" : "Draft deleted successfully");
+        toast.success(
+          locale === "ar"
+            ? "تم حذف المسودة بنجاح"
+            : "Draft deleted successfully",
+        );
         setSavedDrafts((prev) => prev.filter((d) => d.id !== draftId));
 
-        if (resumeData && (draftId === resumeData.resumeId || draftId === "current")) {
+        if (
+          resumeData &&
+          (draftId === resumeData.resumeId || draftId === "current")
+        ) {
           const remaining = savedDrafts.filter((d) => d.id !== draftId);
           if (remaining.length > 0) {
             window.location.href = `/${locale}/resume/preview?resumeId=${remaining[0].id}&template=${remaining[0].templateId}`;
@@ -510,50 +806,74 @@ export default function ResumePreviewPage() {
           }
         }
       } else {
-        toast.error(locale === "ar" ? "تعذر حذف المسودة" : "Failed to delete draft");
+        toast.error(
+          locale === "ar" ? "تعذر حذف المسودة" : "Failed to delete draft",
+        );
       }
     } catch {
-      toast.error(locale === "ar" ? "تعذر حذف المسودة" : "Failed to delete draft");
+      toast.error(
+        locale === "ar" ? "تعذر حذف المسودة" : "Failed to delete draft",
+      );
     } finally {
       setDeletingDraftId(null);
     }
   };
 
-  const handleDownloadDraft = async (e: React.MouseEvent, draftId: string, templateId: string) => {
+  const handleDownloadDraft = async (
+    e: React.MouseEvent,
+    draftId: string,
+    templateId: string,
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     if (downloadingDraftId) return;
 
     const toastId = toast.loading(
-      locale === "ar" ? "جاري تجهيز تحميل المسودة..." : "Preparing draft download..."
+      locale === "ar"
+        ? "جاري تجهيز تحميل المسودة..."
+        : "Preparing draft download...",
     );
 
     try {
       setDownloadingDraftId(draftId);
-      const resolvedTemplate = isResumeTemplateId(templateId) ? templateId : undefined;
-      const result = await exportResume(draftId, "pdf", undefined, resolvedTemplate);
+      const resolvedTemplate = isResumeTemplateId(templateId)
+        ? templateId
+        : undefined;
+      const result = await exportResume(
+        draftId,
+        "pdf",
+        undefined,
+        resolvedTemplate,
+      );
       triggerDownload(result.downloadUrl, "pdf");
       toast.success(
-        locale === "ar" ? "تم التحميل بنجاح!" : "Draft downloaded successfully!",
-        { id: toastId }
+        locale === "ar"
+          ? "تم التحميل بنجاح!"
+          : "Draft downloaded successfully!",
+        { id: toastId },
       );
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : (locale === "ar" ? "فشل تحميل المسودة" : "Failed to download draft"),
-        { id: toastId }
+        error instanceof Error
+          ? error.message
+          : locale === "ar"
+            ? "فشل تحميل المسودة"
+            : "Failed to download draft",
+        { id: toastId },
       );
     } finally {
       setDownloadingDraftId(null);
     }
   };
 
-
   const handlePurposeSelect = async (newPurpose: ResumePurpose) => {
     if (!resumeData || isBusy) return;
     setDraftPurpose(newPurpose);
 
     const purposeLabel = configuration(PURPOSE_TRANSLATION_KEYS[newPurpose]);
-    const toastId = toast.loading(`Rewriting resume for ${purposeLabel} with Gemini AI...`);
+    const toastId = toast.loading(
+      `Rewriting resume for ${purposeLabel} with Gemini AI...`,
+    );
 
     try {
       setIsApplying(true);
@@ -561,14 +881,21 @@ export default function ResumePreviewPage() {
       setActionSuccess(null);
       setIsExportMenuOpen(false);
 
-      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("resumax_token")
+          : null;
 
       if (token) {
-        await generateCurrentResume(token, {
-          title: resumeData.resumeName,
-          templateId: draftTemplateId,
-          purpose: newPurpose,
-        }, resumeData.resumeId);
+        await generateCurrentResume(
+          token,
+          {
+            title: resumeData.resumeName,
+            templateId: draftTemplateId,
+            purpose: newPurpose,
+          },
+          resumeData.resumeId,
+        );
 
         const freshData = await getResumePreviewData(resumeData.resumeId);
         releaseDownloadUrl(resumeData.pdfDownloadUrl);
@@ -585,7 +912,8 @@ export default function ResumePreviewPage() {
       setActionSuccess(successMsg);
       toast.success(successMsg, { id: toastId });
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : configuration("generateError");
+      const errorMsg =
+        error instanceof Error ? error.message : configuration("generateError");
       setActionError(errorMsg);
       toast.error(errorMsg, { id: toastId });
       setDraftPurpose(appliedPurpose);
@@ -597,21 +925,30 @@ export default function ResumePreviewPage() {
   const applyConfiguration = async () => {
     if (!resumeData || isBusy || !hasPendingChanges) return;
 
-    const toastId = toast.loading("Applying changes and re-generating preview...");
+    const toastId = toast.loading(
+      "Applying changes and re-generating preview...",
+    );
     try {
       setIsApplying(true);
       setActionError(null);
       setActionSuccess(null);
       setIsExportMenuOpen(false);
 
-      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("resumax_token")
+          : null;
 
       if (draftPurpose !== appliedPurpose && token) {
-        await generateCurrentResume(token, {
-          title: resumeData.resumeName,
-          templateId: draftTemplateId,
-          purpose: draftPurpose,
-        }, resumeData.resumeId);
+        await generateCurrentResume(
+          token,
+          {
+            title: resumeData.resumeName,
+            templateId: draftTemplateId,
+            purpose: draftPurpose,
+          },
+          resumeData.resumeId,
+        );
 
         const freshData = await getResumePreviewData(resumeData.resumeId);
         releaseDownloadUrl(resumeData.pdfDownloadUrl);
@@ -652,7 +989,8 @@ export default function ResumePreviewPage() {
       setActionSuccess(successMsg);
       toast.success(successMsg, { id: toastId });
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : configuration("generateError");
+      const errorMsg =
+        error instanceof Error ? error.message : configuration("generateError");
       setActionError(errorMsg);
       toast.error(errorMsg, { id: toastId });
     } finally {
@@ -678,13 +1016,16 @@ export default function ResumePreviewPage() {
     }
 
     if (resumeData.creditsRemaining <= 0 && isFreeUser) {
-      const msg = "Free plan users are allowed 1 download attempt. Upgrade to Pro for unlimited exports.";
+      const msg =
+        "Free plan users are allowed 1 download attempt. Upgrade to Pro for unlimited exports.";
       setActionError(msg);
       toast.error(msg);
       return;
     }
 
-    const toastId = toast.loading(`Preparing ${selectedExportFormat.toUpperCase()} download...`);
+    const toastId = toast.loading(
+      `Preparing ${selectedExportFormat.toUpperCase()} download...`,
+    );
     try {
       const format = selectedExportFormat;
       setExportingFormat(format);
@@ -714,7 +1055,8 @@ export default function ResumePreviewPage() {
       setActionSuccess(successMsg);
       toast.success(successMsg, { id: toastId });
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : t("status.errorText");
+      const errorMsg =
+        error instanceof Error ? error.message : t("status.errorText");
       setActionError(errorMsg);
       toast.error(errorMsg, { id: toastId });
     } finally {
@@ -727,8 +1069,12 @@ export default function ResumePreviewPage() {
       <main className="flex min-h-screen items-center justify-center bg-base px-5 text-primary">
         <div className="text-center">
           <LoaderCircle className="mx-auto animate-spin text-gold" size={42} />
-          <h1 className="mt-5 text-base font-bold">{t("status.loadingTitle")}</h1>
-          <p className="mt-2 text-sm text-secondary">{t("status.loadingText")}</p>
+          <h1 className="mt-5 text-base font-bold">
+            {t("status.loadingTitle")}
+          </h1>
+          <p className="mt-2 text-sm text-secondary">
+            {t("status.loadingText")}
+          </p>
         </div>
       </main>
     );
@@ -797,8 +1143,57 @@ export default function ResumePreviewPage() {
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-[1600px] items-start gap-6 px-4 py-6 sm:px-6 lg:px-8 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <aside className="flex flex-col gap-5 xl:sticky xl:top-22">
+      <div className="relative mx-auto grid w-full max-w-[1600px] items-start gap-3 px-3 py-3 sm:gap-6 sm:px-6 sm:py-6 lg:px-8 xl:grid-cols-[360px_minmax(0,1fr)]">
+        {isMobileSidebarOpen && (
+          <button
+            type="button"
+            onClick={() => {
+              setIsMobileSidebarOpen(false);
+              setIsExportMenuOpen(false);
+            }}
+            aria-label={t("customize.closeOptions")}
+            className="fixed inset-0 z-[60] bg-black/55 backdrop-blur-[2px] xl:hidden"
+          />
+        )}
+
+        <aside
+          id="mobile-preview-sidebar"
+          className={`fixed inset-y-0 z-[70] flex w-[min(90vw,390px)] flex-col gap-4 overflow-y-auto border-edge bg-base p-4 shadow-[0_0_80px_rgba(0,0,0,0.38)] transition-transform duration-300 ease-out xl:sticky xl:top-22 xl:right-auto xl:bottom-auto xl:left-auto xl:z-auto xl:w-auto xl:translate-x-0 xl:gap-5 xl:overflow-visible xl:border-0 xl:bg-transparent xl:p-0 xl:shadow-none ${
+            isRTL ? "right-0 border-l" : "left-0 border-r"
+          } ${
+            isMobileSidebarOpen
+              ? "pointer-events-auto translate-x-0"
+              : isRTL
+                ? "pointer-events-none translate-x-full xl:pointer-events-auto"
+                : "pointer-events-none -translate-x-full xl:pointer-events-auto"
+          }`}
+        >
+          <div className="sticky top-0 z-10 flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-edge bg-elevated px-3 shadow-sm xl:hidden">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gold/25 bg-gold/10">
+                <SlidersHorizontal size={18} className="text-gold" />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-black text-primary">
+                  {t("customize.customizationTitle")}
+                </p>
+                <p className="mt-0.5 truncate text-[11px] text-secondary">
+                  {t("customize.customizationHint")}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileSidebarOpen(false);
+                setIsExportMenuOpen(false);
+              }}
+              aria-label={t("customize.closeOptions")}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-gold/40 hover:bg-soft hover:text-gold"
+            >
+              <X size={18} />
+            </button>
+          </div>
           <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
@@ -841,12 +1236,16 @@ export default function ResumePreviewPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
-                    <span className={`rounded-md border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
-                      selectedMetadata.id === 'minimal'
-                        ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                        : 'border-amber-500/30 bg-amber-500/10 text-amber-400'
-                    }`}>
-                      {selectedMetadata.id === 'minimal' ? 'Free & Pro' : 'Pro & Enterprise'}
+                    <span
+                      className={`rounded-md border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
+                        selectedMetadata.id === "minimal"
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                          : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                      }`}
+                    >
+                      {selectedMetadata.id === "minimal"
+                        ? "Free & Pro"
+                        : "Pro & Enterprise"}
                     </span>
                     <span className="text-[11px] font-medium text-secondary">
                       {templates("labels.ats")}
@@ -923,8 +1322,12 @@ export default function ResumePreviewPage() {
                     </p>
                     <h2 className="mt-0.5 text-sm font-black text-primary">
                       {resumeData.content.contact.photo
-                        ? (locale === "ar" ? "تعديل الصورة" : "Manage Photo")
-                        : (locale === "ar" ? "إضافة صورة" : "Add Photo")}
+                        ? locale === "ar"
+                          ? "تعديل الصورة"
+                          : "Manage Photo"
+                        : locale === "ar"
+                          ? "إضافة صورة"
+                          : "Add Photo"}
                     </h2>
                   </div>
                 </div>
@@ -982,10 +1385,16 @@ export default function ResumePreviewPage() {
                     )}
                     <span>
                       {isUploadingPhoto
-                        ? (locale === "ar" ? "جاري الرفع..." : "Uploading...")
+                        ? locale === "ar"
+                          ? "جاري الرفع..."
+                          : "Uploading..."
                         : resumeData.content.contact.photo
-                        ? (locale === "ar" ? "تغيير الصورة" : "Change Photo")
-                        : (locale === "ar" ? "رفع صورة" : "Upload Photo")}
+                          ? locale === "ar"
+                            ? "تغيير الصورة"
+                            : "Change Photo"
+                          : locale === "ar"
+                            ? "رفع صورة"
+                            : "Upload Photo"}
                     </span>
                   </label>
                   <p className="mt-1 text-[11px] text-secondary">
@@ -1017,7 +1426,7 @@ export default function ResumePreviewPage() {
           )}
 
           <Link
-            href={`/${locale}/dashboard?resumeId=${encodeURIComponent(resumeData?.resumeId ?? '')}&template=${draftTemplateId}`}
+            href={`/${locale}/dashboard?resumeId=${encodeURIComponent(resumeData?.resumeId ?? "")}&template=${draftTemplateId}`}
             className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-gold/40 hover:bg-card hover:text-gold"
           >
             <Pencil size={15} className="text-gold" />
@@ -1030,22 +1439,26 @@ export default function ResumePreviewPage() {
               if (!localCustomization && resumeData) {
                 setLocalCustomization({ ...resumeData.customization });
               }
-              const currentFont = localCustomization?.fontFamily || resumeData?.customization?.fontFamily;
+              const currentFont =
+                localCustomization?.fontFamily ||
+                resumeData?.customization?.fontFamily;
               if (currentFont) setLocalFontFamily(currentFont);
               setIsCustomizePanelOpen(true);
             }}
             className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-gold/40 hover:bg-card hover:text-gold"
           >
             <SlidersHorizontal size={15} className="text-gold" />
-            <span>Customize Resume</span>
+            <span>{t("customize.title")}</span>
           </button>
         </aside>
 
-        <section className={`overflow-hidden rounded-[28px] border border-edge bg-elevated shadow-[0_24px_80px_var(--shadow-color)] xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col transition-all duration-300 ${
-          isCustomizePanelOpen
-            ? "relative z-[55] ring-2 ring-gold/40 shadow-[0_24px_100px_rgba(0,0,0,0.5)]"
-            : ""
-        }`}>
+        <section
+          className={`order-1 min-w-0 overflow-hidden rounded-[22px] border border-edge bg-elevated shadow-[0_18px_55px_var(--shadow-color)] transition-all duration-300 sm:rounded-[28px] md:shadow-[0_24px_80px_var(--shadow-color)] xl:order-none xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col ${
+            isCustomizePanelOpen
+              ? "relative z-[55] ring-2 ring-gold/40 shadow-[0_24px_100px_rgba(0,0,0,0.5)]"
+              : ""
+          }`}
+        >
           <div className="shrink-0 border-b border-edge px-5 py-5 sm:px-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
@@ -1054,12 +1467,31 @@ export default function ResumePreviewPage() {
                   <h1 className="font-playfair text-2xl font-black sm:text-3xl">
                     {configuration("preview")}
                   </h1>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileSidebarOpen(true);
+                      setIsExportMenuOpen(false);
+                    }}
+                    aria-controls="mobile-preview-sidebar"
+                    aria-expanded={isMobileSidebarOpen}
+                    aria-label={t("customize.openOptions")}
+                    className="ms-auto flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-gold/30 bg-gold/10 px-3 text-xs font-black text-gold transition-all hover:border-gold/60 hover:bg-gold/20 active:scale-95 xl:hidden"
+                  >
+                    <SlidersHorizontal size={16} />
+                    <span className="hidden sm:inline">
+                      {t("customize.customizeTab")}
+                    </span>
+                  </button>
                 </div>
                 {editingDraftId === `header-${resumeData.resumeId}` ? (
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
-                      void handleRenameDraft(resumeData.resumeId, editingDraftTitle);
+                      void handleRenameDraft(
+                        resumeData.resumeId,
+                        editingDraftTitle,
+                      );
                     }}
                     className="mt-2 flex items-center gap-1.5 max-w-sm"
                   >
@@ -1113,19 +1545,26 @@ export default function ResumePreviewPage() {
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-                <div className="min-w-55">
+                <div className="hidden min-w-55 md:block">
                   <div className="mb-2 flex items-center justify-between">
                     <label htmlFor="resume-zoom" className="text-xs font-bold">
                       {configuration("zoom")}
                     </label>
-                    <output htmlFor="resume-zoom" className="text-xs font-black text-gold">
+                    <output
+                      htmlFor="resume-zoom"
+                      className="text-xs font-black text-gold"
+                    >
                       {zoom}%
                     </output>
                   </div>
                   <div dir="ltr" className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => setZoom((value) => Math.max(MIN_ZOOM, value - ZOOM_STEP))}
+                      onClick={() =>
+                        setZoom((value) =>
+                          Math.max(MIN_ZOOM, value - ZOOM_STEP),
+                        )
+                      }
                       disabled={zoom <= MIN_ZOOM}
                       aria-label={t("preview.zoomOut")}
                       className="flex h-10 w-10 items-center justify-center rounded-xl border border-edge bg-card disabled:opacity-40"
@@ -1144,7 +1583,11 @@ export default function ResumePreviewPage() {
                     />
                     <button
                       type="button"
-                      onClick={() => setZoom((value) => Math.min(MAX_ZOOM, value + ZOOM_STEP))}
+                      onClick={() =>
+                        setZoom((value) =>
+                          Math.min(MAX_ZOOM, value + ZOOM_STEP),
+                        )
+                      }
                       disabled={zoom >= MAX_ZOOM}
                       aria-label={t("preview.zoomIn")}
                       className="flex h-10 w-10 items-center justify-center rounded-xl border border-edge bg-card disabled:opacity-40"
@@ -1168,16 +1611,23 @@ export default function ResumePreviewPage() {
                     {configuration("exportAs")}
                   </label>
                   <div className="flex gap-2">
-                    <div ref={exportMenuRef} className="relative min-w-0 flex-1">
+                    <div
+                      ref={exportMenuRef}
+                      className="relative min-w-0 flex-1"
+                    >
                       <button
                         type="button"
-                        onClick={() => !isBusy && setIsExportMenuOpen((open) => !open)}
+                        onClick={() =>
+                          !isBusy && setIsExportMenuOpen((open) => !open)
+                        }
                         disabled={isBusy}
                         aria-haspopup="listbox"
                         aria-expanded={isExportMenuOpen}
                         className="flex min-h-11 w-full items-center justify-between rounded-xl border border-edge bg-card px-3 text-sm font-black uppercase disabled:opacity-50"
                       >
-                        {configuration(FORMAT_TRANSLATION_KEYS[selectedExportFormat])}
+                        {configuration(
+                          FORMAT_TRANSLATION_KEYS[selectedExportFormat],
+                        )}
                         <ChevronDown size={15} />
                       </button>
                       {isExportMenuOpen && (
@@ -1198,7 +1648,9 @@ export default function ResumePreviewPage() {
                               className="flex min-h-10 w-full items-center justify-between rounded-lg px-3 text-sm font-bold uppercase hover:bg-soft"
                             >
                               {configuration(FORMAT_TRANSLATION_KEYS[format])}
-                              {selectedExportFormat === format && <Check size={14} />}
+                              {selectedExportFormat === format && (
+                                <Check size={14} />
+                              )}
                             </button>
                           ))}
                         </div>
@@ -1225,27 +1677,99 @@ export default function ResumePreviewPage() {
             </div>
           </div>
 
-          <div className="relative flex min-h-180 flex-1 items-start justify-center overflow-auto bg-soft p-5 sm:p-8 xl:min-h-0">
-            {TemplateComponent ? (
+          {TemplateComponent ? (
+            <>
               <div
-                className={`flex w-full shrink-0 justify-center transition-all duration-300 ease-out ${
-                  isCustomizePanelOpen
-                    ? "-translate-x-28 md:-translate-x-36 xl:-translate-x-44 rtl:translate-x-28 rtl:md:translate-x-36 rtl:xl:translate-x-44"
-                    : "translate-x-0"
+                ref={mobilePreviewViewportRef}
+                onTouchStart={handleMobileTouchStart}
+                onTouchMove={handleMobileTouchMove}
+                onTouchEnd={handleMobileTouchEnd}
+                onTouchCancel={handleMobileTouchEnd}
+                onDoubleClick={resetMobilePreview}
+                className={`relative overflow-hidden bg-soft md:hidden ${
+                  mobileZoom > MIN_MOBILE_ZOOM ? "touch-none" : "touch-pan-y"
                 }`}
-                style={{ zoom: zoom / 100 }}
+                style={{ height: mobilePreviewHeight }}
               >
-                <TemplateComponent
-                  resume={resumeData.content}
-                  customization={localCustomization ?? resumeData.customization}
-                />
+                {!isMobilePreviewReady && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-soft">
+                    <LoaderCircle
+                      size={34}
+                      className="animate-spin text-gold"
+                    />
+                  </div>
+                )}
+
+                <div
+                  className={`absolute left-1/2 top-2.5 will-change-transform transition-opacity duration-200 ${
+                    isMobilePreviewReady
+                      ? "opacity-100"
+                      : "pointer-events-none opacity-0"
+                  }`}
+                  style={{
+                    transform: `translate3d(${mobileOffset.x}px, ${mobileOffset.y}px, 0)`,
+                  }}
+                >
+                  <div
+                    ref={mobilePreviewDocumentRef}
+                    className="w-[210mm] max-w-none origin-top will-change-transform"
+                    style={{
+                      marginLeft: "-105mm",
+                      transform: `scale(${mobileFitScale * mobileZoom})`,
+                      transformOrigin: "top center",
+                    }}
+                  >
+                    <TemplateComponent
+                      resume={resumeData.content}
+                      customization={
+                        localCustomization ?? resumeData.customization
+                      }
+                    />
+                  </div>
+                </div>
+
+                {isMobilePreviewReady && mobileZoom === MIN_MOBILE_ZOOM && (
+                  <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 flex justify-center">
+                    <span className="rounded-full border border-edge bg-elevated/90 px-3 py-1.5 text-[10px] font-bold text-secondary shadow-lg backdrop-blur">
+                      {t("customize.pinchHint")}
+                    </span>
+                  </div>
+                )}
+
+                {mobileZoom > MIN_MOBILE_ZOOM && (
+                  <button
+                    type="button"
+                    onClick={resetMobilePreview}
+                    className="absolute end-3 top-3 z-20 flex min-h-9 items-center gap-1.5 rounded-full border border-edge bg-elevated/95 px-3 text-[11px] font-black text-primary shadow-lg backdrop-blur"
+                    aria-label={t("preview.resetZoom")}
+                  >
+                    <RotateCcw size={13} className="text-gold" />
+                    {Math.round(mobileZoom * 100)}%
+                  </button>
+                )}
               </div>
-            ) : (
-              <div className="m-auto rounded-xl border border-red-400/20 bg-red-400/10 p-5 text-sm text-red-400">
+
+              <div className="relative hidden min-h-180 flex-1 items-start justify-center overflow-auto bg-soft p-8 md:flex xl:min-h-0">
+                <div
+                  className="flex w-full shrink-0 justify-center"
+                  style={{ zoom: zoom / 100 }}
+                >
+                  <TemplateComponent
+                    resume={resumeData.content}
+                    customization={
+                      localCustomization ?? resumeData.customization
+                    }
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex min-h-[420px] items-center justify-center bg-soft p-5 md:min-h-180">
+              <div className="rounded-xl border border-red-400/20 bg-red-400/10 p-5 text-sm text-red-400">
                 {t("status.errorText")}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </section>
       </div>
 
@@ -1264,7 +1788,7 @@ export default function ResumePreviewPage() {
             setLocalFontFamily(font);
             setLocalCustomization(withFont);
             setResumeData((current) =>
-              current ? { ...current, customization: withFont } : current
+              current ? { ...current, customization: withFont } : current,
             );
           }}
           onFontFamilyChange={(font) => {
@@ -1276,7 +1800,10 @@ export default function ResumePreviewPage() {
             setResumeData((current) => {
               if (!current) return current;
               const base = localCustomization ?? current.customization;
-              return { ...current, customization: { ...base, fontFamily: font } };
+              return {
+                ...current,
+                customization: { ...base, fontFamily: font },
+              };
             });
           }}
           onReset={() => {
@@ -1287,7 +1814,9 @@ export default function ResumePreviewPage() {
             setLocalCustomization(defaultCustomization);
             setLocalFontFamily(FONT_FAMILIES[0].value);
             setResumeData((current) =>
-              current ? { ...current, customization: defaultCustomization } : current
+              current
+                ? { ...current, customization: defaultCustomization }
+                : current,
             );
             toast.success("Resume styling reset to default");
           }}
