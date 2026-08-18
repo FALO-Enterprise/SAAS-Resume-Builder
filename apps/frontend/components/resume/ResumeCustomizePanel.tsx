@@ -39,6 +39,21 @@ export const FONT_FAMILIES = [
 
 export type FontFamilyId = (typeof FONT_FAMILIES)[number]['id'];
 
+export function getFontFamilyId(font?: string): string {
+  if (!font) return 'arial';
+  const found = FONT_FAMILIES.find((f) => f.value === font || f.id === font);
+  if (found) return found.id;
+  const normalized = font.toLowerCase().replace(/['"\s]/g, '');
+  const match = FONT_FAMILIES.find(
+    (f) =>
+      f.id === normalized ||
+      f.value.toLowerCase().replace(/['"\s]/g, '') === normalized ||
+      normalized.includes(f.id) ||
+      f.label.toLowerCase().replace(/['"\s]/g, '') === normalized
+  );
+  return match?.id ?? 'arial';
+}
+
 const ACCENT_COLORS = [
   { hex: '#0563c1', label: 'Blue' },
   { hex: '#087682', label: 'Teal' },
@@ -162,17 +177,10 @@ export default function ResumeCustomizePanel({
   const resetToDefaults = () => {
     if (onReset) {
       onReset();
-    } else {
-      const defaultCustomization: ResumeCustomization = {
-        ...DEFAULT_RESUME_CUSTOMIZATION,
-        fontFamily: FONT_FAMILIES[0].value,
-      };
-      onCustomizationChange(defaultCustomization);
-      onFontFamilyChange(FONT_FAMILIES[0].value);
     }
   };
 
-  const currentFontId = FONT_FAMILIES.find(f => f.value === fontFamily)?.id ?? 'arial';
+  const currentFontId = getFontFamilyId(fontFamily || customization?.fontFamily);
   const fontScalePercent = Math.round(customization.fontScale * 100);
 
   return (

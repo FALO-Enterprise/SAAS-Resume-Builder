@@ -19,6 +19,10 @@
   print-color-adjust: exact;
 }
 
+.resumePage * {
+  font-family: inherit;
+}
+
 .resumePage *,
 .resumePage *::before,
 .resumePage *::after {
@@ -46,7 +50,7 @@
 .identity h1 {
   margin: 0;
   color: #fff;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--resume-font-family, Georgia, "Times New Roman", serif);
   font-size: calc(24pt * var(--resume-font-scale));
   font-weight: 700;
   line-height: 1.05;
@@ -56,7 +60,7 @@
 .identity p {
   margin: 2mm 0 0;
   color: rgb(255 255 255 / 92%);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--resume-font-family, Georgia, "Times New Roman", serif);
   font-size: calc(10.5pt * var(--resume-font-scale));
   line-height: 1.2;
 }
@@ -72,7 +76,7 @@
   border-radius: 3mm;
   background: linear-gradient(145deg, rgb(255 255 255 / 22%), rgb(4 69 77 / 28%));
   color: #fff;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--resume-font-family, Georgia, "Times New Roman", serif);
   font-size: calc(19pt * var(--resume-font-scale));
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -176,7 +180,7 @@
   padding-bottom: 1.6mm;
   border-bottom: 0.35mm solid #cbd3d6;
   color: #26343d;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--resume-font-family, Georgia, "Times New Roman", serif);
   font-size: calc(13pt * var(--resume-font-scale));
   font-weight: 700;
   line-height: 1.1;
@@ -242,7 +246,7 @@
 
 .subsectionHeading {
   color: #26343d;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--resume-font-family, Georgia, "Times New Roman", serif);
   font-size: calc(11pt * var(--resume-font-scale));
 }
 

@@ -195,6 +195,12 @@ export default function ResumePreviewPage() {
           ...data,
           selectedTemplate: activeMetadata,
         });
+        if (data.customization) {
+          setLocalCustomization(data.customization);
+          if (data.customization.fontFamily) {
+            setLocalFontFamily(data.customization.fontFamily);
+          }
+        }
         setDraftTemplateId(activeTemplateId);
         setAppliedTemplateId(activeTemplateId);
         setDraftPurpose(data.purpose);
@@ -1016,9 +1022,9 @@ export default function ResumePreviewPage() {
             onClick={() => {
               if (!localCustomization && resumeData) {
                 setLocalCustomization({ ...resumeData.customization });
-                const existingFont = resumeData.customization.fontFamily;
-                if (existingFont) setLocalFontFamily(existingFont);
               }
+              const currentFont = localCustomization?.fontFamily || resumeData?.customization?.fontFamily;
+              if (currentFont) setLocalFontFamily(currentFont);
               setIsCustomizePanelOpen(true);
             }}
             className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-gold/40 hover:bg-card hover:text-gold"
@@ -1248,6 +1254,7 @@ export default function ResumePreviewPage() {
           onCustomizationChange={(updated) => {
             const font = updated.fontFamily || localFontFamily;
             const withFont = { ...updated, fontFamily: font };
+            setLocalFontFamily(font);
             setLocalCustomization(withFont);
             setResumeData((current) =>
               current ? { ...current, customization: withFont } : current
@@ -1255,11 +1262,15 @@ export default function ResumePreviewPage() {
           }}
           onFontFamilyChange={(font) => {
             setLocalFontFamily(font);
-            const updated = { ...(localCustomization ?? resumeData.customization), fontFamily: font };
-            setLocalCustomization(updated);
-            setResumeData((current) =>
-              current ? { ...current, customization: updated } : current
-            );
+            setLocalCustomization((prev) => {
+              const base = prev ?? resumeData.customization;
+              return { ...base, fontFamily: font };
+            });
+            setResumeData((current) => {
+              if (!current) return current;
+              const base = localCustomization ?? current.customization;
+              return { ...current, customization: { ...base, fontFamily: font } };
+            });
           }}
           onReset={() => {
             const defaultCustomization: ResumeCustomization = {

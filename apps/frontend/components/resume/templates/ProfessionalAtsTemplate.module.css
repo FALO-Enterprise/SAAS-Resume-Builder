@@ -20,6 +20,10 @@
   print-color-adjust: exact;
 }
 
+.resumePage * {
+  font-family: inherit;
+}
+
 .header {
   text-align: center;
 }

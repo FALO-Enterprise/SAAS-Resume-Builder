@@ -25,6 +25,7 @@
 .resumePage *::before,
 .resumePage *::after {
   box-sizing: border-box;
+  font-family: inherit;
 }
 
 .sidebar {
