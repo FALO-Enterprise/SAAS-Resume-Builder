@@ -277,13 +277,12 @@ export async function deleteUserWithBackend(id: string) {
     }
 }
 
-export async function getDashboardDraft(token: string, resumeId?: string) {
+export async function getDashboardDraft(token?: string, resumeId?: string) {
     try {
+        const authToken = token || getAccessToken();
         const { data } = await apiClient.get(API_ENDPOINTS.auth.dashboard, {
             params: resumeId ? { resumeId } : {},
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
         });
         return normalizeBackendPayload<DashboardDraftData>(data);
     } catch (error) {
@@ -311,12 +310,11 @@ export function createDashboardDraftPayload(draft: DashboardDraftData) {
 export async function saveDashboardDraft(token: string, draft: DashboardDraftData, resumeId?: string) {
     try {
         const payload = createDashboardDraftPayload(draft);
+        const authToken = token || getAccessToken();
 
         const { data } = await apiClient.put(API_ENDPOINTS.auth.dashboard, payload, {
             params: resumeId ? { resumeId } : {},
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
         });
         return normalizeBackendPayload<DashboardDraftData>(data);
     } catch (error) {
@@ -339,12 +337,13 @@ export async function generateCurrentResume(
     resumeId?: string,
 ): Promise<GeneratedResume> {
     try {
+        const authToken = token || getAccessToken();
         const { data } = await apiClient.post(
             API_ENDPOINTS.resumes.generate,
             input,
             {
                 params: resumeId ? { resumeId } : {},
-                headers: { Authorization: `Bearer ${token}` },
+                headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
                 timeout: 75_000,
             },
         );
