@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -42,6 +43,7 @@ import {
   useDeleteUserMutation,
   useUpdateUserMutation,
 } from "@/hooks/queries/useUser";
+import { useIsClient } from "@/hooks/useIsClient";
 import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
 import { getInitials } from "@/lib/utilities/getName";
 import { getAccessToken } from "@/lib/auth/token";
@@ -231,6 +233,7 @@ function SaveIndicator({
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const t = useTranslations("settings");
+  const isClient = useIsClient();
   const [activeTab, setActiveTab] = useState<SettingsTab>("general");
   const [expandedSections, setExpandedSections] = useState<SettingsTab[]>([
     "general",
@@ -959,7 +962,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     }
   };
 
-  return (
+  /* Portalled to <body>: the modal is `position: fixed`, and any transformed or
+     `overflow-hidden` ancestor (the dashboard sidebar carries a `translate-x`)
+     would otherwise become its containing block and box it in. */
+  if (!isClient) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-150 flex items-center justify-center p-3 sm:p-6">
@@ -1185,6 +1193,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </AnimatePresence>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

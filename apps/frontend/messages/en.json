@@ -820,6 +820,11 @@
       "proTipText": "Skills like 'Public Speaking' or 'Critical Thinking' are great, but focus on industry-standard software and tools first.",
       "finishButton": "Finish & Generate Resume",
       "noCreditCard": "No credit card required • AI powered generation"
+    },
+    "account": {
+      "upgradeToPro": "Upgrade to Pro",
+      "unverifiedBody": "Your account is not verified yet.",
+      "verifyNow": "Verify now"
     }
   },
   "templatesPage": {

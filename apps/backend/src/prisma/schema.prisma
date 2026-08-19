@@ -144,12 +144,10 @@ model Subscription {
   paddleSubscriptionId String?            @unique
   paddleTransactionId  String?
   updatePaymentUrl     String?
-
-  downloadsCount Int @default(0)
-  aiTokensUsed   Int @default(0)
-
-  Plan Plan @relation(fields: [planId], references: [id])
-  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiTokensUsed         Int                @default(0)
+  downloadsCount       Int                @default(0)
+  Plan                 Plan               @relation(fields: [planId], references: [id])
+  User                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([paddleCustomerId])
   @@index([paddleSubscriptionId])

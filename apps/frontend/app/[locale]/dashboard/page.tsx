@@ -12,23 +12,18 @@ import {
   Pencil, Loader2, FolderKanban, GripVertical,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import Logo from '@/components/ui/Logo';
-import UserAvatarMenu from '@/components/ui/UserAvatarMenu';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import HintTooltip from '@/components/ui/HintTooltip';
 import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem, DashboardDraftData, ProjectItem, SkillGroupItem } from '@/lib/types/dashboard.types';
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
 import { defaultSkillGroups, emptyRole, emptyEdu, emptyCert, emptyProject, emptySkillGroup } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
-import { getAvatarUrl, isUploadedAvatar } from '@/lib/utilities/avatar';
-import {getInitials} from '@/lib/utilities/getName';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import DashboardResumePlaceholder from '@/components/dashboard/DashboardResumePlaceholder';
+import SidebarAccountMenu from '@/components/dashboard/SidebarAccountMenu';
 import {
   getResumeSectionOrder,
   getResumeStepOrder,
@@ -1296,22 +1291,12 @@ function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSec
   const currentNum = STEPS.find(s => s.id === currentStep)?.num ?? 1;
   const locale = useLocale();
   const isRTL = locale === "ar";
-  const { user } = useAuth();
   const [reorderAnnouncement, setReorderAnnouncement] = useState('');
   const resumeStepOrder = getResumeStepOrder(sectionOrder);
   const resumeSteps = resumeStepOrder.map((id) =>
     STEPS.find((step): step is DashboardStep & { id: ResumeStepId } => step.id === id)!,
   );
   const contactStep = STEPS.find(step => step.id === 'contact')!;
-  const activePlanId = user?.planName ?? 'FREE';
-  const planLabel: Record<'FREE' | 'PRO' | 'ENTERPRISE', string> = {
-    FREE: t('plans.free'),
-    PRO: t('plans.pro'),
-    ENTERPRISE: t('plans.enterprise'),
-  };
-  // Enterprise is the top tier — there is nothing to upgrade to, so the CTA is hidden.
-  const isEnterprise = activePlanId === 'ENTERPRISE';
-  const ctaLabel = activePlanId === 'FREE' ? t('upgrade') : t('managePlan');
 
   const moveSection = (id: ResumeStepId, destinationIndex: number) => {
     const next = moveResumeStep(resumeStepOrder, id, destinationIndex);
@@ -1445,60 +1430,7 @@ function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSec
 
       <div className="mx-6 h-px bg-edge" />
 
-      <div className="px-4 py-4">
-        <div className="flex items-center justify-between rounded-xl px-2 py-2 transition-colors hover:bg-card-hover">
-          {/* Left */}
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold text-[12px] font-bold text-ink">
-              {user?.avatar ? (
-                <Image
-                  src={getAvatarUrl(user.avatar)}
-                  alt={user?.name || t('yourAccount')}
-                  width={24}
-                  height={24}
-                  key={user.avatar}
-                  className="h-full w-full object-cover rounded-full"
-                  unoptimized={isUploadedAvatar(user.avatar)}
-                />
-              ) : (
-                getInitials(user?.name)
-              )}
-            </div>
-
-            <div className="min-w-0">
-              <p className="truncate text-[13px] font-semibold text-primary">
-                {user?.name ?? t('yourAccount')}
-              </p>
-
-              <p
-                className={`text-[11px] ${activePlanId === "FREE"
-                  ? "text-muted"
-                  : activePlanId === "PRO"
-                    ? "text-gold"
-                    : "text-violet-300"
-                  }`}
-              >
-                {planLabel[activePlanId]}
-              </p>
-            </div>
-          </div>
-
-          {/* Right */}
-          {!isEnterprise && (
-            <Link
-              href={`/${locale}/pricing`}
-              className="group flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold text-gold transition-colors hover:bg-gold/10"
-            >
-              {ctaLabel}
-              <ArrowRight
-                size={13}
-                className={`transition-transform group-hover:translate-x-0.5 ${isRTL ? "-rotate-180" : ""}`}
-
-              />
-            </Link>
-          )}
-        </div>
-      </div>
+      <SidebarAccountMenu />
     </aside>
   );
 }
@@ -1723,7 +1655,7 @@ export default function DashboardPage() {
       });
 
     return () => { cancelled = true; };
-  }, [handleDashboardRequestError, templateFromQuery, user]);
+  }, [handleDashboardRequestError, templateFromQuery, user, resumeIdParam]);
 
   useEffect(() => {
     if (!draftLoaded || !user) return;
@@ -1881,7 +1813,7 @@ export default function DashboardPage() {
     }
 
     void triggerAutoGenerate();
-  }, [autoGenerate, certs, completedSteps, contact, draftLoaded, education, experience, handleDashboardRequestError, locale, projects, router, sectionOrder, selectedTemplate, skillGroups, summary, user]);
+  }, [autoGenerate, certs, completedSteps, contact, draftLoaded, education, experience, handleDashboardRequestError, locale, projects, router, sectionOrder, selectedTemplate, skillGroups, summary, user, resumeIdParam]);
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
   const nextStep = STEPS[currentIndex + 1];
@@ -2036,23 +1968,15 @@ export default function DashboardPage() {
       )}
 
       <div className="relative z-1 flex h-dvh min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3 backdrop-blur-xl md:hidden">
+        {/* Shown wherever the sidebar is still a drawer, so the menu button
+            tracks `lg` exactly as the sidebar and its overlay do. */}
+        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3 backdrop-blur-xl lg:hidden">
           <button onClick={() => setNavOpen(true)} aria-label="Open menu" className="text-primary">
             <Menu size={22} />
           </button>
           <Logo />
           <span className="w-5.5" />
         </div>
-
-        <div className="fixed inset-x-0 top-0 z-30 hidden h-16 md:flex lg:inset-s-65">
-          <div className="absolute inset-0 -z-10 border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent backdrop-blur-xl" />
-          <div className="flex w-full items-center justify-end gap-3 px-8 lg:px-15">
-            <ThemeToggle />
-            <LanguageSwitcher />
-            <UserAvatarMenu />
-          </div>
-        </div>
-        <div className="hidden h-16 shrink-0 md:block" aria-hidden />
 
         <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-15 lg:pt-13">
           <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_280px] 2xl:grid-cols-[minmax(0,860px)_300px] 2xl:gap-10">
