@@ -1,15 +1,37 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { ExternalLink, AtSign, Send, Mail } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
+import { legalHref } from '@/lib/legal';
+import { blogHref } from '@/lib/blog';
 
 export default function Footer() {
   const t = useTranslations('footer');
+  const locale = useLocale();
 
-  const productLinks = ['features', 'templates', 'pricing', 'changelog'] as const;
-  const companyLinks = ['about', 'blog', 'careers', 'press'] as const;
-  const supportLinks = ['help', 'contact', 'privacy', 'terms'] as const;
+  const productLinks = ['features', 'howItWorks', 'templates', 'pricing'] as const;
+  const companyLinks = ['about', 'blog'] as const;
+  const supportLinks = ['help', 'privacy', 'terms'] as const;
+
+  const home = `/${locale}`;
+
+  const linkRoutes: Partial<Record<string, string>> = {
+    // Product — landing-page sections live behind anchors, the rest are routes.
+    features: `${home}#features`,
+    howItWorks: `${home}#how-it-works`,
+    templates: `${home}/templates`,
+    pricing: `${home}/pricing`,
+    // Company
+    about: `${home}/about`,
+    blog: blogHref(locale),
+    // Support
+    help: `${home}/help`,
+    contact: `${home}/help#contact`,
+    privacy: legalHref('privacy', locale),
+    terms: legalHref('terms', locale),
+  };
 
   return (
     <footer className="relative border-t border-edge">
@@ -52,13 +74,25 @@ export default function Footer() {
             <div key={title}>
               <h4 className="text-primary font-bold text-sm uppercase tracking-wider mb-5">{title}</h4>
               <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-secondary hover:text-primary text-sm transition-colors">
-                      {t(`links.${link}`)}
-                    </a>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const href = linkRoutes[link];
+                  return (
+                    <li key={link}>
+                      {href ? (
+                        <Link
+                          href={href}
+                          className="text-secondary hover:text-primary text-sm transition-colors no-underline"
+                        >
+                          {t(`links.${link}`)}
+                        </Link>
+                      ) : (
+                        <a href="#" className="text-secondary hover:text-primary text-sm transition-colors">
+                          {t(`links.${link}`)}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}

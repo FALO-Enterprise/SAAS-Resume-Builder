@@ -12,6 +12,7 @@ import AuthInput from '@/components/ui/AuthInput';
 import PasswordStrength from '@/lib/utilities/PasswordStrength'
 import { getOAuthStartUrl } from '@/lib/backend';
 import { useRegisterFlow } from '@/hooks/mutations/useRegisterFlow';
+import { legalHref } from '@/lib/legal';
 
 
 
@@ -251,13 +252,19 @@ export default function RegisterPage() {
           className="mt-6 text-center text-xs text-muted"
         >
           {t('termsPrefix')}{' '}
-          <a href="#" className="text-faint no-underline">
+          <Link
+            href={legalHref('terms', locale)}
+            className="text-faint no-underline underline-offset-4 transition-colors hover:text-gold hover:underline"
+          >
             {t('termsLink')}
-          </a>{' '}
+          </Link>{' '}
           {t('termsAnd')}{' '}
-          <a href="#" className="text-faint no-underline">
+          <Link
+            href={legalHref('privacy', locale)}
+            className="text-faint no-underline underline-offset-4 transition-colors hover:text-gold hover:underline"
+          >
             {t('policyLink')}
-          </a>
+          </Link>
         </motion.p>
       )}
     </main>

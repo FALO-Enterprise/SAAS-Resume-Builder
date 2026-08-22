@@ -38,6 +38,7 @@ import type {
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { legalHref } from "@/lib/legal";
 import { useAuth } from "@/context/AuthContext";
 import {
   useDeleteUserMutation,
@@ -233,6 +234,7 @@ function SaveIndicator({
 
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const t = useTranslations("settings");
+  const tLinks = useTranslations("footer.links");
   const isClient = useIsClient();
   const [activeTab, setActiveTab] = useState<SettingsTab>("general");
   const [expandedSections, setExpandedSections] = useState<SettingsTab[]>([
@@ -898,6 +900,31 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         title={t("privacy.heading")}
         description={t("privacy.description")}
       />
+
+      <div className="space-y-2">
+        <p className="text-xs font-semibold text-secondary">
+          {t("privacy.legalHeading")}
+        </p>
+        {(
+          [
+            { slug: "privacy", label: tLinks("privacy"), icon: Shield },
+            { slug: "terms", label: tLinks("terms"), icon: Info },
+          ] as const
+        ).map(({ slug, label, icon: Icon }) => (
+          <Link
+            key={slug}
+            href={legalHref(slug, locale)}
+            onClick={onClose}
+            className="flex items-center justify-between gap-3 rounded-xl border border-edge bg-card px-4 py-3 no-underline transition-colors hover:border-gold/30 hover:bg-card-hover"
+          >
+            <span className="flex items-center gap-2.5">
+              <Icon size={14} className="text-gold" />
+              <span className="text-xs font-medium text-primary">{label}</span>
+            </span>
+            <ExternalLink size={13} className="text-muted" />
+          </Link>
+        ))}
+      </div>
 
       <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4 space-y-3">
         <div className="flex items-center gap-2 text-red-400 font-semibold text-xs">
