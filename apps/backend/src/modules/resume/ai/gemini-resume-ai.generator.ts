@@ -135,13 +135,15 @@ export class GeminiResumeAiGenerator implements ResumeAiGenerator {
                 maxRetries: 1,
             });
 
-            if (!response.output_text) {
+            const responseText = (response as any).output_text || (response as any).text;
+
+            if (!responseText) {
                 throw new GeminiAiProviderError('Gemini returned an empty response', 'INVALID_RESPONSE');
             }
 
             let json: unknown;
             try {
-                json = JSON.parse(response.output_text);
+                json = JSON.parse(responseText);
             } catch {
                 throw new GeminiAiProviderError('Gemini returned invalid JSON', 'INVALID_RESPONSE');
             }
