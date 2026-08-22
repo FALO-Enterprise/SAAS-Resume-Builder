@@ -109,6 +109,20 @@
   text-decoration: underline;
 }
 
+.contactLink,
+.contactItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.contactIcon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--resume-accent, #0f766e);
+}
+
 .section {
   margin-bottom: 20px;
 }
