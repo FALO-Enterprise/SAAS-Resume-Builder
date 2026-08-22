@@ -94,6 +94,9 @@ export default function DraftsPage() {
   const [deletingDraft, setDeletingDraft] = useState<ResumeDraftItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Upgrade / Limit modal state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
   const planKey = (user?.planName?.toLowerCase() || "free") as keyof typeof PLAN_MAX_DRAFTS;
   const maxDrafts = PLAN_MAX_DRAFTS[planKey] || 1;
   const draftsCount = drafts.length;
@@ -105,9 +108,9 @@ export default function DraftsPage() {
       const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") || "" : "";
       const list = await fetchUserDrafts(token);
       setDrafts(list);
-    } catch (err) {
-      console.error("Failed to load drafts", err);
-      toast.error(err instanceof Error ? err.message : "Failed to load drafts");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to load drafts";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -119,7 +122,7 @@ export default function DraftsPage() {
 
   const handleCreateDraft = async () => {
     if (isLimitReached) {
-      toast.error(t("limitReached"));
+      setShowUpgradeModal(true);
       return;
     }
 
@@ -128,10 +131,18 @@ export default function DraftsPage() {
       const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") || "" : "";
       const newResume = await createUserDraft(token);
       toast.success(t("createSuccess"));
-      router.push(`/${locale}/dashboard?resumeId=${newResume.id}`);
-    } catch (err) {
-      console.error("Failed to create draft", err);
-      toast.error(err instanceof Error ? err.message : "Failed to create new draft");
+      router.push(`/${locale}/dashboard/${newResume.id}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to create new draft";
+      if (
+        msg.toLowerCase().includes("limit") ||
+        msg.toLowerCase().includes("free plan") ||
+        msg.toLowerCase().includes("upgrade")
+      ) {
+        setShowUpgradeModal(true);
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setCreating(false);
     }
@@ -689,6 +700,86 @@ export default function DraftsPage() {
                 >
                   {isDeleting && <Loader2 size={13} className="animate-spin" />}
                   <span>{isDeleting ? t("deleting") : t("confirmDelete")}</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Upgrade / Plan Limit Modal */}
+      <AnimatePresence>
+        {showUpgradeModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowUpgradeModal(false)}
+              className="absolute inset-0 bg-black/75 backdrop-blur-md"
+            />
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              initial={{ opacity: 0, scale: 0.94, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 20 }}
+              transition={{ duration: 0.25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-md overflow-hidden rounded-3xl border border-gold/30 bg-elevated p-6 shadow-2xl z-10 space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-gold/30 bg-gold/10 text-gold">
+                  <Sparkles size={22} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-edge bg-card text-secondary hover:text-primary transition-colors cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-black text-primary">
+                  {locale === "ar" ? "وصلت إلى الحد الأقصى للمسودات" : "Draft Limit Reached"}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-secondary">
+                  {locale === "ar"
+                    ? `باقتك الحالية (${user?.planName || "المجانية"}) تسمح بإنشاء ${maxDrafts} مسودة سيرة ذاتية. قم بالترقية لإنشاء المزيد من المسودات والوصول إلى القوالب والتصدير غير المحدود.`
+                    : `Your current ${user?.planName || "Free"} plan allows ${maxDrafts} resume draft. Upgrade your plan to create up to 5 drafts, unlock all premium ATS templates, and export in PDF & JPG.`}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-gold/20 bg-gold/5 p-3 text-xs text-secondary flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-gold uppercase tracking-wider text-[10px] bg-gold/10 px-2 py-0.5 rounded-md border border-gold/30">
+                    {user?.planName || "FREE"}
+                  </span>
+                  <span>{locale === "ar" ? "المسودات الحالية:" : "Current Drafts:"}</span>
+                </div>
+                <span className="font-bold text-primary">
+                  {draftsCount} / {maxDrafts}
+                </span>
+              </div>
+
+              <div className="flex flex-col gap-2.5 pt-2">
+                <Link
+                  href={`/${locale}/pricing`}
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gold hover:bg-gold-light px-5 py-3 text-sm font-extrabold text-slate-950 shadow-lg shadow-gold/20 transition-all"
+                >
+                  <Sparkles size={16} />
+                  <span>{locale === "ar" ? "الترقية إلى Pro" : "Upgrade to Pro"}</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-edge bg-card hover:bg-card-hover px-5 py-3 text-sm font-bold text-secondary hover:text-primary transition-colors cursor-pointer"
+                >
+                  <span>{locale === "ar" ? "إدارة المسودات الحالية" : "Manage Existing Drafts"}</span>
                 </button>
               </div>
             </motion.div>

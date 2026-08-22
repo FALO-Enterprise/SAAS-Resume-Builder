@@ -2195,12 +2195,24 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                         <button
                           onClick={async () => {
                             setDraftSwitcherOpen(false);
+                            const maxDrafts = user?.planName === 'ENTERPRISE' ? 5 : user?.planName === 'PRO' ? 3 : 1;
+                            if (userDrafts.length >= maxDrafts) {
+                              toast.info('Draft limit reached for your plan. Upgrade to create more resumes.');
+                              router.push(`/${locale}/pricing`);
+                              return;
+                            }
                             try {
                               const token = localStorage.getItem('resumax_token') || '';
                               const res = await createUserDraft(token);
                               router.push(`/${locale}/dashboard/${res.id}`);
-                            } catch (e) {
-                              toast.error('Failed to create new draft');
+                            } catch (e: unknown) {
+                              const msg = e instanceof Error ? e.message : 'Failed to create new draft';
+                              if (msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('plan') || msg.toLowerCase().includes('upgrade')) {
+                                toast.info(msg);
+                                router.push(`/${locale}/pricing`);
+                              } else {
+                                toast.error(msg);
+                              }
                             }
                           }}
                           className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-black bg-gradient-to-r from-gold via-amber-400 to-gold hover:from-gold-light hover:to-gold text-slate-950 shadow-sm transition-all cursor-pointer"
