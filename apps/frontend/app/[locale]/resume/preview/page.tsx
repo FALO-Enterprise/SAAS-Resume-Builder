@@ -281,6 +281,17 @@ export default function ResumePreviewPage() {
             ).catch((err) => {
               console.warn("Failed to persist template selection:", err);
             });
+            void saveDashboardDraft(
+              token,
+              {
+                ...data.content,
+                template: templateParam,
+                currentStep: "contact",
+                completedSteps: ["contact"],
+                sectionOrder: data.customization?.sectionOrder || [],
+              },
+              resumeId,
+            ).catch(() => {});
           }
         }
 
@@ -1025,6 +1036,24 @@ export default function ResumePreviewPage() {
         );
         const metadata = getResumeTemplateMetadata(result.templateId);
 
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("resumax_token")
+            : null;
+        if (token) {
+          void saveDashboardDraft(
+            token,
+            {
+              ...resumeData.content,
+              template: draftTemplateId,
+              currentStep: "contact",
+              completedSteps: ["contact"],
+              sectionOrder: resumeData.customization?.sectionOrder || [],
+            },
+            resumeData.resumeId,
+          ).catch(() => {});
+        }
+
         releaseDownloadUrl(resumeData.pdfDownloadUrl);
         releaseDownloadUrl(resumeData.jpgDownloadUrl);
         setResumeData((current) =>
@@ -1323,7 +1352,7 @@ export default function ResumePreviewPage() {
             {/* Change Template Action */}
             <div className="mt-4">
               <Link
-                href={`/${locale}/templates`}
+                href={`/${locale}/templates${resumeData?.resumeId ? `?resumeId=${encodeURIComponent(resumeData.resumeId)}` : ""}`}
                 className="group flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-edge bg-card px-4 py-2.5 text-sm font-bold text-primary transition-all hover:border-gold/50 hover:bg-gold/10 hover:text-gold"
               >
                 <Sparkles size={15} className="text-gold" />

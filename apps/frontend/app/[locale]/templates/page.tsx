@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
@@ -70,9 +71,18 @@ function PlanBadges({
 export default function TemplatesPage() {
    const t = useTranslations('templatesPage');
   const locale = useLocale();
+  const searchParams = useSearchParams();
+  const resumeId = searchParams.get('resumeId')?.trim() || '';
   const prefersReducedMotion = useReducedMotion();
   const { user } = useAuth();
   const isFreeUser = user?.planName === 'FREE' || !user?.planName;
+
+  const getPreviewLink = (templateId: string) => {
+    if (resumeId) {
+      return `/${locale}/resume/preview?resumeId=${encodeURIComponent(resumeId)}&template=${templateId}`;
+    }
+    return `/${locale}/resume/preview?template=${templateId}`;
+  };
 
   // Hero copy rises in on a stagger; the offset collapses under reduced motion
   // so the same sequence still plays as a plain fade.
@@ -401,7 +411,7 @@ export default function TemplatesPage() {
 
                     <h2 className="mt-2 font-playfair text-[1.6rem] font-black leading-tight tracking-[-0.03em] text-primary">
                       <Link
-                        href={`/${locale}/resume/preview?template=${template.id}`}
+                        href={getPreviewLink(template.id)}
                         onClick={(e) => handleTemplateClick(template.id, template, e)}
                         className="rounded-3xl outline-none after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-gold"
                       >
@@ -438,7 +448,7 @@ export default function TemplatesPage() {
                           whileTap={{ scale: 0.96 }}
                         >
                           <Link
-                            href={`/${locale}/resume/preview?template=${template.id}`}
+                            href={getPreviewLink(template.id)}
                             onClick={(e) => handleTemplateClick(template.id, template, e)}
                             className="inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-gold px-4 py-2.5 text-[12px] font-extrabold leading-none text-ink transition hover:bg-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-elevated sm:text-sm"
                           >
@@ -574,7 +584,7 @@ export default function TemplatesPage() {
                 </p>
 
                 <Link
-                  href={`/${locale}/resume/preview?template=${previewTemplate.id}`}
+                  href={getPreviewLink(previewTemplate.id)}
                   onClick={(e) => handleTemplateClick(previewTemplate.id, previewTemplate, e)}
                   className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gold px-5 text-sm font-extrabold text-ink shadow-[0_14px_36px_-14px_rgba(245,166,35,0.9)] transition hover:bg-gold-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-elevated"
                 >
@@ -672,7 +682,7 @@ export default function TemplatesPage() {
                 </Link>
 
                 <Link
-                  href={`/${locale}/resume/preview?template=${FREE_TEMPLATE_ID}`}
+                  href={getPreviewLink(FREE_TEMPLATE_ID)}
                   onClick={() => setUpgradeModalTemplate(null)}
                   className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-edge bg-card px-5 py-3 text-sm font-bold text-secondary transition hover:bg-card-hover hover:text-primary"
                 >
