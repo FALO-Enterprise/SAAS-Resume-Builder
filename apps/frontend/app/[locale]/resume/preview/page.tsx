@@ -16,6 +16,7 @@ import {
   ImageIcon,
   LayoutTemplate,
   LoaderCircle,
+  Lock,
   Minus,
   Pencil,
   Pin,
@@ -29,8 +30,10 @@ import {
   X,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 import {
   DEFAULT_RESUME_CUSTOMIZATION,
+  type ResumeContent,
   type ResumeCustomization,
   type ResumeTemplateId,
 } from "@shared-types/resume";
@@ -147,8 +150,32 @@ export default function ResumePreviewPage() {
   const { user } = useAuth();
   const { preferences } = usePreferences();
   const isFreeUser = user?.planName === "FREE" || !user?.planName;
+  const isProUser = user?.planName === "PRO";
+  const isEnterpriseUser = user?.planName === "ENTERPRISE";
+
+  const maxDailyPurposeRewrites = isEnterpriseUser ? 5 : isProUser ? 3 : 0;
+  const [dailyPurposeUsage, setDailyPurposeUsage] = useState<number>(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !user?.id) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const key = `resumax_purpose_usage_${user.id}_${today}`;
+    const stored = parseInt(localStorage.getItem(key) || "0", 10);
+    setDailyPurposeUsage(isNaN(stored) ? 0 : stored);
+  }, [user?.id]);
+
+  const incrementPurposeUsage = () => {
+    if (typeof window === "undefined" || !user?.id) return dailyPurposeUsage + 1;
+    const today = new Date().toISOString().slice(0, 10);
+    const key = `resumax_purpose_usage_${user.id}_${today}`;
+    const next = dailyPurposeUsage + 1;
+    localStorage.setItem(key, String(next));
+    setDailyPurposeUsage(next);
+    return next;
+  };
 
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
+  const initialContentRef = useRef<ResumeContent | null>(null);
   const mobilePreviewViewportRef = useRef<HTMLDivElement | null>(null);
   const mobilePreviewDocumentRef = useRef<HTMLDivElement | null>(null);
   const mobileGestureRef = useRef<MobileGestureState>({
@@ -255,6 +282,10 @@ export default function ResumePreviewPage() {
               console.warn("Failed to persist template selection:", err);
             });
           }
+        }
+
+        if (!initialContentRef.current && data.content) {
+          initialContentRef.current = JSON.parse(JSON.stringify(data.content));
         }
 
         setResumeData({
@@ -940,6 +971,26 @@ export default function ResumePreviewPage() {
           : null;
 
       if (draftPurpose !== appliedPurpose && token) {
+        if (isFreeUser) {
+          toast.error(
+            locale === "ar"
+              ? "تكييف هدف السيرة الذاتية بواسطة الذكاء الاصطناعي متاح لخطة Pro (3/يومياً) و Enterprise (5/يومياً) فقط."
+              : "Purpose tailoring powered by Gemini AI requires Pro (3/day) or Enterprise (5/day) plan."
+          );
+          setIsApplying(false);
+          return;
+        }
+
+        if (dailyPurposeUsage >= maxDailyPurposeRewrites) {
+          toast.error(
+            locale === "ar"
+              ? `لقد وصلت إلى الحد اليومي لإعادة صياغة الهدف (${dailyPurposeUsage}/${maxDailyPurposeRewrites}). حاول مجدداً غداً.`
+              : `Daily purpose rewrite limit reached (${dailyPurposeUsage}/${maxDailyPurposeRewrites}). Try again tomorrow or upgrade plan.`
+          );
+          setIsApplying(false);
+          return;
+        }
+
         await generateCurrentResume(
           token,
           {
@@ -950,6 +1001,8 @@ export default function ResumePreviewPage() {
           resumeData.resumeId,
         );
 
+        const newCount = incrementPurposeUsage();
+
         const freshData = await getResumePreviewData(resumeData.resumeId);
         releaseDownloadUrl(resumeData.pdfDownloadUrl);
         releaseDownloadUrl(resumeData.jpgDownloadUrl);
@@ -957,6 +1010,12 @@ export default function ResumePreviewPage() {
         setDraftTemplateId(freshData.selectedTemplate.id);
         setAppliedTemplateId(freshData.selectedTemplate.id);
         setAppliedPurpose(draftPurpose);
+
+        toast.success(
+          locale === "ar"
+            ? `تمت إعادة صياغة هدف السيرة الذاتية بنجاح (${newCount}/${maxDailyPurposeRewrites} اليوم)`
+            : `Updated purpose to ${draftPurpose} (${newCount}/${maxDailyPurposeRewrites} daily rewrites used)`
+        );
       } else {
         const result = await updateCurrentResumeTemplate(
           resumeData.resumeName,
@@ -1278,34 +1337,59 @@ export default function ResumePreviewPage() {
           </section>
 
           <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-azure/25 bg-azure/10">
-                <Sparkles size={19} className="text-azure-light" />
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-azure/25 bg-azure/10">
+                  <Sparkles size={19} className="text-azure-light" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-secondary">
+                    {configuration("purpose")}
+                  </p>
+                  <h2 className="mt-1 text-sm font-black">
+                    {configuration(PURPOSE_TRANSLATION_KEYS[draftPurpose])}
+                  </h2>
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-semibold text-secondary">
-                  {configuration("purpose")}
-                </p>
-                <h2 className="mt-1 text-sm font-black">
-                  {configuration(PURPOSE_TRANSLATION_KEYS[draftPurpose])}
-                </h2>
-              </div>
+
+              {!isFreeUser && (
+                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                  dailyPurposeUsage >= maxDailyPurposeRewrites
+                    ? "bg-red-500/10 text-red-400 border-red-500/20"
+                    : "bg-gold/10 text-gold border-gold/20"
+                }`}>
+                  {dailyPurposeUsage}/{maxDailyPurposeRewrites} Today
+                </span>
+              )}
             </div>
-            <select
-              value={draftPurpose}
-              disabled={isBusy}
-              onChange={(event) => {
-                void handlePurposeSelect(event.target.value as ResumePurpose);
-              }}
-              className="mt-5 min-h-12 w-full rounded-xl border border-edge bg-card px-4 text-sm font-bold text-primary outline-none focus:border-gold focus:ring-2 focus:ring-gold/25"
-              aria-label={configuration("selectPurpose")}
-            >
-              {RESUME_PURPOSES.map((purpose) => (
-                <option key={purpose} value={purpose}>
-                  {configuration(PURPOSE_TRANSLATION_KEYS[purpose])}
-                </option>
-              ))}
-            </select>
+
+            {/* Select Input Dropdown Area (Blurred for Free Users) */}
+            <div className="relative mt-5">
+              {isFreeUser && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-elevated/75 backdrop-blur-sm px-4 py-2 text-center border border-gold/20 shadow-inner">
+                  <div className="flex items-center gap-2">
+                    <Lock size={14} className="text-gold" />
+                    <span className="text-xs font-black text-primary">Pro Feature</span>
+                  </div>
+                </div>
+              )}
+
+              <select
+                value={draftPurpose}
+                disabled={isBusy || isFreeUser || dailyPurposeUsage >= maxDailyPurposeRewrites}
+                onChange={(event) => {
+                  setDraftPurpose(event.target.value as ResumePurpose);
+                }}
+                className="min-h-12 w-full rounded-xl border border-edge bg-card px-4 text-sm font-bold text-primary outline-none focus:border-gold focus:ring-2 focus:ring-gold/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={configuration("selectPurpose")}
+              >
+                {RESUME_PURPOSES.map((purpose) => (
+                  <option key={purpose} value={purpose}>
+                    {configuration(PURPOSE_TRANSLATION_KEYS[purpose])}
+                  </option>
+                ))}
+              </select>
+            </div>
           </section>
 
           {/* Profile Photo Section (for templates supporting photo) */}
@@ -1822,6 +1906,25 @@ export default function ResumePreviewPage() {
           }}
         />
       )}
+
+      {/* Floating AI Coach Icon Button -> Redirects to Dashboard & opens AI Coach */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.92 }}
+          onClick={() => {
+            router.push(`/${locale}/dashboard?openCoach=true`);
+          }}
+          title="AI Resume Coach"
+          className="relative group flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 via-amber-600 to-yellow-400 text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-300/50 hover:shadow-amber-500/50 transition-all cursor-pointer"
+        >
+          <Sparkles size={20} className="text-slate-950 animate-pulse" />
+          <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-200 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-100"></span>
+          </span>
+        </motion.button>
+      </div>
     </main>
   );
 }
