@@ -12,14 +12,12 @@ import {
   ChevronDown,
   Download,
   FileText,
-  FolderClock,
   ImageIcon,
   LayoutTemplate,
   LoaderCircle,
   Lock,
   Minus,
   Pencil,
-  Pin,
   Plus,
   RotateCcw,
   SlidersHorizontal,
@@ -42,11 +40,7 @@ import ResumeCustomizePanel, {
 } from "@/components/resume/ResumeCustomizePanel";
 
 import { toast } from "sonner";
-import {
-  buildBackendUrl,
-  generateCurrentResume,
-  saveDashboardDraft,
-} from "@/lib/backend";
+import { generateCurrentResume, saveDashboardDraft } from "@/lib/backend";
 import { resolveResumeTemplate } from "@/components/resume/templates/registry";
 import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
@@ -55,17 +49,13 @@ import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import UserAvatarMenu from "@/components/ui/UserAvatarMenu";
 import {
-  createNewClonedDraft,
-  deleteResumeDraft,
   exportResume,
   getResumePreviewData,
   getResumeTemplateMetadata,
-  getUserResumesList,
   isResumeTemplateId,
   renameResumeDraft,
   updateCurrentResumeTemplate,
   type ResumeExportFormat,
-  type UserResumeSummary,
 } from "@/lib/resume-preview-api";
 import type {
   ResumePreviewData,
@@ -158,14 +148,24 @@ export default function ResumePreviewPage() {
 
   useEffect(() => {
     if (typeof window === "undefined" || !user?.id) return;
-    const today = new Date().toISOString().slice(0, 10);
-    const key = `resumax_purpose_usage_${user.id}_${today}`;
-    const stored = parseInt(localStorage.getItem(key) || "0", 10);
-    setDailyPurposeUsage(isNaN(stored) ? 0 : stored);
+
+    const syncUsageFromStorage = () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const key = `resumax_purpose_usage_${user.id}_${today}`;
+      const stored = Number.parseInt(
+        window.localStorage.getItem(key) || "0",
+        10,
+      );
+      setDailyPurposeUsage(Number.isNaN(stored) ? 0 : stored);
+    };
+
+    const timeoutId = window.setTimeout(syncUsageFromStorage, 0);
+    return () => window.clearTimeout(timeoutId);
   }, [user?.id]);
 
   const incrementPurposeUsage = () => {
-    if (typeof window === "undefined" || !user?.id) return dailyPurposeUsage + 1;
+    if (typeof window === "undefined" || !user?.id)
+      return dailyPurposeUsage + 1;
     const today = new Date().toISOString().slice(0, 10);
     const key = `resumax_purpose_usage_${user.id}_${today}`;
     const next = dailyPurposeUsage + 1;
@@ -175,6 +175,7 @@ export default function ResumePreviewPage() {
   };
 
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
+  const purposeMenuRef = useRef<HTMLDivElement | null>(null);
   const initialContentRef = useRef<ResumeContent | null>(null);
   const mobilePreviewViewportRef = useRef<HTMLDivElement | null>(null);
   const mobilePreviewDocumentRef = useRef<HTMLDivElement | null>(null);
@@ -204,6 +205,7 @@ export default function ResumePreviewPage() {
   const selectedExportFormat =
     exportFormatOverride ?? preferences.defaultExportFormat;
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const [isPurposeMenuOpen, setIsPurposeMenuOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobilePreviewReady, setIsMobilePreviewReady] = useState(false);
   const [mobileFitScale, setMobileFitScale] = useState(1);
@@ -219,15 +221,9 @@ export default function ResumePreviewPage() {
   const [localFontFamily, setLocalFontFamily] = useState<string>(
     FONT_FAMILIES[0].value,
   );
-  const [savedDrafts, setSavedDrafts] = useState<UserResumeSummary[]>([]);
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   const [editingDraftTitle, setEditingDraftTitle] = useState("");
   const [isRenaming, setIsRenaming] = useState(false);
-  const [isCreatingDraft, setIsCreatingDraft] = useState(false);
-  const [deletingDraftId, setDeletingDraftId] = useState<string | null>(null);
-  const [downloadingDraftId, setDownloadingDraftId] = useState<string | null>(
-    null,
-  );
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -235,8 +231,8 @@ export default function ResumePreviewPage() {
   const [exportingFormat, setExportingFormat] =
     useState<ResumeExportFormat | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [, setActionError] = useState<string | null>(null);
+  const [, setActionSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -302,11 +298,6 @@ export default function ResumePreviewPage() {
         setAppliedTemplateId(activeTemplateId);
         setDraftPurpose(data.purpose);
         setAppliedPurpose(data.purpose);
-
-        const draftsList = await getUserResumesList(controller.signal);
-        if (!controller.signal.aborted) {
-          setSavedDrafts(draftsList);
-        }
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError")
           return;
@@ -323,28 +314,27 @@ export default function ResumePreviewPage() {
   }, [t, isFreeUser, resumeIdParam, templateParam]);
 
   useEffect(() => {
-    function closeExportMenu(event: PointerEvent) {
+    function closeFloatingMenus(event: PointerEvent) {
       const target = event.target;
-      if (
-        target instanceof Node &&
-        exportMenuRef.current &&
-        !exportMenuRef.current.contains(target)
-      ) {
-        setIsExportMenuOpen(false);
-      }
+      if (!(target instanceof Node)) return;
+
+      if (!exportMenuRef.current?.contains(target)) setIsExportMenuOpen(false);
+      if (!purposeMenuRef.current?.contains(target))
+        setIsPurposeMenuOpen(false);
     }
 
     function closeOnEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsExportMenuOpen(false);
+        setIsPurposeMenuOpen(false);
         setIsMobileSidebarOpen(false);
       }
     }
 
-    document.addEventListener("pointerdown", closeExportMenu);
+    document.addEventListener("pointerdown", closeFloatingMenus);
     document.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.removeEventListener("pointerdown", closeExportMenu);
+      document.removeEventListener("pointerdown", closeFloatingMenus);
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, []);
@@ -363,7 +353,10 @@ export default function ResumePreviewPage() {
   useEffect(() => {
     const desktopMediaQuery = window.matchMedia("(min-width: 1280px)");
     const handleDesktopLayout = (event: MediaQueryListEvent) => {
-      if (event.matches) setIsMobileSidebarOpen(false);
+      if (event.matches) {
+        setIsMobileSidebarOpen(false);
+        setIsPurposeMenuOpen(false);
+      }
     };
 
     desktopMediaQuery.addEventListener("change", handleDesktopLayout);
@@ -570,11 +563,6 @@ export default function ResumePreviewPage() {
             prev ? { ...prev, resumeName: trimmed } : prev,
           );
         }
-        setSavedDrafts((prev) =>
-          prev.map((draft) =>
-            draft.id === id ? { ...draft, title: trimmed } : draft,
-          ),
-        );
         toast.success(
           locale === "ar"
             ? "تم تغيير اسم المسودة بنجاح"
@@ -592,28 +580,6 @@ export default function ResumePreviewPage() {
       );
     } finally {
       setIsRenaming(false);
-    }
-  };
-
-  const handleRenameCurrentDraft = async () => {
-    if (isCreatingDraft) return;
-    try {
-      setIsCreatingDraft(true);
-      const newDraft = await createNewClonedDraft();
-      toast.success(
-        locale === "ar"
-          ? "تم إنشاء مسودة جديدة بنجاح"
-          : "New draft created successfully",
-      );
-      router.push(
-        `/${locale}/dashboard?resumeId=${encodeURIComponent(newDraft.id)}&template=${encodeURIComponent(newDraft.templateId)}`,
-      );
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to create draft",
-      );
-    } finally {
-      setIsCreatingDraft(false);
     }
   };
 
@@ -715,7 +681,7 @@ export default function ResumePreviewPage() {
           ? "تم تحديث الصورة الشخصية بنجاح"
           : "Profile photo updated successfully",
       );
-    } catch (err) {
+    } catch {
       toast.error(
         locale === "ar" ? "فشل تحديث الصورة" : "Failed to update photo",
       );
@@ -772,184 +738,12 @@ export default function ResumePreviewPage() {
       toast.success(
         locale === "ar" ? "تم حذف الصورة بنجاح" : "Profile photo removed",
       );
-    } catch (err) {
+    } catch {
       toast.error(
         locale === "ar" ? "فشل حذف الصورة" : "Failed to remove photo",
       );
     } finally {
       setIsUploadingPhoto(false);
-    }
-  };
-
-  const handleCreateNewDraft = async () => {
-    if (isCreatingDraft) return;
-    try {
-      setIsCreatingDraft(true);
-      const newDraft = await createNewClonedDraft();
-      toast.success(
-        locale === "ar"
-          ? "تم إنشاء مسودة جديدة بنجاح"
-          : "New draft created successfully",
-      );
-      router.push(
-        `/${locale}/dashboard?resumeId=${encodeURIComponent(newDraft.id)}&template=${encodeURIComponent(newDraft.templateId)}`,
-      );
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to create draft",
-      );
-    } finally {
-      setIsCreatingDraft(false);
-    }
-  };
-
-  const handleDeleteDraft = async (e: React.MouseEvent, draftId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (deletingDraftId) return;
-
-    const confirmMsg =
-      locale === "ar"
-        ? "هل أنت متأكد من رغبتك في حذف هذه المسودة؟"
-        : "Are you sure you want to delete this draft?";
-    if (!window.confirm(confirmMsg)) return;
-
-    try {
-      setDeletingDraftId(draftId);
-      const success = await deleteResumeDraft(draftId);
-      if (success) {
-        toast.success(
-          locale === "ar"
-            ? "تم حذف المسودة بنجاح"
-            : "Draft deleted successfully",
-        );
-        setSavedDrafts((prev) => prev.filter((d) => d.id !== draftId));
-
-        if (
-          resumeData &&
-          (draftId === resumeData.resumeId || draftId === "current")
-        ) {
-          const remaining = savedDrafts.filter((d) => d.id !== draftId);
-          if (remaining.length > 0) {
-            window.location.href = `/${locale}/resume/preview?resumeId=${remaining[0].id}&template=${remaining[0].templateId}`;
-          } else {
-            window.location.href = `/${locale}/dashboard`;
-          }
-        }
-      } else {
-        toast.error(
-          locale === "ar" ? "تعذر حذف المسودة" : "Failed to delete draft",
-        );
-      }
-    } catch {
-      toast.error(
-        locale === "ar" ? "تعذر حذف المسودة" : "Failed to delete draft",
-      );
-    } finally {
-      setDeletingDraftId(null);
-    }
-  };
-
-  const handleDownloadDraft = async (
-    e: React.MouseEvent,
-    draftId: string,
-    templateId: string,
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (downloadingDraftId) return;
-
-    const toastId = toast.loading(
-      locale === "ar"
-        ? "جاري تجهيز تحميل المسودة..."
-        : "Preparing draft download...",
-    );
-
-    try {
-      setDownloadingDraftId(draftId);
-      const resolvedTemplate = isResumeTemplateId(templateId)
-        ? templateId
-        : undefined;
-      const result = await exportResume(
-        draftId,
-        "pdf",
-        undefined,
-        resolvedTemplate,
-      );
-      triggerDownload(result.downloadUrl, "pdf");
-      toast.success(
-        locale === "ar"
-          ? "تم التحميل بنجاح!"
-          : "Draft downloaded successfully!",
-        { id: toastId },
-      );
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : locale === "ar"
-            ? "فشل تحميل المسودة"
-            : "Failed to download draft",
-        { id: toastId },
-      );
-    } finally {
-      setDownloadingDraftId(null);
-    }
-  };
-
-  const handlePurposeSelect = async (newPurpose: ResumePurpose) => {
-    if (!resumeData || isBusy) return;
-    setDraftPurpose(newPurpose);
-
-    const purposeLabel = configuration(PURPOSE_TRANSLATION_KEYS[newPurpose]);
-    const toastId = toast.loading(
-      `Rewriting resume for ${purposeLabel} with Gemini AI...`,
-    );
-
-    try {
-      setIsApplying(true);
-      setActionError(null);
-      setActionSuccess(null);
-      setIsExportMenuOpen(false);
-
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("resumax_token")
-          : null;
-
-      if (token) {
-        await generateCurrentResume(
-          token,
-          {
-            title: resumeData.resumeName,
-            templateId: draftTemplateId,
-            purpose: newPurpose,
-          },
-          resumeData.resumeId,
-        );
-
-        const freshData = await getResumePreviewData(resumeData.resumeId);
-        releaseDownloadUrl(resumeData.pdfDownloadUrl);
-        releaseDownloadUrl(resumeData.jpgDownloadUrl);
-        setResumeData(freshData);
-        setDraftTemplateId(freshData.selectedTemplate.id);
-        setAppliedTemplateId(freshData.selectedTemplate.id);
-        setAppliedPurpose(newPurpose);
-      } else {
-        setAppliedPurpose(newPurpose);
-      }
-
-      const successMsg = `Resume rewritten for ${purposeLabel} using Gemini AI!`;
-      setActionSuccess(successMsg);
-      toast.success(successMsg, { id: toastId });
-    } catch (error) {
-      const errorMsg =
-        error instanceof Error ? error.message : configuration("generateError");
-      setActionError(errorMsg);
-      toast.error(errorMsg, { id: toastId });
-      setDraftPurpose(appliedPurpose);
-    } finally {
-      setIsApplying(false);
     }
   };
 
@@ -975,7 +769,7 @@ export default function ResumePreviewPage() {
           toast.error(
             locale === "ar"
               ? "تكييف هدف السيرة الذاتية بواسطة الذكاء الاصطناعي متاح لخطة Pro (3/يومياً) و Enterprise (5/يومياً) فقط."
-              : "Purpose tailoring powered by Gemini AI requires Pro (3/day) or Enterprise (5/day) plan."
+              : "Purpose tailoring powered by Gemini AI requires Pro (3/day) or Enterprise (5/day) plan.",
           );
           setIsApplying(false);
           return;
@@ -985,7 +779,7 @@ export default function ResumePreviewPage() {
           toast.error(
             locale === "ar"
               ? `لقد وصلت إلى الحد اليومي لإعادة صياغة الهدف (${dailyPurposeUsage}/${maxDailyPurposeRewrites}). حاول مجدداً غداً.`
-              : `Daily purpose rewrite limit reached (${dailyPurposeUsage}/${maxDailyPurposeRewrites}). Try again tomorrow or upgrade plan.`
+              : `Daily purpose rewrite limit reached (${dailyPurposeUsage}/${maxDailyPurposeRewrites}). Try again tomorrow or upgrade plan.`,
           );
           setIsApplying(false);
           return;
@@ -1014,7 +808,7 @@ export default function ResumePreviewPage() {
         toast.success(
           locale === "ar"
             ? `تمت إعادة صياغة هدف السيرة الذاتية بنجاح (${newCount}/${maxDailyPurposeRewrites} اليوم)`
-            : `Updated purpose to ${draftPurpose} (${newCount}/${maxDailyPurposeRewrites} daily rewrites used)`
+            : `Updated purpose to ${draftPurpose} (${newCount}/${maxDailyPurposeRewrites} daily rewrites used)`,
         );
       } else {
         const result = await updateCurrentResumeTemplate(
@@ -1209,15 +1003,16 @@ export default function ResumePreviewPage() {
             onClick={() => {
               setIsMobileSidebarOpen(false);
               setIsExportMenuOpen(false);
+              setIsPurposeMenuOpen(false);
             }}
             aria-label={t("customize.closeOptions")}
-            className="fixed inset-0 z-[60] bg-black/55 backdrop-blur-[2px] xl:hidden"
+            className="fixed inset-0 z-60 bg-black/55 backdrop-blur-[2px] xl:hidden"
           />
         )}
 
         <aside
           id="mobile-preview-sidebar"
-          className={`fixed inset-y-0 z-[70] flex w-[min(90vw,390px)] flex-col gap-4 overflow-y-auto border-edge bg-base p-4 shadow-[0_0_80px_rgba(0,0,0,0.38)] transition-transform duration-300 ease-out xl:sticky xl:top-22 xl:right-auto xl:bottom-auto xl:left-auto xl:z-auto xl:w-auto xl:translate-x-0 xl:gap-5 xl:overflow-visible xl:border-0 xl:bg-transparent xl:p-0 xl:shadow-none ${
+          className={`fixed inset-y-0 z-70 flex w-[min(90vw,390px)] flex-col gap-4 overflow-y-auto border-edge bg-base p-4 shadow-[0_0_80px_rgba(0,0,0,0.38)] transition-transform duration-300 ease-out xl:sticky xl:top-22 xl:right-auto xl:bottom-auto xl:left-auto xl:z-auto xl:w-auto xl:translate-x-0 xl:gap-5 xl:overflow-visible xl:border-0 xl:bg-transparent xl:p-0 xl:shadow-none ${
             isRTL ? "right-0 border-l" : "left-0 border-r"
           } ${
             isMobileSidebarOpen
@@ -1246,6 +1041,7 @@ export default function ResumePreviewPage() {
               onClick={() => {
                 setIsMobileSidebarOpen(false);
                 setIsExportMenuOpen(false);
+                setIsPurposeMenuOpen(false);
               }}
               aria-label={t("customize.closeOptions")}
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-gold/40 hover:bg-soft hover:text-gold"
@@ -1263,7 +1059,7 @@ export default function ResumePreviewPage() {
                   <p className="text-xs font-semibold text-secondary">
                     {configuration("selectedTemplate")}
                   </p>
-                  <h2 className="mt-1 truncate text-base font-black">
+                  <h2 className="mt-1 truncate text-base font-black text-surface">
                     {selectedMetadata.name}
                   </h2>
                 </div>
@@ -1353,42 +1149,100 @@ export default function ResumePreviewPage() {
               </div>
 
               {!isFreeUser && (
-                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
-                  dailyPurposeUsage >= maxDailyPurposeRewrites
-                    ? "bg-red-500/10 text-red-400 border-red-500/20"
-                    : "bg-gold/10 text-gold border-gold/20"
-                }`}>
+                <span
+                  className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                    dailyPurposeUsage >= maxDailyPurposeRewrites
+                      ? "bg-red-500/10 text-red-400 border-red-500/20"
+                      : "bg-gold/10 text-gold border-gold/20"
+                  }`}
+                >
                   {dailyPurposeUsage}/{maxDailyPurposeRewrites} Today
                 </span>
               )}
             </div>
 
             {/* Select Input Dropdown Area (Blurred for Free Users) */}
-            <div className="relative mt-5">
+            <div ref={purposeMenuRef} className="relative mt-5">
               {isFreeUser && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-elevated/75 backdrop-blur-sm px-4 py-2 text-center border border-gold/20 shadow-inner">
                   <div className="flex items-center gap-2">
                     <Lock size={14} className="text-gold" />
-                    <span className="text-xs font-black text-primary">Pro Feature</span>
+                    <span className="text-xs font-black text-primary">
+                      Pro Feature
+                    </span>
                   </div>
                 </div>
               )}
 
-              <select
-                value={draftPurpose}
-                disabled={isBusy || isFreeUser || dailyPurposeUsage >= maxDailyPurposeRewrites}
-                onChange={(event) => {
-                  setDraftPurpose(event.target.value as ResumePurpose);
+              <button
+                type="button"
+                disabled={
+                  isBusy ||
+                  isFreeUser ||
+                  dailyPurposeUsage >= maxDailyPurposeRewrites
+                }
+                onClick={() => {
+                  setIsExportMenuOpen(false);
+                  setIsPurposeMenuOpen((open) => !open);
                 }}
-                className="min-h-12 w-full rounded-xl border border-edge bg-card px-4 text-sm font-bold text-primary outline-none focus:border-gold focus:ring-2 focus:ring-gold/25 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={configuration("selectPurpose")}
+                aria-haspopup="listbox"
+                aria-expanded={isPurposeMenuOpen}
+                aria-controls="resume-purpose-options"
+                className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border bg-card px-4 text-start text-sm font-bold text-primary outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50 ${
+                  isPurposeMenuOpen
+                    ? "border-gold ring-2 ring-gold/25"
+                    : "border-edge hover:border-gold/45"
+                }`}
               >
-                {RESUME_PURPOSES.map((purpose) => (
-                  <option key={purpose} value={purpose}>
-                    {configuration(PURPOSE_TRANSLATION_KEYS[purpose])}
-                  </option>
-                ))}
-              </select>
+                <span className="min-w-0 truncate">
+                  {configuration(PURPOSE_TRANSLATION_KEYS[draftPurpose])}
+                </span>
+                <ChevronDown
+                  size={17}
+                  className={`shrink-0 text-secondary transition-transform duration-200 ${
+                    isPurposeMenuOpen ? "rotate-180 text-gold" : ""
+                  }`}
+                />
+              </button>
+
+              {isPurposeMenuOpen && (
+                <div
+                  id="resume-purpose-options"
+                  role="listbox"
+                  aria-label={configuration("selectPurpose")}
+                  className="absolute inset-x-0 top-[calc(100%+8px)] z-50 max-h-[min(20rem,45vh)] overflow-y-auto overscroll-contain rounded-2xl border border-edge bg-elevated p-1.5 shadow-[0_22px_65px_rgba(0,0,0,0.38)]"
+                >
+                  {RESUME_PURPOSES.map((purpose) => {
+                    const isSelected = draftPurpose === purpose;
+
+                    return (
+                      <button
+                        key={purpose}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => {
+                          setDraftPurpose(purpose);
+                          setIsPurposeMenuOpen(false);
+                        }}
+                        className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-start text-sm font-bold transition-colors ${
+                          isSelected
+                            ? "bg-gold/15 text-gold"
+                            : "text-primary hover:bg-soft"
+                        }`}
+                      >
+                        <span className="min-w-0 truncate">
+                          {configuration(PURPOSE_TRANSLATION_KEYS[purpose])}
+                        </span>
+                        {isSelected && (
+                          <Check size={15} className="shrink-0 text-gold" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </section>
 
@@ -1537,9 +1391,9 @@ export default function ResumePreviewPage() {
         </aside>
 
         <section
-          className={`order-1 min-w-0 overflow-hidden rounded-[22px] border border-edge bg-elevated shadow-[0_18px_55px_var(--shadow-color)] transition-all duration-300 sm:rounded-[28px] md:shadow-[0_24px_80px_var(--shadow-color)] xl:order-none xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col ${
+          className={`order-1 min-w-0 overflow-hidden rounded-[22px] border border-edge bg-elevated shadow-[0_18px_55px_var(--shadow-color)] transition-all duration-300 sm:rounded-[28px] md:shadow-[0_24px_80px_var(--shadow-color)] xl:order-0 xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col ${
             isCustomizePanelOpen
-              ? "relative z-[55] ring-2 ring-gold/40 shadow-[0_24px_100px_rgba(0,0,0,0.5)]"
+              ? "relative z-55 ring-2 ring-gold/40 shadow-[0_24px_100px_rgba(0,0,0,0.5)]"
               : ""
           }`}
         >
@@ -1824,7 +1678,7 @@ export default function ResumePreviewPage() {
                   <button
                     type="button"
                     onClick={resetMobilePreview}
-                    className="absolute end-3 top-3 z-20 flex min-h-9 items-center gap-1.5 rounded-full border border-edge bg-elevated/95 px-3 text-[11px] font-black text-primary shadow-lg backdrop-blur"
+                    className="absolute inset-e-3 top-3 z-20 flex min-h-9 items-center gap-1.5 rounded-full border border-edge bg-elevated/95 px-3 text-[11px] font-black text-primary shadow-lg backdrop-blur"
                     aria-label={t("preview.resetZoom")}
                   >
                     <RotateCcw size={13} className="text-gold" />
@@ -1848,7 +1702,7 @@ export default function ResumePreviewPage() {
               </div>
             </>
           ) : (
-            <div className="flex min-h-[420px] items-center justify-center bg-soft p-5 md:min-h-180">
+            <div className="flex min-h-105 items-center justify-center bg-soft p-5 md:min-h-180">
               <div className="rounded-xl border border-red-400/20 bg-red-400/10 p-5 text-sm text-red-400">
                 {t("status.errorText")}
               </div>
@@ -1916,7 +1770,7 @@ export default function ResumePreviewPage() {
             router.push(`/${locale}/dashboard?openCoach=true`);
           }}
           title="AI Resume Coach"
-          className="relative group flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 via-amber-600 to-yellow-400 text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-300/50 hover:shadow-amber-500/50 transition-all cursor-pointer"
+          className="relative group flex items-center justify-center w-11 h-11 rounded-full bg-linear-to-tr from-amber-500 via-amber-600 to-yellow-400 text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-300/50 hover:shadow-amber-500/50 transition-all cursor-pointer"
         >
           <Sparkles size={20} className="text-slate-950 animate-pulse" />
           <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
