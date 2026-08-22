@@ -167,14 +167,22 @@
         "name": "Global Core",
         "date": "Jan 2027",
         "tag": "Upcoming",
-        "features": ["120+ templates", "ATS optimizer", "AI suggestions"]
+        "features": [
+          "120+ templates",
+          "ATS optimizer",
+          "AI suggestions"
+        ]
       },
       "v3": {
         "version": "v3.0",
         "name": "AI-Powered",
         "date": "Q3 2027",
         "tag": "Future",
-        "features": ["GPT resume coach", "Job-match scoring", "LinkedIn sync"]
+        "features": [
+          "GPT resume coach",
+          "Job-match scoring",
+          "LinkedIn sync"
+        ]
       }
     }
   },
@@ -270,7 +278,7 @@
       "passwordPlaceholder": "Password",
       "confirmPasswordPlaceholder": "Confirm password",
       "termsPrefix": "By creating an account you agree to our",
-      "termsLink": "Terms of Service",
+      "termsLink": "Terms & Conditions",
       "termsAnd": "and",
       "policyLink": "Privacy Policy",
       "submit": "Create Account",
@@ -530,7 +538,7 @@
         },
         {
           "q": "What payment methods do you accept?",
-          "a": "We accept all major credit cards (Visa, Mastercard, Amex) and PayPal via Stripe. All transactions are encrypted and secure."
+          "a": "Payments are handled by Paddle, our Merchant of Record, which accepts major credit and debit cards (Visa, Mastercard, Amex) plus regional payment methods depending on your country. Paddle also handles any VAT or sales tax due. All transactions are encrypted, and we never see or store your card details."
         },
         {
           "q": "Can I cancel my subscription?",
@@ -1227,7 +1235,8 @@
       "errors": {
         "userNotFound": "User information not found",
         "deleteFailed": "Failed to delete account. Please try again."
-      }
+      },
+      "legalHeading": "Legal documents"
     },
     "about": {
       "heading": "About ResuMax",
@@ -1243,28 +1252,6 @@
       "confirm": "Delete account",
       "deleting": "Deleting…"
     }
-  },
-  "footer": {
-    "tagline": "Trusted. Global. Effortless.",
-    "product": "Product",
-    "company": "Company",
-    "support": "Support",
-    "links": {
-      "features": "Features",
-      "templates": "Templates",
-      "pricing": "Pricing",
-      "changelog": "Changelog",
-      "about": "About Us",
-      "blog": "Blog",
-      "careers": "Careers",
-      "press": "Press",
-      "help": "Help Center",
-      "contact": "Contact",
-      "privacy": "Privacy Policy",
-      "terms": "Terms of Service"
-    },
-    "rights": "All rights reserved.",
-    "poweredBy": "Powered by FALO Enterprise"
   },
   "onboarding": {
     "loading": "Preparing your quick survey...",
@@ -1663,5 +1650,1712 @@
         }
       }
     }
+  },
+  "legal": {
+    "onThisPage": "On this page",
+    "keyPoints": "Key points",
+    "summaryNote": "This summary is provided for convenience and readability. The full text below is what applies.",
+    "effective": "Effective",
+    "lastUpdated": "Updated",
+    "readingTime": "Read time",
+    "minutes": "{minutes} min",
+    "backToTop": "Back to top",
+    "anchorLabel": "Link to section: {section}",
+    "questionsTitle": "Questions about this document?",
+    "questionsBody": "We would rather explain it than have you guess. Write to us and a person will reply.",
+    "alsoRead": "Also read",
+    "readDocument": "Read document",
+    "privacy": {
+      "eyebrow": "Legal",
+      "title": "Privacy Policy",
+      "description": "How ResuMax collects, uses, and protects your personal data — written in plain language, with the same rights extended to every user worldwide.",
+      "keyPoints": [
+        {
+          "icon": "eye-off",
+          "title": "We never sell your data",
+          "description": "We do not sell or share your personal information for advertising, and we never have."
+        },
+        {
+          "icon": "file-check",
+          "title": "Your resume stays yours",
+          "description": "You own everything you write. We use it to build your documents — never to train AI models."
+        },
+        {
+          "icon": "trash",
+          "title": "Delete everything, anytime",
+          "description": "One button in Settings permanently erases your account and every resume attached to it."
+        },
+        {
+          "icon": "shield",
+          "title": "Full rights, everywhere",
+          "description": "We grant GDPR-level rights to all ResuMax users regardless of where you live."
+        }
+      ],
+      "sections": [
+        {
+          "id": "overview",
+          "title": "1. Overview",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "ResuMax is a resume and CV building platform operated by <b>FALO Enterprise</b> (“we”, “us”, “our”). This Privacy Policy explains what personal data we collect when you use <b>resumax.io</b>, why we collect it, who we share it with, and the control you have over it."
+            },
+            {
+              "type": "paragraph",
+              "text": "We have written this in plain language deliberately. Where a legal term is unavoidable we define it inline. If anything here is unclear, email us at <mail>privacy@resumax.io</mail> and we will explain it."
+            },
+            {
+              "type": "callout",
+              "tone": "gold",
+              "title": "One standard for everyone",
+              "text": "Rather than giving different rights to users in different countries, we extend the protections of the <b>EU General Data Protection Regulation (GDPR)</b> to every user of ResuMax, worldwide. Regional laws that grant you <b>additional</b> rights still apply on top — see <a href=\"#regional-rights\">Regional rights</a>."
+            }
+          ]
+        },
+        {
+          "id": "information-we-collect",
+          "title": "2. Information we collect",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "We collect only what the product needs to function. There are four categories:"
+            },
+            {
+              "type": "definitions",
+              "items": [
+                {
+                  "term": "Account information",
+                  "text": "Your name, email address, and profile picture. If you set a password, we store it hashed with <b>Argon2</b> — a one-way function, meaning we cannot read your password and cannot recover it for you. We also store your email verification status and your notification preferences."
+                },
+                {
+                  "term": "Resume content",
+                  "text": "Everything you enter into the builder: contact details, work experience, education, certifications, skills, projects, and your professional summary. This is the most sensitive data we hold, and we treat it accordingly."
+                },
+                {
+                  "term": "Billing information",
+                  "text": "Your subscription plan, status, and renewal dates, plus identifiers issued by our payment processor. <b>We never see or store your card number</b> — see <a href=\"#sharing\">Who we share data with</a>. We also count your AI generations and document downloads to enforce plan limits."
+                },
+                {
+                  "term": "Technical information",
+                  "text": "Standard server logs (IP address, browser type, timestamps) needed to operate the service securely, and short-lived security tokens for password resets and sign-in links. Those tokens are stored hashed, never in plain text."
+                }
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "azure",
+              "title": "What we deliberately do not collect",
+              "text": "We do not collect biometric data, precise location, government identifiers, or any special-category data such as health, religion, or political affiliation. If you choose to type such information into a resume field, it is processed only as ordinary resume content — please avoid entering more than a prospective employer needs."
+            }
+          ]
+        },
+        {
+          "id": "how-we-use",
+          "title": "3. How we use your data and why we are allowed to",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Under the GDPR every use of personal data needs a <b>lawful basis</b>. This table sets out ours in full."
+            },
+            {
+              "type": "table",
+              "headers": [
+                "What we do",
+                "Data used",
+                "Lawful basis"
+              ],
+              "rows": [
+                [
+                  "Create and maintain your account",
+                  "Account information",
+                  "<b>Contract</b> — necessary to provide the service you signed up for"
+                ],
+                [
+                  "Build, store, and export your resumes",
+                  "Resume content",
+                  "<b>Contract</b>"
+                ],
+                [
+                  "Generate resume text with AI when you ask",
+                  "Resume content",
+                  "<b>Contract</b> — the feature you requested"
+                ],
+                [
+                  "Take payment and manage subscriptions",
+                  "Billing information",
+                  "<b>Contract</b> and <b>legal obligation</b> for tax records"
+                ],
+                [
+                  "Send service emails (verification, password resets, plan changes)",
+                  "Account information",
+                  "<b>Contract</b>"
+                ],
+                [
+                  "Send product news, if you opt in",
+                  "Account information",
+                  "<b>Consent</b> — withdrawable at any time in Settings"
+                ],
+                [
+                  "Keep the service secure and prevent abuse",
+                  "Technical information",
+                  "<b>Legitimate interests</b> — protecting users and infrastructure"
+                ],
+                [
+                  "Fix bugs and improve the product",
+                  "Aggregated, non-identifying usage data",
+                  "<b>Legitimate interests</b>"
+                ]
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "teal",
+              "title": "We do not profile or advertise",
+              "text": "We do not use your data for automated decision-making that produces legal effects, we do not build advertising profiles, and we do not run third-party ad trackers on resumax.io."
+            }
+          ]
+        },
+        {
+          "id": "ai-processing",
+          "title": "4. AI processing of your resume",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "When you use an AI-assisted feature — generating a summary, rewriting a bullet point, tailoring a resume to a role — the relevant portion of your resume content is sent to <b>Google Gemini</b>, operated by Google LLC, which returns the generated text. We want you to know this explicitly rather than bury it."
+            },
+            {
+              "type": "list",
+              "items": [
+                "<b>Only what is needed is sent.</b> We transmit the fields relevant to your request, not your entire account.",
+                "<b>Your content is not used to train models.</b> We use Google's paid enterprise API, under terms that prohibit using submitted data to train or improve their models.",
+                "<b>AI features are opt-in per action.</b> Nothing is sent to an AI provider unless you press a button that asks for it.",
+                "<b>Output is a draft, not advice.</b> AI-generated text can be inaccurate. You are responsible for verifying that everything on your resume is truthful — see our Terms."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sharing",
+          "title": "5. Who we share data with",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "<b>We do not sell your personal data, and we never have.</b> We share it only with the service providers below, each of which processes data on our instructions under a written agreement. This is our complete list of subprocessors."
+            },
+            {
+              "type": "table",
+              "headers": [
+                "Provider",
+                "Purpose",
+                "Data shared"
+              ],
+              "rows": [
+                [
+                  "<b>Paddle</b>",
+                  "Payment processing and subscription billing, acting as Merchant of Record",
+                  "Name, email, billing country, transaction records. Card details go directly to Paddle and never reach our servers."
+                ],
+                [
+                  "<b>Google Gemini</b>",
+                  "AI text generation, when you request it",
+                  "The resume fields relevant to your request"
+                ],
+                [
+                  "<b>Google OAuth</b>",
+                  "“Sign in with Google”, if you choose it",
+                  "Your Google account identifier, name, email, and profile picture"
+                ],
+                [
+                  "<b>Resend</b>",
+                  "Delivery of transactional email",
+                  "Name and email address"
+                ],
+                [
+                  "<b>Cloud hosting and database</b>",
+                  "Running the application and storing your data",
+                  "All categories, encrypted at rest"
+                ]
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Your resume PDFs are rendered on our own infrastructure. They are not sent to any third-party document service."
+            },
+            {
+              "type": "paragraph",
+              "text": "We may also disclose data where legally compelled — a valid court order or binding request from a competent authority — or to establish or defend legal claims. If we are permitted to notify you of such a request, we will. If FALO Enterprise is involved in a merger or acquisition, your data may transfer to the successor entity under this same policy, and we will notify you before it takes effect."
+            }
+          ]
+        },
+        {
+          "id": "cookies",
+          "title": "6. Cookies and local storage",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "ResuMax does not run advertising or third-party analytics cookies. We use only what the product needs to work:"
+            },
+            {
+              "type": "table",
+              "headers": [
+                "What",
+                "Purpose",
+                "Type"
+              ],
+              "rows": [
+                [
+                  "Session cookie",
+                  "Keeps you signed in between visits",
+                  "<b>Strictly necessary</b>"
+                ],
+                [
+                  "Theme preference",
+                  "Remembers whether you chose light or dark mode",
+                  "<b>Functional</b> — stored in your browser only"
+                ],
+                [
+                  "Language and motion preferences",
+                  "Remembers your language and reduced-motion setting",
+                  "<b>Functional</b> — stored in your browser only"
+                ],
+                [
+                  "Local resume draft",
+                  "Prevents losing work in progress if your connection drops",
+                  "<b>Functional</b> — stored in your browser only"
+                ]
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Because none of these are used for tracking or advertising, no consent banner is required. Clearing your browser storage removes the functional items; you will simply be signed out and your preferences reset to default."
+            }
+          ]
+        },
+        {
+          "id": "retention",
+          "title": "7. How long we keep it",
+          "blocks": [
+            {
+              "type": "table",
+              "headers": [
+                "Data",
+                "Retention period"
+              ],
+              "rows": [
+                [
+                  "Account and resume content",
+                  "Until you delete your account, plus up to 30 days in backups"
+                ],
+                [
+                  "Billing and tax records",
+                  "Up to 7 years after the transaction, as tax law requires"
+                ],
+                [
+                  "Password reset and sign-in tokens",
+                  "Expire within hours; deleted after use"
+                ],
+                [
+                  "Security and server logs",
+                  "Up to 90 days"
+                ]
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "When you delete your account, your resumes, drafts, and linked sign-in accounts are erased immediately from our live systems by cascade deletion. Encrypted backups roll off within 30 days. We retain only the billing records tax law obliges us to keep."
+            }
+          ]
+        },
+        {
+          "id": "your-rights",
+          "title": "8. Your rights",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "These rights apply to <b>every</b> ResuMax user, wherever you live:"
+            },
+            {
+              "type": "definitions",
+              "items": [
+                {
+                  "term": "Access",
+                  "text": "Get a copy of the personal data we hold about you."
+                },
+                {
+                  "term": "Rectification",
+                  "text": "Correct anything inaccurate. Most fields you can edit yourself in the dashboard."
+                },
+                {
+                  "term": "Erasure",
+                  "text": "Delete your account and all associated data. Available immediately in <b>Settings → Privacy</b> — you do not need to ask us."
+                },
+                {
+                  "term": "Portability",
+                  "text": "Receive your resume data in a structured, machine-readable format, or export any resume as a document."
+                },
+                {
+                  "term": "Restriction and objection",
+                  "text": "Ask us to pause processing, or object to processing we base on legitimate interests."
+                },
+                {
+                  "term": "Withdraw consent",
+                  "text": "Turn off marketing email at any time in Settings. Withdrawing consent does not affect processing already carried out."
+                },
+                {
+                  "term": "Complain",
+                  "text": "Lodge a complaint with your local data protection authority. We would appreciate the chance to resolve it first."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "To exercise any right, email <mail>privacy@resumax.io</mail>. We respond within <b>30 days</b>, free of charge. We will never charge you a fee or degrade your service for exercising a right."
+            }
+          ]
+        },
+        {
+          "id": "california",
+          "title": "9. Notice to California residents",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "If you live in California, the CCPA as amended by the CPRA gives you specific rights. They are already covered by the section above, but named here in the statute's own terms:"
+            },
+            {
+              "type": "list",
+              "items": [
+                "<b>Right to know</b> what personal information we collect, use, and disclose.",
+                "<b>Right to delete</b> the personal information we hold about you.",
+                "<b>Right to correct</b> inaccurate personal information.",
+                "<b>Right to opt out</b> of sale or sharing. <b>We do not sell or share personal information</b>, so there is nothing to opt out of — including for users under 16.",
+                "<b>Right to limit</b> use of sensitive personal information. We do not collect sensitive personal information as the CPRA defines it.",
+                "<b>Right to non-discrimination</b> — we will never charge you more or give you less for exercising these rights."
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "In the twelve months preceding the date of this policy, we disclosed the categories of personal information listed in <a href=\"#sharing\">Who we share data with</a> for business purposes only. We disclosed none for monetary or other valuable consideration. You may use an authorised agent to submit a request; we will verify their authority before acting."
+            }
+          ]
+        },
+        {
+          "id": "regional-rights",
+          "title": "10. Regional rights",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "Where your local law grants rights beyond those above, those rights apply and prevail:"
+            },
+            {
+              "type": "list",
+              "items": [
+                "<b>United Kingdom</b> — UK GDPR and the Data Protection Act 2018.",
+                "<b>Saudi Arabia</b> — the Personal Data Protection Law (PDPL) and its Implementing Regulations.",
+                "<b>United Arab Emirates</b> — Federal Decree-Law No. 45 of 2021 on Personal Data Protection.",
+                "<b>Brazil</b> — Lei Geral de Proteção de Dados (LGPD).",
+                "<b>Canada</b> — PIPEDA and applicable provincial legislation.",
+                "<b>Switzerland</b> — the revised Federal Act on Data Protection (revFADP)."
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "This list is not exhaustive. If a law in your country gives you a right not described here, contact us and we will honour it."
+            }
+          ]
+        },
+        {
+          "id": "transfers",
+          "title": "11. International data transfers",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "ResuMax is available worldwide, so your data may be processed outside your country of residence — including in the European Union and the United States, where our providers operate infrastructure."
+            },
+            {
+              "type": "paragraph",
+              "text": "Where data leaves a jurisdiction that restricts transfers, we rely on the <b>European Commission's Standard Contractual Clauses</b>, the UK International Data Transfer Addendum, or an applicable adequacy decision, together with technical safeguards including encryption in transit and at rest. You may request a copy of the relevant transfer mechanism by emailing <mail>privacy@resumax.io</mail>."
+            }
+          ]
+        },
+        {
+          "id": "security",
+          "title": "12. How we protect your data",
+          "blocks": [
+            {
+              "type": "list",
+              "items": [
+                "Passwords are hashed with <b>Argon2</b>, a memory-hard algorithm designed to resist offline cracking. Plain-text passwords are never stored or logged.",
+                "Password reset and sign-in codes are stored only as hashes, expire quickly, and are invalidated the moment they are used.",
+                "All traffic is encrypted in transit with TLS, and data is encrypted at rest.",
+                "Access to production systems is restricted to personnel who need it, and is logged.",
+                "Standard HTTP security headers and strict request validation are enforced on every endpoint."
+              ]
+            },
+            {
+              "type": "callout",
+              "tone": "pink",
+              "title": "In the event of a breach",
+              "text": "If a data breach occurs that is likely to result in a risk to your rights, we will notify the relevant supervisory authority within <b>72 hours</b> and inform affected users without undue delay, describing what happened and what you should do."
+            },
+            {
+              "type": "paragraph",
+              "text": "No system is perfectly secure. Protect your side of the account: use a strong, unique password and keep your email account secure, since it can be used to reset access."
+            }
+          ]
+        },
+        {
+          "id": "children",
+          "title": "13. Children's privacy",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "ResuMax is not directed at children. You must be at least <b>16 years old</b> to create an account, or older if your country sets a higher age for consent to data processing. We do not knowingly collect data from anyone below that age. If you believe a child has created an account, contact <mail>privacy@resumax.io</mail> and we will delete it promptly."
+            }
+          ]
+        },
+        {
+          "id": "changes",
+          "title": "14. Changes to this policy",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "We update this policy when our practices change. The effective date at the top always reflects the current version."
+            },
+            {
+              "type": "paragraph",
+              "text": "For <b>material</b> changes — a new category of data, a new subprocessor, or a new purpose — we will notify you by email and in the app at least <b>30 days</b> before they take effect, so you have time to review them or close your account. We will not apply a materially different use to data already collected without your consent."
+            }
+          ]
+        },
+        {
+          "id": "contact",
+          "title": "15. Contact us",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "For any privacy question, or to exercise a right, reach us at <mail>privacy@resumax.io</mail>. For contractual or legal notices, use <mail>legal@resumax.io</mail>. For everything else, <mail>hello@resumax.io</mail> reaches product support."
+            },
+            {
+              "type": "paragraph",
+              "text": "You also have the right to complain to your local data protection authority at any time."
+            }
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "eyebrow": "Legal",
+      "title": "Terms & Conditions",
+      "description": "The agreement between you and ResuMax — what you can expect from us, what we ask of you, and how billing, content ownership, and cancellation work.",
+      "keyPoints": [
+        {
+          "icon": "file-check",
+          "title": "You own your content",
+          "description": "Every resume you write stays yours. We only get the licence needed to display and export it for you."
+        },
+        {
+          "icon": "credit-card",
+          "title": "Cancel whenever you like",
+          "description": "Subscriptions renew automatically until you cancel, and cancelling stops the next charge — no lock-in."
+        },
+        {
+          "icon": "sparkles",
+          "title": "AI output needs your review",
+          "description": "AI drafts can be wrong. You are responsible for making sure your resume is truthful before you send it."
+        },
+        {
+          "icon": "scale",
+          "title": "Fair and readable",
+          "description": "No hidden fees and no surprise changes — we give 30 days notice before material updates take effect."
+        }
+      ],
+      "sections": [
+        {
+          "id": "agreement",
+          "title": "1. This agreement",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "These Terms & Conditions (the <b>Terms</b>) are a binding agreement between you and <b>FALO Enterprise</b>, which operates ResuMax at <b>resumax.io</b> (the <b>Service</b>). By creating an account or using the Service, you accept these Terms. If you do not accept them, please do not use the Service."
+            },
+            {
+              "type": "paragraph",
+              "text": "Our <a href=\"/privacy\">Privacy Policy</a> forms part of these Terms and explains how we handle your personal data."
+            },
+            {
+              "type": "callout",
+              "tone": "gold",
+              "title": "Plain-language summary",
+              "text": "You may use ResuMax to build resumes for yourself. Keep your account secure, be honest in what you write, pay for the plan you choose, and do not abuse the platform. In return we run the Service with reasonable care, never claim ownership of your work, and give you notice before anything material changes."
+            }
+          ]
+        },
+        {
+          "id": "eligibility",
+          "title": "2. Eligibility and your account",
+          "blocks": [
+            {
+              "type": "list",
+              "items": [
+                "You must be at least <b>16 years old</b>, or the age of digital consent in your country if that is higher, to hold an account.",
+                "You must provide accurate registration details and keep your email address current, since we use it for security notices.",
+                "You are responsible for everything that happens under your account. Keep your password confidential, and tell us at <mail>hello@resumax.io</mail> immediately if you suspect unauthorised access.",
+                "One account per person. Do not share credentials or resell access to your account.",
+                "If you sign in through a third-party provider such as Google, that provider's terms also apply to the sign-in itself."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "your-content",
+          "title": "3. Your content and who owns it",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "<b>You own your content.</b> Everything you enter into the builder — your experience, education, skills, summaries, and the finished documents — remains yours. We claim no ownership over it and we will not publish it."
+            },
+            {
+              "type": "paragraph",
+              "text": "To operate the Service we need a narrow, practical permission. You therefore grant us a <b>limited, non-exclusive, worldwide, royalty-free licence</b> to store, reproduce, format, and transmit your content solely in order to provide the Service to you: rendering it in a template, generating a preview, exporting a PDF, and backing it up. This licence exists only for that purpose, cannot be sublicensed for any other, and ends when you delete the content or your account."
+            },
+            {
+              "type": "callout",
+              "tone": "teal",
+              "title": "What we will never do with your content",
+              "text": "We will not sell your content, publish it, share it with recruiters or employers, or use it to train AI models. Any change to that would be a material change requiring your consent."
+            },
+            {
+              "type": "paragraph",
+              "text": "You confirm that you have the right to use everything you upload, and that your content is truthful and does not infringe anyone else's rights."
+            }
+          ]
+        },
+        {
+          "id": "ai-content",
+          "title": "4. AI-generated content",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "ResuMax offers AI-assisted writing. When you use it, the relevant part of your resume is sent to our AI provider, which returns suggested text. Please understand its limits before relying on it."
+            },
+            {
+              "type": "callout",
+              "tone": "pink",
+              "title": "You are responsible for what your resume says",
+              "text": "AI output is a <b>draft suggestion, not a statement of fact</b>. It can overstate your experience, invent details, or phrase things inaccurately. You must review and correct every AI-generated line before using it. Submitting a resume containing false statements can cost you a job offer or lead to dismissal, and that responsibility is yours alone."
+            },
+            {
+              "type": "list",
+              "items": [
+                "AI features are subject to usage limits that depend on your plan. We may adjust those limits with notice.",
+                "Similar prompts can produce similar output for different users, so AI-generated phrasing may not be unique to you.",
+                "We do not warrant that AI output is accurate, complete, ATS-compatible, or suitable for any particular role or country.",
+                "We may temporarily suspend AI features during provider outages or maintenance without that constituting a breach of these Terms."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "acceptable-use",
+          "title": "5. Acceptable use",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "You agree not to:"
+            },
+            {
+              "type": "list",
+              "items": [
+                "Create resumes containing knowingly false credentials, fabricated employment history, or forged qualifications.",
+                "Impersonate another person, or build documents on someone's behalf without their permission.",
+                "Upload unlawful, defamatory, hateful, or infringing material.",
+                "Scrape, crawl, reverse-engineer, decompile, or attempt to extract the source code of the Service.",
+                "Probe or breach our security, bypass plan limits or watermarks, or access another user's data.",
+                "Overload our infrastructure through automated requests, or resell the Service without written permission.",
+                "Use the Service to build a competing product, or to train a machine-learning model on our templates or output."
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "We may investigate suspected breaches and suspend access where necessary to protect the Service or other users. Where circumstances allow, we will tell you why and give you a chance to respond."
+            }
+          ]
+        },
+        {
+          "id": "plans-billing",
+          "title": "6. Plans, billing, and payment",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "ResuMax offers a free plan and paid subscription plans. Current features and prices are shown on our <a href=\"/pricing\">Pricing page</a>, which forms part of these Terms."
+            },
+            {
+              "type": "definitions",
+              "items": [
+                {
+                  "term": "Who takes your payment",
+                  "text": "Payments are processed by <b>Paddle</b>, which acts as the <b>Merchant of Record</b> for every purchase. Paddle is the seller of record, handles billing and applicable sales tax or VAT, and its terms apply to the transaction itself. We never receive or store your card details."
+                },
+                {
+                  "term": "Automatic renewal",
+                  "text": "Paid plans renew automatically at the end of each billing period at the then-current price, until you cancel. By subscribing you authorise these recurring charges."
+                },
+                {
+                  "term": "Price changes",
+                  "text": "We may change prices, but never mid-term. Changes take effect at your next renewal, and we will notify you at least <b>30 days</b> beforehand so you can cancel first."
+                },
+                {
+                  "term": "Taxes",
+                  "text": "Prices may exclude tax. Any VAT, GST, or sales tax due in your country is calculated and added at checkout."
+                },
+                {
+                  "term": "Failed payments",
+                  "text": "If a renewal fails, your subscription moves to a past-due state and paid features may be limited until payment succeeds. We will email you before any downgrade."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "Plan limits — how many resumes you may keep, whether exports carry a watermark, and which templates you may use — are enforced by your active plan. Downgrading to the free plan does not delete your existing resumes, but access to premium features and templates ends."
+            }
+          ]
+        },
+        {
+          "id": "cancellation",
+          "title": "7. Cancellation and refunds",
+          "blocks": [
+            {
+              "type": "list",
+              "items": [
+                "<b>Cancel any time.</b> You can cancel from your account settings. Cancellation stops the next renewal charge; you keep paid access until the end of the period you already paid for.",
+                "<b>Statutory withdrawal rights.</b> If you are a consumer in the EU, UK, or another jurisdiction with a cooling-off period, you have <b>14 days</b> to withdraw from a purchase. Because the Service is digital content supplied immediately, you acknowledge that by starting to use paid features within that window you consent to immediate supply and lose the right to withdraw for the portion already used.",
+                "<b>Discretionary refunds.</b> Outside statutory rights, refunds are at our discretion. If the Service did not work as described, contact <mail>hello@resumax.io</mail> within 14 days of the charge and we will review it in good faith.",
+                "<b>Deleting your account.</b> Deleting your account is immediate and permanent. It does not automatically refund an active subscription — cancel first if a refund matters to you."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "our-ip",
+          "title": "8. Our intellectual property",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "The Service itself — the ResuMax name and logo, the software, the interface, and the resume template designs — belongs to FALO Enterprise and its licensors, and is protected by intellectual property law."
+            },
+            {
+              "type": "paragraph",
+              "text": "We grant you a personal, non-transferable, revocable licence to use the Service and its templates to create your own documents. <b>The documents you produce are yours to use freely</b>, including commercially. What you may not do is extract, redistribute, or resell the template designs themselves as design assets."
+            },
+            {
+              "type": "paragraph",
+              "text": "If you believe content on the Service infringes your copyright, write to <mail>legal@resumax.io</mail> identifying the work and the material in question, and we will investigate promptly."
+            }
+          ]
+        },
+        {
+          "id": "third-parties",
+          "title": "9. Third-party services",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "The Service depends on third parties including Paddle for payments, Google for AI generation and optional sign-in, and email delivery providers. Their terms govern their own services, and we are not responsible for their acts or omissions. Where a third-party outage prevents a feature from working, we will restore it as soon as practicable."
+            }
+          ]
+        },
+        {
+          "id": "availability",
+          "title": "10. Availability and changes to the Service",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "We work to keep the Service available, but we do not guarantee uninterrupted access. We may carry out maintenance, and we may add, change, or discontinue features as the product evolves."
+            },
+            {
+              "type": "paragraph",
+              "text": "If we discontinue a feature you rely on as part of a paid plan, or discontinue the Service entirely, we will give you reasonable notice and a pro-rata refund of any prepaid amount covering the period you can no longer use."
+            }
+          ]
+        },
+        {
+          "id": "termination",
+          "title": "11. Suspension and termination",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "You may stop using the Service and delete your account at any time. We may suspend or terminate your account if you materially breach these Terms, if we are required to by law, or if your use poses a security risk to others."
+            },
+            {
+              "type": "paragraph",
+              "text": "Except where a breach is severe or legally urgent, we will give you notice and an opportunity to put things right. On termination your licence to use the Service ends, and your data is handled as described in our <a href=\"/privacy\">Privacy Policy</a>. We recommend exporting your resumes before closing your account."
+            }
+          ]
+        },
+        {
+          "id": "disclaimers",
+          "title": "12. Disclaimers",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "To the fullest extent permitted by law, the Service is provided <b>“as is” and “as available”</b>, without warranties of any kind, whether express or implied."
+            },
+            {
+              "type": "callout",
+              "tone": "azure",
+              "title": "We do not guarantee employment outcomes",
+              "text": "ResuMax is a document-building tool, not a recruitment agency or a career, legal, or immigration adviser. We do not guarantee that a resume built here will pass any applicant tracking system, satisfy any employer's requirements, or result in an interview or job offer."
+            },
+            {
+              "type": "paragraph",
+              "text": "Nothing in these Terms excludes liability that cannot lawfully be excluded, and if you are a consumer, your statutory rights are unaffected."
+            }
+          ]
+        },
+        {
+          "id": "liability",
+          "title": "13. Limitation of liability",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "To the fullest extent permitted by law, FALO Enterprise is not liable for indirect, incidental, special, or consequential losses, nor for lost profits, lost opportunities, lost employment, or lost data arising from your use of the Service."
+            },
+            {
+              "type": "paragraph",
+              "text": "Our total aggregate liability for any claim relating to the Service is limited to the <b>greater of the amount you paid us in the twelve months before the claim, or USD 100</b>."
+            },
+            {
+              "type": "paragraph",
+              "text": "These limits do not apply to liability for death or personal injury caused by negligence, for fraud or fraudulent misrepresentation, or to any other liability that cannot be limited under the law that applies to you."
+            }
+          ]
+        },
+        {
+          "id": "indemnity",
+          "title": "14. Indemnity",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "You agree to indemnify FALO Enterprise against claims, damages, and reasonable costs arising from your breach of these Terms, from content you submit that infringes a third party's rights, or from your unlawful use of the Service. We will notify you promptly of any such claim and will not settle it without your consent."
+            }
+          ]
+        },
+        {
+          "id": "governing-law",
+          "title": "15. Governing law and disputes",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "These Terms are governed by the laws of <b>the United Arab Emirates</b>, without regard to conflict-of-law rules. Disputes are subject to the exclusive jurisdiction of <b>the courts of Dubai, United Arab Emirates</b>."
+            },
+            {
+              "type": "callout",
+              "tone": "teal",
+              "title": "Your local consumer rights come first",
+              "text": "If you are a consumer, nothing above deprives you of the protection of mandatory consumer law in your country of residence, or of your right to bring proceedings in your local courts."
+            },
+            {
+              "type": "paragraph",
+              "text": "Before starting formal proceedings, please contact <mail>legal@resumax.io</mail>. Most disputes can be resolved quickly and informally, and we commit to engaging in good faith for at least 30 days."
+            }
+          ]
+        },
+        {
+          "id": "general",
+          "title": "16. General terms",
+          "blocks": [
+            {
+              "type": "definitions",
+              "items": [
+                {
+                  "term": "Changes to these Terms",
+                  "text": "We may update these Terms. For material changes we give at least <b>30 days</b> notice by email and in the app. Continuing to use the Service after they take effect means you accept them; if you do not, you may cancel and close your account."
+                },
+                {
+                  "term": "Severability",
+                  "text": "If any provision is found unenforceable, the rest remains in force and the provision is read down to the minimum extent necessary."
+                },
+                {
+                  "term": "No waiver",
+                  "text": "If we do not enforce a right immediately, we do not waive it."
+                },
+                {
+                  "term": "Assignment",
+                  "text": "You may not transfer your account or these Terms without our consent. We may assign them to a successor in a merger or acquisition, on the same terms."
+                },
+                {
+                  "term": "Entire agreement",
+                  "text": "These Terms and the Privacy Policy are the entire agreement between us regarding the Service, and replace any earlier version."
+                },
+                {
+                  "term": "Language",
+                  "text": "These Terms are published in English and Arabic. If the two versions conflict, the English version prevails for interpretation, except where local law requires otherwise."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "contact",
+          "title": "17. Contact us",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "For questions about these Terms or to send a legal notice, write to <mail>legal@resumax.io</mail>. For help with your account or a billing issue, <mail>hello@resumax.io</mail> is the fastest route. For privacy matters, see our <a href=\"/privacy\">Privacy Policy</a> or email <mail>privacy@resumax.io</mail>."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "help": {
+    "eyebrow": "Support",
+    "title": "How can we help?",
+    "subtitle": "Search our answers below, or send us a message — a real person replies within 24 hours.",
+    "searchPlaceholder": "Search for an answer…",
+    "searchLabel": "Search help articles",
+    "suggestions": [
+      "export as PDF",
+      "cancel subscription",
+      "remove watermark",
+      "delete my account"
+    ],
+    "browseTitle": "Browse by topic",
+    "allCategories": "All topics",
+    "faqTitle": "Common questions",
+    "faqSubtitle": "The things people ask us most.",
+    "noResultsTitle": "No answers matched that.",
+    "noResultsBody": "Try a different word, or send us a message below and we will answer it personally.",
+    "clearFilters": "Clear search",
+    "resultCount": "{count} of {total} answers",
+    "categories": [
+      {
+        "id": "getting-started",
+        "title": "Getting started",
+        "description": "Set up your account and build your first resume.",
+        "icon": "rocket"
+      },
+      {
+        "id": "building",
+        "title": "Building your resume",
+        "description": "Sections, wording, and the AI writing tools.",
+        "icon": "pen"
+      },
+      {
+        "id": "templates-export",
+        "title": "Templates & export",
+        "description": "Designs, PDF downloads, and watermarks.",
+        "icon": "layout"
+      },
+      {
+        "id": "billing",
+        "title": "Billing & plans",
+        "description": "Payments, upgrades, invoices, and cancelling.",
+        "icon": "card"
+      },
+      {
+        "id": "account",
+        "title": "Account & privacy",
+        "description": "Sign-in, your data, and deleting your account.",
+        "icon": "user"
+      },
+      {
+        "id": "troubleshooting",
+        "title": "Something is broken",
+        "description": "Fixes for the problems we see most often.",
+        "icon": "wrench"
+      }
+    ],
+    "faqs": [
+      {
+        "id": "first-resume",
+        "category": "getting-started",
+        "question": "How do I build my first resume?",
+        "answer": "Create an account, answer the short setup survey, and you will land in the dashboard with a draft already started. Fill in each section — contact, experience, education, skills — and your resume updates live in the preview beside it. You can change template at any point without losing anything you have written."
+      },
+      {
+        "id": "is-it-free",
+        "category": "getting-started",
+        "question": "Is ResuMax free to use?",
+        "answer": "Yes. The Free plan lets you build and preview a resume with no credit card. Paid plans add unlimited exports, watermark-free PDFs, and the premium template library. You can compare everything on the Pricing page."
+      },
+      {
+        "id": "arabic-support",
+        "category": "getting-started",
+        "question": "Can I write my resume in Arabic?",
+        "answer": "Yes. ResuMax is fully bilingual and supports right-to-left layout throughout, so Arabic resumes render correctly in every template. Switch language from the toggle in the top navigation at any time."
+      },
+      {
+        "id": "ai-writing",
+        "category": "building",
+        "question": "Does the AI write my resume for me?",
+        "answer": "It writes drafts, not final copy. When you ask for help, the relevant part of your resume is sent to Google Gemini, which suggests wording you can accept, edit, or discard. Always review what it produces — AI can overstate experience or invent detail, and everything on your resume needs to be true."
+      },
+      {
+        "id": "ai-training",
+        "category": "building",
+        "question": "Is my resume used to train AI models?",
+        "answer": "No. We use Google's paid enterprise API under terms that prohibit using submitted content to train or improve their models. Your resume is never sold, published, or shared with recruiters. This is set out in full in our Privacy Policy."
+      },
+      {
+        "id": "ats",
+        "category": "building",
+        "question": "Will my resume pass ATS screening?",
+        "answer": "Our templates are built with clean, parseable structure and avoid the layout tricks that commonly break applicant tracking systems. That said, no tool can guarantee any specific system will accept a document — ATS behaviour varies by employer, so treat it as strong preparation rather than a promise."
+      },
+      {
+        "id": "pdf-download",
+        "category": "templates-export",
+        "question": "Why isn't my resume downloading as a PDF?",
+        "answer": "Most often it is a browser blocking the download, or an export limit reached on the Free plan. Check your browser's download permissions first, then confirm your plan allows PDF export. If both look fine, message us below with the resume title and we will look at it directly."
+      },
+      {
+        "id": "watermark",
+        "category": "templates-export",
+        "question": "How do I remove the watermark from my resume?",
+        "answer": "The watermark applies to exports on the Free plan. Upgrading to a paid plan removes it from every export immediately — you do not need to rebuild or re-export anything you have already written."
+      },
+      {
+        "id": "payment-methods",
+        "category": "billing",
+        "question": "What payment methods do you accept?",
+        "answer": "Payments are handled by Paddle, our Merchant of Record, which accepts major credit and debit cards along with regional payment methods depending on your country. Paddle also handles any VAT or sales tax due. We never see or store your card details."
+      },
+      {
+        "id": "cancel",
+        "category": "billing",
+        "question": "How do I cancel my subscription?",
+        "answer": "Open Settings, go to Billing, and cancel there. Your plan stays active until the end of the period you have already paid for, and you will not be charged again. Cancelling does not delete your resumes."
+      },
+      {
+        "id": "switch-plans",
+        "category": "billing",
+        "question": "Can I switch plans later?",
+        "answer": "Yes, at any time. Upgrades take effect immediately so you get the new features straight away. Downgrades take effect at the start of your next billing cycle, and your existing resumes stay in your account either way."
+      },
+      {
+        "id": "verification-email",
+        "category": "account",
+        "question": "I didn't get my verification email.",
+        "answer": "Check your spam or promotions folder first, since automated mail often lands there. You can request a new code from the verification screen. If nothing arrives after a few minutes, message us with the email address you signed up with and we will verify the account manually."
+      },
+      {
+        "id": "delete-account",
+        "category": "account",
+        "question": "How do I delete my account and my data?",
+        "answer": "Go to Settings, then Privacy, and use Delete account. This permanently erases your account, resumes, and drafts from our live systems straight away, and encrypted backups roll off within 30 days. You do not need to email us to request it."
+      },
+      {
+        "id": "google-signin",
+        "category": "account",
+        "question": "Can I sign in with Google?",
+        "answer": "Yes. Choose “Continue with Google” on the sign-in or sign-up screen. If you already registered with a password using the same email address, the two are linked to one account, so you can use either method."
+      },
+      {
+        "id": "lost-work",
+        "category": "troubleshooting",
+        "question": "I lost work when my connection dropped.",
+        "answer": "Drafts are saved to your browser as you type, so reopening the builder on the same device usually restores what you had. If it does not come back, tell us roughly when you were working and what you were editing, and we will check whether a server-side draft can be recovered."
+      },
+      {
+        "id": "preview-mismatch",
+        "category": "troubleshooting",
+        "question": "My exported PDF looks different from the preview.",
+        "answer": "This is nearly always a font or page-break difference on very long content. Try shortening overflowing sections or switching template, and re-export. If it still does not match, send us the resume title and a screenshot of the difference so we can reproduce it."
+      }
+    ],
+    "contact": {
+      "eyebrow": "Still stuck?",
+      "title": "Send us a message",
+      "subtitle": "Didn't find your answer above? Tell us what's going on — we read every message.",
+      "replyNote": "A real person replies — usually within 24 hours.",
+      "name": "Your name",
+      "namePlaceholder": "Sara Ahmed",
+      "email": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "topic": "What's this about?",
+      "message": "How can we help?",
+      "messagePlaceholder": "Tell us what happened, and what you expected to happen instead…",
+      "messageHint": "The more detail you give, the faster we can help.",
+      "submit": "Send message",
+      "submitting": "Sending…",
+      "errorSummary": "Please fix the following before sending:",
+      "successTitle": "Message sent.",
+      "successBody": "We'll be in your inbox within 24 hours. Check your email for a confirmation — no need to send it again.",
+      "successAgain": "Send another message",
+      "fallback": "You can also email us directly at",
+      "topics": [
+        {
+          "value": "account",
+          "label": "Account & access"
+        },
+        {
+          "value": "billing",
+          "label": "Billing & plans"
+        },
+        {
+          "value": "technical",
+          "label": "Something is broken"
+        },
+        {
+          "value": "feedback",
+          "label": "Feedback or an idea"
+        },
+        {
+          "value": "other",
+          "label": "Something else"
+        }
+      ],
+      "errors": {
+        "name": "Please tell us your name.",
+        "email": "Please enter your email address.",
+        "emailInvalid": "That doesn't look like a valid email address.",
+        "topic": "Please choose a topic.",
+        "message": "Please tell us how we can help.",
+        "messageShort": "Please give us a little more detail — at least 20 characters.",
+        "network": "That didn't go through. Please try again, or email us directly."
+      }
+    }
+  },
+  "about": {
+    "eyebrow": "About us",
+    "title": "A resume should say what you actually did.",
+    "subtitle": "ResuMax is a resume builder for people applying across borders — built around the standards recruiters and screening software actually use, not the ones the internet guesses at.",
+    "metaDescription": "ResuMax is a bilingual, standards-first resume builder by FALO Enterprise, built for people applying across borders.",
+    "story": {
+      "eyebrow": "Why we built it",
+      "title": "It started with a document nobody could agree on",
+      "chapters": [
+        {
+          "id": "the-problem",
+          "title": "The same document, rejected for five different reasons",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "A resume is one of the few documents you are expected to write well, with no training, no feedback, and no way to know why it failed. Send the same file to five employers in three countries and you can be rejected five times for reasons that contradict each other — too long here, missing a photo there, badly parsed by software you never saw."
+            },
+            {
+              "type": "paragraph",
+              "text": "The advice available is worse than the problem. Most of it is confidently wrong, region-blind, and written for a job market that stopped existing a decade ago. Meanwhile the actual constraint — that your file has to survive being turned into database rows before a human ever reads it — barely gets mentioned."
+            }
+          ]
+        },
+        {
+          "id": "what-we-decided",
+          "title": "So we started from the standards instead",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "We built ResuMax the other way round: begin with what each region's employers and screening systems actually expect, encode that into the templates and the guidance, and let the writing happen inside those rails. A Gulf employer and a German one want genuinely different documents. Pretending otherwise is the single most common way a strong candidate gets filtered out."
+            },
+            {
+              "type": "quote",
+              "text": "The goal was never to make a resume that sounds impressive. It was to make one that survives the process and still sounds like you."
+            },
+            {
+              "type": "paragraph",
+              "text": "That principle decided most of the hard calls. It is why the AI edits your sentence rather than replacing it, why it will ask you for a number instead of inventing one, and why <b>ResuMax will not help you inflate a job title</b>. A resume that wins an interview you cannot survive is not a feature."
+            }
+          ]
+        },
+        {
+          "id": "where-we-are",
+          "title": "Where we are now",
+          "blocks": [
+            {
+              "type": "paragraph",
+              "text": "ResuMax is built by a small team at <b>FALO Enterprise</b>, and it is early — version 1.0 is what ships today, and the roadmap below is the honest version of what comes next rather than a list of things already finished. The product is fully bilingual in English and Arabic, right-to-left included, because that was a requirement from the first commit and not a translation added later."
+            },
+            {
+              "type": "paragraph",
+              "text": "If something on the page is wrong, or a template does not match what employers in your country expect, tell us at <mail>hello@resumax.io</mail>. A person reads it, and regional corrections are the feedback we act on fastest."
+            }
+          ]
+        }
+      ]
+    },
+    "stats": {
+      "eyebrow": "By the numbers",
+      "note": "Figures describe what ResuMax supports today. We have left growth and satisfaction numbers off this page deliberately — they belong somewhere we can show the working.",
+      "items": {
+        "templates": {
+          "value": "120+",
+          "label": "Templates across every discipline"
+        },
+        "regions": {
+          "value": "5",
+          "label": "Regional CV standards built in"
+        },
+        "languages": {
+          "value": "2",
+          "label": "Languages, RTL to the last detail"
+        },
+        "reply": {
+          "value": "24h",
+          "label": "For a human reply to support"
+        }
+      }
+    },
+    "values": {
+      "eyebrow": "What we hold to",
+      "title": "Five standards, and what they cost us",
+      "subtitle": "These are the same principles the product is built on. Each one rules something out — that is what makes them worth stating.",
+      "items": {
+        "honesty": {
+          "title": "Honesty first",
+          "description": "ResuMax enforces truthful representation — no inflated job titles, no fabricated credentials. It means we decline a request users sometimes genuinely want, on the grounds that an interview you cannot back up is worse than no interview."
+        },
+        "ats": {
+          "title": "ATS-first structure",
+          "description": "Every template is engineered to survive being parsed into database fields, because that happens before a person reads a word. It rules out a category of beautiful layouts that quietly destroy their own content on the way in."
+        },
+        "relevance": {
+          "title": "Relevance over length",
+          "description": "Guided word limits and section priorities keep documents concise and impact-driven. It means the tool will push back when you add a tenth bullet point to a role from nine years ago."
+        },
+        "cultural": {
+          "title": "Cultural sensitivity",
+          "description": "Region-specific guidance on photos, age, marital status and length. There is no universally correct resume, so we refuse to ship one default and call it global."
+        },
+        "privacy": {
+          "title": "Privacy by design",
+          "description": "You control exactly what personal data appears and how it is stored. Resume drafts are not training data — our AI runs on an enterprise agreement that contractually forbids it."
+        }
+      }
+    },
+    "reach": {
+      "eyebrow": "Built for",
+      "title": "Standards, not a single default",
+      "subtitle": "Each region gets its own conventions on length, personal details and structure — encoded in the templates rather than left to the applicant to guess.",
+      "regions": [
+        {
+          "id": "north-america",
+          "label": "US & Canada",
+          "note": "One page early-career, no photo, achievement-led"
+        },
+        {
+          "id": "europe",
+          "label": "Europe & Europass",
+          "note": "Structured fields, multi-country consistency"
+        },
+        {
+          "id": "gulf",
+          "label": "GCC & Middle East",
+          "note": "Bilingual layouts and regional conventions"
+        },
+        {
+          "id": "asia-pacific",
+          "label": "Asia-Pacific",
+          "note": "Market-specific detail and formatting norms"
+        },
+        {
+          "id": "academic",
+          "label": "Academic CVs",
+          "note": "Publications, funding and teaching, unabridged"
+        }
+      ]
+    },
+    "company": {
+      "eyebrow": "The entity behind it",
+      "title": "Who you are dealing with",
+      "subtitle": "Plainly stated, because a resume builder asks for a great deal of personal history before it earns any of it.",
+      "facts": {
+        "operator": "Operated by",
+        "product": "Product",
+        "domain": "Website",
+        "support": "Support",
+        "privacy": "Privacy requests",
+        "legal": "Legal notices"
+      },
+      "linksTitle": "The details in full",
+      "links": {
+        "privacy": "Privacy Policy",
+        "terms": "Terms & Conditions",
+        "help": "Help Center"
+      }
+    },
+    "cta": {
+      "title": "Build one that holds up",
+      "body": "Free to start, no card required — and the standards on this page are applied while you type.",
+      "button": "Build my resume",
+      "secondary": "Talk to us"
+    }
+  },
+  "blog": {
+    "eyebrow": "Insights",
+    "title": "The ResuMax Journal",
+    "subtitle": "Field notes on resumes, hiring and the strange machinery in between — written by the recruiters and coaches who read these documents for a living.",
+    "searchPlaceholder": "Search articles…",
+    "searchLabel": "Search blog articles",
+    "filterLabel": "Filter by topic",
+    "featuredLabel": "Featured",
+    "latestTitle": "Latest articles",
+    "latestSubtitle": "Practical writing, no filler.",
+    "readMore": "Read more",
+    "readingTime": "{minutes} min read",
+    "resultCount": "{count} of {total} articles",
+    "noResultsTitle": "Nothing matched that search.",
+    "noResultsBody": "Try a broader word, or clear the filters to see everything we have published.",
+    "clearFilters": "Clear filters",
+    "categories": {
+      "all": "All topics",
+      "career": "Career",
+      "ats": "ATS & screening",
+      "templates": "Templates",
+      "interview": "Interviews",
+      "product": "Product"
+    },
+    "article": {
+      "back": "All articles",
+      "onThisPage": "On this page",
+      "writtenBy": "Written by",
+      "publishedOn": "Published {date}",
+      "updatedNote": "Reading time is an estimate.",
+      "share": "Share this article",
+      "shareCopy": "Copy link",
+      "shareCopied": "Link copied",
+      "relatedTitle": "Keep reading",
+      "relatedSubtitle": "More from the same shelf.",
+      "ctaTitle": "Put this into practice",
+      "ctaBody": "Start a resume in ResuMax and every point in this article is checked for you as you type.",
+      "ctaButton": "Build my resume"
+    },
+    "authors": {
+      "lina-haddad": {
+        "name": "Lina Haddad",
+        "role": "Career coach"
+      },
+      "omar-rashid": {
+        "name": "Omar Rashid",
+        "role": "Product lead, ResuMax"
+      },
+      "sofia-marchetti": {
+        "name": "Sofia Marchetti",
+        "role": "Technical recruiter"
+      }
+    },
+    "posts": {
+      "ats-resume-checklist": {
+        "title": "The ATS checklist: nine things to fix before you apply",
+        "excerpt": "Applicant tracking systems reject far fewer resumes than the internet claims — but the ones they do reject tend to fail for the same nine reasons.",
+        "sections": [
+          {
+            "id": "what-it-actually-does",
+            "title": "What an ATS actually does",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "An applicant tracking system is a database, not a judge. It stores applications, parses each file into structured fields — name, employer, dates, skills — and lets a recruiter search that pile. The parsing step is where resumes fail, and it fails quietly: nothing bounces, your experience simply lands in the wrong column or nowhere at all."
+              },
+              {
+                "type": "callout",
+                "tone": "gold",
+                "title": "The myth worth dropping",
+                "text": "No mainstream ATS assigns your resume a secret score and bins it below a threshold. A human still opens the shortlist. What the software decides is whether you <b>appear</b> in that shortlist when someone searches for your skill."
+              },
+              {
+                "type": "paragraph",
+                "text": "That reframes the whole problem. You are not trying to please an algorithm. You are trying to be findable, and to survive a conversion from your layout into someone else's data model intact."
+              }
+            ]
+          },
+          {
+            "id": "the-checklist",
+            "title": "The nine-point checklist",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "Work through these in order. The first four account for most parsing failures we see."
+              },
+              {
+                "type": "list",
+                "ordered": true,
+                "items": [
+                  "<b>Submit a PDF unless the posting says otherwise.</b> Modern systems read PDFs reliably; the exception is a job board that explicitly asks for .docx.",
+                  "<b>Put contact details in the body, not the header.</b> Some parsers skip document headers and footers entirely, which is how a resume arrives with no phone number attached.",
+                  "<b>Use one column.</b> Two-column layouts are read left to right across the whole line, so your sidebar interleaves with your job history into nonsense.",
+                  "<b>Name sections conventionally.</b> <b>Experience</b>, <b>Education</b>, <b>Skills</b>. A parser looks for these words; “Where I've Been” means nothing to it.",
+                  "<b>Write dates as MM/YYYY.</b> Consistently, in every entry. Mixed formats produce gaps that look like unemployment.",
+                  "<b>Spell out an acronym once.</b> “Search engine optimisation (SEO)” matches a recruiter searching for either.",
+                  "<b>Keep skills as text, not ratings.</b> Five-star bars and progress rings carry no information the database can store.",
+                  "<b>Avoid tables for layout.</b> Cell boundaries frequently vanish on parse, merging adjacent text.",
+                  "<b>Name the file properly.</b> <b>Firstname-Lastname-Role.pdf</b> — it is the first thing a recruiter sees in a folder of two hundred."
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keywords",
+            "title": "Keywords, without the keyword stuffing",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "Recruiters search the database with the language of the job description. If the posting says “stakeholder management” and your resume says “worked with lots of teams”, you are invisible to that search — not because you lack the skill, but because you named it differently."
+              },
+              {
+                "type": "paragraph",
+                "text": "The fix is narrow: mirror the posting's vocabulary where it genuinely matches what you did, inside real sentences about real outcomes. Do not paste a keyword block in white text at the bottom. Every recruiter has seen that trick, the parser reads it perfectly, and it ends the application."
+              },
+              {
+                "type": "quote",
+                "text": "I do not need your resume to be beautiful. I need to be able to find it six weeks from now when a role opens that fits you better.",
+                "attribution": "A recruiter, on why structure beats design"
+              }
+            ]
+          },
+          {
+            "id": "before-you-send",
+            "title": "Before you send",
+            "blocks": [
+              {
+                "type": "takeaways",
+                "title": "The sixty-second check",
+                "items": [
+                  "Copy the text out of your own PDF and paste it into a plain notepad. If it reads in a sensible order, a parser will manage it.",
+                  "Confirm your phone and email survived that paste.",
+                  "Check every date format matches.",
+                  "Read the job title in the posting and make sure it appears somewhere truthful on the page."
+                ]
+              },
+              {
+                "type": "paragraph",
+                "text": "That paste test is the single most useful thing in this article. It shows you your resume the way the software sees it, in about a minute."
+              }
+            ]
+          }
+        ]
+      },
+      "summary-that-earns-the-interview": {
+        "title": "Write a summary that earns the interview",
+        "excerpt": "The three lines at the top of your resume get more attention than anything else on the page — and are usually the least considered thing on it.",
+        "sections": [
+          {
+            "id": "why-it-matters",
+            "title": "Why those three lines carry so much",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "A first pass over a resume is fast — often well under a minute. In that pass the reader is answering one question: is this person plausibly right for the role? The summary is the only part of the page written specifically to answer it."
+              },
+              {
+                "type": "paragraph",
+                "text": "Which is why the generic version is so expensive. “Results-driven professional seeking a challenging opportunity” answers nothing. It could sit on top of any resume ever written, and the reader learns that you had nothing specific to say."
+              }
+            ]
+          },
+          {
+            "id": "the-shape",
+            "title": "The shape that works",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "A summary that earns its space does three jobs in three sentences."
+              },
+              {
+                "type": "list",
+                "ordered": true,
+                "items": [
+                  "<b>What you are, in the role's own words.</b> “Backend engineer with six years in payments infrastructure.”",
+                  "<b>Your strongest proof.</b> One concrete, quantified thing. “Rebuilt a settlement pipeline handling £40m a month, cutting reconciliation errors by 80%.”",
+                  "<b>Where you are pointed.</b> One line connecting that history to this specific job — the only sentence you rewrite per application."
+                ]
+              },
+              {
+                "type": "callout",
+                "tone": "azure",
+                "title": "Rewrite one sentence, not the whole resume",
+                "text": "Tailoring has a reputation for being slow because people rewrite everything. Change the third sentence and reorder your top two bullet points. That is ninety percent of the benefit for five percent of the effort."
+              }
+            ]
+          },
+          {
+            "id": "words-to-cut",
+            "title": "Words that are costing you space",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "Some phrases appear on nearly every resume, which means they distinguish you from nobody. Each one you cut buys room for something only you could write."
+              },
+              {
+                "type": "list",
+                "items": [
+                  "<b>Results-driven, dynamic, passionate</b> — claims with no evidence attached.",
+                  "<b>Team player</b> — assert this with an outcome that required a team, or not at all.",
+                  "<b>Responsible for</b> — describes the job description you were handed, not what you achieved in it.",
+                  "<b>Seeking a challenging position</b> — everyone is. Say which position."
+                ]
+              },
+              {
+                "type": "quote",
+                "text": "Replace every adjective about yourself with a number about your work. If you cannot find the number, the claim was probably not doing much."
+              }
+            ]
+          }
+        ]
+      },
+      "choosing-the-right-template": {
+        "title": "How to choose a resume template you won't regret",
+        "excerpt": "Template choice is mostly a question about your industry, not your taste. Here is how to read the room before you commit to a layout.",
+        "sections": [
+          {
+            "id": "signal",
+            "title": "A template is a signal, not a decoration",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "Before a word is read, the layout has already said something: how formal this field is, whether you understand its conventions, and how much of your case rests on visual craft. A design studio and a central bank are reading for opposite signals, and the same beautiful template fails one of them."
+              },
+              {
+                "type": "paragraph",
+                "text": "So the useful question is not “which template do I like?” but “what does a strong candidate in this field usually look like on paper?”"
+              }
+            ]
+          },
+          {
+            "id": "matching",
+            "title": "Matching layout to field",
+            "blocks": [
+              {
+                "type": "list",
+                "items": [
+                  "<b>Finance, law, government, academia.</b> Single column, restrained type, no colour blocks. Conservative is the correct answer, and length may run to two or three pages.",
+                  "<b>Engineering and data.</b> Clean single column with a dense, scannable skills section. Substance over ornament; recruiters here scan for stack names first.",
+                  "<b>Design, brand, marketing.</b> Layout is part of the portfolio. Take more visual licence — but keep the content parseable, because the ATS does not care that you are a designer.",
+                  "<b>Healthcare and education.</b> Structured and credential-forward. Licences, registrations and dates need to be immediately findable."
+                ]
+              },
+              {
+                "type": "callout",
+                "tone": "teal",
+                "title": "When in doubt, go plainer",
+                "text": "A restrained template is never the reason someone is rejected. An elaborate one occasionally is. Asymmetric risk should decide close calls."
+              }
+            ]
+          },
+          {
+            "id": "length-and-density",
+            "title": "Length, density and white space",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "One page is a norm for early careers, not a law. Ten years of relevant work compressed into one page in eight-point type is worse than two comfortable pages. The real constraint is that every line must earn its place."
+              },
+              {
+                "type": "paragraph",
+                "text": "Margins below about 1.5cm and body text below 10pt are the two reliable signs that a resume needs cutting rather than shrinking. If it does not fit, the fix is editing, not typography."
+              },
+              {
+                "type": "takeaways",
+                "title": "Quick sanity check",
+                "items": [
+                  "Squint at the page. Do the job titles stand out on their own?",
+                  "Print it in greyscale. Does anything important disappear?",
+                  "Hand it to someone outside your field for ten seconds, then ask what you do."
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "questions-hiding-in-your-resume": {
+        "title": "The interview questions hiding in your resume",
+        "excerpt": "Most first-round questions are generated directly from the page you handed over. You can predict nearly all of them, and shape a few.",
+        "sections": [
+          {
+            "id": "how-interviewers-read",
+            "title": "How interviewers actually prepare",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "The honest version: many interviewers read your resume a few minutes before the call, marking the things that stand out. Gaps. Short tenures. Numbers that seem large. Anything vague enough to be worth probing. Those marks become the questions."
+              },
+              {
+                "type": "paragraph",
+                "text": "This is good news. The agenda is a document you wrote, so you can read it the way they will and prepare the specific conversation it invites."
+              }
+            ]
+          },
+          {
+            "id": "the-four-triggers",
+            "title": "The four things that always get asked about",
+            "blocks": [
+              {
+                "type": "list",
+                "ordered": true,
+                "items": [
+                  "<b>Any gap over three months.</b> Answer it in one calm sentence and move on. Defensiveness is the only thing that makes a gap interesting.",
+                  "<b>Any number you quoted.</b> If you wrote “increased conversion 34%”, expect “from what baseline, over what period, and what did you personally change?” Know all three.",
+                  "<b>Anything under a year.</b> Give a forward-looking reason, not a grievance about the last employer.",
+                  "<b>The most impressive line on the page.</b> It will be probed hardest. Make sure it is the achievement you can talk about longest."
+                ]
+              },
+              {
+                "type": "callout",
+                "tone": "pink",
+                "title": "The trap in your own bullet points",
+                "text": "Never write a claim you cannot narrate for two minutes. A number you cannot explain reads as borrowed credit, and it costs more than the impressive figure ever gained."
+              }
+            ]
+          },
+          {
+            "id": "planting",
+            "title": "Planting the questions you want",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "Because the resume sets the agenda, you can deliberately leave one slightly under-explained line — a project with an unusual constraint, a result that sounds improbable. Curiosity does the rest, and you get asked about the thing you most wanted to discuss."
+              },
+              {
+                "type": "quote",
+                "text": "The candidate who has rehearsed the story behind every number is not over-prepared. They are prepared for the interview they scheduled."
+              }
+            ]
+          }
+        ]
+      },
+      "ai-that-does-not-sound-like-ai": {
+        "title": "Building AI writing that doesn't sound like AI",
+        "excerpt": "A note from our product team on why generated resume copy so often reads like nothing at all, and the constraints we use to stop it.",
+        "sections": [
+          {
+            "id": "the-failure",
+            "title": "The failure mode",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "Ask a general model to “improve” a resume bullet and you usually get something longer, smoother and emptier. “Managed the deployment pipeline” becomes “Spearheaded transformative initiatives to optimise deployment infrastructure, driving significant operational efficiencies.” Every specific has been traded for a superlative."
+              },
+              {
+                "type": "paragraph",
+                "text": "Recruiters spot this instantly, and it reads worse than the plain original — because the plain original at least described something that happened."
+              }
+            ]
+          },
+          {
+            "id": "constraints",
+            "title": "The constraints we settled on",
+            "blocks": [
+              {
+                "type": "list",
+                "items": [
+                  "<b>Never invent a number.</b> If the model cannot find a metric in what you wrote, it asks you for one rather than producing a plausible-looking figure.",
+                  "<b>Rewrites may not get longer.</b> A hard ceiling on output length removes the main route to padding.",
+                  "<b>Verbs come from a vetted list.</b> No spearheading, no leveraging, no synergies.",
+                  "<b>Your voice is the baseline.</b> Suggestions are edits to your sentence, not replacements written from scratch."
+                ]
+              },
+              {
+                "type": "callout",
+                "tone": "gold",
+                "title": "Why we ask before we write",
+                "text": "The interesting detail is almost always in your head rather than your draft — the size of the team, the deadline, what broke. A question that surfaces it beats any amount of rewriting around its absence."
+              }
+            ]
+          },
+          {
+            "id": "how-to-use-it",
+            "title": "How to get the most out of it",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "Write the ugly, factual version first. Bad grammar is fine. Include the numbers, the tools and the mess. Then ask for help tightening it. Editing beats generating, every time — and the result still sounds like a person, because a person wrote it."
+              },
+              {
+                "type": "takeaways",
+                "title": "In short",
+                "items": [
+                  "Draft badly but specifically.",
+                  "Let the tool cut, not inflate.",
+                  "Read every suggestion aloud before accepting it.",
+                  "If you would not say it in an interview, do not put it on the page."
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "changing-career-without-starting-over": {
+        "title": "Changing career without starting over",
+        "excerpt": "A career change resume is not a blank page. It is an argument, and the evidence is already in your history — filed under the wrong headings.",
+        "sections": [
+          {
+            "id": "the-argument",
+            "title": "You are making an argument, not listing a history",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "A chronological resume assumes the reader wants to know what you did in order. A career-change resume has a harder job: it must explain why a history in one field is evidence of capability in another. That is an argument, and arguments need structure."
+              },
+              {
+                "type": "paragraph",
+                "text": "The most common mistake is hiding the change. Vagueness does not conceal a career switch; it just removes the reasoning and leaves the reader to guess."
+              }
+            ]
+          },
+          {
+            "id": "translate",
+            "title": "Translate, then prove",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "Go through your last two roles and separate what you did from the field you did it in. A teacher managing thirty pupils, a curriculum and a set of anxious parents has run stakeholder management, scheduling and performance reporting. The work transfers; only the vocabulary does not."
+              },
+              {
+                "type": "list",
+                "ordered": true,
+                "items": [
+                  "<b>Lead with a summary that names the change.</b> One sentence, stated plainly, giving the reason.",
+                  "<b>Add a short skills section immediately after it</b> using the target field's language.",
+                  "<b>Reorder your bullet points</b> so the transferable ones come first inside each role.",
+                  "<b>Show one piece of proof from the new field</b> — a course, a freelance project, a volunteer build. Small and real beats large and hypothetical."
+                ]
+              },
+              {
+                "type": "callout",
+                "tone": "azure",
+                "title": "On functional resumes",
+                "text": "Skills-first formats that drop dates look like concealment, and recruiters treat them that way. Keep the reverse-chronological spine and do the translating inside it."
+              }
+            ]
+          },
+          {
+            "id": "the-gap",
+            "title": "The experience gap, honestly handled",
+            "blocks": [
+              {
+                "type": "paragraph",
+                "text": "You will be less experienced in the new field than someone who has been in it for a decade. Pretending otherwise is transparent. What you have instead is a decade of adjacent judgement and a genuinely different perspective — say that, once, plainly, and let the proof carry the rest."
+              },
+              {
+                "type": "quote",
+                "text": "Nobody hires a career changer by accident. If they are reading your resume, they are already open to the idea — your only job is to make it easy to say yes."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "footer": {
+    "tagline": "Trusted. Global. Effortless.",
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "links": {
+      "features": "Features",
+      "howItWorks": "How It Works",
+      "templates": "Templates",
+      "pricing": "Pricing",
+      "changelog": "Changelog",
+      "about": "About Us",
+      "blog": "Blog",
+      "careers": "Careers",
+      "press": "Press",
+      "help": "Help Center",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms & Conditions"
+    },
+    "rights": "All rights reserved.",
+    "poweredBy": "Powered by FALO Enterprise"
   }
 }
