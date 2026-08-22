@@ -10,6 +10,7 @@ import {
   Plus, Trash2, Building2, Calendar, Info,
   Award, Lightbulb, PlusCircle, FileText, Search,
   Pencil, Loader2, FolderKanban, GripVertical, CheckCircle2,
+  ChevronDown, ExternalLink, Layers,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -31,7 +32,16 @@ import {
   moveResumeStep,
   type ResumeStepId,
 } from '@/components/dashboard/section-order.model';
-import { generateCurrentResume, getDashboardDraft, isUnauthorizedBackendError, saveDashboardDraft } from '@/lib/backend';
+import {
+  generateCurrentResume,
+  getDashboardDraft,
+  isUnauthorizedBackendError,
+  saveDashboardDraft,
+  fetchUserDrafts,
+  createUserDraft,
+  updateUserDraftTitle,
+  type ResumeDraftItem,
+} from '@/lib/backend';
 import {
   DEFAULT_RESUME_CUSTOMIZATION,
   RESUME_TEMPLATE_IDS,
@@ -43,8 +53,36 @@ const DASHBOARD_SAVE_ERROR_TOAST_ID = 'dashboard-save-error';
 const SESSION_EXPIRED_TOAST_ID = 'session-expired';
 const DEFAULT_TEMPLATE_ID: ResumeTemplateId = 'minimal';
 
+export interface DashboardPageProps {
+  resumeIdProp?: string;
+}
+
 function parseResumeTemplateId(value: string | null | undefined): ResumeTemplateId {
   return RESUME_TEMPLATE_IDS.find((templateId) => templateId === value) ?? DEFAULT_TEMPLATE_ID;
+}
+
+function formatDraftRelativeTime(dateStr: string, locale: string) {
+  try {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return locale === 'ar' ? 'الآن' : 'Just now';
+    if (diffMins < 60) return locale === 'ar' ? `منذ ${diffMins} د` : `${diffMins}m ago`;
+    if (diffHours < 24) return locale === 'ar' ? `منذ ${diffHours} س` : `${diffHours}h ago`;
+    if (diffDays === 1) return locale === 'ar' ? 'أمس' : 'Yesterday';
+    if (diffDays < 30) return locale === 'ar' ? `منذ ${diffDays} يوم` : `${diffDays}d ago`;
+
+    return date.toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
 }
 
 function serializeDashboardDraft(draft: DashboardDraftData) {
@@ -1523,13 +1561,13 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
   );
 }
 
-export default function DashboardPage() {
+export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {}) {
   const t = useTranslations('dashboard');
   const tContact = useTranslations('dashboard.contact');
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const resumeIdParam = searchParams.get('resumeId')?.trim() || undefined;
+  const resumeIdParam = resumeIdProp || searchParams.get('resumeId')?.trim() || undefined;
   const templateQueryValue = searchParams.get('template');
   const templateFromQuery = RESUME_TEMPLATE_IDS.find(
     (templateId) => templateId === templateQueryValue,
@@ -1557,6 +1595,13 @@ export default function DashboardPage() {
   );
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [userDrafts, setUserDrafts] = useState<ResumeDraftItem[]>([]);
+  const [draftTitle, setDraftTitle] = useState<string>('');
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newTitleInput, setNewTitleInput] = useState('');
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
+  const [draftSwitcherOpen, setDraftSwitcherOpen] = useState(false);
   const lastQueuedDraft = useRef('');
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
   const saveErrorShown = useRef(false);
@@ -1577,6 +1622,40 @@ export default function DashboardPage() {
 
     return true;
   }, [logout, t]);
+
+  useEffect(() => {
+    if (!user) return;
+    const token = localStorage.getItem('resumax_token') || '';
+    if (!token) return;
+    fetchUserDrafts(token)
+      .then((list) => {
+        setUserDrafts(list);
+        const activeDraft = list.find((d) => d.id === resumeIdParam);
+        if (activeDraft) {
+          setDraftTitle(activeDraft.title);
+        }
+      })
+      .catch(() => {});
+  }, [user, resumeIdParam]);
+
+  const handleSaveRename = async () => {
+    if (!newTitleInput.trim() || !resumeIdParam) return;
+    try {
+      setIsSavingTitle(true);
+      const token = localStorage.getItem('resumax_token') || '';
+      await updateUserDraftTitle(token, resumeIdParam, newTitleInput.trim());
+      setDraftTitle(newTitleInput.trim());
+      setUserDrafts((prev) =>
+        prev.map((d) => (d.id === resumeIdParam ? { ...d, title: newTitleInput.trim() } : d))
+      );
+      toast.success('Resume title updated');
+      setIsRenaming(false);
+    } catch (err) {
+      toast.error('Could not rename resume');
+    } finally {
+      setIsSavingTitle(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -1706,6 +1785,7 @@ export default function DashboardPage() {
     const timer = window.setTimeout(() => {
       if (autosaveTimer.current === timer) autosaveTimer.current = null;
       lastQueuedDraft.current = serialized;
+      setSaveStatus('saving');
       saveQueue.current = saveQueue.current
         .then(async () => {
           const result = await saveDashboardDraft(token, draft, resumeIdParam);
@@ -1716,11 +1796,13 @@ export default function DashboardPage() {
             throw new Error(result.error);
           }
           saveErrorShown.current = false;
+          setSaveStatus('saved');
           toast.dismiss(DASHBOARD_SAVE_ERROR_TOAST_ID);
         })
         .catch((error) => {
           if (handleDashboardRequestError(error)) return;
           console.error('Dashboard autosave failed:', error);
+          setSaveStatus('error');
           if (lastQueuedDraft.current === serialized) {
             lastQueuedDraft.current = '';
           }
@@ -1966,17 +2048,185 @@ export default function DashboardPage() {
       )}
 
       <div className="relative z-1 flex h-dvh min-h-0 flex-1 flex-col overflow-hidden">
-        {/* Shown wherever the sidebar is still a drawer, so the menu button
-            tracks `lg` exactly as the sidebar and its overlay do. */}
-        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3 backdrop-blur-xl lg:hidden">
-          <button onClick={() => setNavOpen(true)} aria-label="Open menu" className="text-primary">
-            <Menu size={22} />
-          </button>
-          <Logo />
-          <span className="w-5.5" />
-        </div>
+        {/* Sticky Unified Top Header across Mobile & Desktop */}
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-edge bg-elevated/90 px-3 sm:px-5 py-2 backdrop-blur-xl shrink-0">
+          {/* Left: Mobile Drawer Trigger + Active Draft Info & Rename */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <button
+              onClick={() => setNavOpen(true)}
+              aria-label="Open menu"
+              className="text-primary lg:hidden shrink-0 p-1 -ms-1 hover:text-gold transition-colors cursor-pointer"
+            >
+              <Menu size={20} />
+            </button>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-15 lg:pt-13">
+            {/* Draft Identity & Rename */}
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="hidden sm:flex h-7 w-7 items-center justify-center rounded-lg bg-gold/15 text-gold shrink-0 border border-gold/25">
+                <FileText size={14} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-xs font-bold text-primary truncate max-w-[130px] sm:max-w-xs md:max-w-md">
+                    {draftTitle || (contact.fullName ? `${contact.fullName} Resume` : 'My Resume Draft')}
+                  </span>
+                  {resumeIdParam && (
+                    <button
+                      onClick={() => {
+                        setNewTitleInput(draftTitle || (contact.fullName ? `${contact.fullName} Resume` : 'My Resume Draft'));
+                        setIsRenaming(true);
+                      }}
+                      title="Rename Draft"
+                      className="text-muted hover:text-gold p-0.5 rounded hover:bg-card transition-colors cursor-pointer shrink-0"
+                    >
+                      <Pencil size={10} />
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-secondary">
+                  <span className="capitalize text-gold font-medium">
+                    {selectedTemplate}
+                  </span>
+                  <span className="text-faint">•</span>
+                  <span className="flex items-center gap-1">
+                    {saveStatus === 'saving' ? (
+                      <>
+                        <Loader2 size={9} className="animate-spin text-gold" />
+                        <span className="text-gold">Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 size={10} className="text-emerald-400" />
+                        <span className="text-emerald-400">Draft saved</span>
+                      </>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Switcher Dropdown & Preview Action */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Draft Switcher Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setDraftSwitcherOpen(!draftSwitcherOpen)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-edge bg-card hover:bg-card-hover text-xs font-bold text-secondary hover:text-primary transition-colors cursor-pointer shadow-xs"
+              >
+                <Layers size={12} className="text-gold shrink-0" />
+                <span className="hidden sm:inline">Switch Draft</span>
+                <span className="px-1.5 py-0.2 rounded-md bg-gold/15 text-gold text-[9px] font-black">{userDrafts.length}</span>
+                <ChevronDown size={11} className={`transition-transform duration-200 ${draftSwitcherOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {draftSwitcherOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setDraftSwitcherOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-[calc(100%+6px)] end-0 z-50 w-72 sm:w-80 rounded-xl border border-edge bg-elevated shadow-[0_20px_60px_rgba(0,0,0,0.65)] p-2 space-y-1 backdrop-blur-2xl"
+                    >
+                      <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-muted border-b border-edge/60 flex items-center justify-between">
+                        <span>Your Resumes</span>
+                        <span className="text-gold font-mono font-bold bg-gold/10 px-1.5 py-0.2 rounded border border-gold/20 text-[9px]">
+                          {userDrafts.length}
+                        </span>
+                      </div>
+
+                      <div className="max-h-60 overflow-y-auto space-y-1 py-1">
+                        {userDrafts.map((d) => {
+                          const isActive = (resumeIdParam === d.id || (!resumeIdParam && userDrafts[0]?.id === d.id));
+                          return (
+                            <button
+                              key={d.id}
+                              onClick={() => {
+                                setDraftSwitcherOpen(false);
+                                router.push(`/${locale}/dashboard/${d.id}`);
+                              }}
+                              className={`group w-full flex items-center gap-2.5 p-2 rounded-lg text-start transition-all cursor-pointer ${
+                                isActive
+                                  ? 'bg-gold/15 border border-gold/35 shadow-xs'
+                                  : 'hover:bg-card border border-transparent hover:border-edge'
+                              }`}
+                            >
+                              <div
+                                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                                  isActive
+                                    ? 'bg-gold text-slate-950 shadow-sm'
+                                    : 'bg-card border border-edge text-secondary group-hover:text-gold group-hover:border-gold/30'
+                                }`}
+                              >
+                                <FileText size={13} />
+                              </div>
+
+                              <div className="min-w-0 flex-1">
+                                <div className="font-bold text-xs text-primary truncate leading-tight">
+                                  {d.title}
+                                </div>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="px-1 py-0.2 rounded text-[9px] font-semibold uppercase tracking-wider bg-gold/10 text-gold border border-gold/20">
+                                    {d.templateName}
+                                  </span>
+                                  <span className="text-faint text-[8px]">•</span>
+                                  <span className="text-[9px] text-faint font-mono">
+                                    {formatDraftRelativeTime(d.updatedAt, locale)}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {isActive ? (
+                                <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider shrink-0">
+                                  Active
+                                </span>
+                              ) : (
+                                <ChevronRight size={12} className="text-muted group-hover:text-primary transition-transform group-hover:translate-x-0.5 shrink-0" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="pt-1.5 border-t border-edge/60 space-y-1">
+                        <button
+                          onClick={async () => {
+                            setDraftSwitcherOpen(false);
+                            try {
+                              const token = localStorage.getItem('resumax_token') || '';
+                              const res = await createUserDraft(token);
+                              router.push(`/${locale}/dashboard/${res.id}`);
+                            } catch (e) {
+                              toast.error('Failed to create new draft');
+                            }
+                          }}
+                          className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-black bg-gradient-to-r from-gold via-amber-400 to-gold hover:from-gold-light hover:to-gold text-slate-950 shadow-sm transition-all cursor-pointer"
+                        >
+                          <Plus size={12} />
+                          <span>Create New Resume</span>
+                        </button>
+
+                        <Link
+                          href={`/${locale}/drafts`}
+                          onClick={() => setDraftSwitcherOpen(false)}
+                          className="w-full flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-secondary hover:text-primary hover:bg-card border border-edge/60 transition-colors"
+                        >
+                          <FolderKanban size={11} />
+                          <span>All Drafts Library</span>
+                        </Link>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </header>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-10 pt-6 sm:px-8 lg:px-15 lg:pt-8">
           <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_280px] 2xl:grid-cols-[minmax(0,860px)_300px] 2xl:gap-10">
             <div className="min-w-0 max-w-215 xl:max-w-none">
               <AnimatePresence mode="wait">
@@ -2185,6 +2435,64 @@ export default function DashboardPage() {
           }
         }}
       />
+
+      {/* Dashboard Rename Draft Modal */}
+      <AnimatePresence>
+        {isRenaming && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsRenaming(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-md rounded-3xl border border-edge bg-elevated p-6 shadow-2xl z-10 space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-primary">Rename Resume Draft</h3>
+                <button
+                  onClick={() => setIsRenaming(false)}
+                  className="text-muted hover:text-primary p-1"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                value={newTitleInput}
+                onChange={(e) => setNewTitleInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && void handleSaveRename()}
+                autoFocus
+                placeholder="Resume Title..."
+                className="w-full rounded-xl border border-edge bg-card px-4 py-3 text-sm font-semibold text-primary outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+              />
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setIsRenaming(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-secondary hover:text-primary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => void handleSaveRename()}
+                  disabled={isSavingTitle || !newTitleInput.trim()}
+                  className="px-5 py-2 rounded-xl bg-gold hover:bg-gold-light text-slate-950 text-xs font-black disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                >
+                  {isSavingTitle && <Loader2 size={13} className="animate-spin" />}
+                  <span>Save Title</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

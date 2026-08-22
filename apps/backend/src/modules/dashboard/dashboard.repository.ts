@@ -39,6 +39,32 @@ export class DashboardRepository {
                 },
             });
             if (draft) return draft;
+
+            // Check if resume exists in resume table
+            const resume = await prisma.resume.findFirst({
+                where: { id: resumeId, userId },
+            });
+            if (resume) {
+                // Initialize dedicated standalone draft for this resume
+                return prisma.dashboardDraft.create({
+                    data: {
+                        userId,
+                        resumeId: resume.id,
+                        template: resume.templateId || 'minimal',
+                        currentStep: 'contact',
+                        completedSteps: [],
+                        sectionOrder: [],
+                        contact: Prisma.JsonNull,
+                        summary: '',
+                        skillGroups: Prisma.JsonNull,
+                        experience: Prisma.JsonNull,
+                        projects: Prisma.JsonNull,
+                        education: Prisma.JsonNull,
+                        certifications: Prisma.JsonNull,
+                        skills: Prisma.JsonNull,
+                    },
+                });
+            }
         }
 
         return this.findByUserId(userId);
