@@ -8,6 +8,7 @@ import { userRouter } from './modules/users/users.routes'
 import { templateRouter } from './modules/template/template.routes'
 import { dashboardRouter } from './modules/dashboard/dashboard.routes'
 import { paymentRouter } from './modules/payment/payment.routes'
+import { supportRouter } from './modules/support/support.routes'
 import session from 'express-session'
 import { responseEnhancer } from './common/middlewares/response.middleware'
 import { errorHandler } from './common/middlewares/error.middleware'
@@ -61,6 +62,7 @@ app.use('/api/resumes', resumeRouter)
 app.use('/api/templates', templateRouter)
 app.use('/api/dashboard', dashboardRouter)
 app.use('/api/payments', paymentRouter)
+app.use('/api/support', supportRouter)
 
 app.use(errorHandler)
 

@@ -19,7 +19,7 @@ export const DEFAULT_USER_NOTIFICATION_SETTINGS: UserNotificationSettings = {
     productUpdates: true,
 };
 
-function escapeHtml(value: string) {
+export function escapeHtml(value: string) {
     return value
         .replaceAll('&', '&amp;')
         .replaceAll('<', '&lt;')
@@ -28,7 +28,7 @@ function escapeHtml(value: string) {
         .replaceAll("'", '&#039;');
 }
 
-function getTransporter() {
+export function getTransporter() {
     const smtpHost = process.env.SMTP_HOST;
     const smtpPort = Number(process.env.SMTP_PORT || 587);
     const smtpUser = process.env.SMTP_USER;

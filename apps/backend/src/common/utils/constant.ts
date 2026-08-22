@@ -6,6 +6,7 @@ export const MODULES_NAMES = {
     plan: "PLAN",
     subscription: 'SUBSCRIPTION',
     dashboard: 'DASHBOARD',
+    support: 'SUPPORT',
 } as const;
 
 export type ModuleNameType = typeof MODULES_NAMES[keyof typeof MODULES_NAMES];
