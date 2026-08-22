@@ -11,6 +11,7 @@ import { ResumeAiGenerationError, resumeAiService, type ResumeAiService } from '
 import { planUsageService } from '../plan/plan-usage.service';
 import { dashboardService } from '../dashboard/dashboard.service';
 import { resolveResumeTemplate } from './resume-template.registry';
+import { resumeCoachService } from './resume-coach.service';
 
 export class ResumeController {
     private service = resumeService;
@@ -359,5 +360,21 @@ export class ResumeController {
         }
 
         res.ok({ success: true });
+    };
+
+    analyzeAiCoach = async (req: Request, res: Response) => {
+        try {
+            const userId = req.user.id;
+            const result = await resumeCoachService.analyze(userId, req.body ?? {});
+            return res.ok(result);
+        } catch (error) {
+            console.error('[ResumeController] AI Coach Error:', error);
+            const message = error instanceof Error ? error.message : 'AI Coach failed to analyze resume.';
+            const isAccessError = message.includes('Enterprise');
+            return res.error({
+                message,
+                statusCode: isAccessError ? HttpErrorStatus.Forbidden : HttpErrorStatus.InternalServerError,
+            });
+        }
     };
 }

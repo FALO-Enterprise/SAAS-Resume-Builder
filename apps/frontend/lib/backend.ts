@@ -483,3 +483,48 @@ export async function updateBackendPreferences(token: string, preferences: Recor
     }
 }
 
+export type AiCoachTip = {
+    id: string;
+    category: 'summary' | 'experience' | 'skills' | 'keywords' | 'general';
+    title: string;
+    description: string;
+    suggestedActionText?: string;
+    suggestedFix?: {
+        targetField: 'summary' | 'title' | 'skills' | 'experience';
+        experienceId?: string;
+        value: any;
+    };
+};
+
+export type AiCoachAnalysisResult = {
+    atsScore: number;
+    scoreBreakdown: {
+        impact: number;
+        keywords: number;
+        clarity: number;
+        completeness: number;
+    };
+    overallAssessment: string;
+    tips: AiCoachTip[];
+    suggestedSkills: string[];
+    replyMessage?: string;
+};
+
+export async function analyzeWithAiCoach(
+    token?: string,
+    payload?: { draft?: any; userPrompt?: string; purpose?: string; resumeId?: string },
+): Promise<AiCoachAnalysisResult> {
+    try {
+        const authToken = token || getAccessToken();
+        const { data } = await apiClient.post('/api/resumes/ai-coach/analyze', payload ?? {}, {
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+            timeout: 60_000,
+        });
+        const normalized = normalizeBackendPayload<AiCoachAnalysisResult>(data);
+        if ('error' in normalized) throw new Error(normalized.error);
+        return normalized;
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not run AI Coach analysis');
+    }
+}
+
