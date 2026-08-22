@@ -64,6 +64,12 @@ export default function Navbar() {
           : "py-5 bg-transparent border-b border-transparent"
       }`}
     >
+
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(ellipse_60%_60%_at_50%_0%,rgba(245,166,35,0.10),transparent_70%)]"
+      />
+      
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <Link href={`/${locale}`} className="no-underline">
           <Logo />

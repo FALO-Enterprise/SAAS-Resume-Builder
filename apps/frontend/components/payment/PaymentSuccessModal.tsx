@@ -133,7 +133,7 @@ export default function PaymentSuccessModal({
               {transactionId && (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted">{t("transactionLabel")}</span>
-                  <span className="font-mono text-[11px] text-faint truncate max-w-[200px]">
+                  <span className="font-mono text-[11px] text-faint truncate max-w-50">
                     {transactionId}
                   </span>
                 </div>
