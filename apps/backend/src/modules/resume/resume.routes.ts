@@ -11,6 +11,7 @@ router.get('/render/:token', resumeController.getRenderSnapshot);
 router.use(isAuthenticated);
 router.get('/', resumeController.getResumes);
 router.get('/drafts', resumeController.getDrafts);
+router.post('/ai-coach/analyze', resumeController.analyzeAiCoach);
 router.post('/current/generate', checkPlan, resumeController.generateCurrentResume);
 router.put('/current', checkPlan, resumeController.upsertCurrentResume);
 router.get('/:rid/preview', resumeController.getPreview);

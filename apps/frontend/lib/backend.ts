@@ -483,3 +483,113 @@ export async function updateBackendPreferences(token: string, preferences: Recor
     }
 }
 
+export type AiCoachTip = {
+    id: string;
+    category: 'summary' | 'experience' | 'skills' | 'keywords' | 'general';
+    title: string;
+    description: string;
+    suggestedActionText?: string;
+    suggestedFix?: {
+        targetField: 'summary' | 'title' | 'skills' | 'experience';
+        experienceId?: string;
+        value: any;
+    };
+};
+
+export type AiCoachAnalysisResult = {
+    atsScore: number;
+    scoreBreakdown: {
+        impact: number;
+        keywords: number;
+        clarity: number;
+        completeness: number;
+    };
+    overallAssessment: string;
+    tips: AiCoachTip[];
+    suggestedSkills: string[];
+    replyMessage?: string;
+};
+
+export async function analyzeWithAiCoach(
+    token?: string,
+    payload?: { draft?: any; userPrompt?: string; purpose?: string; resumeId?: string },
+): Promise<AiCoachAnalysisResult> {
+    try {
+        const authToken = token || getAccessToken();
+        const { data } = await apiClient.post('/api/resumes/ai-coach/analyze', payload ?? {}, {
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+            timeout: 60_000,
+        });
+        const normalized = normalizeBackendPayload<AiCoachAnalysisResult>(data);
+        if ('error' in normalized) throw new Error(normalized.error);
+        return normalized;
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not run AI Coach analysis');
+    }
+}
+
+export type ResumeDraftItem = {
+    id: string;
+    title: string;
+    templateId?: string;
+    templateName: string;
+    updatedAt: string;
+    thumbnailUrl?: string;
+};
+
+export async function fetchUserDrafts(token?: string): Promise<ResumeDraftItem[]> {
+    try {
+        const authToken = token || getAccessToken();
+        const { data } = await apiClient.get('/api/resumes/drafts', {
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+        });
+        const normalized = normalizeBackendPayload<ResumeDraftItem[]>(data);
+        if (Array.isArray(normalized)) return normalized;
+        if (normalized && 'error' in normalized) throw new Error((normalized as any).error);
+        return [];
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not fetch your saved drafts');
+    }
+}
+
+export async function createUserDraft(token?: string): Promise<{ id: string; title: string; templateId: string }> {
+    try {
+        const authToken = token || getAccessToken();
+        const { data } = await apiClient.post('/api/resumes/new-draft', {}, {
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+        });
+        const normalized = normalizeBackendPayload<{ id: string; title: string; templateId: string }>(data);
+        if ('error' in normalized) throw new Error(normalized.error);
+        return normalized;
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not create new resume draft');
+    }
+}
+
+export async function deleteUserDraft(token: string, resumeId: string): Promise<void> {
+    try {
+        const authToken = token || getAccessToken();
+        const { data } = await apiClient.delete(`/api/resumes/${resumeId}`, {
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+        });
+        const normalized = normalizeBackendPayload<{ success: boolean }>(data);
+        if (normalized && 'error' in normalized) throw new Error(normalized.error);
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not delete resume draft');
+    }
+}
+
+export async function updateUserDraftTitle(token: string, resumeId: string, title: string): Promise<void> {
+    try {
+        const authToken = token || getAccessToken();
+        const { data } = await apiClient.patch(`/api/resumes/${resumeId}`, { title }, {
+            headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+        });
+        const normalized = normalizeBackendPayload<{ id: string; title: string }>(data);
+        if (normalized && 'error' in normalized) throw new Error(normalized.error);
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not update resume title');
+    }
+}
+
+

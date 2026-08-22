@@ -17,6 +17,7 @@ import {
   Sparkles,
   Sun,
   TriangleAlert,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme, type ThemeMode } from "@/context/ThemeContext";
@@ -366,6 +367,18 @@ export default function SidebarAccountMenu() {
                   </div>
 
                   <div className="py-1">
+                    <Link
+                      href={`/${locale}/drafts`}
+                      data-menu-item
+                      role="menuitem"
+                      tabIndex={-1}
+                      onClick={() => closeMenu(false)}
+                      className={itemClass}
+                    >
+                      <FileText size={15} className="shrink-0" />
+                      {tNav("drafts")}
+                    </Link>
+
                     <button
                       type="button"
                       data-menu-item

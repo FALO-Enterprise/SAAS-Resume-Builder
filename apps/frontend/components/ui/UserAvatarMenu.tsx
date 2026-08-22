@@ -11,6 +11,7 @@ import {
   ChevronDown,
   TriangleAlert,
   Settings,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
@@ -143,6 +144,16 @@ export default function UserAvatarMenu() {
                 >
                   <LayoutDashboard size={14} />
                   {t("dashboard")}
+                </Link>
+
+                {/* Drafts */}
+                <Link
+                  href={`/${locale}/drafts`}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-secondary hover:bg-card-hover hover:text-primary transition-colors delay-150"
+                >
+                  <FileText size={14} />
+                  {t("drafts")}
                 </Link>
 
                 {/* Logout */}

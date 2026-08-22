@@ -157,6 +157,24 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              {user && (
+                <>
+                  <Link
+                    href={`/${locale}/dashboard`}
+                    onClick={() => setMobileOpen(false)}
+                    className="text-gold text-lg font-bold decoration-0 py-2 px-0"
+                  >
+                    {t("dashboard")}
+                  </Link>
+                  <Link
+                    href={`/${locale}/drafts`}
+                    onClick={() => setMobileOpen(false)}
+                    className="text-gold text-lg font-bold decoration-0 py-2 px-0"
+                  >
+                    {t("drafts")}
+                  </Link>
+                </>
+              )}
               <div className="h-px bg-white/8 my-1 mx-0" />
               <div className="flex gap-3">
                 <button

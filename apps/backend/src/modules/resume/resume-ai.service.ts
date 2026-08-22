@@ -94,10 +94,16 @@ export class ResumeAiService {
 
         try {
             const content = resumeContentSchema.parse(parsedDraft.data);
-            const enhancement = await this.generator.enhance(content, userId, payload.purpose);
-            const enhancedDraft = mergeEnhancement(parsedDraft.data, enhancement, payload.purpose);
-            const validatedDraft = dashboardDraftSchema.parse(enhancedDraft);
+            let finalDraft = parsedDraft.data;
 
+            try {
+                const enhancement = await this.generator.enhance(content, userId, payload.purpose);
+                finalDraft = mergeEnhancement(parsedDraft.data, enhancement, payload.purpose);
+            } catch (aiError) {
+                console.warn('[ResumeAiService] AI enhancement provider failed, falling back to direct draft:', aiError);
+            }
+
+            const validatedDraft = dashboardDraftSchema.parse(finalDraft);
             await this.dashboardRepository.upsert(userId, validatedDraft, resumeId);
             return await this.resumeRepository.upsertForUser(payload.title, template.id, template.name, userId, resumeId);
         } catch (error) {

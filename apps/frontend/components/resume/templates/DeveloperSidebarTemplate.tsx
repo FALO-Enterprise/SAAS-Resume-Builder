@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { Fragment, type CSSProperties, type ReactNode } from "react";
 import {
   AtSign,
   Globe2,
@@ -114,12 +114,17 @@ function isLanguageGroup(label: string) {
 function SidebarSection({
   title,
   children,
+  className,
 }: {
   title: string;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <section className={styles.sidebarSection} aria-label={title}>
+    <section
+      className={`${styles.sidebarSection} ${className || ""}`.trim()}
+      aria-label={title}
+    >
       <h2 className={styles.sidebarHeading}>{title}</h2>
       {children}
     </section>
@@ -291,9 +296,9 @@ export function DeveloperSidebarTemplate({
       }
 
       return (
-        <div className={styles.sidebarSectionGroup} key={section}>
+        <Fragment key={section}>
           {displayedSkillGroups.length > 0 && (
-            <SidebarSection title="Skills">
+            <SidebarSection title="Skills" className={styles.skillsSection}>
               <div className={styles.skillGroups}>
                 {displayedSkillGroups.map((group) => (
                   <div className={styles.skillGroup} key={group.id}>
@@ -323,7 +328,7 @@ export function DeveloperSidebarTemplate({
               </ul>
             </SidebarSection>
           )}
-        </div>
+        </Fragment>
       );
     }
 

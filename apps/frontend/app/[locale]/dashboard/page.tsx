@@ -9,7 +9,8 @@ import {
   LayoutDashboard, ChevronRight, Menu, X,
   Plus, Trash2, Building2, Calendar, Info,
   Award, Lightbulb, PlusCircle, FileText, Search,
-  Pencil, Loader2, FolderKanban, GripVertical,
+  Pencil, Loader2, FolderKanban, GripVertical, CheckCircle2,
+  ChevronDown, ExternalLink, Layers,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -24,13 +25,23 @@ import { defaultSkillGroups, emptyRole, emptyEdu, emptyCert, emptyProject, empty
 import { formatPhoneNumber } from "@/lib/utilities/phone";
 import DashboardResumePlaceholder from '@/components/dashboard/DashboardResumePlaceholder';
 import SidebarAccountMenu from '@/components/dashboard/SidebarAccountMenu';
+import AiResumeCoachWidget from '@/components/resume/AiResumeCoachWidget';
 import {
   getResumeSectionOrder,
   getResumeStepOrder,
   moveResumeStep,
   type ResumeStepId,
 } from '@/components/dashboard/section-order.model';
-import { generateCurrentResume, getDashboardDraft, isUnauthorizedBackendError, saveDashboardDraft } from '@/lib/backend';
+import {
+  generateCurrentResume,
+  getDashboardDraft,
+  isUnauthorizedBackendError,
+  saveDashboardDraft,
+  fetchUserDrafts,
+  createUserDraft,
+  updateUserDraftTitle,
+  type ResumeDraftItem,
+} from '@/lib/backend';
 import {
   DEFAULT_RESUME_CUSTOMIZATION,
   RESUME_TEMPLATE_IDS,
@@ -42,8 +53,36 @@ const DASHBOARD_SAVE_ERROR_TOAST_ID = 'dashboard-save-error';
 const SESSION_EXPIRED_TOAST_ID = 'session-expired';
 const DEFAULT_TEMPLATE_ID: ResumeTemplateId = 'minimal';
 
+export interface DashboardPageProps {
+  resumeIdProp?: string;
+}
+
 function parseResumeTemplateId(value: string | null | undefined): ResumeTemplateId {
   return RESUME_TEMPLATE_IDS.find((templateId) => templateId === value) ?? DEFAULT_TEMPLATE_ID;
+}
+
+function formatDraftRelativeTime(dateStr: string, locale: string) {
+  try {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return locale === 'ar' ? 'الآن' : 'Just now';
+    if (diffMins < 60) return locale === 'ar' ? `منذ ${diffMins} د` : `${diffMins}m ago`;
+    if (diffHours < 24) return locale === 'ar' ? `منذ ${diffHours} س` : `${diffHours}h ago`;
+    if (diffDays === 1) return locale === 'ar' ? 'أمس' : 'Yesterday';
+    if (diffDays < 30) return locale === 'ar' ? `منذ ${diffDays} يوم` : `${diffDays}d ago`;
+
+    return date.toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
 }
 
 function serializeDashboardDraft(draft: DashboardDraftData) {
@@ -373,24 +412,7 @@ function ExpSelect({ value, onChange, options, placeholder, disabled }: {
   );
 }
 
-// ── ATS completion ring ──────────────────────────────────────────────────────
-function AtsRing({ percent }: { percent: number }) {
-  const r = 42;
-  const c = 2 * Math.PI * r;
-  const offset = c * (1 - percent / 100);
-  return (
-    <svg viewBox="0 0 100 100" className="h-28 w-28 -rotate-90">
-      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--edge-strong)" strokeWidth="8" />
-      <motion.circle
-        cx="50" cy="50" r={r} fill="none" stroke="var(--color-gold)" strokeWidth="8" strokeLinecap="round"
-        strokeDasharray={c}
-        initial={{ strokeDashoffset: c }}
-        animate={{ strokeDashoffset: offset }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-      />
-    </svg>
-  );
-}
+
 
 // ── Experience step (accordion) ──────────────────────────────────────────────
 function CommaListField({ label, placeholder, value, onChange }: {
@@ -944,13 +966,13 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex flex-col items-center justify-center rounded-2xl border border-edge bg-card p-6 lg:w-64">
-          <div className="relative flex items-center justify-center">
-            <AtsRing percent={percent} />
-            <span className="absolute text-[22px] font-black text-primary">{percent}%</span>
+          className="flex flex-col items-center justify-center rounded-2xl border border-edge bg-card p-6 text-center lg:w-64">
+          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/30 bg-gold/10 text-gold shadow-md">
+            <CheckCircle2 size={28} />
           </div>
-          <div className="mt-3 text-[14px] font-bold text-primary">{t('atsScoreRank')}</div>
-          <div className="text-[12px] text-faint">{t('profileCompletion')}</div>
+          <div className="text-[22px] font-black text-primary">{percent}%</div>
+          <div className="mt-1 text-[13px] font-bold text-primary">Resume Completeness</div>
+          <div className="mt-1 text-[11px] text-faint">All core sections populated</div>
         </motion.div>
       </div>
     </div>
@@ -1164,15 +1186,29 @@ function SkillsStep({ groups, onChange }: {
 
         {/* Right column */}
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-azure/20 bg-azure/6 p-6 text-center">
-            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">{t('estimatedAtsScore')}</div>
-            <div className="relative mx-auto flex w-fit items-center justify-center">
-              <AtsRing percent={percent} />
-              <span className="absolute text-[26px] font-black text-gold">{percent}%</span>
+          <div className="rounded-2xl border border-edge bg-card p-5">
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-widest text-faint flex items-center gap-1.5">
+              <CheckCircle2 size={14} className="text-gold" />
+              <span>Resume Section Quality</span>
             </div>
-            <p className="mt-5 text-[13px] italic leading-[1.6] text-secondary">
-              &quot;{t('atsQuote')}&quot;
-            </p>
+            <div className="space-y-2 text-xs font-semibold text-secondary">
+              <div className="flex items-center justify-between py-1 border-b border-edge/50">
+                <span>Contact Details</span>
+                <span className="text-emerald-400 font-bold">✓ Ready</span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-edge/50">
+                <span>Summary Statement</span>
+                <span className="text-emerald-400 font-bold">✓ Ready</span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-edge/50">
+                <span>Work Experience</span>
+                <span className="text-emerald-400 font-bold">✓ Ready</span>
+              </div>
+              <div className="flex items-center justify-between py-1">
+                <span>Education & Skills</span>
+                <span className="text-emerald-400 font-bold">✓ Ready</span>
+              </div>
+            </div>
           </div>
 
           <div className="flex items-start gap-3 rounded-2xl border border-edge bg-card p-5">
@@ -1525,13 +1561,13 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
   );
 }
 
-export default function DashboardPage() {
+export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {}) {
   const t = useTranslations('dashboard');
   const tContact = useTranslations('dashboard.contact');
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const resumeIdParam = searchParams.get('resumeId')?.trim() || undefined;
+  const resumeIdParam = resumeIdProp || searchParams.get('resumeId')?.trim() || undefined;
   const templateQueryValue = searchParams.get('template');
   const templateFromQuery = RESUME_TEMPLATE_IDS.find(
     (templateId) => templateId === templateQueryValue,
@@ -1559,6 +1595,13 @@ export default function DashboardPage() {
   );
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [userDrafts, setUserDrafts] = useState<ResumeDraftItem[]>([]);
+  const [draftTitle, setDraftTitle] = useState<string>('');
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [newTitleInput, setNewTitleInput] = useState('');
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
+  const [draftSwitcherOpen, setDraftSwitcherOpen] = useState(false);
   const lastQueuedDraft = useRef('');
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
   const saveErrorShown = useRef(false);
@@ -1579,6 +1622,40 @@ export default function DashboardPage() {
 
     return true;
   }, [logout, t]);
+
+  useEffect(() => {
+    if (!user) return;
+    const token = localStorage.getItem('resumax_token') || '';
+    if (!token) return;
+    fetchUserDrafts(token)
+      .then((list) => {
+        setUserDrafts(list);
+        const activeDraft = list.find((d) => d.id === resumeIdParam);
+        if (activeDraft) {
+          setDraftTitle(activeDraft.title);
+        }
+      })
+      .catch(() => {});
+  }, [user, resumeIdParam]);
+
+  const handleSaveRename = async () => {
+    if (!newTitleInput.trim() || !resumeIdParam) return;
+    try {
+      setIsSavingTitle(true);
+      const token = localStorage.getItem('resumax_token') || '';
+      await updateUserDraftTitle(token, resumeIdParam, newTitleInput.trim());
+      setDraftTitle(newTitleInput.trim());
+      setUserDrafts((prev) =>
+        prev.map((d) => (d.id === resumeIdParam ? { ...d, title: newTitleInput.trim() } : d))
+      );
+      toast.success('Resume title updated');
+      setIsRenaming(false);
+    } catch (err) {
+      toast.error('Could not rename resume');
+    } finally {
+      setIsSavingTitle(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -1708,6 +1785,7 @@ export default function DashboardPage() {
     const timer = window.setTimeout(() => {
       if (autosaveTimer.current === timer) autosaveTimer.current = null;
       lastQueuedDraft.current = serialized;
+      setSaveStatus('saving');
       saveQueue.current = saveQueue.current
         .then(async () => {
           const result = await saveDashboardDraft(token, draft, resumeIdParam);
@@ -1718,11 +1796,13 @@ export default function DashboardPage() {
             throw new Error(result.error);
           }
           saveErrorShown.current = false;
+          setSaveStatus('saved');
           toast.dismiss(DASHBOARD_SAVE_ERROR_TOAST_ID);
         })
         .catch((error) => {
           if (handleDashboardRequestError(error)) return;
           console.error('Dashboard autosave failed:', error);
+          setSaveStatus('error');
           if (lastQueuedDraft.current === serialized) {
             lastQueuedDraft.current = '';
           }
@@ -1968,17 +2048,197 @@ export default function DashboardPage() {
       )}
 
       <div className="relative z-1 flex h-dvh min-h-0 flex-1 flex-col overflow-hidden">
-        {/* Shown wherever the sidebar is still a drawer, so the menu button
-            tracks `lg` exactly as the sidebar and its overlay do. */}
-        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3 backdrop-blur-xl lg:hidden">
-          <button onClick={() => setNavOpen(true)} aria-label="Open menu" className="text-primary">
-            <Menu size={22} />
-          </button>
-          <Logo />
-          <span className="w-5.5" />
-        </div>
+        {/* Sticky Unified Top Header across Mobile & Desktop */}
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-edge bg-elevated/90 px-3 sm:px-5 py-2 backdrop-blur-xl shrink-0">
+          {/* Left: Mobile Drawer Trigger + Active Draft Info & Rename */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <button
+              onClick={() => setNavOpen(true)}
+              aria-label="Open menu"
+              className="text-primary lg:hidden shrink-0 p-1 -ms-1 hover:text-gold transition-colors cursor-pointer"
+            >
+              <Menu size={20} />
+            </button>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-10 pt-8 sm:px-8 lg:px-15 lg:pt-13">
+            {/* Draft Identity & Rename */}
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="hidden sm:flex h-7 w-7 items-center justify-center rounded-lg bg-gold/15 text-gold shrink-0 border border-gold/25">
+                <FileText size={14} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-xs font-bold text-primary truncate max-w-[130px] sm:max-w-xs md:max-w-md">
+                    {draftTitle || (contact.fullName ? `${contact.fullName} Resume` : 'My Resume Draft')}
+                  </span>
+                  {resumeIdParam && (
+                    <button
+                      onClick={() => {
+                        setNewTitleInput(draftTitle || (contact.fullName ? `${contact.fullName} Resume` : 'My Resume Draft'));
+                        setIsRenaming(true);
+                      }}
+                      title="Rename Draft"
+                      className="text-muted hover:text-gold p-0.5 rounded hover:bg-card transition-colors cursor-pointer shrink-0"
+                    >
+                      <Pencil size={10} />
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-secondary">
+                  <span className="capitalize text-gold font-medium">
+                    {selectedTemplate}
+                  </span>
+                  <span className="text-faint">•</span>
+                  <span className="flex items-center gap-1">
+                    {saveStatus === 'saving' ? (
+                      <>
+                        <Loader2 size={9} className="animate-spin text-gold" />
+                        <span className="text-gold">Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 size={10} className="text-emerald-400" />
+                        <span className="text-emerald-400">Draft saved</span>
+                      </>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Switcher Dropdown & Preview Action */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Draft Switcher Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setDraftSwitcherOpen(!draftSwitcherOpen)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-edge bg-card hover:bg-card-hover text-xs font-bold text-secondary hover:text-primary transition-colors cursor-pointer shadow-xs"
+              >
+                <Layers size={12} className="text-gold shrink-0" />
+                <span className="hidden sm:inline">Switch Draft</span>
+                <span className="px-1.5 py-0.2 rounded-md bg-gold/15 text-gold text-[9px] font-black">{userDrafts.length}</span>
+                <ChevronDown size={11} className={`transition-transform duration-200 ${draftSwitcherOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {draftSwitcherOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setDraftSwitcherOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-[calc(100%+6px)] end-0 z-50 w-72 sm:w-80 rounded-xl border border-edge bg-elevated shadow-[0_20px_60px_rgba(0,0,0,0.65)] p-2 space-y-1 backdrop-blur-2xl"
+                    >
+                      <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-muted border-b border-edge/60 flex items-center justify-between">
+                        <span>Your Resumes</span>
+                        <span className="text-gold font-mono font-bold bg-gold/10 px-1.5 py-0.2 rounded border border-gold/20 text-[9px]">
+                          {userDrafts.length}
+                        </span>
+                      </div>
+
+                      <div className="max-h-60 overflow-y-auto space-y-1 py-1">
+                        {userDrafts.map((d) => {
+                          const isActive = (resumeIdParam === d.id || (!resumeIdParam && userDrafts[0]?.id === d.id));
+                          return (
+                            <button
+                              key={d.id}
+                              onClick={() => {
+                                setDraftSwitcherOpen(false);
+                                router.push(`/${locale}/dashboard/${d.id}`);
+                              }}
+                              className={`group w-full flex items-center gap-2.5 p-2 rounded-lg text-start transition-all cursor-pointer ${
+                                isActive
+                                  ? 'bg-gold/15 border border-gold/35 shadow-xs'
+                                  : 'hover:bg-card border border-transparent hover:border-edge'
+                              }`}
+                            >
+                              <div
+                                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                                  isActive
+                                    ? 'bg-gold text-slate-950 shadow-sm'
+                                    : 'bg-card border border-edge text-secondary group-hover:text-gold group-hover:border-gold/30'
+                                }`}
+                              >
+                                <FileText size={13} />
+                              </div>
+
+                              <div className="min-w-0 flex-1">
+                                <div className="font-bold text-xs text-primary truncate leading-tight">
+                                  {d.title}
+                                </div>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="px-1 py-0.2 rounded text-[9px] font-semibold uppercase tracking-wider bg-gold/10 text-gold border border-gold/20">
+                                    {d.templateName}
+                                  </span>
+                                  <span className="text-faint text-[8px]">•</span>
+                                  <span className="text-[9px] text-faint font-mono">
+                                    {formatDraftRelativeTime(d.updatedAt, locale)}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {isActive ? (
+                                <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider shrink-0">
+                                  Active
+                                </span>
+                              ) : (
+                                <ChevronRight size={12} className="text-muted group-hover:text-primary transition-transform group-hover:translate-x-0.5 shrink-0" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="pt-1.5 border-t border-edge/60 space-y-1">
+                        <button
+                          onClick={async () => {
+                            setDraftSwitcherOpen(false);
+                            const maxDrafts = user?.planName === 'ENTERPRISE' ? 5 : user?.planName === 'PRO' ? 3 : 1;
+                            if (userDrafts.length >= maxDrafts) {
+                              toast.info('Draft limit reached for your plan. Upgrade to create more resumes.');
+                              router.push(`/${locale}/pricing`);
+                              return;
+                            }
+                            try {
+                              const token = localStorage.getItem('resumax_token') || '';
+                              const res = await createUserDraft(token);
+                              router.push(`/${locale}/dashboard/${res.id}`);
+                            } catch (e: unknown) {
+                              const msg = e instanceof Error ? e.message : 'Failed to create new draft';
+                              if (msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('plan') || msg.toLowerCase().includes('upgrade')) {
+                                toast.info(msg);
+                                router.push(`/${locale}/pricing`);
+                              } else {
+                                toast.error(msg);
+                              }
+                            }
+                          }}
+                          className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-black bg-gradient-to-r from-gold via-amber-400 to-gold hover:from-gold-light hover:to-gold text-slate-950 shadow-sm transition-all cursor-pointer"
+                        >
+                          <Plus size={12} />
+                          <span>Create New Resume</span>
+                        </button>
+
+                        <Link
+                          href={`/${locale}/drafts`}
+                          onClick={() => setDraftSwitcherOpen(false)}
+                          className="w-full flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-secondary hover:text-primary hover:bg-card border border-edge/60 transition-colors"
+                        >
+                          <FolderKanban size={11} />
+                          <span>All Drafts Library</span>
+                        </Link>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </header>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-10 pt-6 sm:px-8 lg:px-15 lg:pt-8">
           <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_280px] 2xl:grid-cols-[minmax(0,860px)_300px] 2xl:gap-10">
             <div className="min-w-0 max-w-215 xl:max-w-none">
               <AnimatePresence mode="wait">
@@ -2046,14 +2306,205 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <motion.button
-        initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1, type: 'spring', stiffness: 260, damping: 18 }}
-        whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}
-        title={t('aiAssistant')}
-        className={`fixed bottom-22 z-50 flex h-13 w-13 items-center justify-center rounded-full border border-gold/25 bg-linear-to-br from-elevated to-ink-muted shadow-[0_8px_30px_var(--shadow-color)]  ${isRTL ? "left-5 lg:left-7" : "right-5  lg:right-7"}`}
-      >
-        <Sparkles size={20} className="text-gold" />
-      </motion.button>
+      <AiResumeCoachWidget
+        userPlanName={user?.planName || 'FREE'}
+        initialOpen={searchParams?.get('openCoach') === 'true'}
+        currentDraft={{
+          template: selectedTemplate,
+          currentStep,
+          completedSteps: [...completedSteps],
+          sectionOrder,
+          contact,
+          summary,
+          skillGroups,
+          experience,
+          projects,
+          education,
+          certifications: certs,
+          skills: skillGroups.flatMap((group) => group.skills),
+        }}
+        resumeId={resumeIdParam}
+        onApplyFix={(field, value, experienceId) => {
+          const sanitizeText = (val: any): string => {
+            if (typeof val !== 'string') return String(val || '');
+            return val
+              .replace(/\*\*(.*?)\*\*/g, '$1')
+              .replace(/\*(.*?)\*/g, '$1')
+              .replace(/__(.*?)__/g, '$1')
+              .replace(/`(.*?)`/g, '$1')
+              .replace(/^#+\s*/gm, '')
+              .trim();
+          };
+
+          const rawField = String(field || '').toLowerCase().trim();
+          const isSummary = rawField.includes('summary');
+          const isTitle = rawField.includes('title') || rawField.includes('headline');
+          const isSkills = rawField.includes('skill') || rawField.includes('keyword');
+          const isExperience = rawField.includes('exp') || rawField.includes('bullet') || rawField.includes('work') || rawField.includes('job');
+
+          let nextSummary = summary;
+          let nextContact = contact;
+          let nextSkillGroups = skillGroups;
+          let nextExperience = experience;
+
+          if (isSummary || (!isTitle && !isSkills && !isExperience && typeof value === 'string' && value.length > 50)) {
+            const clean = sanitizeText(value);
+            nextSummary = clean;
+            setSummary(clean);
+            setCurrentStep('summary');
+          } else if (isTitle) {
+            const clean = sanitizeText(value);
+            nextContact = { ...contact, title: clean };
+            setContact(nextContact);
+            setCurrentStep('contact');
+          } else if (isSkills) {
+            let incomingSkills: string[] = [];
+            if (Array.isArray(value)) {
+              incomingSkills = value;
+            } else if (typeof value === 'string') {
+              const cleanStr = sanitizeText(value);
+              try {
+                const parsed = JSON.parse(cleanStr);
+                if (Array.isArray(parsed)) incomingSkills = parsed;
+                else incomingSkills = cleanStr.split(/,|\n/).map((s) => s.trim());
+              } catch {
+                incomingSkills = cleanStr.split(/,|\n/).map((s) => s.trim());
+              }
+            }
+
+            if (incomingSkills.length > 0) {
+              const existingSet = new Set(
+                skillGroups.flatMap((g) => g.skills).map((s) => s.trim().toLowerCase())
+              );
+              const uniqueNewSkills = incomingSkills
+                .map((s) => sanitizeText(s))
+                .filter((s) => s.trim() && !existingSet.has(s.trim().toLowerCase()));
+
+              if (uniqueNewSkills.length > 0) {
+                const updated = [...skillGroups];
+                if (updated.length > 0) {
+                  updated[0] = {
+                    ...updated[0],
+                    skills: [...updated[0].skills, ...uniqueNewSkills],
+                  };
+                } else {
+                  updated.push({ id: 'group-1', label: 'Technical Skills', skills: uniqueNewSkills });
+                }
+                nextSkillGroups = updated;
+                setSkillGroups(updated);
+              }
+            }
+            setCurrentStep('skills');
+          } else if (isExperience) {
+            const clean = sanitizeText(value);
+            let updatedList = [...experience];
+            if (updatedList.length === 0) {
+              updatedList = [{
+                id: 'exp-1',
+                company: 'Company',
+                jobTitle: 'Role',
+                description: clean,
+                location: '',
+                startMonth: '',
+                startYear: '',
+                endMonth: '',
+                endYear: '',
+                current: true,
+              }];
+            } else {
+              let targetIdx = updatedList.findIndex((item) => item.id === experienceId);
+              if (targetIdx === -1) targetIdx = 0;
+              updatedList = updatedList.map((item, idx) => (idx === targetIdx ? { ...item, description: clean } : item));
+            }
+            nextExperience = updatedList;
+            setExperience(updatedList);
+            setCurrentStep('experience');
+          }
+
+          const token =
+            typeof window !== 'undefined'
+              ? localStorage.getItem('resumax_token')
+              : null;
+          if (token) {
+            void saveDashboardDraft(
+              token,
+              {
+                template: selectedTemplate,
+                currentStep,
+                completedSteps: [...completedSteps],
+                sectionOrder,
+                contact: nextContact,
+                summary: nextSummary,
+                skillGroups: nextSkillGroups,
+                experience: nextExperience,
+                projects,
+                education,
+                certifications: certs,
+                skills: nextSkillGroups.flatMap((group) => group.skills),
+              },
+              resumeIdParam,
+            );
+          }
+        }}
+      />
+
+      {/* Dashboard Rename Draft Modal */}
+      <AnimatePresence>
+        {isRenaming && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsRenaming(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-md rounded-3xl border border-edge bg-elevated p-6 shadow-2xl z-10 space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-primary">Rename Resume Draft</h3>
+                <button
+                  onClick={() => setIsRenaming(false)}
+                  className="text-muted hover:text-primary p-1"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <input
+                type="text"
+                value={newTitleInput}
+                onChange={(e) => setNewTitleInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && void handleSaveRename()}
+                autoFocus
+                placeholder="Resume Title..."
+                className="w-full rounded-xl border border-edge bg-card px-4 py-3 text-sm font-semibold text-primary outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+              />
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  onClick={() => setIsRenaming(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-secondary hover:text-primary"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => void handleSaveRename()}
+                  disabled={isSavingTitle || !newTitleInput.trim()}
+                  className="px-5 py-2 rounded-xl bg-gold hover:bg-gold-light text-slate-950 text-xs font-black disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                >
+                  {isSavingTitle && <Loader2 size={13} className="animate-spin" />}
+                  <span>Save Title</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

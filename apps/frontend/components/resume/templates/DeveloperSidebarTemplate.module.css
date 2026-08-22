@@ -62,15 +62,13 @@
   padding: 12mm 10mm 13mm 9mm;
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--developer-accent) 7%, transparent) 0 22%, transparent 22% 100%),
-    repeating-linear-gradient(
-      115deg,
+    repeating-linear-gradient(115deg,
       transparent 0 12mm,
-      rgb(23 24 33 / 1.7%) 12mm 12.25mm
-    ),
+      rgb(23 24 33 / 1.7%) 12mm 12.25mm),
     #fff;
 }
 
-.content > * {
+.content>* {
   position: relative;
   z-index: 1;
 }
@@ -79,12 +77,12 @@
   margin: 0 0 7mm;
 }
 
-.sidebarSection:last-child {
-  margin-bottom: 0;
+.skillsSection {
+  margin: 0 0 9mm;
 }
 
-.sidebarSectionGroup {
-  display: contents;
+.sidebar>.sidebarSection:last-child {
+  margin-bottom: 0;
 }
 
 .sidebarHeading {
@@ -411,6 +409,7 @@
 }
 
 @media print {
+
   :global(html),
   :global(body) {
     margin: 0 !important;
