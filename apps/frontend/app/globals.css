@@ -447,3 +447,17 @@ input::placeholder {
 [data-reduce-motion="true"] {
   scroll-behavior: auto !important;
 }
+/* ============================================
+   ARABIC LETTER-SPACING GUARD
+
+   Tracking utilities (tracking-wide/wider/widest) are used throughout for
+   small uppercase eyebrow labels. Arabic is cursive: letters join, and adding
+   letter-spacing severs those joins so words visually fall apart. The effect
+   is Latin-only styling, so it is neutralised under RTL rather than removed
+   from the markup — one guard here fixes every existing label at once.
+   ============================================ */
+[dir="rtl"] .tracking-wide,
+[dir="rtl"] .tracking-wider,
+[dir="rtl"] .tracking-widest {
+  letter-spacing: 0;
+}
