@@ -9,7 +9,7 @@ import {
   LayoutDashboard, ChevronRight, Menu, X,
   Plus, Trash2, Building2, Calendar, Info,
   Award, Lightbulb, PlusCircle, FileText, Search,
-  Pencil, Loader2, FolderKanban, GripVertical,
+  Pencil, Loader2, FolderKanban, GripVertical, CheckCircle2,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -24,6 +24,7 @@ import { defaultSkillGroups, emptyRole, emptyEdu, emptyCert, emptyProject, empty
 import { formatPhoneNumber } from "@/lib/utilities/phone";
 import DashboardResumePlaceholder from '@/components/dashboard/DashboardResumePlaceholder';
 import SidebarAccountMenu from '@/components/dashboard/SidebarAccountMenu';
+import AiResumeCoachWidget from '@/components/resume/AiResumeCoachWidget';
 import {
   getResumeSectionOrder,
   getResumeStepOrder,
@@ -373,24 +374,7 @@ function ExpSelect({ value, onChange, options, placeholder, disabled }: {
   );
 }
 
-// ── ATS completion ring ──────────────────────────────────────────────────────
-function AtsRing({ percent }: { percent: number }) {
-  const r = 42;
-  const c = 2 * Math.PI * r;
-  const offset = c * (1 - percent / 100);
-  return (
-    <svg viewBox="0 0 100 100" className="h-28 w-28 -rotate-90">
-      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--edge-strong)" strokeWidth="8" />
-      <motion.circle
-        cx="50" cy="50" r={r} fill="none" stroke="var(--color-gold)" strokeWidth="8" strokeLinecap="round"
-        strokeDasharray={c}
-        initial={{ strokeDashoffset: c }}
-        animate={{ strokeDashoffset: offset }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-      />
-    </svg>
-  );
-}
+
 
 // ── Experience step (accordion) ──────────────────────────────────────────────
 function CommaListField({ label, placeholder, value, onChange }: {
@@ -944,13 +928,13 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex flex-col items-center justify-center rounded-2xl border border-edge bg-card p-6 lg:w-64">
-          <div className="relative flex items-center justify-center">
-            <AtsRing percent={percent} />
-            <span className="absolute text-[22px] font-black text-primary">{percent}%</span>
+          className="flex flex-col items-center justify-center rounded-2xl border border-edge bg-card p-6 text-center lg:w-64">
+          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/30 bg-gold/10 text-gold shadow-md">
+            <CheckCircle2 size={28} />
           </div>
-          <div className="mt-3 text-[14px] font-bold text-primary">{t('atsScoreRank')}</div>
-          <div className="text-[12px] text-faint">{t('profileCompletion')}</div>
+          <div className="text-[22px] font-black text-primary">{percent}%</div>
+          <div className="mt-1 text-[13px] font-bold text-primary">Resume Completeness</div>
+          <div className="mt-1 text-[11px] text-faint">All core sections populated</div>
         </motion.div>
       </div>
     </div>
@@ -1164,15 +1148,29 @@ function SkillsStep({ groups, onChange }: {
 
         {/* Right column */}
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-azure/20 bg-azure/6 p-6 text-center">
-            <div className="mb-4 text-[11px] font-bold uppercase tracking-widest text-faint">{t('estimatedAtsScore')}</div>
-            <div className="relative mx-auto flex w-fit items-center justify-center">
-              <AtsRing percent={percent} />
-              <span className="absolute text-[26px] font-black text-gold">{percent}%</span>
+          <div className="rounded-2xl border border-edge bg-card p-5">
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-widest text-faint flex items-center gap-1.5">
+              <CheckCircle2 size={14} className="text-gold" />
+              <span>Resume Section Quality</span>
             </div>
-            <p className="mt-5 text-[13px] italic leading-[1.6] text-secondary">
-              &quot;{t('atsQuote')}&quot;
-            </p>
+            <div className="space-y-2 text-xs font-semibold text-secondary">
+              <div className="flex items-center justify-between py-1 border-b border-edge/50">
+                <span>Contact Details</span>
+                <span className="text-emerald-400 font-bold">✓ Ready</span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-edge/50">
+                <span>Summary Statement</span>
+                <span className="text-emerald-400 font-bold">✓ Ready</span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-edge/50">
+                <span>Work Experience</span>
+                <span className="text-emerald-400 font-bold">✓ Ready</span>
+              </div>
+              <div className="flex items-center justify-between py-1">
+                <span>Education & Skills</span>
+                <span className="text-emerald-400 font-bold">✓ Ready</span>
+              </div>
+            </div>
           </div>
 
           <div className="flex items-start gap-3 rounded-2xl border border-edge bg-card p-5">
@@ -2046,14 +2044,147 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <motion.button
-        initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1, type: 'spring', stiffness: 260, damping: 18 }}
-        whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}
-        title={t('aiAssistant')}
-        className={`fixed bottom-22 z-50 flex h-13 w-13 items-center justify-center rounded-full border border-gold/25 bg-linear-to-br from-elevated to-ink-muted shadow-[0_8px_30px_var(--shadow-color)]  ${isRTL ? "left-5 lg:left-7" : "right-5  lg:right-7"}`}
-      >
-        <Sparkles size={20} className="text-gold" />
-      </motion.button>
+      <AiResumeCoachWidget
+        userPlanName={user?.planName || 'FREE'}
+        initialOpen={searchParams?.get('openCoach') === 'true'}
+        currentDraft={{
+          template: selectedTemplate,
+          currentStep,
+          completedSteps: [...completedSteps],
+          sectionOrder,
+          contact,
+          summary,
+          skillGroups,
+          experience,
+          projects,
+          education,
+          certifications: certs,
+          skills: skillGroups.flatMap((group) => group.skills),
+        }}
+        resumeId={resumeIdParam}
+        onApplyFix={(field, value, experienceId) => {
+          const sanitizeText = (val: any): string => {
+            if (typeof val !== 'string') return String(val || '');
+            return val
+              .replace(/\*\*(.*?)\*\*/g, '$1')
+              .replace(/\*(.*?)\*/g, '$1')
+              .replace(/__(.*?)__/g, '$1')
+              .replace(/`(.*?)`/g, '$1')
+              .replace(/^#+\s*/gm, '')
+              .trim();
+          };
+
+          const rawField = String(field || '').toLowerCase().trim();
+          const isSummary = rawField.includes('summary');
+          const isTitle = rawField.includes('title') || rawField.includes('headline');
+          const isSkills = rawField.includes('skill') || rawField.includes('keyword');
+          const isExperience = rawField.includes('exp') || rawField.includes('bullet') || rawField.includes('work') || rawField.includes('job');
+
+          let nextSummary = summary;
+          let nextContact = contact;
+          let nextSkillGroups = skillGroups;
+          let nextExperience = experience;
+
+          if (isSummary || (!isTitle && !isSkills && !isExperience && typeof value === 'string' && value.length > 50)) {
+            const clean = sanitizeText(value);
+            nextSummary = clean;
+            setSummary(clean);
+            setCurrentStep('summary');
+          } else if (isTitle) {
+            const clean = sanitizeText(value);
+            nextContact = { ...contact, title: clean };
+            setContact(nextContact);
+            setCurrentStep('contact');
+          } else if (isSkills) {
+            let incomingSkills: string[] = [];
+            if (Array.isArray(value)) {
+              incomingSkills = value;
+            } else if (typeof value === 'string') {
+              const cleanStr = sanitizeText(value);
+              try {
+                const parsed = JSON.parse(cleanStr);
+                if (Array.isArray(parsed)) incomingSkills = parsed;
+                else incomingSkills = cleanStr.split(/,|\n/).map((s) => s.trim());
+              } catch {
+                incomingSkills = cleanStr.split(/,|\n/).map((s) => s.trim());
+              }
+            }
+
+            if (incomingSkills.length > 0) {
+              const existingSet = new Set(
+                skillGroups.flatMap((g) => g.skills).map((s) => s.trim().toLowerCase())
+              );
+              const uniqueNewSkills = incomingSkills
+                .map((s) => sanitizeText(s))
+                .filter((s) => s.trim() && !existingSet.has(s.trim().toLowerCase()));
+
+              if (uniqueNewSkills.length > 0) {
+                const updated = [...skillGroups];
+                if (updated.length > 0) {
+                  updated[0] = {
+                    ...updated[0],
+                    skills: [...updated[0].skills, ...uniqueNewSkills],
+                  };
+                } else {
+                  updated.push({ id: 'group-1', label: 'Technical Skills', skills: uniqueNewSkills });
+                }
+                nextSkillGroups = updated;
+                setSkillGroups(updated);
+              }
+            }
+            setCurrentStep('skills');
+          } else if (isExperience) {
+            const clean = sanitizeText(value);
+            let updatedList = [...experience];
+            if (updatedList.length === 0) {
+              updatedList = [{
+                id: 'exp-1',
+                company: 'Company',
+                jobTitle: 'Role',
+                description: clean,
+                location: '',
+                startMonth: '',
+                startYear: '',
+                endMonth: '',
+                endYear: '',
+                current: true,
+              }];
+            } else {
+              let targetIdx = updatedList.findIndex((item) => item.id === experienceId);
+              if (targetIdx === -1) targetIdx = 0;
+              updatedList = updatedList.map((item, idx) => (idx === targetIdx ? { ...item, description: clean } : item));
+            }
+            nextExperience = updatedList;
+            setExperience(updatedList);
+            setCurrentStep('experience');
+          }
+
+          const token =
+            typeof window !== 'undefined'
+              ? localStorage.getItem('resumax_token')
+              : null;
+          if (token) {
+            void saveDashboardDraft(
+              token,
+              {
+                template: selectedTemplate,
+                currentStep,
+                completedSteps: [...completedSteps],
+                sectionOrder,
+                contact: nextContact,
+                summary: nextSummary,
+                skillGroups: nextSkillGroups,
+                experience: nextExperience,
+                projects,
+                education,
+                certifications: certs,
+                skills: nextSkillGroups.flatMap((group) => group.skills),
+              },
+              resumeIdParam,
+            );
+          }
+        }}
+      />
     </div>
   );
 }
