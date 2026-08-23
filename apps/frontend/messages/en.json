@@ -16,19 +16,28 @@
     "subtitle": "Manage, organize, and edit all your saved resume versions and drafts in one place.",
     "createNew": "Create New Resume",
     "creating": "Creating draft...",
+    "loadingDrafts": "Loading drafts",
     "openDashboard": "Active Resume Editor",
     "searchPlaceholder": "Search by resume title or template...",
     "sortNewest": "Last Updated",
     "sortOldest": "Oldest First",
     "sortTitle": "Title (A-Z)",
     "sortTemplate": "Template",
+    "gridView": "Grid view",
+    "listView": "List view",
     "quotaLabel": "Drafts Used",
+    "quotaUpgradeLink": "Upgrade →",
     "upgradePrompt": "Upgrade to Pro for more drafts, unlimited exports, and Gemini AI Coach.",
+    "upgradeBannerDesc": "Unlock 3 to 5 multi-version resumes, PDF/JPG vector exports, and Gemini 2.0 AI purpose tailoring.",
     "upgradeButton": "Upgrade Plan",
     "editResume": "Edit in Dashboard",
     "previewResume": "Preview & Export",
     "duplicateResume": "Duplicate",
+    "edit": "Edit",
+    "preview": "Preview",
     "rename": "Rename",
+    "renameTitle": "Rename Resume Draft",
+    "save": "Save",
     "delete": "Delete",
     "deleteTitle": "Delete Resume Draft",
     "deleteMessage": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
@@ -43,7 +52,32 @@
     "renameSuccess": "Resume title updated",
     "createSuccess": "New draft created successfully",
     "deleteSuccess": "Resume draft deleted",
-    "limitReached": "You have reached your plan limit for saved drafts. Please upgrade to create more."
+    "limitReached": "You have reached your plan limit for saved drafts. Please upgrade to create more.",
+    "limitModalTitle": "Draft Limit Reached",
+    "limitModalDesc": "Your current {plan} plan allows {count, plural, one {# resume draft} other {# resume drafts}}. Upgrade your plan to create up to 5 drafts, unlock all premium ATS templates, and export in PDF & JPG.",
+    "limitModalDescMax": "Your {plan} plan includes {count, plural, one {# resume draft} other {# resume drafts}}, the most we offer. Delete or rename an existing draft to free up a slot.",
+    "currentDraftsLabel": "Current Drafts:",
+    "upgradeToPro": "Upgrade to Pro",
+    "upgradeToEnterprise": "Upgrade to Enterprise",
+    "manageDrafts": "Manage Existing Drafts",
+    "plans": {
+      "free": "Free",
+      "pro": "Pro",
+      "enterprise": "Enterprise"
+    },
+    "relativeTime": {
+      "justNow": "Just now",
+      "minutesAgo": "{count}m ago",
+      "hoursAgo": "{count}h ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "{count}d ago"
+    },
+    "errors": {
+      "loadFailed": "Failed to load drafts",
+      "createFailed": "Failed to create new draft",
+      "renameFailed": "Could not rename draft",
+      "deleteFailed": "Could not delete draft"
+    }
   },
   "hero": {
     "badge": "v1.0 Launching Soon",
@@ -449,6 +483,7 @@
       "perMonth": "/ mo",
       "getStarted": "Get started free",
       "downgradeToFree": "Downgrade to Free",
+      "downgradePlan": "Downgrade to {plan}",
       "startPlan": "Start {plan}",
       "currentPlan": "Current plan",
       "upgradePlan": "Upgrade to {plan}",
@@ -595,6 +630,7 @@
   "dashboard": {
     "backToHome": "Back to home",
     "onboarding": "Onboarding",
+    "loadingDraft": "Loading your resume draft",
     "stepOf": "Step {current} of {total}",
     "aiAssistant": "AI Resume Assistant",
     "sessionExpired": "Your session has expired. Please sign in again.",
@@ -866,8 +902,33 @@
     },
     "account": {
       "upgradeToPro": "Upgrade to Pro",
+      "enterpriseCoach": "Try your AI resume coach",
       "unverifiedBody": "Your account is not verified yet.",
       "verifyNow": "Verify now"
+    }
+  },
+  "aiCoach": {
+    "triggerTitle": "AI Resume Coach",
+    "title": "Gemini AI Coach",
+    "badge": "Enterprise",
+    "subtitle": "Real-time ATS Scoring & Executive Rewriting",
+    "refreshTitle": "Refresh AI Audit",
+    "rescanToast": "Rescanning all resume sections for new recommendations...",
+    "analyzing": "Analyzing resume against global ATS benchmarks",
+    "empty": "Click refresh to generate AI analysis.",
+    "scoreLabel": "ATS Readiness Score",
+    "impact": "Impact & Metrics",
+    "keywords": "ATS Keywords",
+    "fixesHeading": "Executive Coaching Fixes ({count})",
+    "refreshingScore": "Refreshing score...",
+    "applyFix": "Apply Fix to Resume",
+    "appliedToast": "Applied AI Coach fix: {title}",
+    "analysisFailed": "AI Coach analysis failed. Please try again.",
+    "upgrade": {
+      "title": "Enterprise AI Resume Coach",
+      "body": "The AI Resume Coach provides real-time ATS scoring, keyword optimization, and 1-click executive rewriting using Gemini AI. Upgrade your plan to Enterprise to unlock full coach capabilities.",
+      "close": "Close",
+      "cta": "Upgrade to Enterprise"
     }
   },
   "templatesPage": {
@@ -1235,7 +1296,11 @@
     "billing": {
       "heading": "Billing and subscription",
       "description": "Manage your active subscription and plan limits.",
-      "planLabel": "{plan} Plan",
+      "planNames": {
+        "free": "Free plan",
+        "pro": "Pro plan",
+        "enterprise": "Enterprise plan"
+      },
       "renewsOn": "Renews {date}",
       "upgradeToPro": "Upgrade to Pro",
       "upgradeToEnterprise": "Upgrade to Enterprise",

@@ -16,19 +16,28 @@
     "subtitle": "إدارة وتنظيم وتعديل جميع نسخ ومسودات السيرة الذاتية المحفوظة في مكان واحد.",
     "createNew": "إنشاء سيرة ذاتية جديدة",
     "creating": "جاري إنشاء المسودة...",
+    "loadingDrafts": "جاري تحميل المسودات",
     "openDashboard": "محرر السيرة الذاتية الحالي",
     "searchPlaceholder": "البحث بالاسم أو القالب...",
     "sortNewest": "الأحدث تعديلاً",
     "sortOldest": "الأقدم",
     "sortTitle": "الاسم (أ - ي)",
     "sortTemplate": "القالب",
+    "gridView": "عرض شبكي",
+    "listView": "عرض قائمة",
     "quotaLabel": "المسودات المستخدمة",
+    "quotaUpgradeLink": "ترقية ←",
     "upgradePrompt": "قم بالترقية إلى Pro للحصول على المزيد من المسودات، وتصدير غير محدود، ومساعد الذكاء الاصطناعي.",
+    "upgradeBannerDesc": "احصل على 3 إلى 5 نسخ متعددة من سيرتك الذاتية، وتصدير بصيغة PDF و JPG بجودة عالية، وتخصيص ذكي بالذكاء الاصطناعي Gemini 2.0.",
     "upgradeButton": "ترقية الخطة",
     "editResume": "تعديل في المحرر",
     "previewResume": "معاينة وتحميل",
     "duplicateResume": "نسخ",
+    "edit": "تعديل",
+    "preview": "معاينة",
     "rename": "إعادة تسمية",
+    "renameTitle": "إعادة تسمية مسودة السيرة الذاتية",
+    "save": "حفظ",
     "delete": "حذف",
     "deleteTitle": "حذف مسودة السيرة الذاتية",
     "deleteMessage": "هل أنت متأكد من رغبتك في حذف \"{title}\"؟ لا يمكن التراجع عن هذا الإجراء.",
@@ -43,7 +52,32 @@
     "renameSuccess": "تم تحديث اسم السيرة الذاتية بنجاح",
     "createSuccess": "تم إنشاء المسودة بنجاح",
     "deleteSuccess": "تم حذف المسودة بنجاح",
-    "limitReached": "لقد وصلت إلى الحد الأقصى للمسودات المسموحة في خطتك. يرجى الترقية لإنشاء المزيد."
+    "limitReached": "لقد وصلت إلى الحد الأقصى للمسودات المسموحة في خطتك. يرجى الترقية لإنشاء المزيد.",
+    "limitModalTitle": "وصلت إلى الحد الأقصى للمسودات",
+    "limitModalDesc": "باقتك الحالية ({plan}) تسمح بإنشاء {count, plural, one {مسودة سيرة ذاتية واحدة} two {مسودتين اثنتين} few {# مسودات سيرة ذاتية} other {# مسودة سيرة ذاتية}}. قم بالترقية لإنشاء المزيد من المسودات والوصول إلى القوالب والتصدير غير المحدود.",
+    "limitModalDescMax": "باقتك ({plan}) تشمل {count, plural, one {مسودة سيرة ذاتية واحدة} two {مسودتين اثنتين} few {# مسودات سيرة ذاتية} other {# مسودة سيرة ذاتية}}، وهي أعلى ما نوفره. احذف إحدى المسودات الحالية أو أعد تسميتها لإتاحة مساحة جديدة.",
+    "currentDraftsLabel": "المسودات الحالية:",
+    "upgradeToPro": "الترقية إلى Pro",
+    "upgradeToEnterprise": "الترقية إلى Enterprise",
+    "manageDrafts": "إدارة المسودات الحالية",
+    "plans": {
+      "free": "المجانية",
+      "pro": "Pro",
+      "enterprise": "Enterprise"
+    },
+    "relativeTime": {
+      "justNow": "الآن",
+      "minutesAgo": "{count, plural, one {منذ دقيقة} two {منذ دقيقتين} few {منذ # دقائق} other {منذ # دقيقة}}",
+      "hoursAgo": "{count, plural, one {منذ ساعة} two {منذ ساعتين} few {منذ # ساعات} other {منذ # ساعة}}",
+      "yesterday": "أمس",
+      "daysAgo": "{count, plural, one {منذ يوم} two {منذ يومين} few {منذ # أيام} other {منذ # يومًا}}"
+    },
+    "errors": {
+      "loadFailed": "تعذر تحميل المسودات",
+      "createFailed": "تعذر إنشاء مسودة جديدة",
+      "renameFailed": "تعذر إعادة تسمية المسودة",
+      "deleteFailed": "تعذر حذف المسودة"
+    }
   },
   "hero": {
     "badge": "الإصدار 1.0 قريباً",
@@ -449,6 +483,7 @@
       "perMonth": "/ شهرياً",
       "getStarted": "ابدأ مجاناً",
       "downgradeToFree": "الرجوع للخطة المجانية",
+      "downgradePlan": "الرجوع إلى {plan}",
       "startPlan": "ابدأ {plan}",
       "currentPlan": "خطتك الحالية",
       "upgradePlan": "ترقية إلى {plan}",
@@ -595,6 +630,7 @@
   "dashboard": {
     "backToHome": "العودة إلى الرئيسية",
     "onboarding": "الإعداد الأولي",
+    "loadingDraft": "جاري تحميل مسودة سيرتك الذاتية",
     "stepOf": "الخطوة {current} من {total}",
     "aiAssistant": "مساعد السيرة الذاتية بالذكاء الاصطناعي",
     "sessionExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
@@ -866,8 +902,33 @@
     },
     "account": {
       "upgradeToPro": "الترقية إلى Pro",
+      "enterpriseCoach": "جرّب مدرب السيرة الذاتية الذكي",
       "unverifiedBody": "لم يتم توثيق حسابك بعد.",
       "verifyNow": "وثّق الآن"
+    }
+  },
+  "aiCoach": {
+    "triggerTitle": "مدرب السيرة الذاتية الذكي",
+    "title": "مدرب Gemini الذكي",
+    "badge": "Enterprise",
+    "subtitle": "تقييم فوري لأنظمة ATS وإعادة صياغة احترافية",
+    "refreshTitle": "تحديث التدقيق الذكي",
+    "rescanToast": "جاري إعادة فحص جميع أقسام السيرة الذاتية للحصول على توصيات جديدة...",
+    "analyzing": "جاري تحليل سيرتك الذاتية وفق معايير أنظمة ATS العالمية",
+    "empty": "اضغط على التحديث لإنشاء تحليل بالذكاء الاصطناعي.",
+    "scoreLabel": "درجة الجاهزية لأنظمة ATS",
+    "impact": "الأثر والنتائج",
+    "keywords": "كلمات ATS المفتاحية",
+    "fixesHeading": "تحسينات احترافية مقترحة ({count})",
+    "refreshingScore": "جاري تحديث الدرجة...",
+    "applyFix": "طبّق التحسين على السيرة",
+    "appliedToast": "تم تطبيق تحسين المدرب الذكي: {title}",
+    "analysisFailed": "تعذر إجراء التحليل بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى.",
+    "upgrade": {
+      "title": "مدرب السيرة الذاتية الذكي لباقة Enterprise",
+      "body": "يوفر مدرب السيرة الذاتية الذكي تقييماً فورياً لأنظمة ATS، وتحسيناً للكلمات المفتاحية، وإعادة صياغة احترافية بضغطة واحدة باستخدام Gemini. قم بالترقية إلى باقة Enterprise للاستفادة من كامل إمكانات المدرب.",
+      "close": "إغلاق",
+      "cta": "الترقية إلى Enterprise"
     }
   },
   "templatesPage": {
@@ -1235,7 +1296,11 @@
     "billing": {
       "heading": "الفوترة والاشتراك",
       "description": "إدارة اشتراكك النشط وحدود باقتك.",
-      "planLabel": "باقة {plan}",
+      "planNames": {
+        "free": "الباقة المجانية",
+        "pro": "باقة Pro",
+        "enterprise": "باقة Enterprise"
+      },
       "renewsOn": "يتجدد في {date}",
       "upgradeToPro": "الترقية إلى Pro",
       "upgradeToEnterprise": "الترقية إلى Enterprise",

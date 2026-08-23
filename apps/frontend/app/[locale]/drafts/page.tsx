@@ -12,20 +12,15 @@ import {
   Search,
   LayoutGrid,
   List,
-  Calendar,
   Pencil,
   Trash2,
   ExternalLink,
-  Copy,
   Sparkles,
-  ArrowRight,
   Loader2,
-  Check,
   X,
   AlertTriangle,
   Layers,
   Clock,
-  ShieldAlert,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
@@ -39,6 +34,7 @@ import {
   type ResumeDraftItem,
 } from "@/lib/backend";
 import { templates } from "@/lib/placeholder-data/templates.placeholder";
+import { DraftsGridSkeleton } from "@/components/ui/Skeletons";
 
 const PLAN_MAX_DRAFTS: Record<string, number> = {
   free: 1,
@@ -46,7 +42,11 @@ const PLAN_MAX_DRAFTS: Record<string, number> = {
   enterprise: 5,
 };
 
-function formatRelativeTime(dateStr: string, locale: string) {
+function formatRelativeTime(
+  dateStr: string,
+  locale: string,
+  t: ReturnType<typeof useTranslations>
+) {
   try {
     const date = new Date(dateStr);
     const now = new Date();
@@ -55,11 +55,11 @@ function formatRelativeTime(dateStr: string, locale: string) {
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return locale === "ar" ? "الآن" : "Just now";
-    if (diffMins < 60) return locale === "ar" ? `منذ ${diffMins} دقيقة` : `${diffMins}m ago`;
-    if (diffHours < 24) return locale === "ar" ? `منذ ${diffHours} ساعة` : `${diffHours}h ago`;
-    if (diffDays === 1) return locale === "ar" ? "أمس" : "Yesterday";
-    if (diffDays < 30) return locale === "ar" ? `منذ ${diffDays} يوم` : `${diffDays}d ago`;
+    if (diffMins < 1) return t("relativeTime.justNow");
+    if (diffMins < 60) return t("relativeTime.minutesAgo", { count: diffMins });
+    if (diffHours < 24) return t("relativeTime.hoursAgo", { count: diffHours });
+    if (diffDays === 1) return t("relativeTime.yesterday");
+    if (diffDays < 30) return t("relativeTime.daysAgo", { count: diffDays });
 
     return date.toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US", {
       month: "short",
@@ -76,7 +76,7 @@ export default function DraftsPage() {
   const locale = useLocale();
   const router = useRouter();
   const isRTL = locale === "ar";
-  const { user, isVerified } = useAuth();
+  const { user } = useAuth();
 
   const [drafts, setDrafts] = useState<ResumeDraftItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,8 +97,15 @@ export default function DraftsPage() {
   // Upgrade / Limit modal state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const planKey = (user?.planName?.toLowerCase() || "free") as keyof typeof PLAN_MAX_DRAFTS;
-  const maxDrafts = PLAN_MAX_DRAFTS[planKey] || 1;
+  const rawPlan = user?.planName?.toLowerCase() ?? "free";
+  const planKey = (
+    rawPlan in PLAN_MAX_DRAFTS ? rawPlan : "free"
+  ) as keyof typeof PLAN_MAX_DRAFTS;
+  const maxDrafts = PLAN_MAX_DRAFTS[planKey];
+  const planLabel = t(`plans.${planKey}`);
+  // Enterprise is the top tier: there is no upgrade to sell, so the modal
+  // switches to a "free up a slot" message instead of a contradictory one.
+  const canUpgrade = planKey !== "enterprise";
   const draftsCount = drafts.length;
   const isLimitReached = draftsCount >= maxDrafts;
 
@@ -109,7 +116,7 @@ export default function DraftsPage() {
       const list = await fetchUserDrafts(token);
       setDrafts(list);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load drafts";
+      const msg = err instanceof Error ? err.message : t("errors.loadFailed");
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -133,7 +140,7 @@ export default function DraftsPage() {
       toast.success(t("createSuccess"));
       router.push(`/${locale}/dashboard/${newResume.id}`);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to create new draft";
+      const msg = err instanceof Error ? err.message : t("errors.createFailed");
       if (
         msg.toLowerCase().includes("limit") ||
         msg.toLowerCase().includes("free plan") ||
@@ -169,7 +176,7 @@ export default function DraftsPage() {
       toast.success(t("renameSuccess"));
       setRenamingDraft(null);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not rename draft");
+      toast.error(err instanceof Error ? err.message : t("errors.renameFailed"));
     } finally {
       setIsSavingTitle(false);
     }
@@ -187,7 +194,7 @@ export default function DraftsPage() {
       toast.success(t("deleteSuccess"));
       setDeletingDraft(null);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not delete draft");
+      toast.error(err instanceof Error ? err.message : t("errors.deleteFailed"));
     } finally {
       setIsDeleting(false);
     }
@@ -278,7 +285,7 @@ export default function DraftsPage() {
                   href={`/${locale}/pricing`}
                   className="text-gold hover:underline text-[11px] font-black ms-1"
                 >
-                  Upgrade →
+                  {t("quotaUpgradeLink")}
                 </Link>
               )}
             </div>
@@ -320,7 +327,7 @@ export default function DraftsPage() {
                   {t("upgradePrompt")}
                 </h4>
                 <p className="text-xs text-secondary mt-0.5">
-                  Unlock 3 to 5 multi-version resumes, PDF/JPG vector exports, and Gemini 2.0 AI purpose tailoring.
+                  {t("upgradeBannerDesc")}
                 </p>
               </div>
             </div>
@@ -371,7 +378,7 @@ export default function DraftsPage() {
             <div className="flex items-center p-1 rounded-xl border border-edge bg-card">
               <button
                 onClick={() => setViewMode("grid")}
-                title="Grid View"
+                title={t("gridView")}
                 className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   viewMode === "grid"
                     ? "bg-gold text-slate-950 shadow-sm"
@@ -382,7 +389,7 @@ export default function DraftsPage() {
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                title="List View"
+                title={t("listView")}
                 className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                   viewMode === "list"
                     ? "bg-gold text-slate-950 shadow-sm"
@@ -398,19 +405,7 @@ export default function DraftsPage() {
         {/* Drafts Content Section */}
         <div className="mt-8">
           {loading ? (
-            /* Loading Skeleton Grid */
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="rounded-3xl border border-edge bg-elevated/50 p-5 space-y-4 animate-pulse"
-                >
-                  <div className="aspect-[1/1.2] w-full rounded-2xl bg-edge/40" />
-                  <div className="h-5 w-3/4 bg-edge/50 rounded-lg" />
-                  <div className="h-3 w-1/2 bg-edge/30 rounded-lg" />
-                </div>
-              ))}
-            </div>
+            <DraftsGridSkeleton label={t("loadingDrafts")} />
           ) : filteredDrafts.length === 0 ? (
             /* Empty State */
             <div className="rounded-3xl border border-edge bg-elevated/40 p-12 text-center max-w-lg mx-auto my-12">
@@ -452,7 +447,7 @@ export default function DraftsPage() {
                       onClick={() =>
                         router.push(`/${locale}/dashboard?resumeId=${draft.id}`)
                       }
-                      className="relative aspect-[1/1.25] w-full rounded-2xl border border-edge bg-card overflow-hidden cursor-pointer group-hover:border-gold/30 transition-all mb-4"
+                      className="relative aspect-1/1.25 w-full rounded-2xl border border-edge bg-card overflow-hidden cursor-pointer group-hover:border-gold/30 transition-all mb-4"
                     >
                       <Image
                         src={getTemplateThumbnail(draft.templateName, draft.templateId)}
@@ -461,7 +456,7 @@ export default function DraftsPage() {
                         sizes="(max-width: 768px) 300px, 400px"
                         className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                         <span className="px-3 py-1.5 rounded-xl bg-gold text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5">
                           <Pencil size={12} /> {t("editResume")}
                         </span>
@@ -472,7 +467,7 @@ export default function DraftsPage() {
                     <div className="flex items-start justify-between gap-2 mb-1.5">
                       <h3
                         title={draft.title}
-                        className="text-base font-bold text-primary truncate flex-1"
+                        className="font-bold text-primary truncate flex-1"
                       >
                         {draft.title}
                       </h3>
@@ -493,7 +488,7 @@ export default function DraftsPage() {
                       </span>
                       <span className="flex items-center gap-1 text-[11px] text-faint">
                         <Clock size={11} />
-                        {formatRelativeTime(draft.updatedAt, locale)}
+                        {formatRelativeTime(draft.updatedAt, locale, t)}
                       </span>
                     </div>
                   </div>
@@ -507,7 +502,7 @@ export default function DraftsPage() {
                         className="px-3 py-1.5 rounded-xl bg-card hover:bg-card-hover border border-edge text-xs font-bold text-primary transition-colors flex items-center gap-1.5"
                       >
                         <Pencil size={12} />
-                        <span>Edit</span>
+                        <span>{t("edit")}</span>
                       </Link>
 
                       {/* Preview button */}
@@ -516,7 +511,7 @@ export default function DraftsPage() {
                         className="px-3 py-1.5 rounded-xl bg-card hover:bg-card-hover border border-edge text-xs font-bold text-secondary hover:text-primary transition-colors flex items-center gap-1.5"
                       >
                         <ExternalLink size={12} />
-                        <span>Preview</span>
+                        <span>{t("preview")}</span>
                       </Link>
                     </div>
 
@@ -567,7 +562,7 @@ export default function DraftsPage() {
                         </span>
                         <span className="text-faint">•</span>
                         <span className="text-faint">
-                          {formatRelativeTime(draft.updatedAt, locale)}
+                          {formatRelativeTime(draft.updatedAt, locale, t)}
                         </span>
                       </div>
                     </div>
@@ -578,13 +573,13 @@ export default function DraftsPage() {
                       href={`/${locale}/dashboard?resumeId=${draft.id}`}
                       className="px-3.5 py-1.5 rounded-xl bg-gold hover:bg-gold-light text-slate-950 text-xs font-black transition-all"
                     >
-                      Edit
+                      {t("edit")}
                     </Link>
                     <Link
                       href={`/${locale}/resume/preview?resumeId=${draft.id}`}
                       className="px-3 py-1.5 rounded-xl bg-card hover:bg-card-hover border border-edge text-xs font-bold text-secondary transition-colors"
                     >
-                      Preview
+                      {t("preview")}
                     </Link>
                     <button
                       onClick={() => setDeletingDraft(draft)}
@@ -618,7 +613,7 @@ export default function DraftsPage() {
               className="relative w-full max-w-md rounded-3xl border border-edge bg-elevated p-6 shadow-2xl z-10 space-y-4"
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-primary">Rename Resume Draft</h3>
+                <h3 className="text-lg font-bold text-primary">{t("renameTitle")}</h3>
                 <button
                   onClick={() => setRenamingDraft(null)}
                   className="text-muted hover:text-primary p-1"
@@ -641,7 +636,7 @@ export default function DraftsPage() {
                   onClick={() => setRenamingDraft(null)}
                   className="px-4 py-2 rounded-xl text-xs font-bold text-secondary hover:text-primary"
                 >
-                  Cancel
+                  {t("cancel")}
                 </button>
                 <button
                   onClick={handleSaveRename}
@@ -649,7 +644,7 @@ export default function DraftsPage() {
                   className="px-5 py-2 rounded-xl bg-gold hover:bg-gold-light text-slate-950 text-xs font-black disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {isSavingTitle && <Loader2 size={13} className="animate-spin" />}
-                  <span>Save</span>
+                  <span>{t("save")}</span>
                 </button>
               </div>
             </motion.div>
@@ -743,21 +738,21 @@ export default function DraftsPage() {
 
               <div>
                 <h3 className="text-xl font-black text-primary">
-                  {locale === "ar" ? "وصلت إلى الحد الأقصى للمسودات" : "Draft Limit Reached"}
+                  {t("limitModalTitle")}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-secondary">
-                  {locale === "ar"
-                    ? `باقتك الحالية (${user?.planName || "المجانية"}) تسمح بإنشاء ${maxDrafts} مسودة سيرة ذاتية. قم بالترقية لإنشاء المزيد من المسودات والوصول إلى القوالب والتصدير غير المحدود.`
-                    : `Your current ${user?.planName || "Free"} plan allows ${maxDrafts} resume draft. Upgrade your plan to create up to 5 drafts, unlock all premium ATS templates, and export in PDF & JPG.`}
+                  {canUpgrade
+                    ? t("limitModalDesc", { plan: planLabel, count: maxDrafts })
+                    : t("limitModalDescMax", { plan: planLabel, count: maxDrafts })}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-gold/20 bg-gold/5 p-3 text-xs text-secondary flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="font-extrabold text-gold uppercase tracking-wider text-[10px] bg-gold/10 px-2 py-0.5 rounded-md border border-gold/30">
-                    {user?.planName || "FREE"}
+                    {planLabel}
                   </span>
-                  <span>{locale === "ar" ? "المسودات الحالية:" : "Current Drafts:"}</span>
+                  <span>{t("currentDraftsLabel")}</span>
                 </div>
                 <span className="font-bold text-primary">
                   {draftsCount} / {maxDrafts}
@@ -765,21 +760,31 @@ export default function DraftsPage() {
               </div>
 
               <div className="flex flex-col gap-2.5 pt-2">
-                <Link
-                  href={`/${locale}/pricing`}
-                  onClick={() => setShowUpgradeModal(false)}
-                  className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gold hover:bg-gold-light px-5 py-3 text-sm font-extrabold text-slate-950 shadow-lg shadow-gold/20 transition-all"
-                >
-                  <Sparkles size={16} />
-                  <span>{locale === "ar" ? "الترقية إلى Pro" : "Upgrade to Pro"}</span>
-                </Link>
+                {canUpgrade && (
+                  <Link
+                    href={`/${locale}/pricing`}
+                    onClick={() => setShowUpgradeModal(false)}
+                    className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gold hover:bg-gold-light px-5 py-3 text-sm font-extrabold text-slate-950 shadow-lg shadow-gold/20 transition-all"
+                  >
+                    <Sparkles size={16} />
+                    <span>
+                      {planKey === "free" ? t("upgradeToPro") : t("upgradeToEnterprise")}
+                    </span>
+                  </Link>
+                )}
 
+                {/* Managing drafts becomes the primary action once there is
+                    nothing left to upgrade to. */}
                 <button
                   type="button"
                   onClick={() => setShowUpgradeModal(false)}
-                  className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-edge bg-card hover:bg-card-hover px-5 py-3 text-sm font-bold text-secondary hover:text-primary transition-colors cursor-pointer"
+                  className={
+                    canUpgrade
+                      ? "flex min-h-11 items-center justify-center gap-2 rounded-xl border border-edge bg-card hover:bg-card-hover px-5 py-3 text-sm font-bold text-secondary hover:text-primary transition-colors cursor-pointer"
+                      : "flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gold hover:bg-gold-light px-5 py-3 text-sm font-extrabold text-slate-950 shadow-lg shadow-gold/20 transition-all cursor-pointer"
+                  }
                 >
-                  <span>{locale === "ar" ? "إدارة المسودات الحالية" : "Manage Existing Drafts"}</span>
+                  <span>{t("manageDrafts")}</span>
                 </button>
               </div>
             </motion.div>
