@@ -1088,7 +1088,7 @@ export default function ResumePreviewPage() {
                   <p className="text-xs font-semibold text-secondary">
                     {configuration("selectedTemplate")}
                   </p>
-                  <h2 className="mt-1 truncate text-base font-black text-surface">
+                  <h2 className="mt-1 truncate font-black text-surface">
                     {selectedMetadata.name}
                   </h2>
                 </div>
@@ -1791,7 +1791,7 @@ export default function ResumePreviewPage() {
       )}
 
       {/* Floating AI Coach Icon Button -> Redirects to Dashboard & opens AI Coach */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed bottom-6 inset-e-6 z-40">
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.92 }}
@@ -1802,7 +1802,7 @@ export default function ResumePreviewPage() {
           className="relative group flex items-center justify-center w-11 h-11 rounded-full bg-linear-to-tr from-amber-500 via-amber-600 to-yellow-400 text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-300/50 hover:shadow-amber-500/50 transition-all cursor-pointer"
         >
           <Sparkles size={20} className="text-slate-950 animate-pulse" />
-          <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+          <span className="absolute -top-1 -inset-e-1 flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-200 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-100"></span>
           </span>

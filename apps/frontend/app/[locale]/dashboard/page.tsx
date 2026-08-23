@@ -10,7 +10,7 @@ import {
   Plus, Trash2, Building2, Calendar, Info,
   Award, Lightbulb, PlusCircle, FileText, Search,
   Pencil, Loader2, FolderKanban, GripVertical, CheckCircle2,
-  ChevronDown, ExternalLink, Layers,
+  ChevronDown, Layers,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -24,6 +24,7 @@ import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-dat
 import { defaultSkillGroups, emptyRole, emptyEdu, emptyCert, emptyProject, emptySkillGroup } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
 import DashboardResumePlaceholder from '@/components/dashboard/DashboardResumePlaceholder';
+import { DashboardSkeleton } from '@/components/ui/Skeletons';
 import SidebarAccountMenu from '@/components/dashboard/SidebarAccountMenu';
 import AiResumeCoachWidget from '@/components/resume/AiResumeCoachWidget';
 import {
@@ -1727,7 +1728,9 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
         setDraftLoaded(true);
       })
       .catch((error) => {
-        if (cancelled || handleDashboardRequestError(error)) return;
+        if (cancelled) return;
+        setDraftLoaded(true);
+        if (handleDashboardRequestError(error)) return;
         toast.error('We could not load your saved resume draft.');
       });
 
@@ -2021,6 +2024,8 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
     education: t('nextLabel.education'),
   };
 
+  if (!draftLoaded) return <DashboardSkeleton />;
+
   return (
     <div
       className="flex h-dvh overflow-hidden bg-base font-syne"
@@ -2067,7 +2072,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs sm:text-xs font-bold text-primary truncate max-w-[130px] sm:max-w-xs md:max-w-md">
+                  <span className="text-xs sm:text-xs font-bold text-primary truncate max-w-32.5 sm:max-w-xs md:max-w-md">
                     {draftTitle || (contact.fullName ? `${contact.fullName} Resume` : 'My Resume Draft')}
                   </span>
                   {resumeIdParam && (
@@ -2129,7 +2134,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 6, scale: 0.96 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-[calc(100%+6px)] end-0 z-50 w-72 sm:w-80 rounded-xl border border-edge bg-elevated shadow-[0_20px_60px_rgba(0,0,0,0.65)] p-2 space-y-1 backdrop-blur-2xl"
+                      className="absolute top-[calc(100%+6px)] inset-e-0 z-50 w-72 sm:w-80 rounded-xl border border-edge bg-elevated shadow-[0_20px_60px_rgba(0,0,0,0.65)] p-2 space-y-1 backdrop-blur-2xl"
                     >
                       <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-muted border-b border-edge/60 flex items-center justify-between">
                         <span>Your Resumes</span>
@@ -2215,7 +2220,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                               }
                             }
                           }}
-                          className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-black bg-gradient-to-r from-gold via-amber-400 to-gold hover:from-gold-light hover:to-gold text-slate-950 shadow-sm transition-all cursor-pointer"
+                          className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-black bg-linear-to-r from-gold via-amber-400 to-gold hover:from-gold-light hover:to-gold text-slate-950 shadow-sm transition-all cursor-pointer"
                         >
                           <Plus size={12} />
                           <span>Create New Resume</span>
