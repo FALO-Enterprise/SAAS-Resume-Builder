@@ -9,6 +9,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowRight,
+  Bot,
   ChevronsUpDown,
   Laptop,
   LogOut,
@@ -27,9 +28,6 @@ import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
 import { getInitials } from "@/lib/utilities/getName";
 import { PLAN_BADGES } from "@/lib/placeholder-data/plans.placeholder";
 
-/* The panel is portalled to <body> because the dashboard shell is
-   `overflow-hidden` and the sidebar carries a `translate-x` (which makes it a
-   containing block) — either one alone would clip a panel positioned inside it. */
 const DESKTOP_QUERY = "(min-width: 1024px)";
 const DESKTOP_WIDTH = 288;
 const GAP = 8;
@@ -66,15 +64,22 @@ export default function SidebarAccountMenu() {
     PRO: t("plans.pro"),
     ENTERPRISE: t("plans.enterprise"),
   };
-  // Enterprise is the top tier — there is nothing to upgrade to, so the CTA is hidden.
+
   const isEnterprise = planId === "ENTERPRISE";
+  const planCta = isEnterprise
+    ? {
+        href: `/${locale}/dashboard?openCoach=true`,
+        label: t("account.enterpriseCoach"),
+        Icon: Bot,
+      }
+    : {
+        href: `/${locale}/pricing`,
+        label: planId === "FREE" ? t("account.upgradeToPro") : t("managePlan"),
+        Icon: Sparkles,
+      };
   const badgeKey = planId.toLowerCase() as keyof typeof PLAN_BADGES;
   const verifyHref = `/${locale}/verificationcode${user?.email ? `?email=${encodeURIComponent(user.email)}` : ""}`;
 
-  /* --- Placement ---
-     Desktop: beside the sidebar, bottom-aligned with the row, so the panel never
-     covers the step list. Mobile: straight up from the row at the row's own
-     width, because the drawer leaves no room to either side. */
   const updatePosition = useCallback(() => {
     const trigger = triggerRef.current;
     const row = rowRef.current;
@@ -228,25 +233,19 @@ export default function SidebarAccountMenu() {
   return (
     <>
       <div ref={rowRef} className="px-4 py-4">
-        {/* The upgrade CTA keeps a row of its own: nesting a link inside the menu
-            button would be invalid markup, and burying it costs conversions. */}
-        {!isEnterprise && (
-          <Link
-            href={`/${locale}/pricing`}
-            className="group mb-1.5 flex items-center gap-2.5 rounded-xl border border-gold/12 bg-gold/6 px-2.5 py-2 text-[12px] font-semibold text-gold transition-colors hover:bg-gold/12"
-          >
-            <Sparkles size={14} className="shrink-0" />
-            <span className="min-w-0 flex-1 truncate">
-              {planId === "FREE" ? t("account.upgradeToPro") : t("managePlan")}
-            </span>
-            <ArrowRight
-              size={13}
-              className={`shrink-0 transition-transform ${
-                isRTL ? "-rotate-180 group-hover:-translate-x-0.5" : "group-hover:translate-x-0.5"
-              }`}
-            />
-          </Link>
-        )}
+        <Link
+          href={planCta.href}
+          className="group mb-1.5 flex items-center gap-2.5 rounded-xl border border-gold/12 bg-gold/6 px-2.5 py-2 text-[12px] font-semibold text-gold transition-colors hover:bg-gold/12"
+        >
+          <planCta.Icon size={14} className="shrink-0" />
+          <span className="min-w-0 flex-1 truncate">{planCta.label}</span>
+          <ArrowRight
+            size={13}
+            className={`shrink-0 transition-transform ${
+              isRTL ? "-rotate-180 group-hover:-translate-x-0.5" : "group-hover:translate-x-0.5"
+            }`}
+          />
+        </Link>
 
         <button
           ref={triggerRef}
@@ -291,10 +290,6 @@ export default function SidebarAccountMenu() {
             </span>
           )}
 
-          {/* Chevrons, not a kebab: the whole row is the trigger, so this reads as
-              a disclosure cue rather than an overflow cue. Stacked arrows also stay
-              honest whether the panel opens sideways or upward, and — unlike a
-              single chevron — need no mirroring in RTL. */}
           <ChevronsUpDown
             size={14}
             aria-hidden

@@ -485,8 +485,8 @@ export default function ResumeCustomizePanel({
   const mobilePreviewScale = mobileFitScale * mobileZoom;
 
   return (
-    <div className="fixed inset-0 z-[80] flex min-h-0 flex-col overflow-hidden bg-base text-primary animate-in fade-in duration-200">
-      <header className="flex min-h-[68px] shrink-0 items-center justify-between gap-3 border-b border-edge bg-elevated/95 px-3 shadow-sm backdrop-blur-xl sm:px-5 lg:min-h-16">
+    <div className="fixed inset-0 z-80 flex min-h-0 flex-col overflow-hidden bg-base text-primary animate-in fade-in duration-200">
+      <header className="flex min-h-17 shrink-0 items-center justify-between gap-3 border-b border-edge bg-elevated/95 px-3 shadow-sm backdrop-blur-xl sm:px-5 lg:min-h-16">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
@@ -503,7 +503,7 @@ export default function ResumeCustomizePanel({
             </div>
             <div className="min-w-0">
               <div className="flex min-w-0 items-center gap-2">
-                <h1 className="truncate text-sm font-black text-primary sm:text-base">
+                <h1 className="truncate text-sm font-black text-primary">
                   {t("title")}
                 </h1>
                 {resumeName && (
@@ -608,7 +608,7 @@ export default function ResumeCustomizePanel({
             onTouchEnd={handleMobileTouchEnd}
             onTouchCancel={handleMobileTouchEnd}
             onDoubleClick={resetMobilePreview}
-            className="relative min-h-0 flex-1 touch-none overflow-hidden [background-image:radial-gradient(circle_at_center,rgba(148,163,184,0.22)_1px,transparent_1px)] [background-size:22px_22px] lg:hidden"
+            className="relative min-h-0 flex-1 touch-none overflow-hidden bg-[radial-gradient(circle_at_center,rgba(148,163,184,0.22)_1px,transparent_1px)] bg-size[22px_22px] lg:hidden"
           >
             {!mobilePreviewReady && (
               <div className="absolute inset-0 z-20 flex items-center justify-center bg-soft">
@@ -648,7 +648,7 @@ export default function ResumeCustomizePanel({
             )}
 
             {mobilePreviewReady && (
-              <span className="pointer-events-none absolute start-3 top-3 z-20 inline-flex min-h-9 items-center rounded-full border border-edge bg-elevated/95 px-3 text-[10px] font-black uppercase tracking-wide text-gold shadow-lg backdrop-blur">
+              <span className="pointer-events-none absolute -inset-s-3 top-3 z-20 inline-flex min-h-9 items-center rounded-full border border-edge bg-elevated/95 px-3 text-[10px] font-black uppercase tracking-wide text-gold shadow-lg backdrop-blur">
                 {t("livePreview")}
               </span>
             )}
@@ -663,7 +663,7 @@ export default function ResumeCustomizePanel({
               <button
                 type="button"
                 onClick={resetMobilePreview}
-                className="absolute end-3 top-3 z-20 flex min-h-9 items-center gap-1.5 rounded-full border border-edge bg-elevated/95 px-3 text-[11px] font-black text-primary shadow-lg backdrop-blur"
+                className="absolute inset-e-3 top-3 z-20 flex min-h-9 items-center gap-1.5 rounded-full border border-edge bg-elevated/95 px-3 text-[11px] font-black text-primary shadow-lg backdrop-blur"
                 aria-label={t("resetZoom")}
               >
                 <RotateCcw size={13} className="text-gold" />
@@ -694,7 +694,7 @@ export default function ResumeCustomizePanel({
         <aside
           className={`${
             mobileView === "customize" ? "flex" : "hidden"
-          } min-h-0 min-w-0 w-full shrink-0 flex-col overflow-hidden bg-base shadow-2xl lg:flex lg:w-[410px] lg:border-s lg:border-edge xl:w-[440px]`}
+          } min-h-0 min-w-0 w-full shrink-0 flex-col overflow-hidden bg-base shadow-2xl lg:flex lg:w-102.5 lg:border-s lg:border-edge xl:w-110`}
         >
           <div className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain bg-soft/30 p-3 pb-5 sm:p-4 lg:space-y-0 lg:bg-transparent lg:p-0">
             <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 lg:hidden">
