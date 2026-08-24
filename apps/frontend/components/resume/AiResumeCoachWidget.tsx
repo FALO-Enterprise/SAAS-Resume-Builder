@@ -75,6 +75,15 @@ export default function AiResumeCoachWidget({
 
   const isEnterprise = userPlanName.toUpperCase() === 'ENTERPRISE';
 
+  const [prevIsEnterprise, setPrevIsEnterprise] = useState(isEnterprise);
+  if (prevIsEnterprise !== isEnterprise) {
+    setPrevIsEnterprise(isEnterprise);
+    if (!isEnterprise) {
+      setIsOpen(false);
+      setAnalysis(null);
+    }
+  }
+
   const handleOpen = () => {
     if (!isEnterprise) {
       setShowUpgradeModal(true);

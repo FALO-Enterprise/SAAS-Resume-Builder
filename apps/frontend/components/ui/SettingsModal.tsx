@@ -300,17 +300,19 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   );
 
   const handleCancelSubscription = async () => {
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("resumax_token")
-        : null;
+    const token = getAccessToken();
     if (!token) return;
     try {
       setCancelingBilling(true);
       await cancelBillingSubscription(token);
-      toast.success(t("billing.cancelSuccess"));
       const updated = await getBillingSubscription(token);
       setBillingDetails(updated);
+      if (user && updated.plan && updated.plan !== user.planName) {
+        updateUser({ ...user, planName: updated.plan });
+      }
+      toast.success(t("billing.cancelSuccess"));
+      onClose();
+      router.push(`/${locale}`);
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : t("billing.cancelFailed"),
@@ -512,7 +514,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const renderPlanCard = () => {
     const currentPlanName = billingDetails?.plan || activePlanId;
     const isPaid =
-      currentPlanName === "PRO" || currentPlanName === "ENTERPRISE";
+    currentPlanName === "PRO" || currentPlanName === "ENTERPRISE";
+    const planNameKey = isPaid ? currentPlanName.toLowerCase() : "free";
 
     return (
       <div
@@ -535,7 +538,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     : "text-secondary"
               }`}
             >
-              {t("billing.planLabel", { plan: currentPlanName })}
+              {t(`billing.planNames.${planNameKey}`)}
             </span>
             {billingDetails?.status && (
               <span
@@ -550,18 +553,21 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             )}
           </div>
           <p className="text-[11px] text-secondary">
-            {billingDetails?.currentPeriodEnd
-              ? t("billing.renewsOn", {
-                  date: new Date(
-                    billingDetails.currentPeriodEnd,
-                  ).toLocaleDateString(locale),
-                })
-              : currentPlanName === "ENTERPRISE"
-                ? t("billing.planDescriptions.enterprise")
-                : currentPlanName === "PRO"
-                  ? t("billing.planDescriptions.pro")
-                  : t("billing.planDescriptions.free")}
+            {currentPlanName === "ENTERPRISE"
+              ? t("billing.planDescriptions.enterprise")
+              : currentPlanName === "PRO"
+                ? t("billing.planDescriptions.pro")
+                : t("billing.planDescriptions.free")}
           </p>
+          {billingDetails?.currentPeriodEnd && (
+            <p className="text-[11px] text-muted">
+              {t("billing.renewsOn", {
+                date: new Date(
+                  billingDetails.currentPeriodEnd,
+                ).toLocaleDateString(locale),
+              })}
+            </p>
+          )}
         </div>
 
         {isPaid ? (
