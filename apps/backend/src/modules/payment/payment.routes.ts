@@ -8,6 +8,9 @@ const paymentController = new PaymentController();
 // Webhook endpoint (must not be gated by user authentication)
 router.post('/webhook', paymentController.handleWebhook);
 
+// Public plan catalogue (pricing page renders for logged-out visitors)
+router.get('/plans', paymentController.getPlans);
+
 // Authenticated user endpoints
 router.use(isAuthenticated);
 router.get('/subscription', paymentController.getSubscription);

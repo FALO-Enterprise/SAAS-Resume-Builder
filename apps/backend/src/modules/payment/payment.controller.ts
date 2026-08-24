@@ -54,6 +54,44 @@ export class PaymentController {
     };
 
     /**
+     * Lists the public plan catalogue (price + entitlements).
+     *
+     * Deliberately unauthenticated: the pricing page is a marketing page that
+     * has to render correct prices for logged-out visitors too.
+     */
+    getPlans = async (_req: Request, res: Response) => {
+        try {
+            const plans = await prisma.plan.findMany({
+                select: {
+                    name: true,
+                    price: true,
+                    maxResumes: true,
+                    hasWatermark: true,
+                    canExportPDF: true,
+                    canUseTemplates: true,
+                },
+            });
+
+            // Return catalogue order rather than insertion order so the client
+            // never has to re-sort to lay the tiers out left to right.
+            const rank: Record<string, number> = {
+                [PlanType.FREE]: 0,
+                [PlanType.PRO]: 1,
+                [PlanType.ENTERPRISE]: 2,
+            };
+            plans.sort((a, b) => (rank[a.name] ?? 0) - (rank[b.name] ?? 0));
+
+            return res.ok({ plans });
+        } catch (error) {
+            console.error('[PaymentController] Error fetching plans:', error);
+            return res.error({
+                message: error instanceof Error ? error.message : 'Failed to fetch plans',
+                statusCode: HttpErrorStatus.InternalServerError,
+            });
+        }
+    };
+
+    /**
      * Prepares checkout configuration for client Paddle.js overlay
      */
     createCheckoutSession = async (req: Request, res: Response) => {
