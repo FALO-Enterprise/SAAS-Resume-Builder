@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, ChevronDown, ArrowRight, LoaderCircle } from "lucide-react";
+import { Check, X, ChevronDown, ArrowRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { PLANS, type PlanId } from "@/lib/placeholder-data/plans.placeholder";
@@ -15,8 +15,20 @@ import Footer from "@/components/ui/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { createCheckoutSession, syncBillingCheckout } from "@/lib/backend";
+import { usePlansQuery } from "@/hooks/queries/usePlans";
 import { openPaddleCheckout } from "@/lib/paddle/paddle";
 import PaymentSuccessModal from "@/components/payment/PaymentSuccessModal";
+
+const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, enterprise: 2 };
+
+
+const FALLBACK_PRICES = Object.fromEntries(
+  PLANS.map((plan) => [plan.id, plan.monthlyPrice]),
+) as Record<PlanId, number>;
+
+function formatPrice(value: number) {
+  return Number.isInteger(value) ? String(value) : value.toFixed(2);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cell renderer — handles boolean | string values in table
@@ -112,10 +124,27 @@ export default function PricingPage() {
   const router = useRouter();
   const { isVerified, user, updateUser } = useAuth();
   const currentPlanId = (user?.planName?.toLowerCase() ?? "free") as PlanId;
+  const currentRank = PLAN_RANK[currentPlanId] ?? 0;
   const [checkingOutPlan, setCheckingOutPlan] = useState<string | null>(null);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [upgradedPlanName, setUpgradedPlanName] = useState<string>("PRO");
   const [upgradedTransactionId, setUpgradedTransactionId] = useState<string | null>(null);
+  // Plan prices live in the Plan table, so the marketing copy must not be the
+  // source of truth for what a tier actually costs. Derived from the query
+  // rather than mirrored into state, so a refetch cannot leave a stale price
+  // on screen.
+  const { data: plans } = usePlansQuery();
+
+  const planPrices = useMemo(() => {
+    const next = { ...FALLBACK_PRICES };
+    for (const plan of plans ?? []) {
+      const id = plan.name.toLowerCase() as PlanId;
+      if (id in next && typeof plan.price === "number") {
+        next[id] = plan.price;
+      }
+    }
+    return next;
+  }, [plans]);
 
   const goToRegister = (planId: PlanId) => {
     router.push(`/${locale}/createaccount?plan=${planId}`);
@@ -127,7 +156,7 @@ export default function PricingPage() {
       return;
     }
 
-    if (planId === "free") {
+    if (planId === "free" || (PLAN_RANK[planId] ?? 0) < currentRank) {
       toast.info(
         locale === "ar"
           ? "أنت بالفعل على الخطة المجانية، أو يمكنك إدارة اشتراكك من الإعدادات"
@@ -255,7 +284,7 @@ export default function PricingPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mx-auto max-w-xl text-base leading-[1.7] text-secondary"
+            className="mx-auto max-w-xl leading-[1.7] text-secondary"
           >
             {t("pricing.hero.subtitle")}
           </motion.p>
@@ -266,22 +295,26 @@ export default function PricingPage() {
           {PLANS.map((plan, i) => {
             const Icon = plan.icon;
             const isPopular = plan.isPopular;
-            const isFree = plan.monthlyPrice === 0;
+            const price = planPrices[plan.id];
+            const isFree = price === 0;
             const planName = t(`pricing.plans.items.${plan.id}.name`);
             const planFeatures = t.raw(
               `pricing.plans.items.${plan.id}.features`,
             ) as string[];
 
             const isCurrentPlan = isVerified && currentPlanId === plan.id;
-            const isDowngradeToFree = isVerified && currentPlanId !== "free" && isFree;
+            const isDowngrade =
+              isVerified && (PLAN_RANK[plan.id] ?? 0) < currentRank;
+            const isDowngradeToFree = isDowngrade && isFree;
 
             let ctaLabel = "";
             if (isVerified) {
               if (isCurrentPlan) {
                 ctaLabel = t("pricing.plans.currentPlan");
               } else if (isDowngradeToFree) {
-                ctaLabel =
-                  t("pricing.plans.downgradeToFree") || "Downgrade to Free";
+                ctaLabel = t("pricing.plans.downgradeToFree");
+              } else if (isDowngrade) {
+                ctaLabel = t("pricing.plans.downgradePlan", { plan: planName });
               } else {
                 ctaLabel = t("pricing.plans.upgradePlan", { plan: planName });
               }
@@ -343,7 +376,7 @@ export default function PricingPage() {
                       $
                     </span>
                     <span className="font-playfair text-[44px] font-black leading-none text-primary">
-                      {plan.monthlyPrice}
+                      {formatPrice(price)}
                     </span>
                     {!isFree && (
                       <span className="mb-1 self-end text-[13px] text-muted">
@@ -361,7 +394,7 @@ export default function PricingPage() {
                   aria-disabled={(isVerified && isCurrentPlan) || checkingOutPlan === plan.id}
                   className={`mb-7 w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none ${isVerified && isCurrentPlan
                       ? "pointer-events-none border border-edge bg-primary/5 text-primary/55"
-                      : isDowngradeToFree
+                      : isDowngrade
                         ? "border border-edge-strong bg-primary/5 text-secondary hover:bg-primary/10 hover:text-primary"
                         : "bg-gold text-ink shadow-[0_8px_24px_rgba(245,166,35,0.3)] hover:bg-gold-light hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)]"
                     }`}
