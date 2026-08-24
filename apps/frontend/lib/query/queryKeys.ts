@@ -5,4 +5,7 @@ export const queryKeys = {
   auth: {
     session: ["auth", "session"] as const,
   },
+  plans: {
+    all: ["plans"] as const,
+  },
 };

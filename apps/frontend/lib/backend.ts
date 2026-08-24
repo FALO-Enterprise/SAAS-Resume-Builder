@@ -390,6 +390,26 @@ export type CheckoutSessionResponse = {
     };
 };
 
+export type PublicPlan = {
+    name: 'FREE' | 'PRO' | 'ENTERPRISE';
+    price: number;
+    maxResumes: number;
+    hasWatermark: boolean;
+    canExportPDF: boolean;
+    canUseTemplates: boolean;
+};
+
+export async function getPublicPlans(): Promise<PublicPlan[]> {
+    try {
+        const { data } = await apiClient.get('/api/payments/plans');
+        const normalized = normalizeBackendPayload<{ plans: PublicPlan[] }>(data);
+        if ('error' in normalized) throw new Error(normalized.error);
+        return Array.isArray(normalized.plans) ? normalized.plans : [];
+    } catch (error) {
+        throw createApiRequestError(error, 'Could not fetch plans');
+    }
+}
+
 export async function getBillingSubscription(token?: string): Promise<BillingSubscriptionDetails> {
     try {
         const authToken = token || getAccessToken();
