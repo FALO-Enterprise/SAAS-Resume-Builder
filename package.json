@@ -25,6 +25,7 @@
     "turbo": "^2.10.9"
   },
   "dependencies": {
-    "@parcel/watcher": "^2.6.0"
+    "@parcel/watcher": "^2.6.0",
+    "@swc/core": "^1.16.1"
   }
 }
