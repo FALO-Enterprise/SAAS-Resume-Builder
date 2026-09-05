@@ -7,6 +7,9 @@
   "scripts": {
     "predev": "npm --workspace @resumax/shared-types run build",
     "dev": "tsx watch --include \"../../packages/shared-types/dist/**/*.js\" src/server.ts",
+    "prisma:generate": "prisma generate",
+    "prebuild": "npm run prisma:generate && npm --workspace @resumax/shared-types run build",
+    "build": "tsc",
     "start": "node dist/server.js",
     "seed": "ts-node src/prisma/seed.ts",
     "lint": "eslint .",
@@ -14,10 +17,7 @@
     "type-check": "tsc --noEmit",
     "pretest": "npm --workspace @resumax/shared-types run build",
     "test": "tsx --test src/**/*.test.ts",
-    "prebuild": "npm run prisma:generate && npm --workspace @resumax/shared-types run build",
-    "prisma:generate": "prisma generate",
-    "postinstall": "prisma generate",
-    "build": "prisma generate && tsc"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@google/genai": "^2.15.0",
