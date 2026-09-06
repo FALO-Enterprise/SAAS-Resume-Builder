@@ -9,7 +9,7 @@ export type NormalizedApiError = {
 
 export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:3001",
-  timeout: 15000,
+  timeout: 60000,
   withCredentials: true,
   headers: {
     Accept: "application/json",
@@ -40,10 +40,10 @@ apiClient.interceptors.response.use(
 
     const data = error.response?.data as
       | {
-          message?: string;
-          error?: string | { message?: string };
-          code?: string;
-        }
+        message?: string;
+        error?: string | { message?: string };
+        code?: string;
+      }
       | undefined;
 
     const normalized: NormalizedApiError = {

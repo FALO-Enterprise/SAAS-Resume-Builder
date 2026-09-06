@@ -23,6 +23,7 @@ export function blogHref(locale: string, slug?: string): string {
  *  every surface sorts through here rather than trusting the file. */
 export function sortedPosts(): BlogPostMeta[] {
   return [...posts].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+  return [...posts].sort((a: BlogPostMeta, b: BlogPostMeta) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
 export function findPost(slug: string): BlogPostMeta | undefined {

@@ -269,14 +269,15 @@ export class ResumeController {
             });
         }
 
-        if (req.plan.name === 'FREE' && parsed.data.templateId !== 'minimal') {
-            return res.error({
-                message: 'Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.',
-                statusCode: HttpErrorStatus.Forbidden,
-            });
-        }
+        const planName = req.plan?.name || 'FREE';
+        const effectiveData = {
+            ...parsed.data,
+            templateId: (planName === 'FREE' && parsed.data.templateId !== 'minimal')
+                ? 'minimal'
+                : parsed.data.templateId,
+        };
 
-        const resume = await this.service.upsertCurrentResume(req.user.id, parsed.data, resumeId);
+        const resume = await this.service.upsertCurrentResume(req.user.id, effectiveData, resumeId);
         return res.ok(resume);
     };
 
@@ -291,12 +292,12 @@ export class ResumeController {
         }
 
         const planName = req.plan?.name || 'FREE';
-        if (planName === 'FREE' && parsed.data.templateId !== 'minimal') {
-            return res.error({
-                message: 'Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.',
-                statusCode: HttpErrorStatus.Forbidden,
-            });
-        }
+        const effectiveData: ResumeGenerationDTO = {
+            ...parsed.data,
+            templateId: (planName === 'FREE' && parsed.data.templateId !== 'minimal')
+                ? 'minimal'
+                : parsed.data.templateId,
+        };
 
         const tokensNeeded = planUsageService.getAiTokensPerBuild(planName);
         const aiCheck = await planUsageService.canConsumeAiTokens(req.user.id, planName, tokensNeeded);
@@ -308,7 +309,7 @@ export class ResumeController {
         }
 
         try {
-            const resume = await this.aiService.generate(req.user.id, parsed.data, resumeId);
+            const resume = await this.aiService.generate(req.user.id, effectiveData, resumeId);
             await planUsageService.recordAiTokens(req.user.id, tokensNeeded);
             return res.ok(resume);
         } catch (error) {

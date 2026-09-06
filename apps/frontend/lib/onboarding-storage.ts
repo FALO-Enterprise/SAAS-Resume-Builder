@@ -26,7 +26,12 @@ function readStoredState(key: string): StoredOnboardingState | null {
 
 export function loadOnboardingState(userId?: string): StoredOnboardingState | null {
   if (typeof window === 'undefined') return null;
-  return readStoredState(storageKey(userId));
+  const userSpecific = readStoredState(storageKey(userId));
+  if (userSpecific) return userSpecific;
+  if (userId) {
+    return readStoredState(storageKey(undefined));
+  }
+  return null;
 }
 
 export function hasCompletedOnboarding(userId?: string) {

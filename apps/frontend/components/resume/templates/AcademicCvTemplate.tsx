@@ -3,6 +3,7 @@ import {
   DEFAULT_RESUME_CUSTOMIZATION,
   type ResumeContent,
   type ResumeCustomization,
+  type ResumeSectionId,
 } from "@shared-types/resume";
 import styles from "./AcademicCvTemplate.module.css";
 import {
@@ -80,7 +81,7 @@ export function AcademicCvTemplate({
 
   // For Academic CVs, standard academic ordering places Education first
   const rawVisible = getVisibleSectionOrder(resume, customization);
-  const sectionOrder = [...rawVisible].sort((a, b) => {
+  const sectionOrder = [...rawVisible].sort((a: ResumeSectionId, b: ResumeSectionId) => {
     if (a === "education") return -1;
     if (b === "education") return 1;
     return 0;

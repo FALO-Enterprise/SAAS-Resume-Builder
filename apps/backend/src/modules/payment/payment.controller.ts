@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { paddleService, PaddleWebhookEvent } from './paddle.service';
-import { PlanType, SubscriptionStatus } from '@prisma/client';
+import { PlanType, SubscriptionStatus } from '../../generated/prisma';
 import prisma from '../../prisma/prisma.service';
 import { HttpErrorStatus } from '../../common/utils/util.types';
 import { notificationEmailService } from '../email/notification-email.service';
@@ -80,6 +80,7 @@ export class PaymentController {
                 [PlanType.ENTERPRISE]: 2,
             };
             plans.sort((a, b) => (rank[a.name] ?? 0) - (rank[b.name] ?? 0));
+            plans.sort((a: { name: string }, b: { name: string }) => (rank[a.name] ?? 0) - (rank[b.name] ?? 0));
 
             return res.ok({ plans });
         } catch (error) {

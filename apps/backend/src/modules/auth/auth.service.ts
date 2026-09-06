@@ -8,6 +8,7 @@ import { removeFields } from "../../common/utils/object.util";
 import { userService } from "../users/users.service";
 import type { PublicUser } from "../users/users.schema";
 import prisma from "../../prisma/prisma.service";
+import { Prisma } from "../../generated/prisma";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { notificationEmailService } from "../email/notification-email.service";
 
@@ -211,31 +212,33 @@ export class AuthService {
         const usedAt = new Date();
 
         return prisma.$transaction(async (transaction) => {
-            const consumed = await transaction.passwordResetToken.updateMany({
-                where: {
-                    id: resetToken.id,
-                    usedAt: null,
-                    expiresAt: { gt: usedAt },
-                },
-                data: { usedAt },
-            });
+            return prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
+                const consumed = await transaction.passwordResetToken.updateMany({
+                    where: {
+                        id: resetToken.id,
+                        usedAt: null,
+                        expiresAt: { gt: usedAt },
+                    },
+                    data: { usedAt },
+                });
 
-            if (consumed.count !== 1) return false;
+                if (consumed.count !== 1) return false;
 
-            await transaction.user.update({
-                where: { id: resetToken.userId },
-                data: { password: hashedPassword },
-            });
+                await transaction.user.update({
+                    where: { id: resetToken.userId },
+                    data: { password: hashedPassword },
+                });
 
-            await transaction.passwordResetToken.updateMany({
-                where: {
-                    userId: resetToken.userId,
-                    usedAt: null,
-                },
-                data: { usedAt },
-            });
+                await transaction.passwordResetToken.updateMany({
+                    where: {
+                        userId: resetToken.userId,
+                        usedAt: null,
+                    },
+                    data: { usedAt },
+                });
 
-            return true;
+                return true;
+            })
         });
     }
 

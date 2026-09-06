@@ -1,4 +1,4 @@
-import { Template } from '@prisma/client';
+import { Template } from '../../generated/prisma';
 import prisma from '../../prisma/prisma.service';
 
 export class TemplateRepository {

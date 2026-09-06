@@ -113,7 +113,7 @@ class OAuthController {
             return;
         }
 
-        const user = await consumeOAuthLoginCode(code);
+        const user = await consumeOAuthLoginCode(code) as unknown as { id: string; name: string } | null;
         if (!user) {
             res.error({ statusCode: HttpErrorStatus.Unauthorized, message: 'OAuth login code is invalid or expired' });
             return;

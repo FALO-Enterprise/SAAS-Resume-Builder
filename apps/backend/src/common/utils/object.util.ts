@@ -94,7 +94,7 @@ function sortArraysDeep<T>(input: T): T {
     }
 
     // Sort objects/arrays using JSON representation (fallback)
-    return [...(sortedArray as object[])].sort((a, b) =>
+    return [...(sortedArray as object[])].sort((a: object, b: object) =>
       JSON.stringify(a).localeCompare(JSON.stringify(b))
     ) as T;
   }

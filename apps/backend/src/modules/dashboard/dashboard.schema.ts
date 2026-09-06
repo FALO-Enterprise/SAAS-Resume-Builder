@@ -53,7 +53,7 @@ export const educationSchema = z.object({
     endMonth: shortText.default(''),
     endYear: shortText.default(''),
     current: z.boolean().default(false),
-    gradYear: shortText,
+    gradYear: shortText.default(''),
 });
 
 export const certificationSchema = z.object({
@@ -79,7 +79,7 @@ export const projectSchema = z.object({
 });
 
 export const dashboardDraftSchema = z.object({
-    template: z.string().max(100).nullable().default(null),
+    template: z.string().max(100).nullish().transform((val) => val || 'minimal').default('minimal'),
     purpose: z.string().max(100).default('general'),
     currentStep: z.enum(dashboardSteps),
     completedSteps: z.array(z.enum(dashboardSteps)).max(dashboardSteps.length),

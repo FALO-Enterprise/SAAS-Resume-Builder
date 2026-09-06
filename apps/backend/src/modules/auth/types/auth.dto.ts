@@ -1,4 +1,4 @@
-import { Plan, User } from "@prisma/client";
+import { Plan, User } from "../../../generated/prisma";
 
 export type LoginDTO = {
     email: string;

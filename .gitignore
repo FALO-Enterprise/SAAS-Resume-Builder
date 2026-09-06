@@ -21,7 +21,7 @@ build/
 out/
 *.tsbuildinfo
 next-env.d.ts
-/generated/prisma
+**/generated/
 
 # Environment variables
 .env

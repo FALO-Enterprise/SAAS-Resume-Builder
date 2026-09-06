@@ -3,7 +3,14 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["dist/**", "node_modules/**", "eslint.config.mjs", "prisma.config.ts"],
+    ignores: [
+      "dist/**",
+      "node_modules/**",
+      "src/generated/**",
+      "eslint.config.mjs",
+      "prisma.config.ts",
+      "*.js",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -21,7 +28,10 @@ export default tseslint.config(
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
       // `Request<{}, {}, Body>` is the standard Express/TS idiom for "no params".
-      "@typescript-eslint/no-empty-object-type": ["error", { allowObjectTypes: "always" }],
+      "@typescript-eslint/no-empty-object-type": [
+        "error",
+        { allowObjectTypes: "always" },
+      ],
     },
   },
 );

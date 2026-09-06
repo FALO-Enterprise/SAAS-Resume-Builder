@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import prisma from '../../prisma/prisma.service';
-import { PlanType, SubscriptionStatus } from '@prisma/client';
+import { PlanType, SubscriptionStatus } from '../../generated/prisma';
 import { planUsageService } from '../plan/plan-usage.service';
 import { notificationEmailService } from '../email/notification-email.service';
 
@@ -236,7 +236,8 @@ export class PaddleService {
         });
 
         console.log(`[PaddleService] Subscription activated for user ${userId} -> Plan: ${planType}`);
-        
+
+
         const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, email: true, name: true } });
         if (user) {
             void notificationEmailService.sendPlanUpdateEmail(user, planType).catch((err) => {

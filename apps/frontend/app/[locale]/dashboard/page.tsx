@@ -21,6 +21,7 @@ import Logo from '@/components/ui/Logo';
 import HintTooltip from '@/components/ui/HintTooltip';
 import type { StepId, ContactData, ExperienceItem, EducationItem, CertItem, DashboardDraftData, ProjectItem, SkillGroupItem } from '@/lib/types/dashboard.types';
 import { STEPS, MONTHS, YEARS, DEFAULT_SUGGESTIONS } from '@/lib/placeholder-data/dashboard.placeholder';
+import { loadOnboardingState } from '@/lib/onboarding-storage';
 import { defaultSkillGroups, emptyRole, emptyEdu, emptyCert, emptyProject, emptySkillGroup } from '@/lib/utilities/resume';
 import { formatPhoneNumber } from "@/lib/utilities/phone";
 import DashboardResumePlaceholder from '@/components/dashboard/DashboardResumePlaceholder';
@@ -89,6 +90,7 @@ function formatDraftRelativeTime(dateStr: string, locale: string) {
 function serializeDashboardDraft(draft: DashboardDraftData) {
   return JSON.stringify({
     template: draft.template,
+    purpose: draft.purpose,
     currentStep: draft.currentStep,
     completedSteps: draft.completedSteps,
     sectionOrder: draft.sectionOrder,
@@ -1565,6 +1567,7 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
 export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {}) {
   const t = useTranslations('dashboard');
   const tContact = useTranslations('dashboard.contact');
+  const tOnboarding = useTranslations('onboarding');
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -1577,6 +1580,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
   const autoGenerateTriggered = useRef(false);
   const isRTL = locale === "ar";
   const { user, logout } = useAuth();
+  const isFreeUser = user?.planName === 'FREE' || !user?.planName;
   const [currentStep, setCurrentStep] = useState<StepId>('contact');
   const [completedSteps, setCompleted] = useState<Set<StepId>>(new Set());
   const [sectionOrder, setSectionOrder] = useState<ResumeSectionId[]>(
@@ -1592,8 +1596,9 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
   const [errors, setErrors] = useState<Partial<Record<keyof ContactData, string>>>({});
   const [navOpen, setNavOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplateId>(
-    templateFromQuery ?? DEFAULT_TEMPLATE_ID,
+    isFreeUser ? DEFAULT_TEMPLATE_ID : (templateFromQuery ?? DEFAULT_TEMPLATE_ID),
   );
+  const [purpose, setPurpose] = useState<string>('general');
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [userDrafts, setUserDrafts] = useState<ResumeDraftItem[]>([]);
@@ -1665,7 +1670,71 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
 
     if (!token) {
       const timer = window.setTimeout(() => {
-        setContact(c => ({ ...c, fullName: c.fullName || user.name, email: c.email || user.email }));
+        const obState = user?.id ? loadOnboardingState(user.id) : null;
+        const obAnswers = obState?.answers;
+        const obRole = obAnswers?.customTargetRole?.trim()
+          ? obAnswers.customTargetRole.trim()
+          : obAnswers?.targetRole
+            ? (() => {
+                try {
+                  return tOnboarding(`quick.roleOptions.${obAnswers.targetRole}`);
+                } catch {
+                  return obAnswers.targetRole;
+                }
+              })()
+            : '';
+        const obDegree = obAnswers?.educationLevel
+          ? (() => {
+              try {
+                return tOnboarding(`steps.education.options.${obAnswers.educationLevel}.title`);
+              } catch {
+                return obAnswers.educationLevel;
+              }
+            })()
+          : '';
+        const obField = obAnswers?.field
+          ? (() => {
+              try {
+                return tOnboarding(`steps.field.options.${obAnswers.field}.title`);
+              } catch {
+                return obAnswers.field;
+              }
+            })()
+          : '';
+        const obSkills = (obAnswers?.skills || []).map((skill) => {
+          try {
+            return tOnboarding(`quick.skillOptions.${skill}`);
+          } catch {
+            return skill;
+          }
+        });
+        const obTemplate = obAnswers?.template
+          ? RESUME_TEMPLATE_IDS.find((id) => id === obAnswers.template) ?? null
+          : null;
+
+        if (!isFreeUser && obTemplate) {
+          setSelectedTemplate(obTemplate);
+        } else {
+          setSelectedTemplate('minimal');
+        }
+        if (obAnswers?.purpose) {
+          setPurpose(obAnswers.purpose);
+        }
+        setContact((c) => ({
+          ...c,
+          fullName: c.fullName || user?.name || '',
+          email: c.email || user?.email || '',
+          title: c.title || obRole || '',
+        }));
+        if (obSkills.length > 0) {
+          setSkillGroups([{ ...emptySkillGroup(tOnboarding('quick.skillsCategory') || 'Technical Skills'), skills: obSkills }]);
+        }
+        if (obDegree || obField) {
+          setEducation([{ ...emptyEdu(), degree: obDegree, field: obField }]);
+        }
+        if (obRole && obAnswers?.experienceLevel && obAnswers.experienceLevel !== 'none') {
+          setExperience([{ ...emptyRole(), jobTitle: obRole }]);
+        }
         setDraftLoaded(true);
       }, 0);
       return () => window.clearTimeout(timer);
@@ -1679,42 +1748,144 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
           throw new Error(draft.error);
         }
 
+        const obState = user?.id ? loadOnboardingState(user.id) : null;
+        const obAnswers = obState?.answers;
+        const obRole = obAnswers?.customTargetRole?.trim()
+          ? obAnswers.customTargetRole.trim()
+          : obAnswers?.targetRole
+            ? (() => {
+                try {
+                  return tOnboarding(`quick.roleOptions.${obAnswers.targetRole}`);
+                } catch {
+                  return obAnswers.targetRole;
+                }
+              })()
+            : '';
+        const obDegree = obAnswers?.educationLevel
+          ? (() => {
+              try {
+                return tOnboarding(`steps.education.options.${obAnswers.educationLevel}.title`);
+              } catch {
+                return obAnswers.educationLevel;
+              }
+            })()
+          : '';
+        const obField = obAnswers?.field
+          ? (() => {
+              try {
+                return tOnboarding(`steps.field.options.${obAnswers.field}.title`);
+              } catch {
+                return obAnswers.field;
+              }
+            })()
+          : '';
+        const obSkills = (obAnswers?.skills || []).map((skill) => {
+          try {
+            return tOnboarding(`quick.skillOptions.${skill}`);
+          } catch {
+            return skill;
+          }
+        });
+        const obTemplate = obAnswers?.template
+          ? RESUME_TEMPLATE_IDS.find((id) => id === obAnswers.template) ?? null
+          : null;
+
         const persisted = Boolean(draft.id);
-        const nextTemplate = parseResumeTemplateId(templateFromQuery ?? draft.template);
-        const nextDraft: DashboardDraftData = {
-          ...draft,
-          template: nextTemplate,
-          sectionOrder: getResumeSectionOrder(getResumeStepOrder(draft.sectionOrder)),
-          contact: {
-            ...draft.contact,
-            github: draft.contact.github ?? '',
-            portfolio: draft.contact.portfolio ?? '',
-            fullName: draft.contact.fullName || user.name,
-            email: draft.contact.email || user.email,
-          },
-          summary: persisted ? (draft.summary ?? '') : '',
-          skillGroups: persisted && draft.skillGroups?.length
-            ? draft.skillGroups
-            : persisted && draft.skills?.length
-              ? [{ ...emptySkillGroup('Skills'), skills: draft.skills }]
-              : defaultSkillGroups(),
-          experience: persisted ? draft.experience : [emptyRole()],
-          projects: persisted ? (draft.projects?.length ? draft.projects : [emptyProject()]) : [emptyProject()],
-          education: persisted
-            ? draft.education.map(item => ({
+        const rawTemplate = parseResumeTemplateId(templateFromQuery ?? draft.template ?? obTemplate);
+        const nextTemplate = isFreeUser ? 'minimal' : rawTemplate;
+
+        const hasDraftSkillGroups = Boolean(draft.skillGroups?.some((g) => g.skills && g.skills.length > 0));
+        const hasDraftSkills = Boolean(draft.skills && draft.skills.length > 0);
+        const nextSkillGroups: SkillGroupItem[] = hasDraftSkillGroups
+          ? draft.skillGroups!
+          : hasDraftSkills
+            ? [{ ...emptySkillGroup(tOnboarding('quick.skillsCategory') || 'Technical Skills'), skills: draft.skills! }]
+            : obSkills.length > 0
+              ? [{ ...emptySkillGroup(tOnboarding('quick.skillsCategory') || 'Technical Skills'), skills: obSkills }]
+              : defaultSkillGroups();
+
+        const hasDraftExperience = Boolean(
+          draft.experience?.some((item) => item.jobTitle || item.company || item.description)
+        );
+        const nextExperience: ExperienceItem[] = hasDraftExperience
+          ? draft.experience
+          : (persisted && draft.experience?.length)
+            ? draft.experience
+            : obRole && obAnswers?.experienceLevel && obAnswers.experienceLevel !== 'none'
+              ? [{ ...emptyRole(), jobTitle: obRole }]
+              : [emptyRole()];
+
+        const hasDraftProjects = Boolean(
+          draft.projects?.some((p) => p.name || p.description)
+        );
+        const nextProjects: ProjectItem[] = hasDraftProjects
+          ? draft.projects
+          : (persisted && draft.projects?.length)
+            ? draft.projects
+            : [emptyProject()];
+
+        const hasDraftEducation = Boolean(
+          draft.education?.some((e) => e.degree || e.field || e.institution)
+        );
+        const nextEducation: EducationItem[] = hasDraftEducation
+          ? draft.education.map(item => ({
               ...emptyEdu(),
               ...item,
               endYear: item.endYear || item.gradYear || '',
             }))
-            : [emptyEdu()],
-          certifications: persisted ? draft.certifications : [emptyCert()],
+          : (persisted && draft.education?.length)
+            ? draft.education.map(item => ({
+                ...emptyEdu(),
+                ...item,
+                endYear: item.endYear || item.gradYear || '',
+              }))
+            : (obDegree || obField)
+              ? [{
+                  ...emptyEdu(),
+                  degree: obDegree,
+                  field: obField,
+                }]
+              : [emptyEdu()];
+
+        const hasDraftCerts = Boolean(
+          draft.certifications?.some((c) => c.name || c.org)
+        );
+        const nextCerts: CertItem[] = hasDraftCerts
+          ? draft.certifications
+          : (persisted && draft.certifications?.length)
+            ? draft.certifications
+            : [emptyCert()];
+
+        const nextPurpose = draft.purpose || obAnswers?.purpose || 'general';
+
+        const nextDraft: DashboardDraftData = {
+          ...draft,
+          template: nextTemplate,
+          purpose: nextPurpose,
+          sectionOrder: getResumeSectionOrder(getResumeStepOrder(draft.sectionOrder)),
+          contact: {
+            ...draft.contact,
+            github: draft.contact?.github ?? '',
+            portfolio: draft.contact?.portfolio ?? '',
+            fullName: draft.contact?.fullName || user.name || '',
+            email: draft.contact?.email || user.email || '',
+            title: draft.contact?.title || obRole || '',
+          },
+          summary: draft.summary ?? '',
+          skillGroups: nextSkillGroups,
+          experience: nextExperience,
+          projects: nextProjects,
+          education: nextEducation,
+          certifications: nextCerts,
+          skills: nextSkillGroups.flatMap(group => group.skills),
         };
 
         lastQueuedDraft.current = serializeDashboardDraft(draft);
 
         setSelectedTemplate(nextTemplate);
-        setCurrentStep(nextDraft.currentStep);
-        setCompleted(new Set(nextDraft.completedSteps));
+        setPurpose(nextPurpose);
+        setCurrentStep(nextDraft.currentStep || 'contact');
+        setCompleted(new Set(nextDraft.completedSteps || []));
         setSectionOrder(nextDraft.sectionOrder);
         setContact(nextDraft.contact);
         setSummary(nextDraft.summary);
@@ -1735,7 +1906,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
       });
 
     return () => { cancelled = true; };
-  }, [handleDashboardRequestError, templateFromQuery, user, resumeIdParam]);
+  }, [handleDashboardRequestError, isFreeUser, templateFromQuery, user, resumeIdParam, t, tOnboarding]);
 
   useEffect(() => {
     if (!draftLoaded || !user) return;
@@ -1768,8 +1939,10 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
     const token = localStorage.getItem('resumax_token');
     if (!token) return;
 
+    const effectiveTemplate = isFreeUser ? 'minimal' : selectedTemplate;
     const draft: DashboardDraftData = {
-      template: selectedTemplate,
+      template: effectiveTemplate,
+      purpose,
       currentStep,
       completedSteps: [...completedSteps],
       sectionOrder,
@@ -1823,7 +1996,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
       window.clearTimeout(timer);
       if (autosaveTimer.current === timer) autosaveTimer.current = null;
     };
-  }, [certs, completedSteps, contact, currentStep, draftLoaded, education, experience, handleDashboardRequestError, projects, sectionOrder, selectedTemplate, skillGroups, summary, resumeIdParam]);
+  }, [certs, completedSteps, contact, currentStep, draftLoaded, education, experience, handleDashboardRequestError, isFreeUser, projects, purpose, sectionOrder, selectedTemplate, skillGroups, summary, resumeIdParam]);
 
   useEffect(() => {
     if (!draftLoaded || !autoGenerate || autoGenerateTriggered.current) return;
@@ -1842,11 +2015,12 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
     }
 
     async function triggerAutoGenerate() {
-      const activeTemplate = selectedTemplate;
+      const activeTemplate = isFreeUser ? 'minimal' : selectedTemplate;
       const finalCompletedSteps = new Set(completedSteps);
       finalCompletedSteps.add('education');
       const finalDraft: DashboardDraftData = {
         template: activeTemplate,
+        purpose,
         currentStep: 'education',
         completedSteps: [...finalCompletedSteps],
         sectionOrder,
@@ -1874,12 +2048,16 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
 
       try {
         await saveQueue.current;
-        await saveDashboardDraft(token!, finalDraft, resumeIdParam);
-        lastQueuedDraft.current = serializeDashboardDraft(finalDraft);
+        const serializedFinal = serializeDashboardDraft(finalDraft);
+        if (lastQueuedDraft.current !== serializedFinal) {
+          await saveDashboardDraft(token!, finalDraft, resumeIdParam);
+          lastQueuedDraft.current = serializedFinal;
+        }
 
         const resume = await generateCurrentResume(token!, {
           title: `${currentFullName} Resume`,
           templateId: activeTemplate,
+          purpose,
         });
 
         router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resumeIdParam || resume.id)}`);
@@ -1896,7 +2074,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
     }
 
     void triggerAutoGenerate();
-  }, [autoGenerate, certs, completedSteps, contact, draftLoaded, education, experience, handleDashboardRequestError, locale, projects, router, sectionOrder, selectedTemplate, skillGroups, summary, user, resumeIdParam]);
+  }, [autoGenerate, certs, completedSteps, contact, draftLoaded, education, experience, handleDashboardRequestError, isFreeUser, locale, projects, purpose, router, sectionOrder, selectedTemplate, skillGroups, summary, user, resumeIdParam]);
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
   const nextStep = STEPS[currentIndex + 1];
@@ -1949,10 +2127,12 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
       return;
     }
 
+    const effectiveTemplate = isFreeUser ? 'minimal' : selectedTemplate;
     const finalCompletedSteps = new Set(completedSteps);
     finalCompletedSteps.add('education');
     const finalDraft: DashboardDraftData = {
-      template: selectedTemplate,
+      template: effectiveTemplate,
+      purpose,
       currentStep: 'education',
       completedSteps: [...finalCompletedSteps],
       sectionOrder,
@@ -1976,15 +2156,19 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
 
     try {
       await saveQueue.current;
-      const saveResult = await saveDashboardDraft(token, finalDraft, resumeIdParam);
-      if (saveResult && typeof saveResult === 'object' && 'error' in saveResult) {
-        throw new Error(saveResult.error);
+      const serializedFinal = serializeDashboardDraft(finalDraft);
+      if (lastQueuedDraft.current !== serializedFinal) {
+        const saveResult = await saveDashboardDraft(token, finalDraft, resumeIdParam);
+        if (saveResult && typeof saveResult === 'object' && 'error' in saveResult) {
+          throw new Error(saveResult.error);
+        }
+        lastQueuedDraft.current = serializedFinal;
       }
-      lastQueuedDraft.current = serializeDashboardDraft(finalDraft);
 
       const resume = await generateCurrentResume(token, {
         title: `${contact.fullName.trim()} Resume`,
-        templateId: selectedTemplate,
+        templateId: effectiveTemplate,
+        purpose,
       });
 
       router.push(`/${locale}/resume/preview?resumeId=${encodeURIComponent(resumeIdParam || resume.id)}`);
@@ -2435,6 +2619,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
               token,
               {
                 template: selectedTemplate,
+                purpose,
                 currentStep,
                 completedSteps: [...completedSteps],
                 sectionOrder,

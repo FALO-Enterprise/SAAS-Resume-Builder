@@ -27,5 +27,8 @@
   "dependencies": {
     "@parcel/watcher": "^2.6.0",
     "@swc/core": "^1.16.1"
+  },
+  "optionalDependencies": {
+    "lightningcss-linux-x64-gnu": "^1.32.0"
   }
 }

@@ -8,7 +8,7 @@ export const API_ENDPOINTS = {
     validateResetToken: "/api/auth/validate-reset-token",
     resetPassword: "/api/auth/reset-password",
     dashboard: "/api/dashboard",
-    oauthStart: (provider: "google" | "github" | "linkedin", locale: string) => `/api/auth/oauth/${provider}?locale=${locale === "ar" ? "ar" : "en"}`,
+    oauthStart: (provider: "google" | "github", locale: string) => `/api/auth/oauth/${provider}?locale=${locale === "ar" ? "ar" : "en"}`,
     oauthExchange: "/api/auth/oauth/exchange",
   },
   users: {

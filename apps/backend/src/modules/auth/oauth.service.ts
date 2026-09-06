@@ -1,11 +1,12 @@
 import { createHash, randomBytes } from 'node:crypto';
 import prisma from '../../prisma/prisma.service';
+import { Prisma } from '../../generated/prisma';
 import { createArgonHash } from './util/argon.util';
 import type { AuthenticatedUserDTO } from './types/auth.dto';
 import { sendVerificationCode } from './util/verification.util';
 import { notificationEmailService } from '../email/notification-email.service';
 
-export const OAUTH_PROVIDERS = ['google', 'github', 'linkedin'] as const;
+export const OAUTH_PROVIDERS = ['google', 'github'] as const;
 export type OAuthProvider = (typeof OAUTH_PROVIDERS)[number];
 
 export type OAuthProfile = {
@@ -61,13 +62,6 @@ export function getProviderConfig(provider: OAuthProvider): ProviderConfig {
                 authorizationUrl: 'https://github.com/login/oauth/authorize',
                 tokenUrl: 'https://github.com/login/oauth/access_token',
                 scope: 'read:user user:email',
-            };
-        case 'linkedin':
-            return {
-                ...credentials,
-                authorizationUrl: 'https://www.linkedin.com/oauth/v2/authorization',
-                tokenUrl: 'https://www.linkedin.com/oauth/v2/accessToken',
-                scope: 'openid profile email',
             };
     }
 }
@@ -205,36 +199,6 @@ async function fetchGitHubProfile(accessToken: string): Promise<OAuthProfile> {
     };
 }
 
-async function fetchLinkedInProfile(accessToken: string): Promise<OAuthProfile> {
-    const response = await fetch('https://api.linkedin.com/v2/userinfo', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const profile = await parseJsonResponse<{
-        sub: string;
-        name?: string;
-        given_name?: string;
-        family_name?: string;
-        picture?: string;
-        email?: string;
-        email_verified?: boolean;
-    }>(response, 'Could not load the LinkedIn profile');
-
-    if (!profile.sub || !profile.email) {
-        throw new Error('LinkedIn did not return an email address');
-    }
-
-    const name = profile.name
-        || [profile.given_name, profile.family_name].filter(Boolean).join(' ');
-
-    return {
-        providerUserId: profile.sub,
-        email: profile.email,
-        emailVerified: profile.email_verified === true,
-        name: name || profile.email.split('@')[0] || 'LinkedIn user',
-        avatar: profile.picture,
-    };
-}
-
 export async function getOAuthProfile(
     provider: OAuthProvider,
     code: string,
@@ -245,7 +209,6 @@ export async function getOAuthProfile(
     switch (provider) {
         case 'google': return fetchGoogleProfile(accessToken);
         case 'github': return fetchGitHubProfile(accessToken);
-        case 'linkedin': return fetchLinkedInProfile(accessToken);
     }
 }
 
@@ -301,7 +264,8 @@ export async function findOrCreateOAuthUser(
         if (!existingUser) throw new Error('OAuth account user not found');
 
         const updateData: { avatar?: string | null } = {};
-        
+
+
         // Don't auto-verify returning OAuth users — they must verify via email
         // like everyone else. Their existing isVerified status is maintained.
 
@@ -332,13 +296,15 @@ export async function findOrCreateOAuthUser(
     const email = profile.email.trim().toLowerCase();
     const password = await createArgonHash(randomBytes(32).toString('base64url'));
 
-    const userId = await prisma.$transaction(async (transaction) => {
+    const createdUserData = await prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
         const freePlan = await transaction.plan.findUnique({ where: { name: 'FREE' } });
         if (!freePlan) throw new Error('FREE plan not found');
 
         let user = await transaction.user.findUnique({ where: { email } });
+        let isNewUser = false;
 
         if (!user) {
+            isNewUser = true;
             user = await transaction.user.create({
                 data: {
                     name: profile.name,
@@ -348,19 +314,6 @@ export async function findOrCreateOAuthUser(
                     isVerified: false,
                 },
             });
-
-            // Send verification email and welcome email for new OAuth registrations
-            try {
-                await sendVerificationCode(email);
-                console.log(`Verification code sent to OAuth user: ${email}`);
-                void notificationEmailService.sendWelcomeEmail({
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                }).catch(() => {});
-            } catch (verifyError) {
-                console.error(`Failed to send verification code to OAuth user ${email}:`, verifyError);
-            }
         } else {
             const updateData: { isVerified?: boolean; avatar?: string | null; password?: string } = {};
 
@@ -378,7 +331,7 @@ export async function findOrCreateOAuthUser(
                 // a planted credential can never authenticate this account
                 // again.
                 updateData.isVerified = true;
-                updateData.password = await createArgonHash(randomBytes(32).toString('base64url'));
+                updateData.password = password;
             }
 
             if (!user.avatar && profile.avatar) updateData.avatar = profile.avatar;
@@ -402,10 +355,33 @@ export async function findOrCreateOAuthUser(
             data: { provider, providerUserId: profile.providerUserId, userId: user.id },
         });
 
-        return user.id;
+        return {
+            userId: user.id,
+            email: user.email,
+            name: user.name,
+            isNewUser,
+        };
+    }, {
+        timeout: 15000,
+        maxWait: 5000,
     });
 
-    return authenticatedUser(userId);
+    // Send verification email and welcome email after the transaction commits successfully
+    if (createdUserData.isNewUser) {
+        try {
+            await sendVerificationCode(createdUserData.email);
+            console.log(`Verification code sent to OAuth user: ${createdUserData.email}`);
+            void notificationEmailService.sendWelcomeEmail({
+                id: createdUserData.userId,
+                email: createdUserData.email,
+                name: createdUserData.name,
+            }).catch(() => { });
+        } catch (verifyError) {
+            console.error(`Failed to send verification code to OAuth user ${createdUserData.email}:`, verifyError);
+        }
+    }
+
+    return authenticatedUser(createdUserData.userId);
 }
 
 export async function createOAuthLoginCode(userId: string) {
@@ -426,7 +402,7 @@ export async function consumeOAuthLoginCode(code: string) {
     const now = new Date();
     const codeHash = hashLoginCode(code);
 
-    const userId = await prisma.$transaction(async (transaction) => {
+    const userId = await prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
         const loginCode = await transaction.oAuthLoginCode.findUnique({ where: { codeHash } });
         if (!loginCode) return null;
 
@@ -440,6 +416,9 @@ export async function consumeOAuthLoginCode(code: string) {
         });
 
         return consumed.count === 1 ? loginCode.userId : null;
+    }, {
+        timeout: 10000,
+        maxWait: 5000,
     });
 
     return userId ? authenticatedUser(userId) : null;

@@ -28,10 +28,14 @@
       "@/*": ["../../*"],
       "@shared/*": ["../../packages/*/src"],
       "@shared-types": ["../../packages/shared-types/src"],
-      "@shared-utils": ["../../packages/shared-utils/src"] ,
-      "@prisma/client": ["./generated/prisma"]
+      "@shared-utils": ["../../packages/shared-utils/src"],
+      "@prisma/client": ["./generated/prisma"],
+      "@shared-utils": ["../../packages/shared-utils/src"],
+      "@prisma/client": ["./src/generated/prisma"]
     }
   },
-  "include": ["src/**/*" , "generated/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*", "generated/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "src/generated"]
 }

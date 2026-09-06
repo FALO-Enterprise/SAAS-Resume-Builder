@@ -3,7 +3,7 @@
 import {
   UnifiedApiErrorResponse
 } from '../middlewares/response.middleware'
-import { Plan } from '@prisma/client';
+import { Plan } from '../../generated/prisma';
 
 import 'express-session'
 

@@ -16,6 +16,8 @@ export const RESUME_TEMPLATE_IDS = [
 
 export type ResumeTemplateId = (typeof RESUME_TEMPLATE_IDS)[number];
 
+export const DEFAULT_RESUME_TEMPLATE_ID: ResumeTemplateId = "minimal";
+
 export const RESUME_TEMPLATE_DEFINITIONS = [
   { id: "executive", name: "Executive Teal", version: 1, supportsPhoto: true },
   { id: "developer", name: "Developer Sidebar", version: 1, supportsPhoto: true },

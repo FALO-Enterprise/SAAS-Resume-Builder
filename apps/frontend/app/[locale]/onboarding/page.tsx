@@ -274,36 +274,22 @@ const EMPTY_ANSWERS: OnboardingData = {
   customTargetRole: "",
   educationLevel: "",
   skills: [],
-  template: "",
+  template: "minimal",
 };
 
-function recommendedTemplate(answers: OnboardingData): ResumeTemplateChoice {
-  if (answers.experienceLevel === "senior") return "executive";
-  if (
-    answers.purpose === "internship" ||
-    answers.experienceLevel === "none"
-  ) {
-    return "academic";
-  }
-  if (answers.field === "technology") return "developer";
-  if (answers.field === "design") return "director";
-  if (answers.purpose === "careerChange") return "global";
+function recommendedTemplate(_answers: OnboardingData): ResumeTemplateChoice {
   return "minimal";
 }
 
-function templateChoices(answers: OnboardingData): ResumeTemplateChoice[] {
-  const recommended = recommendedTemplate(answers);
-  return Array.from(
-    new Set<ResumeTemplateChoice>([
-      recommended,
-      "minimal",
-      "global",
-      "executive",
-      "academic",
-      "developer",
-      "director",
-    ]),
-  ).slice(0, 4);
+function templateChoices(_answers: OnboardingData): ResumeTemplateChoice[] {
+  return [
+    "minimal",
+    "developer",
+    "executive",
+    "academic",
+    "global",
+    "director",
+  ];
 }
 
 function stepIcon(step: SurveyStepId): ReactNode {
@@ -430,13 +416,17 @@ export default function OnboardingPage() {
   function chooseOption(value: string) {
     setAnswers((previous) => {
       if (step === "purpose") {
-        return { ...previous, purpose: value as SurveyPurpose, template: "" };
+        return {
+          ...previous,
+          purpose: value as SurveyPurpose,
+          template: previous.template || "minimal",
+        };
       }
       if (step === "experienceLevel") {
         return {
           ...previous,
           experienceLevel: value as ExperienceLevel,
-          template: "",
+          template: previous.template || "minimal",
         };
       }
       if (step === "field") {
@@ -446,7 +436,7 @@ export default function OnboardingPage() {
           targetRole: "",
           customTargetRole: "",
           skills: [],
-          template: "",
+          template: previous.template || "minimal",
         };
       }
       if (step === "targetRole") {
@@ -501,66 +491,90 @@ export default function OnboardingPage() {
     setSaving(true);
     try {
       const currentDraft = await getDashboardDraft(token);
-      if ("error" in currentDraft) {
+      if ('error' in currentDraft) {
         throw new Error(currentDraft.error);
       }
 
-      const translatedSkills = answers.skills.map((skill) =>
-        t(`quick.skillOptions.${skill}`),
-      );
+      const translatedSkills = answers.skills.map((skill) => {
+        try {
+          return t(`quick.skillOptions.${skill}`);
+        } catch {
+          return skill;
+        }
+      });
       const translatedRole = answers.customTargetRole.trim()
         ? answers.customTargetRole.trim()
-        : t(`quick.roleOptions.${answers.targetRole}`);
-      const translatedDegree = t(
-        `steps.education.options.${answers.educationLevel}.title`,
-      );
+        : answers.targetRole
+          ? t(`quick.roleOptions.${answers.targetRole}`)
+          : "";
+      const translatedDegree = answers.educationLevel
+        ? t(`steps.education.options.${answers.educationLevel}.title`)
+        : "";
+      const translatedField = answers.field
+        ? t(`steps.field.options.${answers.field}.title`)
+        : "";
+
       const mergedSkills = Array.from(
-        new Set([...currentDraft.skills, ...translatedSkills]),
+        new Set([...(currentDraft.skills || []), ...translatedSkills]),
       ).filter(Boolean);
+
       const currentSkillGroups = currentDraft.skillGroups ?? [];
       const primarySkillGroup =
-        currentSkillGroups[0] ?? emptySkillGroup(t("quick.skillsCategory"));
+        currentSkillGroups[0] ?? emptySkillGroup(t("quick.skillsCategory") || "Technical Skills");
       const mergedPrimaryGroup = {
         ...primarySkillGroup,
-        label: primarySkillGroup.label || t("quick.skillsCategory"),
+        label: primarySkillGroup.label || t("quick.skillsCategory") || "Technical Skills",
         skills: Array.from(
           new Set([...primarySkillGroup.skills, ...translatedSkills]),
         ).filter(Boolean),
       };
-      const firstEducation = currentDraft.education[0] ?? emptyEdu();
+
+      const firstEducation = currentDraft.education?.[0] ?? emptyEdu();
+      const updatedFirstEducation = {
+        ...firstEducation,
+        degree: translatedDegree || firstEducation.degree || "",
+        field: translatedField || firstEducation.field || "",
+        gradYear: firstEducation.gradYear || "",
+      };
+
+      const experienceList = currentDraft.experience?.length
+        ? currentDraft.experience.map((exp, idx) =>
+            idx === 0 && !exp.jobTitle && translatedRole
+              ? { ...exp, jobTitle: translatedRole }
+              : exp
+          )
+        : answers.experienceLevel && answers.experienceLevel !== "none" && translatedRole
+          ? [{ ...emptyRole(), jobTitle: translatedRole }]
+          : [emptyRole()];
 
       const nextDraft: DashboardDraftData = {
         ...currentDraft,
-        template: answers.template,
+        template: answers.template || currentDraft.template || "minimal",
+        purpose: answers.purpose || currentDraft.purpose || "general",
         currentStep: currentDraft.currentStep || "contact",
         completedSteps: currentDraft.completedSteps || [],
         contact: {
           ...currentDraft.contact,
-          fullName: currentDraft.contact.fullName || user?.name || "",
-          email: currentDraft.contact.email || user?.email || "",
-          title: translatedRole,
+          fullName: currentDraft.contact?.fullName || user?.name || "",
+          email: currentDraft.contact?.email || user?.email || "",
+          title: translatedRole || currentDraft.contact?.title || "",
         },
-        experience: currentDraft.experience.length
-          ? currentDraft.experience
-          : [emptyRole()],
+        experience: experienceList,
         education: [
-          { ...firstEducation, degree: translatedDegree },
-          ...currentDraft.education.slice(1),
+          updatedFirstEducation,
+          ...(currentDraft.education?.slice(1) || []),
         ],
-        certifications: currentDraft.certifications.length
+        certifications: currentDraft.certifications?.length
           ? currentDraft.certifications
           : [emptyCert()],
-        skillGroups: [mergedPrimaryGroup, ...currentSkillGroups.slice(1)],
+        skillGroups: [mergedPrimaryGroup, ...(currentSkillGroups.slice(1) || [])],
         skills: mergedSkills,
       };
 
-      const savedDraft = await saveDashboardDraft(token, nextDraft);
-      if ("error" in savedDraft) {
-        throw new Error(savedDraft.error);
-      }
-
+      await saveDashboardDraft(token, nextDraft);
       return true;
-    } catch {
+    } catch (err) {
+      console.error("[Onboarding] Failed to sync to dashboard draft:", err);
       toast.error(t("errors.dashboardSave"));
       return false;
     } finally {
@@ -572,16 +586,22 @@ export default function OnboardingPage() {
     if (!stepIsComplete(step, answers) || saving) return;
 
     if (currentStep === STEPS.length - 1) {
-      const synced = await syncToDashboard();
-      if (!synced) return;
       saveOnboardingState({
         answers,
         currentStep,
         completed: true,
-        dashboardSynced: true,
+        dashboardSynced: false,
       }, user?.id);
-      setFinished(true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      const synced = await syncToDashboard();
+      if (synced) {
+        saveOnboardingState({
+          answers,
+          currentStep,
+          completed: true,
+          dashboardSynced: true,
+        }, user?.id);
+      }
+      router.push(`/${locale}/dashboard`);
       return;
     }
 
@@ -590,14 +610,23 @@ export default function OnboardingPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function saveAndExit() {
+  async function saveAndExit() {
     saveOnboardingState({
       answers,
       currentStep,
-      completed: finished,
-      dashboardSynced: finished,
+      completed: true,
+      dashboardSynced: false,
     }, user?.id);
-    router.push(`/${locale}`);
+    const synced = await syncToDashboard();
+    if (synced) {
+      saveOnboardingState({
+        answers,
+        currentStep,
+        completed: true,
+        dashboardSynced: true,
+      }, user?.id);
+    }
+    router.push(`/${locale}/dashboard`);
   }
 
   function stepTitle() {

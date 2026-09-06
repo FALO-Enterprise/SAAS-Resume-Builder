@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../generated/prisma';
 import prisma from '../../prisma/prisma.service';
 import { DashboardDraftDTO } from './dashboard.schema';
 

@@ -124,7 +124,11 @@ export default function DraftsPage() {
   };
 
   useEffect(() => {
-    void loadDrafts();
+    const timeoutId = window.setTimeout(() => {
+      void loadDrafts();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   const handleCreateDraft = async () => {
@@ -212,7 +216,7 @@ export default function DraftsPage() {
       );
     }
 
-    result.sort((a, b) => {
+    result.sort((a: ResumeDraftItem, b: ResumeDraftItem) => {
       if (sortBy === "newest") {
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       }

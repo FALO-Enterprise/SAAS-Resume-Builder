@@ -1,4 +1,4 @@
-import { Prisma, Role } from "@prisma/client";
+import { Prisma, Role } from "../../generated/prisma";
 import { PublicUser, User } from "./users.schema";
 import prisma from "../../prisma/prisma.service";
 
@@ -25,7 +25,8 @@ export class UserRepository {
         });
     }
 
-    
+
+
     findByEmail(email: string): Promise<User | null> {
         return this.prismaUser.findUnique({
             where: {

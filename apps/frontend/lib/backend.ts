@@ -182,7 +182,7 @@ export async function registerWithBackend(input: { name: string; email: string; 
     }
 }
 
-export function getOAuthStartUrl(provider: 'google' | 'github' | 'linkedin', locale: string) {
+export function getOAuthStartUrl(provider: 'google' | 'github', locale: string) {
     return buildBackendUrl(API_ENDPOINTS.auth.oauthStart(provider, locale));
 }
 
@@ -283,6 +283,7 @@ export async function getDashboardDraft(token?: string, resumeId?: string) {
         const { data } = await apiClient.get(API_ENDPOINTS.auth.dashboard, {
             params: resumeId ? { resumeId } : {},
             headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+            timeout: 60_000,
         });
         return normalizeBackendPayload<DashboardDraftData>(data);
     } catch (error) {
@@ -293,6 +294,7 @@ export async function getDashboardDraft(token?: string, resumeId?: string) {
 export function createDashboardDraftPayload(draft: DashboardDraftData) {
     return {
         template: draft.template,
+        purpose: draft.purpose,
         currentStep: draft.currentStep,
         completedSteps: draft.completedSteps,
         sectionOrder: draft.sectionOrder,
@@ -315,6 +317,7 @@ export async function saveDashboardDraft(token: string, draft: DashboardDraftDat
         const { data } = await apiClient.put(API_ENDPOINTS.auth.dashboard, payload, {
             params: resumeId ? { resumeId } : {},
             headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+            timeout: 60_000,
         });
         return normalizeBackendPayload<DashboardDraftData>(data);
     } catch (error) {

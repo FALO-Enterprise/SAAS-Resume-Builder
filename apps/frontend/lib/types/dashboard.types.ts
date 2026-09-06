@@ -20,6 +20,7 @@ export type SkillGroupItem = ResumeSkillGroup;
 export type DashboardDraftData = {
   id?: string;
   template: string | null;
+  purpose?: string;
   currentStep: StepId;
   completedSteps: StepId[];
   sectionOrder: ResumeSectionId[];

@@ -41,7 +41,7 @@ export class DashboardService {
         }
 
         return {
-            template: null,
+            template: 'minimal',
             purpose: 'general',
             currentStep: 'contact',
             completedSteps: [],
