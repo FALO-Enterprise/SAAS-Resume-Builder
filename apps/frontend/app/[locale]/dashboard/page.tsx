@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'framer-motion';
 import {
   User, Briefcase, GraduationCap, Zap,
@@ -35,21 +35,24 @@ import {
   type ResumeStepId,
 } from '@/components/dashboard/section-order.model';
 import {
-  generateCurrentResume,
   getDashboardDraft,
   isUnauthorizedBackendError,
   saveDashboardDraft,
-  fetchUserDrafts,
-  createUserDraft,
-  updateUserDraftTitle,
-  type ResumeDraftItem,
 } from '@/lib/backend';
+import { useGenerateResumeMutation } from '@/hooks/mutations/useDashboardDraftMutations';
+import { getErrorMessage } from '@/lib/api/errors';
+import { useDraftsQuery } from '@/hooks/queries/useDrafts';
+import {
+  useCreateDraftMutation,
+  useUpdateDraftTitleMutation,
+} from '@/hooks/mutations/useDraftMutations';
 import {
   DEFAULT_RESUME_CUSTOMIZATION,
   RESUME_TEMPLATE_IDS,
   type ResumeSectionId,
   type ResumeTemplateId,
 } from '@shared-types/resume';
+import { getAccessToken } from '@/lib/auth/token';
 
 const DASHBOARD_SAVE_ERROR_TOAST_ID = 'dashboard-save-error';
 const SESSION_EXPIRED_TOAST_ID = 'session-expired';
@@ -248,7 +251,7 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
       setSavedOk(true);
       setTimeout(() => editBtnRef.current?.focus(), 0);
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : t('saveFailed'));
+      setSaveError(getErrorMessage(err, t('saveFailed')));
     } finally {
       setSaving(false);
     }
@@ -1041,8 +1044,6 @@ function SkillsStep({ groups, onChange }: {
     }
   };
 
-  const percent = Math.min(100, 40 + skills.length * 7);
-
   return (
     <div>
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
@@ -1601,14 +1602,27 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
   const [purpose, setPurpose] = useState<string>('general');
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
-  const [userDrafts, setUserDrafts] = useState<ResumeDraftItem[]>([]);
-  const [draftTitle, setDraftTitle] = useState<string>('');
+  // Shared with the drafts page through the query cache. The old effect here
+  // fetched the same endpoint into local state with no race guard, so a quick
+  // draft switch could apply the previous request's title to the new resume.
+  const draftsQuery = useDraftsQuery();
+  const userDrafts = useMemo(() => draftsQuery.data ?? [], [draftsQuery.data]);
+  const updateDraftTitleMutation = useUpdateDraftTitleMutation();
+  const createDraftMutation = useCreateDraftMutation();
+  // Destructured because one caller is inside an effect: the mutation object
+  // is a new reference every render, while `mutateAsync` is stable, so this is
+  // the form that can sit in a dependency array without re-firing it.
+  const { mutateAsync: generateResumeAsync } = useGenerateResumeMutation();
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
   const [isRenaming, setIsRenaming] = useState(false);
   const [newTitleInput, setNewTitleInput] = useState('');
   const [isSavingTitle, setIsSavingTitle] = useState(false);
   const [draftSwitcherOpen, setDraftSwitcherOpen] = useState(false);
   const lastQueuedDraft = useRef('');
+  // Which resume the form state currently holds. draftLoaded only ever goes
+  // false -> true, so on its own it cannot tell "loaded" from "loaded, but for
+  // the draft we just navigated away from".
+  const loadedResumeId = useRef<string | null>(null);
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
   const saveErrorShown = useRef(false);
   const lastSyncedUserName = useRef('');
@@ -1629,35 +1643,24 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
     return true;
   }, [logout, t]);
 
-  useEffect(() => {
-    if (!user) return;
-    const token = localStorage.getItem('resumax_token') || '';
-    if (!token) return;
-    fetchUserDrafts(token)
-      .then((list) => {
-        setUserDrafts(list);
-        const activeDraft = list.find((d) => d.id === resumeIdParam);
-        if (activeDraft) {
-          setDraftTitle(activeDraft.title);
-        }
-      })
-      .catch(() => {});
-  }, [user, resumeIdParam]);
+  // Derived rather than mirrored into state: the rename mutation writes the
+  // new title straight into the drafts cache, so this stays correct without a
+  // second copy to keep in sync.
+  const draftTitle =
+    userDrafts.find((d) => d.id === resumeIdParam)?.title ?? '';
 
   const handleSaveRename = async () => {
     if (!newTitleInput.trim() || !resumeIdParam) return;
     try {
       setIsSavingTitle(true);
-      const token = localStorage.getItem('resumax_token') || '';
-      await updateUserDraftTitle(token, resumeIdParam, newTitleInput.trim());
-      setDraftTitle(newTitleInput.trim());
-      setUserDrafts((prev) =>
-        prev.map((d) => (d.id === resumeIdParam ? { ...d, title: newTitleInput.trim() } : d))
-      );
+      await updateDraftTitleMutation.mutateAsync({
+        resumeId: resumeIdParam,
+        title: newTitleInput.trim(),
+      });
       toast.success('Resume title updated');
       setIsRenaming(false);
-    } catch (err) {
-      toast.error('Could not rename resume');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Could not rename resume'));
     } finally {
       setIsSavingTitle(false);
     }
@@ -1666,7 +1669,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    const token = localStorage.getItem('resumax_token');
+    const token = getAccessToken();
 
     if (!token) {
       const timer = window.setTimeout(() => {
@@ -1735,6 +1738,8 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
         if (obRole && obAnswers?.experienceLevel && obAnswers.experienceLevel !== 'none') {
           setExperience([{ ...emptyRole(), jobTitle: obRole }]);
         }
+        setContact(c => ({ ...c, fullName: c.fullName || user.name, email: c.email || user.email }));
+        loadedResumeId.current = resumeIdParam ?? null;
         setDraftLoaded(true);
       }, 0);
       return () => window.clearTimeout(timer);
@@ -1743,10 +1748,6 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
     getDashboardDraft(token, resumeIdParam)
       .then((draft) => {
         if (cancelled) return;
-
-        if ('error' in draft) {
-          throw new Error(draft.error);
-        }
 
         const obState = user?.id ? loadOnboardingState(user.id) : null;
         const obAnswers = obState?.answers;
@@ -1896,10 +1897,12 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
         setCerts(nextDraft.certifications);
         lastSyncedUserName.current = nextDraft.contact.fullName || '';
         lastSyncedUserEmail.current = nextDraft.contact.email || '';
+        loadedResumeId.current = resumeIdParam ?? null;
         setDraftLoaded(true);
       })
       .catch((error) => {
         if (cancelled) return;
+        loadedResumeId.current = resumeIdParam ?? null;
         setDraftLoaded(true);
         if (handleDashboardRequestError(error)) return;
         toast.error('We could not load your saved resume draft.');
@@ -1936,7 +1939,13 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
   useEffect(() => {
     if (!draftLoaded) return;
 
-    const token = localStorage.getItem('resumax_token');
+    // After switching drafts the form still holds the previous resume's
+    // content until its loader resolves, while resumeIdParam has already
+    // changed. Saving in that window wrote draft A's content under draft B's
+    // id, overwriting B.
+    if (loadedResumeId.current !== (resumeIdParam ?? null)) return;
+
+    const token = getAccessToken();
     if (!token) return;
 
     const effectiveTemplate = isFreeUser ? 'minimal' : selectedTemplate;
@@ -1965,12 +1974,10 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
       saveQueue.current = saveQueue.current
         .then(async () => {
           const result = await saveDashboardDraft(token, draft, resumeIdParam);
-          // A backend-side save failure can resolve with HTTP 200 and
-          // {success:false, ...}; without this check it was treated as a
-          // successful save, silently clearing the error state.
-          if (result && typeof result === 'object' && 'error' in result) {
-            throw new Error(result.error);
-          }
+          // A backend-side failure that resolves with HTTP 200 and
+          // {success:false, ...} is thrown by unwrap() inside the transport
+          // layer now, so reaching here means the save really succeeded.
+          void result;
           saveErrorShown.current = false;
           setSaveStatus('saved');
           toast.dismiss(DASHBOARD_SAVE_ERROR_TOAST_ID);
@@ -2002,7 +2009,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
     if (!draftLoaded || !autoGenerate || autoGenerateTriggered.current) return;
     autoGenerateTriggered.current = true;
 
-    const token = localStorage.getItem('resumax_token');
+    const token = getAccessToken();
     if (!token) {
       toast.error('Please sign in before generating your resume.');
       return;
@@ -2054,7 +2061,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
           lastQueuedDraft.current = serializedFinal;
         }
 
-        const resume = await generateCurrentResume(token!, {
+        const resume = await generateResumeAsync({
           title: `${currentFullName} Resume`,
           templateId: activeTemplate,
           purpose,
@@ -2068,13 +2075,13 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
         }
 
         console.error('Resume auto-generation failed:', error);
-        toast.error(error instanceof Error ? error.message : 'Could not generate your resume.');
+        toast.error(getErrorMessage(error, 'Could not generate your resume.'));
         setIsFinishing(false);
       }
     }
 
     void triggerAutoGenerate();
-  }, [autoGenerate, certs, completedSteps, contact, draftLoaded, education, experience, handleDashboardRequestError, isFreeUser, locale, projects, purpose, router, sectionOrder, selectedTemplate, skillGroups, summary, user, resumeIdParam]);
+  }, [autoGenerate, certs, completedSteps, contact, draftLoaded, education, experience,generateResumeAsync, handleDashboardRequestError, isFreeUser, locale, projects, purpose, router, sectionOrder, selectedTemplate, skillGroups, summary, user, resumeIdParam]);
 
   const currentIndex = STEPS.findIndex(s => s.id === currentStep);
   const nextStep = STEPS[currentIndex + 1];
@@ -2121,7 +2128,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
       return;
     }
 
-    const token = localStorage.getItem('resumax_token');
+    const token = getAccessToken();
     if (!token) {
       toast.error('Please sign in before generating your resume.');
       return;
@@ -2158,14 +2165,11 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
       await saveQueue.current;
       const serializedFinal = serializeDashboardDraft(finalDraft);
       if (lastQueuedDraft.current !== serializedFinal) {
-        const saveResult = await saveDashboardDraft(token, finalDraft, resumeIdParam);
-        if (saveResult && typeof saveResult === 'object' && 'error' in saveResult) {
-          throw new Error(saveResult.error);
-        }
+        await saveDashboardDraft(token, finalDraft, resumeIdParam);
         lastQueuedDraft.current = serializedFinal;
       }
 
-      const resume = await generateCurrentResume(token, {
+      const resume = await generateResumeAsync({
         title: `${contact.fullName.trim()} Resume`,
         templateId: effectiveTemplate,
         purpose,
@@ -2179,7 +2183,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
       }
 
       console.error('Resume generation failed:', error);
-      toast.error(error instanceof Error ? error.message : 'Could not generate your resume.');
+      toast.error(getErrorMessage(error, 'Could not generate your resume.'));
       setIsFinishing(false);
     }
   };
@@ -2390,12 +2394,15 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                               router.push(`/${locale}/pricing`);
                               return;
                             }
+                            if (createDraftMutation.isPending) return;
                             try {
-                              const token = localStorage.getItem('resumax_token') || '';
-                              const res = await createUserDraft(token);
+                              const res = await createDraftMutation.mutateAsync();
                               router.push(`/${locale}/dashboard/${res.id}`);
                             } catch (e: unknown) {
-                              const msg = e instanceof Error ? e.message : 'Failed to create new draft';
+                              // The interceptor rejects with an ApiError, so
+                              // the backend's own quota wording survives —
+                              // which is what the check below matches on.
+                              const msg = getErrorMessage(e, 'Failed to create new draft');
                               if (msg.toLowerCase().includes('limit') || msg.toLowerCase().includes('plan') || msg.toLowerCase().includes('upgrade')) {
                                 toast.info(msg);
                                 router.push(`/${locale}/pricing`);
@@ -2514,8 +2521,8 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
         }}
         resumeId={resumeIdParam}
         onApplyFix={(field, value, experienceId) => {
-          const sanitizeText = (val: any): string => {
-            if (typeof val !== 'string') return String(val || '');
+          const sanitizeText = (val: unknown): string => {
+            if (typeof val !== 'string') return val == null ? '' : String(val);
             return val
               .replace(/\*\*(.*?)\*\*/g, '$1')
               .replace(/\*(.*?)\*/g, '$1')
@@ -2635,6 +2642,12 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
               resumeIdParam,
             );
           }
+          // The state updates above are all in the autosave effect's
+          // dependency list, so the debounced save picks this up on its own.
+          // The explicit unawaited save that used to live here raced that
+          // effect, reported nothing on failure, and — because it never
+          // updated lastQueuedDraft — always caused a second identical PUT
+          // 800ms later.
         }}
       />
 

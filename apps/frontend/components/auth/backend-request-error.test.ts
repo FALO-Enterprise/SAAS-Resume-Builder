@@ -6,9 +6,9 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import {
   createApiRequestError,
   createAuthenticatedRequestError,
-  generateCurrentResume,
   isUnauthorizedBackendError,
 } from '@/lib/backend';
+import { generateResume } from '@/lib/api/resumes';
 
 test('classifies an authenticated 401 as an expired session without exposing HTML', () => {
   const error = createAuthenticatedRequestError(
@@ -89,7 +89,7 @@ test('generates through the shared Axios client with an AI-safe timeout', async 
   }) as unknown as typeof apiClient.post;
 
   try {
-    const resume = await generateCurrentResume('token', {
+    const resume = await generateResume({
       title: 'Alex Resume',
       templateId: 'minimal',
     });

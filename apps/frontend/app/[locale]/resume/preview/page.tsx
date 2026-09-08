@@ -40,7 +40,8 @@ import ResumeCustomizePanel, {
 } from "@/components/resume/ResumeCustomizePanel";
 
 import { toast } from "sonner";
-import { generateCurrentResume, saveDashboardDraft } from "@/lib/backend";
+import { saveDashboardDraft } from "@/lib/backend";
+import { useGenerateResumeMutation } from "@/hooks/mutations/useDashboardDraftMutations";
 import { resolveResumeTemplate } from "@/components/resume/templates/registry";
 import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
@@ -61,6 +62,8 @@ import type {
   ResumePreviewData,
   ResumePurpose,
 } from "@/lib/types/resumePreview.types";
+import { getAccessToken } from "@/lib/auth/token";
+import { getErrorMessage } from "@/lib/api/errors";
 
 const MIN_ZOOM = 50;
 const MAX_ZOOM = 150;
@@ -139,6 +142,7 @@ export default function ResumePreviewPage() {
 
   const { user } = useAuth();
   const { preferences } = usePreferences();
+  const generateResumeMutation = useGenerateResumeMutation();
   const isFreeUser = user?.planName === "FREE" || !user?.planName;
   const isProUser = user?.planName === "PRO";
   const isEnterpriseUser = user?.planName === "ENTERPRISE";
@@ -237,6 +241,11 @@ export default function ResumePreviewPage() {
   useEffect(() => {
     const controller = new AbortController();
 
+    // The "original content" baseline belongs to one resume. It was only ever
+    // assigned when still null, so opening a second resume in the same session
+    // kept the first one's baseline and mis-reported what had changed.
+    initialContentRef.current = null;
+
     async function loadPreview() {
       try {
         setIsLoading(true);
@@ -264,10 +273,7 @@ export default function ResumePreviewPage() {
             "Free plan users are restricted to the Classic ATS template. Upgrade to Pro to unlock premium templates.",
           );
         } else if (templateParam && isResumeTemplateId(templateParam)) {
-          const token =
-            typeof window !== "undefined"
-              ? localStorage.getItem("resumax_token")
-              : null;
+          const token = getAccessToken();
           if (token) {
             void updateCurrentResumeTemplate(
               data.resumeName,
@@ -313,7 +319,7 @@ export default function ResumePreviewPage() {
         if (error instanceof DOMException && error.name === "AbortError")
           return;
         setPageError(
-          error instanceof Error ? error.message : t("status.errorText"),
+          getErrorMessage(error, t("status.errorText")),
         );
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
@@ -646,6 +652,11 @@ export default function ResumePreviewPage() {
       return;
     }
 
+    // Kept so the optimistic write below can be undone. Without it a failed
+    // save left the preview rendering the new photo as though it had been
+    // persisted, and a refresh silently reverted it.
+    const previousPhoto = resumeData.content.contact.photo;
+
     try {
       setIsUploadingPhoto(true);
       const dataUrl = await compressImage(file);
@@ -662,10 +673,7 @@ export default function ResumePreviewPage() {
         prev ? { ...prev, content: nextContent } : prev,
       );
 
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("resumax_token")
-          : null;
+      const token = getAccessToken();
       if (token) {
         await saveDashboardDraft(
           token,
@@ -693,6 +701,18 @@ export default function ResumePreviewPage() {
           : "Profile photo updated successfully",
       );
     } catch {
+      setResumeData((prev) =>
+        prev
+          ? {
+              ...prev,
+              content: {
+                ...prev.content,
+                contact: { ...prev.content.contact, photo: previousPhoto },
+              },
+            }
+          : prev,
+      );
+
       toast.error(
         locale === "ar" ? "فشل تحديث الصورة" : "Failed to update photo",
       );
@@ -706,6 +726,8 @@ export default function ResumePreviewPage() {
 
   const handleRemovePhoto = async () => {
     if (!resumeData || isUploadingPhoto) return;
+
+    const previousPhoto = resumeData.content.contact.photo;
 
     try {
       setIsUploadingPhoto(true);
@@ -721,10 +743,7 @@ export default function ResumePreviewPage() {
         prev ? { ...prev, content: nextContent } : prev,
       );
 
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("resumax_token")
-          : null;
+      const token = getAccessToken();
       if (token) {
         await saveDashboardDraft(
           token,
@@ -750,6 +769,18 @@ export default function ResumePreviewPage() {
         locale === "ar" ? "تم حذف الصورة بنجاح" : "Profile photo removed",
       );
     } catch {
+      setResumeData((prev) =>
+        prev
+          ? {
+              ...prev,
+              content: {
+                ...prev.content,
+                contact: { ...prev.content.contact, photo: previousPhoto },
+              },
+            }
+          : prev,
+      );
+
       toast.error(
         locale === "ar" ? "فشل حذف الصورة" : "Failed to remove photo",
       );
@@ -770,10 +801,7 @@ export default function ResumePreviewPage() {
       setActionSuccess(null);
       setIsExportMenuOpen(false);
 
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("resumax_token")
-          : null;
+      const token = getAccessToken();
 
       if (draftPurpose !== appliedPurpose && token) {
         if (isFreeUser) {
@@ -796,15 +824,12 @@ export default function ResumePreviewPage() {
           return;
         }
 
-        await generateCurrentResume(
-          token,
-          {
-            title: resumeData.resumeName,
-            templateId: draftTemplateId,
-            purpose: draftPurpose,
-          },
-          resumeData.resumeId,
-        );
+        await generateResumeMutation.mutateAsync({
+          title: resumeData.resumeName,
+          templateId: draftTemplateId,
+          purpose: draftPurpose,
+          resumeId: resumeData.resumeId,
+        });
 
         const newCount = incrementPurposeUsage();
 
@@ -830,10 +855,7 @@ export default function ResumePreviewPage() {
         );
         const metadata = getResumeTemplateMetadata(result.templateId);
 
-        const token =
-          typeof window !== "undefined"
-            ? localStorage.getItem("resumax_token")
-            : null;
+        const token = getAccessToken();
         if (token) {
           void saveDashboardDraft(
             token,
@@ -872,7 +894,7 @@ export default function ResumePreviewPage() {
       toast.success(successMsg, { id: toastId });
     } catch (error) {
       const errorMsg =
-        error instanceof Error ? error.message : configuration("generateError");
+        getErrorMessage(error, configuration("generateError"));
       setActionError(errorMsg);
       toast.error(errorMsg, { id: toastId });
     } finally {
@@ -938,7 +960,7 @@ export default function ResumePreviewPage() {
       toast.success(successMsg, { id: toastId });
     } catch (error) {
       const errorMsg =
-        error instanceof Error ? error.message : t("status.errorText");
+        getErrorMessage(error, t("status.errorText"));
       setActionError(errorMsg);
       toast.error(errorMsg, { id: toastId });
     } finally {
@@ -1102,18 +1124,20 @@ export default function ResumePreviewPage() {
             {/* Selected Template Preview Card */}
             <div className="mt-4 overflow-hidden rounded-2xl border border-gold/30 bg-card p-3 shadow-sm">
               <div className="flex items-center gap-3.5">
-                <div className="relative aspect-4/5 w-16 shrink-0 overflow-hidden rounded-xl border border-edge bg-white shadow-inner">
+                <div className="aspect-210/297 w-20 shrink-0 overflow-hidden rounded-xl border border-edge bg-white p-1.5 shadow-inner">
                   {selectedMetadata.thumbnailUrl ? (
-                    <Image
-                      src={selectedMetadata.thumbnailUrl}
-                      alt={selectedMetadata.name}
-                      fill
-                      unoptimized
-                      className="object-cover"
-                      sizes="64px"
-                    />
+                    <div className="relative h-full w-full overflow-hidden">
+                      <Image
+                        src={selectedMetadata.thumbnailUrl}
+                        alt={selectedMetadata.name}
+                        fill
+                        unoptimized
+                        className="object-contain"
+                        sizes="100px"
+                      />
+                    </div>
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gold/10 text-gold">
+                    <div className="flex h-full w-full items-center justify-center rounded-md bg-gold/10 text-gold">
                       <LayoutTemplate size={20} />
                     </div>
                   )}
