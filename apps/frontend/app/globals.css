@@ -12,8 +12,8 @@
   --color-surface-soft: #eeecea;
   --color-white: #FFFFFF;
 
-  /* Brand Colors — CONSTANT in both themes */
   --color-gold: #f5a623;
+  --color-on-gold: #0a0b0f;
   --color-gold-light: #fbbf24;
   --color-gold-dark: #d97706;
   --color-azure: #1d4ed8;
@@ -47,13 +47,6 @@
   /* Utilities */
   --text-sm: 13px;
 }
-
-/* ============================================
-   THEME TOKENS
-   - Tailwind classes (bg-ink, text-surface…) read --color-*
-   - Inline styles read --bg-*, --text-*, --edge, --glass-*
-   Both swap together on data-theme change.
-   ============================================ */
 
 :root,
 [data-theme="dark"] {
@@ -161,8 +154,11 @@ body {
 }
 
 .glass-gold {
-  background: rgba(245, 166, 35, 0.08);
+  background:
+    linear-gradient(rgba(245, 166, 35, 0.08), rgba(245, 166, 35, 0.08)),
+    color-mix(in srgb, var(--bg-elevated) 92%, transparent);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(245, 166, 35, 0.15);
 }
 
@@ -260,10 +256,9 @@ body {
 
 /* RTL overrides */
 [dir="rtl"] .font-syne {
-  font-family: var(--font-arabic), sans-serif;
+  font-family: var(--ff-arabic), sans-serif;
 }
 
-/* Font stacks for build-time compatibility — Google Fonts loaded via CDN in production */
 .font-syne {
   font-family: 'Syne', 'DM Sans', system-ui, sans-serif;
 }
@@ -388,11 +383,6 @@ input::placeholder {
   from {
     transform: translate3d(0, 0, 0);
   }
-
-  /* --drift-sign flips the offset for RTL. The row sits at the deck's
-     inline-start edge, so it must drift toward inline-end — physically left
-     in LTR, right in RTL. Reversing playback is not enough: the sign of the
-     travel itself has to flip, or the wall slides off and leaves a void. */
   to {
     transform: translate3d(calc((-50% - var(--tile-gap) / 2) * var(--drift-sign, 1)),
         0,
@@ -412,23 +402,13 @@ input::placeholder {
   }
 }
 
-/* ============================================
-   REDUCE MOTION
-   Honours both the OS setting and the in-app preference
-   (<html data-reduce-motion="true">, set pre-paint by
-   PREFERENCES_INIT_SCRIPT so mount animations never start).
-
-   Motion is cut to ~0 rather than removed outright: a 0.01ms
-   duration still fires transitionend/animationend, so JS that
-   waits on those events keeps working.
-   ============================================ */
-
 @media (prefers-reduced-motion: reduce) {
 
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
@@ -439,6 +419,7 @@ input::placeholder {
 [data-reduce-motion="true"] *::before,
 [data-reduce-motion="true"] *::after {
   animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
@@ -447,17 +428,130 @@ input::placeholder {
 [data-reduce-motion="true"] {
   scroll-behavior: auto !important;
 }
-/* ============================================
-   ARABIC LETTER-SPACING GUARD
 
-   Tracking utilities (tracking-wide/wider/widest) are used throughout for
-   small uppercase eyebrow labels. Arabic is cursive: letters join, and adding
-   letter-spacing severs those joins so words visually fall apart. The effect
-   is Latin-only styling, so it is neutralised under RTL rather than removed
-   from the markup — one guard here fixes every existing label at once.
-   ============================================ */
 [dir="rtl"] .tracking-wide,
 [dir="rtl"] .tracking-wider,
 [dir="rtl"] .tracking-widest {
   letter-spacing: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-rise-opaque {
+  from {
+    transform: translate3d(0, 16px, 0);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+.hero-enter,
+.hero-enter-opaque {
+  animation-delay: var(--hero-delay, 0ms);
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+.hero-enter {
+  animation-name: hero-rise;
+  animation-duration: 0.62s;
+}
+
+.hero-enter-opaque {
+  animation-name: hero-rise-opaque;
+  animation-duration: 0.7s;
+}
+
+@keyframes hero-meter-fill {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(var(--meter-scale, 1));
+  }
+}
+
+.hero-meter {
+  transform-origin: left;
+  animation: hero-meter-fill 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[dir="rtl"] .hero-meter {
+  transform-origin: right;
+}
+
+@keyframes hiw-rule-draw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes hiw-spine-fill {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+.hiw-rule { transform-origin: left center; }
+[dir="rtl"] .hiw-rule { transform-origin: right center; }
+.hiw-spine { transform-origin: center top; }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hiw-rule {
+      animation-name: hiw-rule-draw;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: view();
+      animation-range: entry 15% entry 90%;
+    }
+
+    .hiw-spine {
+      animation-name: hiw-spine-fill;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: view(block);
+      animation-range: entry 30% exit 30%;
+    }
+  }
+}
+
+[data-reduce-motion="true"] .hiw-rule,
+[data-reduce-motion="true"] .hiw-spine {
+  animation: none;
+}
+
+[data-theme="light"] .text-gradient-gold {
+  background-image: linear-gradient(135deg, #b45309 0%, #a16207 50%, #92400e 100%);
+}
+
+
+@media (hover: hover) and (pointer: fine) {
+  .deletions > li {
+    transition: opacity 200ms ease;
+  }
+
+  .deletions:hover > li:not(:hover) {
+    opacity: 0.5;
+  }
+}
+
+[data-reduce-motion="true"] .deletions > li {
+  transition: none;
 }
