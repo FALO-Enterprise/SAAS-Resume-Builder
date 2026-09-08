@@ -87,50 +87,134 @@
     "cta": "Start Building Free",
     "ctaPaid": "Start Building",
     "ctaSecondary": "View Templates",
-    "stats": {
-      "resumes": "50K+",
-      "resumesLabel": "Resumes Created",
-      "templates": "120+",
-      "templatesLabel": "Templates",
-      "satisfaction": "98%",
-      "satisfactionLabel": "Satisfaction Rate"
+    "scrollCue": "Scroll",
+    "proof": {
+      "ats": "ATS-verified layouts",
+      "formats": "A4 & US Letter",
+      "rtl": "Native Arabic RTL",
+      "templates": "6 template families"
+    },
+    "preview": {
+      "heading": "Live ATS preview",
+      "groupLabel": "Choose a resume template to preview",
+      "scoreLabel": "ATS score",
+      "sampleNote": "Sample analysis. Your real score is generated from your own resume.",
+      "impact": "Impact",
+      "keywords": "Keywords",
+      "clarity": "Clarity",
+      "completeness": "Completeness"
     }
   },
   "challenge": {
     "label": "The Problem",
     "title": "Why Most Resumes",
     "titleHighlight": "Never Get Read",
-    "items": {
-      "formats": {
-        "title": "Inconsistent Formats",
-        "desc": "Resumes vary wildly across candidates, causing confusion for recruiters before they even read a word."
+    "lead": "Your resume isn't rejected by a robot. It's ranked by one — then skimmed by a person in about seven seconds, against hundreds of others.",
+    "scan": {
+      "heading": "ATS scan",
+      "sample": "Sample",
+      "sampleNote": "An example scan on a sample resume — not your data.",
+      "scoreLabel": "Match score",
+      "scoreNote": "Below the line most recruiters filter on.",
+      "scoreNoteFixed": "Two problems were structural. The last one needs you."
+    },
+    "findings": {
+      "columns": {
+        "title": "Columns merged",
+        "desc": "A two-column layout gets read straight across. Your job titles fuse into one run-on line.",
+        "resolvedTitle": "Single column",
+        "resolvedDesc": "Every template we build reads top to bottom, in the order a parser expects."
       },
-      "standards": {
-        "title": "No Global Standards",
-        "desc": "Most tools ignore regional and industry-specific CV expectations — what works in NYC fails in Dubai."
+      "wording": {
+        "title": "Wording didn't match",
+        "desc": "The posting says Product Manager. Your resume says Product Lead. The ranking sees no match.",
+        "resolvedTitle": "Needs your target role",
+        "resolvedDesc": "We can't guess the posting you're aiming at. Paste it in and the wording is matched to it."
       },
-      "content": {
-        "title": "Untrustworthy Content",
-        "desc": "Fabricated or exaggerated entries damage careers and credibility. Recruiters notice every inconsistency."
-      },
-      "ats": {
-        "title": "Poor ATS Compatibility",
-        "desc": "Poorly structured resumes get filtered out before any human sees them. 75% never make it through."
+      "skills": {
+        "title": "Skills went missing",
+        "desc": "Skills drawn as a chart or an icon row carry no text, so nothing gets read at all.",
+        "resolvedTitle": "Skills as text",
+        "resolvedDesc": "The same skills, written as plain text the scanner can actually pick up."
       }
-    }
+    },
+    "fix": {
+      "cta": "Fix this resume",
+      "running": "Fixing…",
+      "replay": "Replay",
+      "outcome": "Two fixed by the template alone. The third is the first thing the builder asks you for.",
+      "announce": "Sample scan complete. Match score improved from 47% to 82%. Two issues fixed automatically: column layout and skills formatting. One issue needs your target role."
+    },
+    "source": "<b>88% of employers</b> say qualified candidates get filtered out because their wording didn't match the job description.",
+    "sourceCite": "Harvard Business School & Accenture, Hidden Workers, 2021"
   },
   "features": {
     "label": "Key Features",
     "title": "Everything You Need to",
     "titleHighlight": "Stand Out Globally",
+    "specimenNote": "All six layouts",
+    "soonBadge": "Soon",
+    "plates": {
+      "ats": {
+        "caption": "Sample parse report",
+        "passLabel": "Passed",
+        "gapLabel": "Needs attention",
+        "pass": {
+          "headings": "Standard section headings",
+          "dates": "Consistent date format",
+          "contact": "Contact block detected"
+        },
+        "gap": "No skills section found",
+        "note": "Three checks passed, one gap found."
+      },
+      "preview": {
+        "caption": "You type. The sheet updates.",
+        "fieldLabel": "Job title",
+        "fieldValue": "Senior Product Designer",
+        "sheetName": "Layla Haddad",
+        "sheetLine": "Led design for a 40-person product team."
+      },
+      "coverLetter": {
+        "caption": "Draft matched to a job description",
+        "salutation": "Dear Hiring Manager,",
+        "body": "Your posting calls for a designer who can own a product end to end. That is the work I have done for the last six years.",
+        "matched": "Matched to the posting"
+      },
+      "region": {
+        "caption": "The same profile, formatted to local convention.",
+        "fieldLabel": "Field",
+        "included": "Included",
+        "omitted": "Omitted",
+        "cols": {
+          "us": "US",
+          "eu": "Europass",
+          "gcc": "GCC",
+          "academic": "Academic"
+        },
+        "fields": {
+          "onePage": "One-page limit",
+          "photo": "Photo",
+          "dob": "Date of birth",
+          "publications": "Publications",
+          "referees": "Referees"
+        }
+      }
+    },
     "items": {
       "templates": {
-        "title": "120+ Templates",
+        "title": "6 Templates",
         "desc": "Industry-specific layouts for every profession and region — crafted by professional designers."
       },
       "multiRegion": {
         "title": "Multi-Region Support",
-        "desc": "US, EU Europass, GCC, Asia-Pacific, and academic CV formats all built-in and current."
+        "desc": "US, EU Europass, GCC, Asia-Pacific, and academic CV formats all built-in and current.",
+        "regions": {
+          "us": "USA / Canada",
+          "eu": "Europe (Europass)",
+          "gcc": "GCC / Middle East",
+          "apac": "Asia-Pacific",
+          "academic": "Academic CVs"
+        }
       },
       "ats": {
         "title": "ATS Optimizer",
@@ -146,7 +230,11 @@
       },
       "export": {
         "title": "Export Anywhere",
-        "desc": "PDF, DOCX, LinkedIn-ready formats with one click. Share a live link or download instantly."
+        "desc": "Download your résumé as a print-ready PDF or a JPG image in one click.",
+        "formats": {
+          "pdf": "PDF",
+          "jpg": "JPG"
+        }
       }
     }
   },
@@ -155,52 +243,67 @@
     "title": "From Blank Page to",
     "titleHighlight": "Job-Ready in Minutes",
     "steps": {
-      "template": {
-        "num": "01",
-        "title": "Choose Template",
-        "desc": "Pick from 120+ industry & region-specific layouts built to global standards."
+      "survey": {
+        "verb": "Answer",
+        "desc": "Seven questions about your purpose, field, target role, education and skills. We pick the layout that fits you and fill your first draft before you type a word.",
+        "count": "7",
+        "unit": "questions"
       },
-      "info": {
-        "num": "02",
-        "title": "Enter Your Info",
-        "desc": "Guided form with smart prompts, skill suggestions & impact-driven phrasing."
+      "build": {
+        "verb": "Draft",
+        "desc": "Six guided sections — contact, summary, skills, experience, projects and education. They reorder by dragging, and every change saves itself.",
+        "count": "6",
+        "unit": "sections"
       },
-      "check": {
-        "num": "03",
-        "title": "ATS & Quality Check",
-        "desc": "Real-time score, keyword analysis, and section-by-section improvement tips."
+      "tailor": {
+        "verb": "Tailor",
+        "desc": "Your title, summary and experience are rewritten for what you are actually applying to — a job, an internship, a scholarship, a promotion.",
+        "count": "7",
+        "unit": "purposes"
       },
       "export": {
-        "num": "04",
-        "title": "Export & Apply",
-        "desc": "Download as PDF or DOCX. Share direct link or push to LinkedIn with one click."
+        "verb": "Export",
+        "desc": "Change the template, accent colour, font and scale and watch the page update. Download the finished sheet as a PDF or a JPG.",
+        "count": "2",
+        "unit": "formats"
       }
     }
   },
   "principles": {
     "label": "Global Principles",
-    "title": "Built on Standards",
-    "titleHighlight": "The World Trusts",
+    "title": "Five Things",
+    "titleHighlight": "We Will Never Do",
+    "regionsLabel": "Regional Support",
+    "refusedLabel": "Never written",
+    "stat": {
+      "value": "6",
+      "desc": "Six template families, each built for a different kind of role. One of them is free."
+    },
     "items": {
-      "honesty": {
-        "title": "Honesty First",
-        "desc": "ResuMax enforces truthful representation — no inflated job titles or fabricated credentials."
+      "invent": {
+        "title": "We don’t invent your achievements.",
+        "refused": "spearheaded initiatives resulting in a 25% efficiency gain",
+        "desc": "The writer is instructed never to add a metric, project, tool or result your own entries don’t contain — and employers, titles, dates and education are never rewritten at all."
       },
-      "ats": {
-        "title": "ATS-First Structure",
-        "desc": "Every template is engineered for machine readability, maximizing recruiter visibility."
+      "pad": {
+        "title": "We don’t pad it to fill a page.",
+        "refused": "a results-oriented team player with a proven track record",
+        "desc": "Summaries are written to 50–90 words and each role to two to four lines. Length is not the same as substance, and recruiters read the second page least."
       },
-      "relevance": {
-        "title": "Relevance Over Length",
-        "desc": "Guided word limits and section priorities ensure concise, impact-driven documents."
+      "track": {
+        "title": "We don’t track you.",
+        "refused": "analytics · advertising pixels · third-party cookies",
+        "desc": "No analytics, no advertising pixels, no third-party cookies anywhere on this site. That is why it has never asked you to accept any."
       },
-      "cultural": {
-        "title": "Cultural Sensitivity",
-        "desc": "Region-specific guidance on photos, age, marital status, and appropriate length."
+      "silent": {
+        "title": "We don’t send anything to an AI unless you ask.",
+        "refused": "quietly analysed in the background",
+        "desc": "Nothing leaves your draft in the background. The model runs when you press the button, and not one moment before."
       },
-      "privacy": {
-        "title": "Privacy by Design",
-        "desc": "Users control exactly what personal data appears and how it is stored."
+      "retain": {
+        "title": "We don’t keep what you delete.",
+        "refused": "retained in an archive after deletion",
+        "desc": "Deleting your account erases every resume, draft and sign-in token in the same operation. There is no archive to ask us about."
       }
     }
   },
@@ -283,14 +386,49 @@
       }
     ]
   },
+  "evidence": {
+    "label": "Evidence",
+    "title": "What Is Actually",
+    "titleHighlight": "Known About Screening",
+    "stance": "Three things worth knowing before you write another resume — with the sources, so you can check them yourself.",
+    "newTab": "opens in a new tab",
+    "items": {
+      "myth": {
+        "finding": "The number everyone quotes has no source.",
+        "statement": "“75% of resumes are rejected before a human sees them” traces to a 2012 sales pitch by Preptel, a resume-optimisation vendor that closed the following year. No methodology, no sample and no survey were ever published.",
+        "provenance": "Reported by Phys.org · July 2026",
+        "href": "https://phys.org/news/2026-07-wrong-modern-job.html",
+        "linkLabel": "Read the report"
+      },
+      "parser": {
+        "finding": "An applicant tracking system is a database, not a judge.",
+        "statement": "It parses your file into fields and lets a recruiter search them. Jobscan — the largest vendor selling ATS optimisation, and so the party with most to gain from the opposite claim — puts it plainly: an ATS rarely rejects a candidate automatically.",
+        "provenance": "Jobscan · Applicant tracking systems, explained",
+        "href": "https://www.jobscan.co/blog/8-things-you-need-to-know-about-applicant-tracking-systems/",
+        "linkLabel": "Read the source"
+      },
+      "seconds": {
+        "finding": "The real filter is a person, and they are fast.",
+        "statement": "Eye-tracking put the average first pass at 7.4 seconds, up from about six in 2012. Your resume does not need to beat a machine. It needs to survive seven seconds of a human being.",
+        "provenance": "Ladders eye-tracking study · 2018 · industry-funded, not peer-reviewed",
+        "href": "https://www.theladders.com/static/images/basicSite/pdfs/TheLadders-EyeTracking-StudyC2.pdf",
+        "linkLabel": "Read the study"
+      }
+    }
+  },
   "cta": {
     "title": "Ready to Build Your",
     "titleHighlight": "Best Resume?",
-    "subtitle": "Join thousands of professionals who trust ResuMax to represent them with clarity, honesty, and global standards.",
-    "button": "Start Building Free",
-    "buttonPaid": "Start Building Now",
+    "subtitle": "Seven questions, and your first draft is written for you. The free plan covers one resume, one template and one PDF.",
+    "button": {
+      "new": "Create your free account",
+      "onboarding": "Answer the first question",
+      "dashboard": "Open your dashboard"
+    },
+    "secondary": "or see the 6 template families",
     "note": "No credit card required • Free forever plan available",
-    "notePaid": "Full access enabled with your current subscription"
+    "notePaid": "Full access enabled with your current subscription",
+    "poweredBy": "Powered by FALO Enterprise"
   },
   "auth": {
     "tabs": {
@@ -551,7 +689,8 @@
         ]
       },
       "ctaDashboard": "Go to Dashboard",
-      "ctaBuilder": "Open Resume Preview"
+      "ctaBuilder": "Open Resume Preview",
+      "syncPending": "Your payment went through, but we could not confirm it with our billing system yet. Your plan will update shortly — contact support if it does not."
     },
     "table": {
       "title": "Compare all features",
@@ -3433,6 +3572,20 @@
           }
         ]
       }
+    }
+  },
+  "notFound": {
+    "badge": "Error 404",
+    "title": "This page doesn't exist",
+    "description": "The link may be broken, or the page may have been moved or renamed. Your resumes and drafts are safe — here's the way back.",
+    "ctaHome": "Back to homepage",
+    "ctaTemplates": "Browse templates",
+    "linksLabel": "Or try one of these",
+    "links": {
+      "templates": "Templates",
+      "pricing": "Pricing",
+      "blog": "Blog",
+      "help": "Help Center"
     }
   },
   "footer": {
