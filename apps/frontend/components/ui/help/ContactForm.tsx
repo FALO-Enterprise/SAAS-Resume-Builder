@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { sendSupportMessage } from "@/lib/api/support";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { HelpTopic } from "@/lib/types/help.types";
 
 type FieldName = "name" | "email" | "topic" | "message";
@@ -269,7 +270,9 @@ export default function ContactForm({ supportEmail }: { supportEmail: string }) 
           className="flex items-center gap-2 text-[13px] text-pink-light"
         >
           <AlertCircle size={15} className="shrink-0" />
-          {t("errors.network")}
+          {/* The backend's own reason (rate limit, rejected address) is more
+              useful than a blanket network string; it falls back to that. */}
+          {getErrorMessage(mutation.error, t("errors.network"))}
         </p>
       )}
 

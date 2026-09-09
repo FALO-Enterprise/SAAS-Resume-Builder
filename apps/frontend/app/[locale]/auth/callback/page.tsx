@@ -8,6 +8,7 @@ import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { exchangeOAuthCode } from "@/lib/backend";
 import { persistAuthToken } from "@/lib/auth-session";
+import { getErrorMessage } from "@/lib/api/errors";
 import Logo from "@/components/ui/Logo";
 
 function OAuthCallbackContent() {
@@ -68,7 +69,7 @@ function OAuthCallbackContent() {
       })
       .catch((err) => {
         setStatus("error");
-        setError(err instanceof Error ? err.message : t("expired"));
+        setError(getErrorMessage(err, t("expired")));
       });
   }, [code, hasInvalidCallback, locale, login, router, t]);
 
