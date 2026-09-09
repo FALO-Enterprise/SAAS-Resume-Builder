@@ -1,4 +1,10 @@
-const ACCESS_TOKEN_KEY = "resumax_token";
+import {
+  AUTH_TOKEN_KEY,
+  clearAuthToken,
+  persistAuthToken,
+} from "@/lib/auth-session";
+
+const ACCESS_TOKEN_KEY = AUTH_TOKEN_KEY;
 
 function canUseBrowserApis() {
   return typeof window !== "undefined";
@@ -11,14 +17,12 @@ export function getAccessToken(): string | null {
 
 export function setAccessToken(token: string) {
   if (!canUseBrowserApis()) return;
-  localStorage.setItem(ACCESS_TOKEN_KEY, token);
-  document.cookie = `${ACCESS_TOKEN_KEY}=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+  persistAuthToken(token);
 }
 
 export function clearAccessToken() {
   if (!canUseBrowserApis()) return;
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  document.cookie = `${ACCESS_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+  clearAuthToken();
 }
 
 export { ACCESS_TOKEN_KEY };

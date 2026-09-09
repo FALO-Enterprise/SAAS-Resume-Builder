@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useAuth } from "@/context/AuthContext";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { RegisterData } from "@/lib/types/auth.types";
 import { useRegisterMutation } from "@/hooks/mutations/useAuthMutations";
 
@@ -34,10 +35,6 @@ export function useRegisterFlow() {
       setRegisteredName(form.name);
       setSuccess(true);
 
-      // After registration the user must verify their email before they can
-      // log in, so redirect them to the verification page instead of logging
-      // them in (the register endpoint returns no token and the account is
-      // not verified yet).
       setTimeout(() => {
         router.push(
           `/${locale}/verificationcode?email=${encodeURIComponent(form.email)}`,
@@ -46,13 +43,7 @@ export function useRegisterFlow() {
 
       return true;
     } catch (error) {
-      const message =
-        typeof error === "object" && error && "message" in error
-          ? String((error as { message?: string }).message ?? networkFallback)
-          : error instanceof Error
-            ? error.message
-            : networkFallback;
-      setGeneralError(message);
+      setGeneralError(getErrorMessage(error, networkFallback));
       return false;
     }
   };

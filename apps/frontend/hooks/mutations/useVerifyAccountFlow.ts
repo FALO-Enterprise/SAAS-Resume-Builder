@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useCountdown } from "@/hooks/useCountdown";
 import { setAccessToken } from "@/lib/auth/token";
-import { resetOnboardingState } from "@/lib/onboarding-storage";
+import { getErrorMessage } from "@/lib/api/errors";
 import {
   useResendCodeMutation,
   useVerifyCodeMutation,
@@ -34,9 +34,6 @@ export function useVerifyAccountFlow(
   const [success, setSuccess] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
 
-  // Store the verified user here temporarily.
-  // We do NOT call login() immediately because doing so can trigger
-  // the authentication redirect before the success screen is rendered.
   const [verifiedUser, setVerifiedUser] = useState<AuthUser | null>(null);
 
   const isMounted = useRef(true);
@@ -72,11 +69,6 @@ export function useVerifyAccountFlow(
         code,
       });
 
-      // A missing token means the backend didn't actually hand us a usable
-      // session, even though the request itself resolved without throwing.
-      // Do NOT show the success screen / mark the account verified in that
-      // case — the user would appear "verified" for a moment and then get
-      // silently signed out as soon as anything checks for a stored token.
       if (!data.token) {
         if (isMounted.current) {
           setGeneralError(networkFallback);
@@ -90,15 +82,6 @@ export function useVerifyAccountFlow(
         return { ok: true };
       }
 
-      /*
-       * IMPORTANT:
-       *
-       * Do NOT call login() here.
-       *
-       * Calling login() immediately changes the authentication state,
-       * which can cause your proxy/auth guard to redirect the user
-       * before the success screen becomes visible.
-       */
       const user: AuthUser = {
         id: data.user?.id ?? "",
         name: data.user?.name ?? email.split("@")[0],
@@ -115,51 +98,7 @@ export function useVerifyAccountFlow(
 
       return { ok: true };
     } catch (error) {
-      let message = networkFallback;
-
-      if (error && typeof error === "object") {
-        // Prefer the specific backend message from error.response.data, if
-        // present — it's more useful than axios's generic
-        // "Request failed with status code 500", which every AxiosError
-        // also carries as its own .message and would otherwise win first.
-        let extracted: string | null = null;
-
-        if (
-          "response" in error &&
-          error.response &&
-          typeof error.response === "object"
-        ) {
-          const response = error.response as {
-            data?: {
-              message?: string;
-              error?: string | { message?: string };
-            };
-          };
-
-          if (response.data?.message) {
-            extracted = response.data.message;
-          } else if (response.data?.error) {
-            const backendError = response.data.error;
-
-            extracted =
-              typeof backendError === "string"
-                ? backendError
-                : (backendError?.message ?? null);
-          }
-        }
-
-        if (
-          !extracted &&
-          "message" in error &&
-          typeof (error as { message?: string }).message === "string"
-        ) {
-          extracted = (error as { message: string }).message;
-        }
-
-        if (extracted) {
-          message = extracted;
-        }
-      }
+      const message = getErrorMessage(error, networkFallback);
 
       if (isMounted.current) {
         setGeneralError(message);
@@ -203,9 +142,11 @@ export function useVerifyAccountFlow(
       }, 2500);
 
       return true;
-    } catch {
+    } catch (error) {
+      // The error was discarded here, so a rate-limit or "already verified"
+      // reply from the backend always surfaced as the generic network string.
       if (isMounted.current) {
-        setGeneralError(networkFallback);
+        setGeneralError(getErrorMessage(error, networkFallback));
       }
 
       return false;

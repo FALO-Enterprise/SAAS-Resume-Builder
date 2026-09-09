@@ -11,13 +11,14 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
 import { clearAccessToken } from "@/lib/auth/token";
 
 import {
   AuthContextType,
   AuthUser,
 } from "@/lib/types/auth.types";
-import { clearAuthToken, hasActiveAuthToken } from "@/lib/auth-session";
+import { hasActiveAuthToken } from "@/lib/auth-session";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -25,26 +26,16 @@ const USER_KEY = "resumax_user";
 const VERIFIED_KEY = "resumax_isVerified";
 const subscribeToHydration = () => () => {};
 
-function getStoredUser(): AuthUser | null {
+function readStoredUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
 
   try {
     const stored = localStorage.getItem(USER_KEY);
-
-    if (!stored) {
-      clearAuthToken();
-      localStorage.removeItem(VERIFIED_KEY);
-      return null;
-    }
+    if (!stored) return null;
 
     // The navbar and the protected routes must agree on whether a browser
     // session exists. A user record without both JWT copies is stale state.
-    if (!hasActiveAuthToken()) {
-      clearAuthToken();
-      localStorage.removeItem(USER_KEY);
-      localStorage.removeItem(VERIFIED_KEY);
-      return null;
-    }
+    if (!hasActiveAuthToken()) return null;
 
     const parsed = JSON.parse(stored) as Omit<AuthUser, "isVerified"> & {
       isVerified?: boolean;
@@ -55,15 +46,19 @@ function getStoredUser(): AuthUser | null {
       // Sessions stored before isVerified became part of AuthUser were only
       // created after a successful verified login.
       isVerified:
-        parsed.isVerified ??
-        localStorage.getItem(VERIFIED_KEY) === "true",
+        parsed.isVerified ?? localStorage.getItem(VERIFIED_KEY) === "true",
     };
   } catch {
-    clearAuthToken();
-    localStorage.removeItem(USER_KEY);
-    localStorage.removeItem(VERIFIED_KEY);
     return null;
   }
+}
+
+function hasStaleSessionRemnants() {
+  if (typeof window === "undefined") return false;
+
+  return Boolean(
+    localStorage.getItem(USER_KEY) || localStorage.getItem(VERIFIED_KEY),
+  );
 }
 
 export function AuthProvider({
@@ -76,8 +71,10 @@ export function AuthProvider({
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const queryClient = useQueryClient();
+
   const [storedUser, setStoredUser] = useState<AuthUser | null>(() =>
-    getStoredUser()
+    readStoredUser()
   );
   const hasHydrated = useSyncExternalStore(
     subscribeToHydration,
@@ -91,6 +88,15 @@ export function AuthProvider({
   const isVerified = Boolean(
     user?.isVerified && hasActiveAuthToken(),
   );
+
+  // The render-phase cleanup readStoredUser used to do, moved to commit time.
+  useEffect(() => {
+    if (storedUser || !hasStaleSessionRemnants()) return;
+
+    clearAccessToken();
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(VERIFIED_KEY);
+  }, [storedUser]);
 
   useEffect(() => {
     if (storedUser) {
@@ -115,13 +121,15 @@ export function AuthProvider({
   };
 
   const logout = useCallback(() => {
-    // clearAuthToken();
     localStorage.removeItem(USER_KEY);
     localStorage.removeItem(VERIFIED_KEY);
     setStoredUser(null);
     clearAccessToken();
+
+    queryClient.clear();
+
     router.push(`/${locale}`);
-  }, [locale, router]);
+  }, [locale, queryClient, router]);
 
   const updateUser = (nextUser: AuthUser) => {
     setStoredUser(nextUser);

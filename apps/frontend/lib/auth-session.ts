@@ -70,12 +70,16 @@ export function getAuthTokenFromCookie(cookieHeader: string) {
 }
 
 export function hasActiveAuthToken(
-  storage: Pick<AuthTokenStorage, "getItem"> = window.localStorage,
-  cookieHeader: string = document.cookie,
+  storage?: Pick<AuthTokenStorage, "getItem">,
+  cookieHeader?: string,
 ) {
-  const storedToken = storage.getItem(AUTH_TOKEN_KEY);
+  if (!storage && typeof window === "undefined") return false;
+
+  const activeStorage = storage ?? window.localStorage;
+  const activeCookieHeader = cookieHeader ?? document.cookie;
+  const storedToken = activeStorage.getItem(AUTH_TOKEN_KEY);
 
   return Boolean(
-    storedToken && getAuthTokenFromCookie(cookieHeader) === storedToken,
+    storedToken && getAuthTokenFromCookie(activeCookieHeader) === storedToken,
   );
 }

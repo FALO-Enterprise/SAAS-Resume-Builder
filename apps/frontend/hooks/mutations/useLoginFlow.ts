@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { setAccessToken } from "@/lib/auth/token";
+import { getErrorMessage } from "@/lib/api/errors";
 import type { LoginData } from "@/lib/types/auth.types";
 import { useLoginMutation } from "@/hooks/mutations/useAuthMutations";
 
@@ -36,13 +37,7 @@ export function useLoginFlow() {
       setTimeout(() => closeModal(), 800);
       return true;
     } catch (error) {
-      const message =
-        typeof error === "object" && error && "message" in error
-          ? String((error as { message?: string }).message ?? networkFallback)
-          : error instanceof Error
-            ? error.message
-            : networkFallback;
-      setGeneralError(message);
+      setGeneralError(getErrorMessage(error, networkFallback));
       return false;
     }
   };
