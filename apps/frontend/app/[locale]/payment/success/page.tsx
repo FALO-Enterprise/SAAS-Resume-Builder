@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Check, Sparkles, ArrowRight, ShieldCheck, Zap } from "lucide-react";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
+import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
-import { syncBillingCheckout } from "@/lib/backend";
+import { useSyncCheckoutMutation } from "@/hooks/mutations/useBillingMutations";
+import { getAccessToken } from "@/lib/auth/token";
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
@@ -23,32 +25,42 @@ export default function PaymentSuccessPage() {
   const formattedPlan = (planParam || "PRO").toUpperCase();
   const isEnterprise = formattedPlan === "ENTERPRISE";
 
-  const [synced, setSynced] = useState(false);
+  const syncCheckoutMutation = useSyncCheckoutMutation();
+  const hasRequestedSync = useRef(false);
 
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
-    if (token && user) {
-      syncBillingCheckout(token, {
+    // `user` is null until AuthContext hydrates and it used to be missing from
+    // this dependency list, so on a cold Paddle redirect the guard below failed
+    // on the first commit and the effect never re-ran — the backend was never
+    // told about the purchase at all. The ref is what keeps it to one call now
+    // that `user` is a real dependency.
+    if (hasRequestedSync.current || !user) return;
+    if (!getAccessToken()) return;
+
+    hasRequestedSync.current = true;
+
+    syncCheckoutMutation.mutate(
+      {
         planId: formattedPlan,
         transactionId: transactionId || undefined,
-      })
-        .then(() => {
+      },
+      {
+        // Only trust the plan the backend confirms. Previously both the
+        // success and the failure branch wrote the optimistic plan, so a
+        // failed sync left the client permanently believing it had upgraded.
+        onSuccess: (result) => {
           updateUser({
             ...user,
-            planName: formattedPlan as "PRO" | "ENTERPRISE",
+            planName: result.plan as "PRO" | "ENTERPRISE",
           });
-          setSynced(true);
-        })
-        .catch((err) => {
-          console.error("Failed to sync checkout:", err);
-          updateUser({
-            ...user,
-            planName: formattedPlan as "PRO" | "ENTERPRISE",
-          });
-          setSynced(true);
-        });
-    }
-  }, [formattedPlan, transactionId]);
+        },
+        onError: (error) => {
+          console.error("Failed to sync checkout:", error);
+          toast.error(t("syncPending"));
+        },
+      },
+    );
+  }, [formattedPlan, transactionId, user, updateUser, syncCheckoutMutation, t]);
 
   const proFeatures = [
     t("features.pro.0"),
@@ -99,7 +111,7 @@ export default function PaymentSuccessPage() {
             {t("welcomeTitle", { plan: formattedPlan })}
           </h1>
 
-          <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-secondary">
+          <p className="mx-auto mb-8 max-w-xl leading-relaxed text-secondary">
             {t("welcomeSubtitle", { plan: formattedPlan })}
           </p>
 
@@ -125,7 +137,7 @@ export default function PaymentSuccessPage() {
             {transactionId && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted">{t("transactionLabel")}</span>
-                <span className="font-mono text-xs text-faint truncate max-w-[240px]">
+                <span className="font-mono text-xs text-faint truncate max-w-60">
                   {transactionId}
                 </span>
               </div>

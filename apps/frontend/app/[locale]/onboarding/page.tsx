@@ -43,11 +43,24 @@ import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { getAccessToken } from "@/lib/auth/token";
-import { getDashboardDraft, saveDashboardDraft } from "@/lib/backend";
+import { getDashboardDraft } from "@/lib/backend";
+import { getErrorMessage } from "@/lib/api/errors";
+import { useSaveDashboardDraftMutation } from "@/hooks/mutations/useDashboardDraftMutations";
 import {
   loadOnboardingState,
   saveOnboardingState,
 } from "@/lib/onboarding-storage";
+import {
+  EDUCATION_OPTIONS,
+  EMPTY_ANSWERS,
+  EXPERIENCE_OPTIONS,
+  FIELD_OPTIONS,
+  PURPOSE_OPTIONS,
+  ROLE_OPTIONS,
+  SKILL_OPTIONS,
+  STEPS,
+  type SurveyStepId,
+} from "@/lib/placeholder-data/onboarding.placeholder";
 import type { DashboardDraftData } from "@/lib/types/dashboard.types";
 import type {
   CareerField,
@@ -63,219 +76,6 @@ import {
   emptyRole,
   emptySkillGroup,
 } from "@/lib/utilities/resume";
-
-type SurveyStepId =
-  | "purpose"
-  | "experienceLevel"
-  | "field"
-  | "targetRole"
-  | "educationLevel"
-  | "skills"
-  | "template";
-
-const STEPS: SurveyStepId[] = [
-  "purpose",
-  "experienceLevel",
-  "field",
-  "targetRole",
-  "educationLevel",
-  "skills",
-  "template",
-];
-
-const PURPOSE_OPTIONS: SurveyPurpose[] = [
-  "firstResume",
-  "newJob",
-  "internship",
-  "careerChange",
-];
-
-const EXPERIENCE_OPTIONS: ExperienceLevel[] = [
-  "none",
-  "junior",
-  "mid",
-  "senior",
-];
-
-const FIELD_OPTIONS: CareerField[] = [
-  "technology",
-  "design",
-  "business",
-  "finance",
-  "health",
-  "education",
-  "engineering",
-  "other",
-];
-
-const ROLE_OPTIONS: Record<Exclude<CareerField, "">, string[]> = {
-  technology: [
-    "frontendDeveloper",
-    "backendDeveloper",
-    "fullStackDeveloper",
-    "softwareEngineer",
-    "dataAnalyst",
-    "cybersecuritySpecialist",
-  ],
-  design: [
-    "graphicDesigner",
-    "uiUxDesigner",
-    "productDesigner",
-    "motionDesigner",
-    "brandDesigner",
-    "contentDesigner",
-  ],
-  business: [
-    "projectCoordinator",
-    "projectManager",
-    "hrSpecialist",
-    "marketingSpecialist",
-    "operationsOfficer",
-    "businessDevelopmentOfficer",
-  ],
-  finance: [
-    "accountant",
-    "financialAnalyst",
-    "auditor",
-    "financeOfficer",
-    "payrollSpecialist",
-    "bankingOfficer",
-  ],
-  health: [
-    "dietitian",
-    "nurse",
-    "publicHealthOfficer",
-    "pharmacist",
-    "physiotherapist",
-    "labTechnician",
-  ],
-  education: [
-    "teacher",
-    "trainer",
-    "educationCoordinator",
-    "academicResearcher",
-    "schoolCounselor",
-    "curriculumSpecialist",
-  ],
-  engineering: [
-    "civilEngineer",
-    "electricalEngineer",
-    "mechanicalEngineer",
-    "architecturalEngineer",
-    "industrialEngineer",
-    "siteEngineer",
-  ],
-  other: [
-    "administrativeAssistant",
-    "customerServiceRepresentative",
-    "communityOfficer",
-    "salesRepresentative",
-    "dataEntryClerk",
-    "logisticsOfficer",
-  ],
-};
-
-const EDUCATION_OPTIONS: EducationLevel[] = [
-  "highSchool",
-  "diploma",
-  "bachelor",
-  "master",
-  "doctorate",
-];
-
-const SKILL_OPTIONS: Record<Exclude<CareerField, "">, string[]> = {
-  technology: [
-    "webDevelopment",
-    "programming",
-    "problemSolving",
-    "dataAnalysis",
-    "teamwork",
-    "projectManagement",
-    "communication",
-    "research",
-  ],
-  design: [
-    "uiDesign",
-    "creativity",
-    "communication",
-    "teamwork",
-    "projectManagement",
-    "marketing",
-    "problemSolving",
-    "timeManagement",
-  ],
-  business: [
-    "leadership",
-    "projectManagement",
-    "communication",
-    "marketing",
-    "excel",
-    "customerService",
-    "teamwork",
-    "timeManagement",
-  ],
-  finance: [
-    "accounting",
-    "excel",
-    "dataAnalysis",
-    "reporting",
-    "problemSolving",
-    "timeManagement",
-    "communication",
-    "research",
-  ],
-  health: [
-    "healthEducation",
-    "communication",
-    "research",
-    "dataAnalysis",
-    "teamwork",
-    "caseManagement",
-    "timeManagement",
-    "customerService",
-  ],
-  education: [
-    "teaching",
-    "communication",
-    "research",
-    "leadership",
-    "teamwork",
-    "timeManagement",
-    "projectManagement",
-    "problemSolving",
-  ],
-  engineering: [
-    "engineeringDesign",
-    "problemSolving",
-    "projectManagement",
-    "dataAnalysis",
-    "excel",
-    "teamwork",
-    "timeManagement",
-    "research",
-  ],
-  other: [
-    "communication",
-    "teamwork",
-    "problemSolving",
-    "timeManagement",
-    "excel",
-    "leadership",
-    "projectManagement",
-    "customerService",
-  ],
-};
-
-const EMPTY_ANSWERS: OnboardingData = {
-  purpose: "",
-  experienceLevel: "",
-  field: "",
-  targetRole: "",
-  customTargetRole: "",
-  educationLevel: "",
-  skills: [],
-  template: "minimal",
-};
 
 function recommendedTemplate(_answers: OnboardingData): ResumeTemplateChoice {
   return "minimal";
@@ -356,6 +156,7 @@ export default function OnboardingPage() {
   const locale = useLocale();
   const router = useRouter();
   const { user } = useAuth();
+  const saveDraftMutation = useSaveDashboardDraftMutation();
   const isRTL = locale === "ar";
 
   const [answers, setAnswers] = useState<OnboardingData>(EMPTY_ANSWERS);
@@ -491,9 +292,6 @@ export default function OnboardingPage() {
     setSaving(true);
     try {
       const currentDraft = await getDashboardDraft(token);
-      if ('error' in currentDraft) {
-        throw new Error(currentDraft.error);
-      }
 
       const translatedSkills = answers.skills.map((skill) => {
         try {
@@ -571,11 +369,13 @@ export default function OnboardingPage() {
         skills: mergedSkills,
       };
 
-      await saveDashboardDraft(token, nextDraft);
+      // Through the mutation so the drafts list (which sorts on updatedAt)
+      // and the dashboard-draft cache are both invalidated by this write.
+      await saveDraftMutation.mutateAsync({ draft: nextDraft });
+
       return true;
-    } catch (err) {
-      console.error("[Onboarding] Failed to sync to dashboard draft:", err);
-      toast.error(t("errors.dashboardSave"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("errors.dashboardSave")));
       return false;
     } finally {
       setSaving(false);
@@ -681,7 +481,6 @@ export default function OnboardingPage() {
   return (
     <main
       className="relative min-h-dvh overflow-x-hidden bg-base font-syne text-primary"
-      dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(245,166,35,0.11),transparent_42%)]" />

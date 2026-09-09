@@ -14,10 +14,15 @@ import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { createCheckoutSession, syncBillingCheckout } from "@/lib/backend";
 import { usePlansQuery } from "@/hooks/queries/usePlans";
+import {
+  useCreateCheckoutSessionMutation,
+  useSyncCheckoutMutation,
+} from "@/hooks/mutations/useBillingMutations";
+import { getErrorMessage } from "@/lib/api/errors";
 import { openPaddleCheckout } from "@/lib/paddle/paddle";
 import PaymentSuccessModal from "@/components/payment/PaymentSuccessModal";
+import { getAccessToken } from "@/lib/auth/token";
 
 const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, enterprise: 2 };
 
@@ -119,6 +124,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function PricingPage() {
   const t = useTranslations();
+  const successModalT = useTranslations("pricing.successModal");
   const locale = useLocale();
   const isRTL = locale === "ar";
   const router = useRouter();
@@ -134,6 +140,8 @@ export default function PricingPage() {
   // rather than mirrored into state, so a refetch cannot leave a stale price
   // on screen.
   const { data: plans } = usePlansQuery();
+  const createCheckoutSessionMutation = useCreateCheckoutSessionMutation();
+  const syncCheckoutMutation = useSyncCheckoutMutation();
 
   const planPrices = useMemo(() => {
     const next = { ...FALLBACK_PRICES };
@@ -167,13 +175,13 @@ export default function PricingPage() {
 
     try {
       setCheckingOutPlan(planId);
-      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") : null;
+      const token = getAccessToken();
       if (!token) {
         goToRegister(planId);
         return;
       }
 
-      const session = await createCheckoutSession(token, planId);
+      const session = await createCheckoutSessionMutation.mutateAsync(planId);
 
       if (!session.priceId || session.priceId.includes('default')) {
         toast.error(
@@ -209,19 +217,25 @@ export default function PricingPage() {
               : `Welcome to ${targetPlan}! Your account is now active.`
           );
 
+          // Only adopt the plan the backend confirms. This used to run
+          // unconditionally after a swallowed sync failure, leaving the client
+          // permanently believing it had upgraded when the server disagreed —
+          // and because planName is persisted to localStorage, that lie
+          // survived reloads and unlocked gated features.
           try {
-            await syncBillingCheckout(token, {
+            const synced = await syncCheckoutMutation.mutateAsync({
               planId: targetPlan,
               transactionId: transactionId || undefined,
             });
+
+            updateUser({
+              ...user,
+              planName: synced.plan as "PRO" | "ENTERPRISE",
+            });
           } catch (err) {
             console.error("Auto sync checkout error:", err);
+            toast.error(successModalT("syncPending"));
           }
-
-          updateUser({
-            ...user,
-            planName: targetPlan as "PRO" | "ENTERPRISE",
-          });
 
           setUpgradedPlanName(targetPlan);
           setUpgradedTransactionId(transactionId);
@@ -238,7 +252,7 @@ export default function PricingPage() {
       }
     } catch (error) {
       console.error("Checkout error:", error);
-      toast.error(error instanceof Error ? error.message : "Checkout initialization failed");
+      toast.error(getErrorMessage(error, "Checkout initialization failed"));
     } finally {
       setCheckingOutPlan(null);
     }
@@ -472,7 +486,7 @@ export default function PricingPage() {
                 <div
                   className={`bg-primary/2 px-6 py-3.5 ${si > 0 ? "border-t border-edge" : ""}`}
                 >
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-muted">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-secondary">
                     {t(`pricing.table.sections.${section.key}`)}
                   </span>
                 </div>

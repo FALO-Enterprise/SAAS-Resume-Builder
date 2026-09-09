@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
@@ -22,17 +22,11 @@ import {
   Layers,
   Clock,
 } from "lucide-react";
-import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
-import {
-  fetchUserDrafts,
-  createUserDraft,
-  deleteUserDraft,
-  updateUserDraftTitle,
-  type ResumeDraftItem,
-} from "@/lib/backend";
+import { useDraftsFlow } from "@/hooks/mutations/useDraftsFlow";
+import { type ResumeDraftItem } from "@/lib/backend";
 import { templates } from "@/lib/placeholder-data/templates.placeholder";
 import { DraftsGridSkeleton } from "@/components/ui/Skeletons";
 
@@ -78,24 +72,45 @@ export default function DraftsPage() {
   const isRTL = locale === "ar";
   const { user } = useAuth();
 
-  const [drafts, setDrafts] = useState<ResumeDraftItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
+  // Translated copy for the flow's toasts — the hook owns the requests and
+  // the modal state, the page owns the wording.
+  const flowMessages = useMemo(
+    () => ({
+      loadFailed: t("errors.loadFailed"),
+      createSuccess: t("createSuccess"),
+      createFailed: t("errors.createFailed"),
+      renameSuccess: t("renameSuccess"),
+      renameFailed: t("errors.renameFailed"),
+      deleteSuccess: t("deleteSuccess"),
+      deleteFailed: t("errors.deleteFailed"),
+    }),
+    [t],
+  );
+
+  const {
+    drafts,
+    isLoading,
+    createDraft,
+    isCreating,
+    renamingDraft,
+    newTitle,
+    setNewTitle,
+    openRename,
+    closeRename,
+    saveRename,
+    isSavingTitle,
+    deletingDraft,
+    openDelete,
+    closeDelete,
+    confirmDelete,
+    isDeleting,
+    showUpgradeModal,
+    closeUpgradeModal,
+  } = useDraftsFlow(flowMessages);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "title" | "template">("newest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
-  // Rename modal state
-  const [renamingDraft, setRenamingDraft] = useState<ResumeDraftItem | null>(null);
-  const [newTitle, setNewTitle] = useState("");
-  const [isSavingTitle, setIsSavingTitle] = useState(false);
-
-  // Delete modal state
-  const [deletingDraft, setDeletingDraft] = useState<ResumeDraftItem | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // Upgrade / Limit modal state
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const rawPlan = user?.planName?.toLowerCase() ?? "free";
   const planKey = (
@@ -109,99 +124,11 @@ export default function DraftsPage() {
   const draftsCount = drafts.length;
   const isLimitReached = draftsCount >= maxDrafts;
 
-  const loadDrafts = async () => {
-    try {
-      setLoading(true);
-      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") || "" : "";
-      const list = await fetchUserDrafts(token);
-      setDrafts(list);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t("errors.loadFailed");
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      void loadDrafts();
-    }, 0);
-
-    return () => window.clearTimeout(timeoutId);
-  }, []);
-
-  const handleCreateDraft = async () => {
-    if (isLimitReached) {
-      setShowUpgradeModal(true);
-      return;
-    }
-
-    try {
-      setCreating(true);
-      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") || "" : "";
-      const newResume = await createUserDraft(token);
-      toast.success(t("createSuccess"));
-      router.push(`/${locale}/dashboard/${newResume.id}`);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t("errors.createFailed");
-      if (
-        msg.toLowerCase().includes("limit") ||
-        msg.toLowerCase().includes("free plan") ||
-        msg.toLowerCase().includes("upgrade")
-      ) {
-        setShowUpgradeModal(true);
-      } else {
-        toast.error(msg);
-      }
-    } finally {
-      setCreating(false);
-    }
-  };
+  const handleCreateDraft = () => createDraft(isLimitReached);
 
   const handleOpenRename = (draft: ResumeDraftItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    setRenamingDraft(draft);
-    setNewTitle(draft.title);
-  };
-
-  const handleSaveRename = async () => {
-    if (!renamingDraft || !newTitle.trim()) return;
-
-    try {
-      setIsSavingTitle(true);
-      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") || "" : "";
-      await updateUserDraftTitle(token, renamingDraft.id, newTitle.trim());
-
-      setDrafts((prev) =>
-        prev.map((d) => (d.id === renamingDraft.id ? { ...d, title: newTitle.trim() } : d))
-      );
-
-      toast.success(t("renameSuccess"));
-      setRenamingDraft(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("errors.renameFailed"));
-    } finally {
-      setIsSavingTitle(false);
-    }
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!deletingDraft) return;
-
-    try {
-      setIsDeleting(true);
-      const token = typeof window !== "undefined" ? localStorage.getItem("resumax_token") || "" : "";
-      await deleteUserDraft(token, deletingDraft.id);
-
-      setDrafts((prev) => prev.filter((d) => d.id !== deletingDraft.id));
-      toast.success(t("deleteSuccess"));
-      setDeletingDraft(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t("errors.deleteFailed"));
-    } finally {
-      setIsDeleting(false);
-    }
+    openRename(draft);
   };
 
   const filteredDrafts = useMemo(() => {
@@ -297,10 +224,10 @@ export default function DraftsPage() {
             {/* Create Draft Button */}
             <button
               onClick={handleCreateDraft}
-              disabled={creating || isLimitReached}
+              disabled={isCreating || isLimitReached}
               className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold hover:bg-gold-light text-slate-950 font-black text-sm transition-all duration-200 hover:scale-105 hover:shadow-[0_0_25px_rgba(245,166,35,0.4)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
-              {creating ? (
+              {isCreating ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
                   <span>{t("creating")}</span>
@@ -408,7 +335,7 @@ export default function DraftsPage() {
 
         {/* Drafts Content Section */}
         <div className="mt-8">
-          {loading ? (
+          {isLoading ? (
             <DraftsGridSkeleton label={t("loadingDrafts")} />
           ) : filteredDrafts.length === 0 ? (
             /* Empty State */
@@ -425,7 +352,7 @@ export default function DraftsPage() {
               {!searchQuery && (
                 <button
                   onClick={handleCreateDraft}
-                  disabled={creating || isLimitReached}
+                  disabled={isCreating || isLimitReached}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gold hover:bg-gold-light text-slate-950 font-black text-sm transition-all hover:scale-105"
                 >
                   <Plus size={16} />
@@ -521,7 +448,7 @@ export default function DraftsPage() {
 
                     {/* Delete button */}
                     <button
-                      onClick={() => setDeletingDraft(draft)}
+                      onClick={() => openDelete(draft)}
                       title={t("delete")}
                       className="p-2 rounded-xl text-muted hover:text-pink-light hover:bg-pink-light/10 transition-colors cursor-pointer"
                     >
@@ -586,7 +513,7 @@ export default function DraftsPage() {
                       {t("preview")}
                     </Link>
                     <button
-                      onClick={() => setDeletingDraft(draft)}
+                      onClick={() => openDelete(draft)}
                       className="p-2 text-muted hover:text-pink-light transition-colors"
                     >
                       <Trash2 size={15} />
@@ -607,7 +534,7 @@ export default function DraftsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setRenamingDraft(null)}
+              onClick={closeRename}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             <motion.div
@@ -619,7 +546,7 @@ export default function DraftsPage() {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-primary">{t("renameTitle")}</h3>
                 <button
-                  onClick={() => setRenamingDraft(null)}
+                  onClick={closeRename}
                   className="text-muted hover:text-primary p-1"
                 >
                   <X size={18} />
@@ -630,20 +557,20 @@ export default function DraftsPage() {
                 type="text"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSaveRename()}
+                onKeyDown={(e) => e.key === "Enter" && saveRename()}
                 autoFocus
                 className="w-full rounded-xl border border-edge bg-card px-4 py-3 text-sm font-semibold text-primary outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
               />
 
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button
-                  onClick={() => setRenamingDraft(null)}
+                  onClick={closeRename}
                   className="px-4 py-2 rounded-xl text-xs font-bold text-secondary hover:text-primary"
                 >
                   {t("cancel")}
                 </button>
                 <button
-                  onClick={handleSaveRename}
+                  onClick={saveRename}
                   disabled={isSavingTitle || !newTitle.trim()}
                   className="px-5 py-2 rounded-xl bg-gold hover:bg-gold-light text-slate-950 text-xs font-black disabled:opacity-50 flex items-center gap-1.5"
                 >
@@ -664,7 +591,7 @@ export default function DraftsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setDeletingDraft(null)}
+              onClick={closeDelete}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             <motion.div
@@ -686,14 +613,14 @@ export default function DraftsPage() {
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-edge">
                 <button
-                  onClick={() => setDeletingDraft(null)}
+                  onClick={closeDelete}
                   disabled={isDeleting}
                   className="px-4 py-2 rounded-xl text-xs font-bold text-secondary hover:text-primary"
                 >
                   {t("cancel")}
                 </button>
                 <button
-                  onClick={handleConfirmDelete}
+                  onClick={confirmDelete}
                   disabled={isDeleting}
                   className="px-5 py-2 rounded-xl bg-pink hover:bg-pink-light text-white text-xs font-black disabled:opacity-50 flex items-center gap-1.5 cursor-pointer shadow-lg shadow-pink/20"
                 >
@@ -714,7 +641,7 @@ export default function DraftsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowUpgradeModal(false)}
+              onClick={closeUpgradeModal}
               className="absolute inset-0 bg-black/75 backdrop-blur-md"
             />
             <motion.div
@@ -733,7 +660,7 @@ export default function DraftsPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setShowUpgradeModal(false)}
+                  onClick={closeUpgradeModal}
                   className="flex h-9 w-9 items-center justify-center rounded-full border border-edge bg-card text-secondary hover:text-primary transition-colors cursor-pointer"
                 >
                   <X size={16} />
@@ -767,7 +694,7 @@ export default function DraftsPage() {
                 {canUpgrade && (
                   <Link
                     href={`/${locale}/pricing`}
-                    onClick={() => setShowUpgradeModal(false)}
+                    onClick={closeUpgradeModal}
                     className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gold hover:bg-gold-light px-5 py-3 text-sm font-extrabold text-slate-950 shadow-lg shadow-gold/20 transition-all"
                   >
                     <Sparkles size={16} />
@@ -781,7 +708,7 @@ export default function DraftsPage() {
                     nothing left to upgrade to. */}
                 <button
                   type="button"
-                  onClick={() => setShowUpgradeModal(false)}
+                  onClick={closeUpgradeModal}
                   className={
                     canUpgrade
                       ? "flex min-h-11 items-center justify-center gap-2 rounded-xl border border-edge bg-card hover:bg-card-hover px-5 py-3 text-sm font-bold text-secondary hover:text-primary transition-colors cursor-pointer"
