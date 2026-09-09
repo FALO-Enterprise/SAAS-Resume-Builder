@@ -6,12 +6,13 @@ import {
   updateUserProfile,
   deleteUserProfile,
 } from "@/lib/api/user";
-import type { AuthUser as User} from "@/lib/types/auth.types";
+import type { AuthUser as User } from "@/lib/types/auth.types";
 import { queryKeys } from "@/lib/query/queryKeys";
+import { ANONYMOUS_USER_ID } from "@/hooks/useCurrentUserId";
 
 export function useUserQuery(userId?: string) {
   return useQuery({
-    queryKey: userId ? queryKeys.user.detail(userId) : ["user", "missing-id"],
+    queryKey: queryKeys.users.detail(userId ?? ANONYMOUS_USER_ID),
     queryFn: () => fetchUserProfile(userId as string),
     enabled: Boolean(userId),
   });
@@ -21,13 +22,11 @@ export function useUpdateUserMutation(userId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: FormData) => updateUserProfile(userId as string, payload),
+    mutationFn: (payload: FormData) =>
+      updateUserProfile(userId as string, payload),
     onSuccess: (updated) => {
       if (!userId) return;
-      queryClient.setQueryData<User>(
-        queryKeys.user.detail(userId),
-        updated
-      );
+      queryClient.setQueryData<User>(queryKeys.users.detail(userId), updated);
     },
   });
 }
@@ -38,8 +37,10 @@ export function useDeleteUserMutation(userId?: string) {
   return useMutation({
     mutationFn: () => deleteUserProfile(userId as string),
     onSuccess: () => {
-      if (!userId) return;
-      queryClient.removeQueries({ queryKey: queryKeys.user.detail(userId) });
+      // The account is gone, so nothing cached about it is still valid — not
+      // just the profile row. logout() clears the rest of the cache.
+      queryClient.removeQueries({ queryKey: queryKeys.users.all });
+      queryClient.removeQueries({ queryKey: queryKeys.drafts.all });
     },
   });
 }

@@ -6,7 +6,7 @@ import { queryKeys } from "@/lib/query/queryKeys";
 
 export function usePlansQuery() {
   return useQuery({
-    queryKey: queryKeys.plans.all,
+    queryKey: queryKeys.plans.list(),
     queryFn: getPublicPlans,
     // Prices change on the order of never, so refetching them per mount is
     // wasted traffic on a page that anonymous visitors land on constantly.
