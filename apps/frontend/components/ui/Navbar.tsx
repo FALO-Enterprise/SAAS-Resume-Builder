@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Menu, X, Globe } from "lucide-react";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import UserAvatarMenu from "@/components/ui/UserAvatarMenu";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useAuth } from "@/context/AuthContext";
+import { usePreferences } from "@/context/PreferencesContext";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -20,6 +21,10 @@ export default function Navbar() {
   const { user, openLogin, closeModal } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const osReduced = useReducedMotion();
+  const { preferences, mounted } = usePreferences();
+  const reduced = Boolean(osReduced) || (mounted && preferences.reduceMotion);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -55,21 +60,20 @@ export default function Navbar() {
 
   return (
     <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      initial={{ y: reduced ? 0 : -80 }}
+      animate={{ y: 0 }}
+      transition={{ duration: reduced ? 0 : 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
           ? "py-3 border-b border-edge-strong backdrop-blur-xl shadow-sm"
           : "py-5 bg-transparent border-b border-transparent"
       }`}
     >
-
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(ellipse_60%_60%_at_50%_0%,rgba(245,166,35,0.10),transparent_70%)]"
       />
-      
+
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <Link href={`/${locale}`} className="no-underline">
           <Logo />
@@ -114,7 +118,7 @@ export default function Navbar() {
               {/* ── Get Started ── opens signup modal */}
               <Link
                 href={`/${locale}/createaccount`}
-                className="hidden lg:block flex-1 text-center bg-gold text-ink font-bold text-sm py-2 px-4 rounded-full border-none cursor-pointer hover:bg-gold-light hover:scale-[1.04] transition-all"
+                className="hidden lg:block flex-1 text-center bg-gold text-on-gold font-bold text-sm py-2 px-4 rounded-full border-none cursor-pointer hover:bg-gold-light hover:scale-[1.04] transition-all"
               >
                 {t("getStarted")}
               </Link>
@@ -144,7 +148,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden bg-ink border-t-white/6"
+            className="overflow-hidden border-t border-edge bg-ink"
           >
             <div className="py-5 px-6 flex flex-col gap-4">
               {navLinks.map((link) => (
@@ -162,20 +166,20 @@ export default function Navbar() {
                   <Link
                     href={`/${locale}/dashboard`}
                     onClick={() => setMobileOpen(false)}
-                    className="text-gold text-lg font-bold decoration-0 py-2 px-0"
+                    className="text-primary text-lg font-bold decoration-0 py-2 px-0"
                   >
                     {t("dashboard")}
                   </Link>
                   <Link
                     href={`/${locale}/drafts`}
                     onClick={() => setMobileOpen(false)}
-                    className="text-gold text-lg font-bold decoration-0 py-2 px-0"
+                    className="text-primary text-lg font-bold decoration-0 py-2 px-0"
                   >
                     {t("drafts")}
                   </Link>
                 </>
               )}
-              <div className="h-px bg-white/8 my-1 mx-0" />
+              <div className="h-px bg-edge my-1 mx-0" />
               <div className="flex gap-3">
                 <button
                   onClick={() => switchLocale(locale === "en" ? "ar" : "en")}
@@ -188,7 +192,7 @@ export default function Navbar() {
                   <Link
                     href={`/${locale}/createaccount`}
                     onClick={closeModal}
-                    className="flex-1 text-center bg-gold text-ink font-bold text-sm py-2 px-4 rounded-full border-none cursor-pointer"
+                    className="flex-1 text-center bg-gold text-on-gold font-bold text-sm py-2 px-4 rounded-full border-none cursor-pointer"
                   >
                     {t("getStarted")}
                   </Link>

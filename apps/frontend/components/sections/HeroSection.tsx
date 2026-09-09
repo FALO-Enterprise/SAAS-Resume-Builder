@@ -1,761 +1,368 @@
-// 'use client';
-
-// import { motion } from 'framer-motion';
-// import { useTranslations, useLocale } from "next-intl";
-// import Link from 'next/link';
-// import { ArrowRight, Play, Sparkles } from 'lucide-react';
-// import { useAuth } from '@/context/AuthContext';
-
-// const ResumeMockup = () => (
-//   <motion.div
-//     initial={{ opacity: 0, y: 40, rotateY: -10 }}
-//     animate={{ opacity: 1, y: 0, rotateY: 0 }}
-//     transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-//     className="relative"
-//     style={{ perspective: 1000 }}
-//   >
-//     {/* Glow behind */}
-//     <div className="absolute inset-0 bg-linear-to-br from-gold/30 via-azure/20 to-transparent blur-3xl rounded-3xl" />
-
-//     {/* Main resume card — adapts to theme: lifted charcoal in dark, white paper in light */}
-//     <motion.div
-//       animate={{ y: [0, -12, 0] }}
-//       transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-//       className="relative bg-elevated text-primary rounded-2xl overflow-hidden w-72 shadow-2xl"
-//     >
-//       {/* Resume Header — colored band, constant in both themes (white text stays) */}
-//       <div className="bg-linear-to-br from-azure to-teal p-6">
-//         <div className="flex items-center gap-3">
-//           <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-lg">
-//             AM
-//           </div>
-//           <div>
-//             <div className="text-white font-bold text-sm">Alex Morgan</div>
-//             <div className="text-white/70 text-xs">Senior UX Designer</div>
-//           </div>
-//         </div>
-//         <div className="mt-3 flex gap-2">
-//           <span className="bg-white/15 text-white/90 text-xs px-2 py-0.5 rounded-full">San Francisco</span>
-//           <span className="bg-gold/30 text-gold text-xs px-2 py-0.5 rounded-full">Open to Work</span>
-//         </div>
-//       </div>
-
-//       {/* Resume Body */}
-//       <div className="p-5 space-y-4">
-//         {/* ATS Score */}
-//         <div className="flex items-center justify-between">
-//           <span className="text-secondary text-xs">ATS Score</span>
-//           <div className="flex items-center gap-2">
-//             <div className="h-1.5 w-24 bg-edge rounded-full overflow-hidden">
-//               <motion.div
-//                 initial={{ width: 0 }}
-//                 animate={{ width: '94%' }}
-//                 transition={{ duration: 1.5, delay: 1.2 }}
-//                 className="h-full bg-linear-to-r from-gold to-gold-light rounded-full"
-//               />
-//             </div>
-//             <span className="text-gold text-xs font-bold">94%</span>
-//           </div>
-//         </div>
-
-//         {/* Experience lines */}
-//         <div className="space-y-2">
-//           <div className="text-faint text-xs uppercase tracking-wider font-semibold">Experience</div>
-//           {[
-//             { company: 'Meta', role: 'Lead Designer', years: '2021-2024' },
-//             { company: 'Airbnb', role: 'UX Designer', years: '2018-2021' },
-//           ].map((exp, i) => (
-//             <div key={i} className="flex items-center justify-between py-1.5 border-b border-edge">
-//               <div>
-//                 <div className="text-primary text-xs font-semibold">{exp.company}</div>
-//                 <div className="text-secondary text-xs">{exp.role}</div>
-//               </div>
-//               <div className="text-faint text-xs">{exp.years}</div>
-//             </div>
-//           ))}
-//         </div>
-
-//         {/* Skills */}
-//         <div>
-//           <div className="text-faint text-xs uppercase tracking-wider font-semibold mb-2">Skills</div>
-//           <div className="flex flex-wrap gap-1.5">
-//             {['Figma', 'React', 'Prototyping', 'A/B Testing'].map((s) => (
-//               <span key={s} className="glass text-secondary text-xs px-2 py-1 rounded-md border border-edge">{s}</span>
-//             ))}
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Bottom badge */}
-//       <div className="px-5 pb-4 flex items-center justify-between">
-//         <div className="flex items-center gap-1.5">
-//           <Sparkles size={11} className="text-gold" />
-//           <span className="text-gold text-xs font-semibold">ResuMax Verified</span>
-//         </div>
-//         <div className="w-6 h-6 rounded-full bg-linear-to-br from-gold to-gold-dark flex items-center justify-center">
-//           <span className="text-white text-xs font-black">R</span>
-//         </div>
-//       </div>
-//     </motion.div>
-
-//     {/* Floating badges */}
-//     <motion.div
-//       animate={{ y: [0, -6, 0], x: [0, 3, 0] }}
-//       transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-//       className="absolute -top-6 -right-8 glass-gold rounded-xl px-3 py-2 flex items-center gap-2"
-//     >
-//       <div className="w-5 h-5 rounded-full bg-gold flex items-center justify-center">
-//         <span className="text-white text-xs font-bold">✓</span>
-//       </div>
-//       <div>
-//         <div className="text-primary text-xs font-bold">ATS Ready</div>
-//         <div className="text-secondary text-xs">Global Standard</div>
-//       </div>
-//     </motion.div>
-
-//     <motion.div
-//       animate={{ y: [0, 8, 0] }}
-//       transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut'}}
-//       className="absolute -bottom-4 -left-10 glass rounded-xl px-3 py-2 gap-2 transition-delay-100"
-//     >
-//       <div className="text-faint text-xs">Templates</div>
-//       <div className="text-primary font-bold text-lg">120+</div>
-//     </motion.div>
-//   </motion.div>
-// );
-
-// const Stat = ({ number, label, delay }: { number: string; label: string; delay: number }) => (
-//   <motion.div
-//     initial={{ opacity: 0, y: 20 }}
-//     animate={{ opacity: 1, y: 0 }}
-//     transition={{ duration: 0.6, delay }}
-//     className="text-center lg:text-left"
-//   >
-//     <div className="text-3xl lg:text-4xl font-black text-primary font-playfair">
-//       {number}
-//     </div>
-//     <div className="text-faint text-sm mt-1 font-medium tracking-wide">{label}</div>
-//   </motion.div>
-// );
-
-// export default function HeroSection() {
-//   const t = useTranslations('hero');
-//   const locale = useLocale();
-//   const isRTL = locale === "ar";
-//   const { isVerified, user } = useAuth();
-
-//   // فحص ما إذا كان المستخدم يملك خطة مدفوعة
-//   const currentPlanId = user?.planName?.toLowerCase() ?? "free";
-//   const isPaidUser = isVerified && currentPlanId !== "free";
-
-//   return (
-//     <section className="relative min-h-screen flex justify-center items-center overflow-hidden">
-//       {/* Background gradient */}
-//       <div className="absolute inset-0 bg-linear-to-br from-ink via-soft to-ink" />
-//       <div className="absolute top-0 left-1/3 w-96 h-96 bg-gold/5 blur-[100px] rounded-full" />
-//       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-azure/8 blur-[100px] rounded-full" />
-
-//       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-28 pb-20 w-full">
-//         <div className="grid lg:grid-cols-2 gap-16 items-center">
-//           {/* Left Content */}
-//           <div>
-//             {/* Badge */}
-//             <motion.div
-//               initial={{ opacity: 0, y: 20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.5 }}
-//               className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-1.5 mb-8"
-//             >
-//               <span className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
-//               <span className="text-gold text-xs font-bold uppercase tracking-widest">{t('badge')}</span>
-//             </motion.div>
-
-//             {/* Headline */}
-//             <motion.h1
-//               initial={{ opacity: 0, y: 30 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.7, delay: 0.1 }}
-//               className="text-5xl lg:text-7xl font-black leading-[1.05] mb-6 font-playfair"
-//             >
-//               <span className="text-primary">{t('title')}</span>
-//               <br />
-//               <span className="text-gradient-gold">{t('titleHighlight')}</span>
-//             </motion.h1>
-
-//             {/* Subtitle */}
-//             <motion.p
-//               initial={{ opacity: 0, y: 20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.6, delay: 0.2 }}
-//               className="text-secondary text-lg leading-relaxed max-w-xl mb-10"
-//             >
-//               {t('subtitle')}
-//             </motion.p>
-
-//             {/* CTAs */}
-//             <motion.div
-//               initial={{ opacity: 0, y: 20 }}
-//               animate={{ opacity: 1, y: 0 }}
-//               transition={{ duration: 0.6, delay: 0.3 }}
-//               className="flex flex-wrap gap-4 mb-16"
-//             >
-//               <Link
-//                   href={`/${locale}/resume/getstarted`}
-//                 className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-bold px-7 py-4 rounded-full transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(245,166,35,0.4)]"
-//               >
-//                 {isPaidUser ? t('ctaPaid') || 'Start Building' : t('cta')}
-//                 <ArrowRight size={18} className={`group-hover:translate-x-1 transition-transform ${isRTL ? 'rotate-180' : ''}`} />
-//               </Link>
-//               <Link
-//                 href={`${locale}/templates`}
-//                 className="flex items-center gap-2 glass border border-edge text-secondary hover:text-primary font-semibold px-7 py-4 rounded-full transition-all duration-200 hover:border-edge-strong"
-//               >
-//                 <Play size={15} className={`fill-current ${isRTL ? 'rotate-180' : ''}`} />
-//                 {t('ctaSecondary')}
-//               </Link>
-//             </motion.div>
-
-//             {/* Stats */}
-//             <div className="flex flex-wrap gap-10">
-//               <Stat number={t('stats.resumes')} label={t('stats.resumesLabel')} delay={0.5} />
-//               <div className="hidden sm:block w-px bg-edge" />
-//               <Stat number={t('stats.templates')} label={t('stats.templatesLabel')} delay={0.6} />
-//               <div className="hidden sm:block w-px bg-edge" />
-//               <Stat number={t('stats.satisfaction')} label={t('stats.satisfactionLabel')} delay={0.7} />
-//             </div>
-//           </div>
-
-//           {/* Right — Resume Mockup */}
-//           <div className="flex justify-center lg:justify-end">
-//             <ResumeMockup />
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Scroll indicator */}
-//       <motion.div
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         transition={{ delay: 1.5 }}
-//         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-//       >
-//         <span className="text-muted text-xs tracking-widest uppercase">Scroll</span>
-//         <motion.div
-//           animate={{ y: [0, 6, 0] }}
-//           transition={{ duration: 1.5, repeat: Infinity }}
-//           className="w-0.5 h-8 bg-linear-to-b from-gold/60 to-transparent"
-//         />
-//       </motion.div>
-//     </section>
-//   );
-// }
-
 "use client";
 
-import { motion } from "framer-motion";
-import { useTranslations, useLocale } from "next-intl";
-import Link from "next/link";
+import { useMemo, useState, type CSSProperties } from "react";
 import Image from "next/image";
-import { ArrowRight, Play, Sparkles, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  ArrowRight,
+  ChevronDown,
+  FileText,
+  Languages,
+  Layers,
+  LayoutTemplate,
+  ShieldCheck,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useIsClient } from "@/hooks/useIsClient";
 import { hasCompletedOnboarding } from "@/lib/onboarding-storage";
-
 import { templates } from "@/lib/placeholder-data/templates.placeholder";
+import type { TemplateCard } from "@/lib/types/resume.types";
 
-const HERO_TEMPLATE_COUNT = 3;
+/* ---------------------------------------------------------------------------
+   Motion note
 
-const HeroTemplateShowcase = () => {
-  const heroTemplates = templates.slice(0, HERO_TEMPLATE_COUNT);
+   This section deliberately uses no framer-motion. Its `initial` prop is
+   serialised into the server-rendered markup, so the headline and the resume
+   sheet used to ship as opacity:0 and only became eligible for Largest
+   Contentful Paint once the bundle had hydrated. Everything here animates
+   through the `.hero-enter` / `.hero-enter-opaque` classes in globals.css
+   instead, which start at first paint and are already clamped by both
+   reduce-motion mechanisms — the OS media query and the in-app
+   [data-reduce-motion] toggle.
+--------------------------------------------------------------------------- */
+
+const PREVIEW_TEMPLATE_IDS = [
+  "executive",
+  "developer",
+  "director",
+  "minimal",
+] as const;
+
+const BREAKDOWN_KEYS = [
+  "impact",
+  "keywords",
+  "clarity",
+  "completeness",
+] as const;
+
+type SampleAnalysis = Record<(typeof BREAKDOWN_KEYS)[number], number> & {
+  total: number;
+};
+
+/* Illustrative figures for the hero preview. The four axes are the same ones
+   the AI coach actually returns (see the scoreBreakdown schema in
+   gemini-resume-coach.generator.ts), so this shows the real shape of a real
+   feature — and the panel states in copy that the numbers are a sample. */
+const SAMPLE_ANALYSIS: Record<string, SampleAnalysis> = {
+  executive: { total: 96, impact: 97, keywords: 94, clarity: 98, completeness: 95 },
+  developer: { total: 93, impact: 90, keywords: 97, clarity: 92, completeness: 93 },
+  director: { total: 91, impact: 94, keywords: 88, clarity: 90, completeness: 92 },
+  minimal: { total: 94, impact: 89, keywords: 93, clarity: 99, completeness: 95 },
+};
+
+const PROOF_POINTS = [
+  { key: "ats", Icon: ShieldCheck },
+  { key: "formats", Icon: FileText },
+  { key: "rtl", Icon: Languages },
+  { key: "templates", Icon: Layers },
+] as const;
+
+const delay = (ms: number) => ({ "--hero-delay": `${ms}ms` }) as CSSProperties;
+
+/* -------------------------------------------------------------------------- */
+
+function AtsPreview() {
+  const t = useTranslations("hero");
+  const tTemplates = useTranslations("templatesPage");
+
+  const previewTemplates = useMemo(
+    () =>
+      PREVIEW_TEMPLATE_IDS.map((id) =>
+        templates.find((template) => template.id === id),
+      ).filter((template): template is TemplateCard => Boolean(template)),
+    [],
+  );
+
+  const [activeId, setActiveId] = useState<string>(PREVIEW_TEMPLATE_IDS[0]);
+
+  /* The source sheets are multi-megapixel images. Only the first is fetched up
+     front; the rest mount once the visitor signals intent by hovering or
+     focusing a chip, so switching feels instant without four cold requests. */
+  const [requested, setRequested] = useState<string[]>([
+    PREVIEW_TEMPLATE_IDS[0],
+  ]);
+
+  const request = (id: string) =>
+    setRequested((prev) => (prev.includes(id) ? prev : [...prev, id]));
+
+  const analysis = SAMPLE_ANALYSIS[activeId] ?? SAMPLE_ANALYSIS.executive;
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto lg:mx-0 lg:ml-auto">
-      {/* Ambient glow */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-1/2 left-1/2 w-[75%] h-[75%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/10 blur-[100px]" />
-        <div className="absolute top-1/4 right-0 w-48 h-48 rounded-full bg-azure/10 blur-[80px]" />
+    <div className="relative mx-auto w-full max-w-sm sm:max-w-md lg:mx-0 lg:ms-auto">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-s-1/2 top-1/2 h-3/4 w-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/10 blur-[100px] rtl:translate-x-1/2" />
       </div>
 
-      {/* Template composition */}
-      <div className="relative h-130 sm:h-150 lg:h-162.5 w-full">
-        {/* Back template — left */}
-        {heroTemplates[1] && (
-          <motion.div
-            initial={{
-              opacity: 0,
-              x: -80,
-              y: 50,
-              rotate: -12,
-              scale: 0.88,
-            }}
-            animate={{
-              opacity: 0.8,
-              x: 0,
-              y: 0,
-              rotate: -9,
-              scale: 0.88,
-            }}
-            transition={{
-              duration: 0.9,
-              delay: 0.45,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            className="absolute left-0 top-16 sm:left-4 sm:top-20 lg:left-0 lg:top-24 z-10 w-[45%] max-w-67.5"
-          >
-            <motion.div
-              animate={{
-                y: [0, 8, 0],
-                rotate: [-9, -7.5, -9],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="relative"
-            >
-              {/* Shadow */}
-              <div className="absolute inset-4 rounded-2xl bg-black/30 blur-2xl" />
-
-              {/* Resume */}
-              <div className="relative overflow-hidden rounded-xl border border-white/10 bg-white shadow-2xl">
-                <Image
-                  src={heroTemplates[1].image}
-                  alt={`${heroTemplates[1].id} resume template`}
-                  className="block w-full h-auto object-contain"
-                  loading="eager"
-                  width={400}
-                  height={500}
-                />
-              </div>
-            </motion.div>
-          </motion.div>
+      {/* Resume sheet — the LCP candidate. Boxed at the true A4 ratio the
+          source images actually use, so nothing reflows after decode. */}
+      <div
+        className="hero-enter-opaque relative aspect-210/297 w-full overflow-hidden rounded-2xl border border-edge bg-elevated shadow-[0_30px_80px_-30px_var(--shadow-color)]"
+        style={delay(120)}
+      >
+        {previewTemplates.map((template) =>
+          requested.includes(template.id) ? (
+            <Image
+              key={template.id}
+              src={template.image}
+              /* Decorative: the active template's name and field are rendered
+                 as visible text directly beneath this stack. */
+              alt=""
+              fill
+              sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 384px"
+              priority={template.id === PREVIEW_TEMPLATE_IDS[0]}
+              className={`object-cover object-top transition-opacity duration-500 ${
+                template.id === activeId ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ) : null,
         )}
+      </div>
 
-        {/* Back template — right */}
-        {heroTemplates[2] && (
-          <motion.div
-            initial={{
-              opacity: 0,
-              x: 80,
-              y: 30,
-              rotate: 12,
-              scale: 0.88,
-            }}
-            animate={{
-              opacity: 0.8,
-              x: 0,
-              y: 0,
-              rotate: 9,
-              scale: 0.88,
-            }}
-            transition={{
-              duration: 0.9,
-              delay: 0.6,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            className="absolute right-0 top-20 sm:right-4 sm:top-24 lg:right-0 lg:top-28 z-10 w-[45%] max-w-67.5"
-          >
-            <motion.div
-              animate={{
-                y: [0, -7, 0],
-                rotate: [9, 7.5, 9],
-              }}
-              transition={{
-                duration: 5.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.7,
-              }}
-              className="relative"
-            >
-              {/* Shadow */}
-              <div className="absolute inset-4 rounded-2xl bg-black/30 blur-2xl" />
-
-              {/* Resume */}
-              <div className="relative overflow-hidden rounded-xl border border-white/10 bg-white shadow-2xl">
-                <Image
-                  src={heroTemplates[2].image}
-                  alt={`${heroTemplates[2].id} resume template`}
-                  width={400}
-                  height={500}
-                  className="block w-full h-auto object-contain"
-                  loading="eager"
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Main template */}
-        {heroTemplates[0] && (
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 70,
-              scale: 0.82,
-              rotate: -2,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotate: 0,
-            }}
-            transition={{
-              duration: 1,
-              delay: 0.3,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            className="absolute left-1/2 top-4 sm:top-6 -translate-x-1/2 z-20 w-[55%] max-w-85"
-          >
-            <motion.div
-              animate={{
-                y: [0, -10, 0],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="relative"
-            >
-              {/* Premium shadow */}
-              <div className="absolute -inset-3 rounded-2xl bg-gold/10 blur-2xl" />
-
-              <div className="absolute inset-0 rounded-xl bg-linear-to-br from-gold/20 via-transparent to-azure/10 blur-md" />
-
-              {/* Resume paper */}
-              <div className="relative overflow-hidden rounded-xl border border-white/20 bg-white shadow-[0_25px_80px_rgba(0,0,0,0.45)]">
-                <Image
-                  src={heroTemplates[0].image}
-                  alt={`${heroTemplates[0].id} resume template`}
-                  width={400}
-                  height={500}
-                  className="block w-full h-auto object-contain"
-                  loading="eager"
-                />
-
-                {/* Very subtle glass reflection */}
-                <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-transparent" />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* ATS badge */}
-        <motion.div
-          initial={{
-            opacity: 0,
-            x: 30,
-            y: 10,
-            scale: 0.9,
-          }}
-          animate={{
-            opacity: 1,
-            x: 0,
-            y: 0,
-            scale: 1,
-          }}
-          transition={{
-            duration: 0.6,
-            delay: 1,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-          className="absolute left-0 sm:left-2 lg:-left-2 top-1/2 z-30"
-        >
-          <motion.div
-            animate={{
-              y: [0, -6, 0],
-              x: [0, 3, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="glass-gold rounded-xl px-3 py-2.5 sm:px-4 sm:py-3"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gold">
-                <CheckCircle2 size={15} className="text-ink" />
-              </div>
-
-              <div>
-                <div className="text-primary text-xs font-bold">ATS Ready</div>
-                <div className="text-secondary text-[10px] sm:text-xs">
-                  Global Standard
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        {/* Verified badge */}
-        <motion.div
-          initial={{
-            opacity: 0,
-            scale: 0.7,
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-          }}
-          transition={{
-            duration: 0.5,
-            delay: 1.2,
-            type: "spring",
-            stiffness: 180,
-            damping: 15,
-          }}
-          className="absolute left-1/2 -translate-x-1/2 bottom-0 z-30"
-        >
-          <div className="flex items-center gap-1.5 rounded-full border border-gold/20 bg-gold/10 px-3 py-1.5 backdrop-blur-md">
-            <Sparkles size={11} className="text-gold" />
-            <span className="text-gold text-[10px] sm:text-xs font-semibold whitespace-nowrap">
-              ResuMax Verified
-            </span>
+      {/* ATS analysis — overlaps the foot of the sheet */}
+      <div
+        className="hero-enter glass-gold relative z-10 mx-auto -mt-16 w-[94%] rounded-2xl p-4 shadow-[0_20px_50px_-25px_var(--shadow-color)] sm:-mt-20 sm:p-5"
+        style={delay(280)}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 text-xs font-bold tracking-wide text-gold uppercase">
+              <ShieldCheck size={13} aria-hidden="true" />
+              {t("preview.heading")}
+            </p>
+            <p className="mt-1 truncate text-sm font-bold text-primary">
+              {tTemplates(`templates.${activeId}.title`)}
+            </p>
+            <p className="truncate text-xs text-secondary">
+              {tTemplates(`templates.${activeId}.field`)}
+            </p>
           </div>
-        </motion.div>
+
+          <p className="flex shrink-0 items-baseline gap-0.5">
+            <span className="sr-only">{t("preview.scoreLabel")}: </span>
+            <span className="font-playfair text-4xl leading-none font-black text-primary tabular-nums">
+              {analysis.total}
+            </span>
+            <span className="text-sm font-bold text-gold">%</span>
+          </p>
+        </div>
+
+        {/* Label above the bar rather than beside it: the Arabic metric names
+            are far longer than the English ones, and a fixed label column
+            wrapped them out of alignment. */}
+        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3">
+          {BREAKDOWN_KEYS.map((key) => (
+            <div key={key} className="space-y-1.5">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="truncate text-xs text-secondary">
+                  {t(`preview.${key}`)}
+                </span>
+                <span className="text-xs font-semibold text-primary tabular-nums">
+                  {analysis[key]}
+                </span>
+              </div>
+
+              <span
+                aria-hidden="true"
+                className="relative block h-1.5 overflow-hidden rounded-full bg-edge"
+              >
+                {/* Keyed by the active template so React remounts it on a
+                    switch and the fill animation replays — the score reads as
+                    being re-measured rather than silently swapping. */}
+                <span
+                  key={activeId}
+                  className="hero-meter absolute inset-0 rounded-full bg-linear-to-r from-gold-dark via-gold to-gold-light"
+                  style={
+                    { "--meter-scale": analysis[key] / 100 } as CSSProperties
+                  }
+                />
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-4 text-xs leading-snug text-secondary">
+          {t("preview.sampleNote")}
+        </p>
+      </div>
+
+      {/* Template switcher — real buttons, reachable by Tab, never hover-only */}
+      <div
+        className="hero-enter mt-5 flex flex-wrap gap-2"
+        role="group"
+        aria-label={t("preview.groupLabel")}
+        style={delay(360)}
+      >
+        {previewTemplates.map((template) => {
+          const Icon = template.icon;
+          const isActive = template.id === activeId;
+
+          return (
+            <button
+              key={template.id}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => {
+                request(template.id);
+                setActiveId(template.id);
+              }}
+              onMouseEnter={() => request(template.id)}
+              onFocus={() => request(template.id)}
+              className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none ${
+                isActive
+                  ? "border-gold/40 bg-gold/15 text-gold"
+                  : "border-edge bg-card text-secondary hover:border-edge-strong hover:text-primary"
+              }`}
+            >
+              <Icon size={14} aria-hidden="true" />
+              {tTemplates(`templates.${template.id}.title`)}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
-};
+}
 
-const Stat = ({
-  number,
-  label,
-  delay,
-}: {
-  number: string;
-  label: string;
-  delay: number;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{
-      duration: 0.6,
-      delay,
-    }}
-    className="text-center lg:text-left"
-  >
-    <div className="text-3xl lg:text-4xl font-black text-primary font-playfair">
-      {number}
-    </div>
-
-    <div className="text-faint text-sm mt-1 font-medium tracking-wide">
-      {label}
-    </div>
-  </motion.div>
-);
+/* -------------------------------------------------------------------------- */
 
 export default function HeroSection() {
   const t = useTranslations("hero");
   const locale = useLocale();
-  const isRTL = locale === "ar";
 
   const { isVerified, user } = useAuth();
-  const onboardingCompleted =
-    isVerified && hasCompletedOnboarding(user?.id);
+  const isClient = useIsClient();
 
-  // Check whether the user has a paid plan.
-  const currentPlanId = user?.planName?.toLowerCase() ?? "free";
+  /* Auth only exists on the client. Href and label are derived from one gate
+     so they can never disagree — the label used to flip to the signed-in copy
+     while the href still pointed at /createaccount for a tick after hydration,
+     which sent a fast click to the wrong page. */
+  const isAuthResolved = isClient && isVerified;
+  const isPaidUser =
+    isAuthResolved && (user?.planName?.toLowerCase() ?? "free") !== "free";
+  const hasOnboarded = isAuthResolved && hasCompletedOnboarding(user?.id);
 
-  const isPaidUser = isVerified && currentPlanId !== "free";
-  const primaryHref = !isVerified
+  const primaryHref = !isAuthResolved
     ? `/${locale}/createaccount`
-    : onboardingCompleted
+    : hasOnboarded
       ? `/${locale}/dashboard`
       : `/${locale}/onboarding`;
 
   return (
-    <section className="relative min-h-screen flex justify-center items-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-linear-to-br from-ink via-soft to-ink" />
+    <section
+      aria-labelledby="hero-heading"
+      className="relative flex min-h-dvh items-center justify-center overflow-hidden"
+    >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-linear-to-br from-ink via-soft to-ink" />
+        <div className="absolute inset-s-1/3 top-0 h-96 w-96 rounded-full bg-gold/5 blur-[100px]" />
+        <div className="absolute inset-e-1/4 bottom-1/4 h-80 w-80 rounded-full bg-azure/8 blur-[100px]" />
+      </div>
 
-      {/* Ambient gold glow */}
-      <div className="absolute top-0 left-1/3 w-96 h-96 bg-gold/5 blur-[100px] rounded-full" />
-
-      {/* Ambient azure glow */}
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-azure/8 blur-[100px] rounded-full" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-28 pb-20 w-full">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* =====================================================
-              LEFT — HERO CONTENT
-          ====================================================== */}
-          <div>
-            {/* Badge */}
-            <motion.div
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.5,
-              }}
-              className="inline-flex items-center gap-2 bg-gold/10 border border-gold/20 rounded-full px-4 py-1.5 mb-8"
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pt-28 pb-20">
+        <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-16">
+          {/* ---------------- LEFT — value proposition ---------------- */}
+          <div className="text-center lg:text-start">
+            <p
+              className="hero-enter inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-4 py-1.5 text-xs font-bold tracking-widest text-gold uppercase"
+              style={delay(0)}
             >
-              <span className="w-1.5 h-1.5 bg-gold rounded-full animate-pulse" />
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+              {t("badge")}
+            </p>
 
-              <span className="text-gold text-xs font-bold uppercase tracking-widest">
-                {t("badge")}
+            <h1
+              id="hero-heading"
+              className="hero-enter-opaque mt-7 mb-6 font-playfair text-[clamp(2.5rem,5.4vw,4.25rem)] leading-[1] font-black tracking-tight text-balance rtl:tracking-normal"
+              style={delay(60)}
+            >
+              <span className="block text-primary">{t("title")}</span>
+              <span className="text-gradient-gold block">
+                {t("titleHighlight")}
               </span>
-            </motion.div>
+            </h1>
 
-            {/* Headline */}
-            <motion.h1
-              initial={{
-                opacity: 0,
-                y: 30,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.7,
-                delay: 0.1,
-              }}
-              className="text-5xl lg:text-7xl font-black leading-[1.05] mb-6 font-playfair"
-            >
-              <span className="text-primary">{t("title")}</span>
-
-              <br />
-
-              <span className="text-gradient-gold">{t("titleHighlight")}</span>
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.p
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.6,
-                delay: 0.2,
-              }}
-              className="text-secondary text-lg leading-relaxed max-w-xl mb-10"
+            <p
+              className="hero-enter mx-auto max-w-xl text-lg leading-relaxed text-secondary lg:mx-0"
+              style={delay(150)}
             >
               {t("subtitle")}
-            </motion.p>
+            </p>
 
-            {/* CTAs */}
-            <motion.div
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              transition={{
-                duration: 0.6,
-                delay: 0.3,
-              }}
-              className="flex flex-wrap gap-4 mb-16"
+            <div
+              className="hero-enter mt-10 flex flex-wrap justify-center gap-4 lg:justify-start"
+              style={delay(220)}
             >
-              {/* Primary CTA */}
               <Link
                 href={primaryHref}
-                className="group flex items-center gap-2 bg-gold hover:bg-gold-light text-ink font-bold px-7 py-4 rounded-full transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(245,166,35,0.4)]"
+                className="group inline-flex min-h-13 items-center gap-2 rounded-full bg-gold px-7 font-bold text-on-gold transition-all duration-200 hover:scale-105 hover:bg-gold-light hover:shadow-[0_0_30px_rgba(245,166,35,0.4)] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
               >
-                {isPaidUser ? t("ctaPaid") || "Start Building" : t("cta")}
-
+                {isPaidUser ? t("ctaPaid") : t("cta")}
                 <ArrowRight
                   size={18}
-                  className={`group-hover:translate-x-1 transition-transform ${isRTL ? "rotate-180" : ""
-                    }`}
+                  aria-hidden="true"
+                  className="transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
                 />
               </Link>
 
-              {/* Secondary CTA */}
               <Link
                 href={`/${locale}/templates`}
-                className="flex items-center gap-2 glass border border-edge text-secondary hover:text-primary font-semibold px-7 py-4 rounded-full transition-all duration-200 hover:border-edge-strong"
+                className="glass inline-flex min-h-13 items-center gap-2 rounded-full border border-edge px-7 font-semibold text-secondary transition-all duration-200 hover:border-edge-strong hover:text-primary focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
               >
-                <Play
-                  size={15}
-                  className={`fill-current ${isRTL ? "rotate-180" : ""}`}
-                />
-
+                {/* Not a Play glyph: the old one was mirrored under RTL, which
+                    turned "view templates" into a rewind icon in Arabic. */}
+                <LayoutTemplate size={17} aria-hidden="true" />
                 {t("ctaSecondary")}
               </Link>
-            </motion.div>
-
-            {/* Stats */}
-            <div className="flex flex-wrap gap-10">
-              <Stat
-                number={t("stats.resumes")}
-                label={t("stats.resumesLabel")}
-                delay={0.5}
-              />
-
-              <div className="hidden sm:block w-px bg-edge" />
-
-              <Stat
-                number={t("stats.templates")}
-                label={t("stats.templatesLabel")}
-                delay={0.6}
-              />
-
-              <div className="hidden sm:block w-px bg-edge" />
-
-              <Stat
-                number={t("stats.satisfaction")}
-                label={t("stats.satisfactionLabel")}
-                delay={0.7}
-              />
             </div>
+
+            {/* Qualitative proof. The previous counters ("50K+ resumes",
+                "98% satisfaction") contradicted the pre-launch badge sitting
+                directly above them, so they are gone rather than restyled. */}
+            <ul
+              className="hero-enter mt-12 flex flex-wrap justify-center gap-x-6 gap-y-3 lg:justify-start"
+              style={delay(300)}
+            >
+              {PROOF_POINTS.map(({ key, Icon }) => (
+                <li
+                  key={key}
+                  className="flex items-center gap-2 text-sm text-secondary"
+                >
+                  <Icon
+                    size={15}
+                    aria-hidden="true"
+                    className="shrink-0 text-gold"
+                  />
+                  {t(`proof.${key}`)}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* =====================================================
-              RIGHT — REAL RESUME TEMPLATE SHOWCASE
-          ====================================================== */}
-          <div className="flex justify-center lg:justify-end">
-            <HeroTemplateShowcase />
-          </div>
+          {/* ---------------- RIGHT — live ATS preview ---------------- */}
+          <AtsPreview />
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{
-          opacity: 0,
-        }}
-        animate={{
-          opacity: 1,
-        }}
-        transition={{
-          delay: 1.5,
-        }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+      <p
+        className="hero-enter absolute inset-x-0 bottom-8 flex flex-col items-center gap-1 text-secondary"
+        style={delay(520)}
       >
-        <span className="text-muted text-xs tracking-widest uppercase">
-          Scroll
+        <span className="text-xs tracking-widest uppercase">
+          {t("scrollCue")}
         </span>
-
-        <motion.div
-          animate={{
-            y: [0, 6, 0],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-          }}
-          className="w-0.5 h-8 bg-linear-to-b from-gold/60 to-transparent"
-        />
-      </motion.div>
+        <ChevronDown size={16} aria-hidden="true" />
+      </p>
     </section>
   );
 }

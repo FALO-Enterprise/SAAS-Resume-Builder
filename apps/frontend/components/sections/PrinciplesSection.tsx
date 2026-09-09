@@ -1,122 +1,174 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import { Shield, Cpu, Minimize2, Globe2, Lock } from "lucide-react";
 import SectionLabel from "../ui/SectionLabel";
+import { usePreferences } from "@/context/PreferencesContext";
 
-const principleIcons = [Shield, Cpu, Minimize2, Globe2, Lock];
+/* ---------------------------------------------------------------------------
+   The deletions
 
-const regions = [
-  "USA / Canada",
-  "Europe (Europass)",
-  "GCC / Middle East",
-  "Asia-Pacific",
-  "Academic CVs",
-];
-const regionFlags = ["🇺🇸", "🇪🇺", "🇦🇪", "🌏", "🎓"];
+   A principles section can only be as good as its claims are checkable, and
+   the previous five were mostly not. "Enforces truthful representation" — a
+   prompt asks the model for it, nothing validates a user's own typing.
+   "Every template is engineered for machine readability" — no template
+   carries any ATS metadata at all. "Region-specific guidance on photos, age,
+   marital status" — age and marital status are not fields anywhere in this
+   codebase, and no region model exists. So the section was rebuilt around
+   what the product REFUSES to do, because a refusal is checkable in a way a
+   capability is not, and every one of these five traces to real behaviour:
+   the anti-fabrication prompt, the word budgets, an empty dependency list, a
+   pair of explicit opt-in call sites, and seven cascading deletes.
+
+   Form. The refused text is the artifact. Each row quotes the line the
+   product will not write and strikes it through, which is the one thing a
+   commitment section can show rather than assert. The strike is never the
+   only signal: the phrase sits in a <del>, and a visually hidden label names
+   it for anyone who cannot see a line through a word. Pink carries the strike
+   because pink already means "the problem" in ChallengeSection and in the
+   Features parse report; this is the same vocabulary, not a new one.
+
+   What is gone: five equal glass cards of icon plus heading plus text — the
+   lazy container, and the one arrangement this page uses nowhere else — and
+   with them the five most predictable icons in the category, a shield for
+   honesty and a lock for privacy among them.
+
+   Nothing has a fixed height. The Arabic runs 63% of the English on the stat
+   line and 99% on the privacy line, so any fixed row would read even in one
+   locale and ragged in the other.
+   --------------------------------------------------------------------------- */
+
+const ease = [0.16, 1, 0.3, 1] as const;
+
+/** Ordered by how much the refusal costs to keep. */
+const PRINCIPLE_KEYS = [
+  "invent",
+  "pad",
+  "track",
+  "silent",
+  "retain",
+] as const;
+
+const REGION_KEYS = ["us", "eu", "gcc", "apac", "academic"] as const;
 
 export default function PrinciplesSection() {
   const t = useTranslations("principles");
-  const keys = ["honesty", "ats", "relevance", "cultural", "privacy"] as const;
+  /* The region names live in the `features` namespace and this is now their
+     only consumer — FeaturesSection moved to its own short column labels when
+     it became a comparison table. Keeping the read here is deliberate: it
+     leaves one vocabulary for the five regions rather than two. */
+  const tFeatures = useTranslations("features");
+
+  const osReduced = useReducedMotion();
+  const { preferences, mounted } = usePreferences();
+  const reduced = Boolean(osReduced) || (mounted && preferences.reduceMotion);
+
+  /* Transform-only: framer serialises `initial` into the server-rendered
+     markup, so an opacity of 0 here would ship the section invisible until
+     hydration. */
+  const rise = (delay: number) => ({
+    initial: { y: reduced ? 0 : 24 },
+    whileInView: { y: 0 },
+    viewport: { once: true, amount: 0.2 },
+    transition: { duration: 0.55, ease, delay: reduced ? 0 : delay },
+  });
 
   return (
-    <section id="principles" className="section-padding relative">
-      <div className="absolute inset-0 bg-linear-to-br from-azure/5 to-teal/5" />
+    <section
+      id="principles"
+      aria-labelledby="principles-heading"
+      className="section-padding relative"
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-linear-to-br from-azure/5 to-teal/5"
+      />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-16 items-start">
-          {/* Left */}
-          <div>
-            <SectionLabel text={t("label")} color="azure" />
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: 0.1 }}
-              className="text-4xl lg:text-5xl font-black mt-5 mb-8 leading-tight font-playfair"
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
+        <div className="max-w-2xl">
+          <SectionLabel text={t("label")} color="azure" />
+          <motion.h2
+            id="principles-heading"
+            {...rise(0.08)}
+            className="mt-5 font-playfair text-4xl leading-tight font-black text-balance rtl:tracking-normal lg:text-5xl"
+          >
+            <span className="text-primary">{t("title")}</span>
+            <br />
+            <span className="text-gradient-gold">{t("titleHighlight")}</span>
+          </motion.h2>
+        </div>
+
+        {/* `deletions` carries the hover-dim in globals.css: attending to one
+            refusal recedes the rest, which is the section's only motion. */}
+        <ul className="deletions mt-14 lg:mt-16">
+          {PRINCIPLE_KEYS.map((key, i) => (
+            <li
+              key={key}
+              className="grid gap-5 border-t border-edge py-9 lg:grid-cols-12 lg:gap-8 lg:py-11"
             >
-              <span className="text-primary">{t("title")}</span>
-              <br />
-              <span className="text-gradient-gold">{t("titleHighlight")}</span>
-            </motion.h2>
+              <motion.h3
+                {...rise(0.04 + i * 0.06)}
+                className="text-2xl font-bold text-balance text-primary lg:col-span-5"
+              >
+                {t(`items.${key}.title`)}
+              </motion.h3>
 
-            {/* Region Tags */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="mb-10"
-            >
-              <p className="text-faint text-sm mb-4 uppercase tracking-wider font-semibold">
-                Regional Support
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {regions.map((region, i) => (
-                  <motion.div
-                    key={region}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.4 + i * 0.07 }}
-                    className="glass border border-edge rounded-full px-4 py-2 flex items-center gap-2"
-                  >
-                    <span>{regionFlags[i]}</span>
-                    <span className="text-secondary text-sm font-medium">
-                      {region}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+              <motion.div
+                {...rise(0.08 + i * 0.06)}
+                className="lg:col-span-6 lg:col-start-7"
+              >
+                {/* The specimen being struck. `del` carries the semantics, the
+                    rule carries the look, and the hidden label carries the
+                    meaning for anyone the rule never reaches. */}
+                <p className="rounded-lg border border-edge bg-card px-4 py-3">
+                  <span className="sr-only">{t("refusedLabel")}: </span>
+                  <del className="text-[15px] leading-relaxed text-secondary decoration-pink/70 decoration-2">
+                    {t(`items.${key}.refused`)}
+                  </del>
+                </p>
 
-            {/* Big stat */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="glass-gold rounded-2xl p-6 border border-gold/15"
-            >
-              <div className="text-5xl font-black text-gradient-gold mb-2 font-playfair">
-                120+
-              </div>
-              <div className="text-secondary text-sm">
-                Professionally designed templates covering every region,
-                industry, and experience level.
-              </div>
-            </motion.div>
-          </div>
+                <p className="mt-3.5 text-[15px] leading-relaxed text-secondary">
+                  {t(`items.${key}.desc`)}
+                </p>
+              </motion.div>
+            </li>
+          ))}
+        </ul>
 
-          {/* Right — Principles List */}
-          <div className="space-y-4">
-            {keys.map((key, i) => {
-              const Icon = principleIcons[i];
-              return (
-                <motion.div
-                  key={key}
-                  initial={{ opacity: 0, x: 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="group glass rounded-xl p-5 border border-edge hover:border-gold/20 transition-all duration-300 flex gap-4 items-start"
+        {/* Closing strip: the two claims on this page that survive checking. */}
+        <div className="grid gap-10 border-t border-edge pt-10 lg:grid-cols-12 lg:gap-8">
+          <motion.div {...rise(0.06)} className="lg:col-span-5">
+            <p className="text-sm font-semibold tracking-wider text-secondary uppercase">
+              {t("regionsLabel")}
+            </p>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {REGION_KEYS.map((region) => (
+                <li
+                  key={region}
+                  className="glass rounded-full border border-edge px-4 py-2 text-sm font-medium text-secondary"
                 >
-                  <div className="w-10 h-10 bg-gold/10 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
-                    <Icon size={18} className="text-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-primary font-bold mb-1.5">
-                      {t(`items.${key}.title`)}
-                    </h3>
-                    <p className="text-faint text-sm leading-relaxed">
-                      {t(`items.${key}.desc`)}
-                    </p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                  {tFeatures(`items.multiRegion.regions.${region}`)}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <motion.div
+            {...rise(0.12)}
+            className="flex items-baseline gap-4 lg:col-span-6 lg:col-start-7"
+          >
+            {/* Pinned to LTR: a standalone numeral inside an RTL block is a
+                number run that bidi is free to reorder. */}
+            <span
+              dir="ltr"
+              className="font-playfair text-5xl leading-none font-black text-primary tabular-nums"
+            >
+              {t("stat.value")}
+            </span>
+            <p className="text-[15px] leading-relaxed text-secondary">
+              {t("stat.desc")}
+            </p>
+          </motion.div>
         </div>
       </div>
     </section>
