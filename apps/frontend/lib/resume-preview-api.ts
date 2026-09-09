@@ -9,7 +9,12 @@ import {
   type ResumeCustomization,
   type ResumeTemplateId,
 } from "@shared-types/resume";
-import { buildBackendUrl, normalizeBackendPayload } from "./backend";
+import { apiClient } from "@/lib/api/client";
+import { API_ENDPOINTS } from "@/lib/api/endpoints";
+import { getAccessToken } from "@/lib/auth/token";
+import { createApiRequestError, normalizeBackendPayload } from "./backend";
+
+const EXPORT_TIMEOUT_MS = 60_000;
 
 export type ResumeExportFormat = "pdf" | "jpg";
 
@@ -63,35 +68,40 @@ export function getResumeTemplateMetadata(
   };
 }
 
-export async function getResumeApiErrorMessage(
-  response: Response,
-  fallback: string,
-) {
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw new DOMException("The operation was aborted.", "AbortError");
+  }
+}
+
+async function readBlobErrorMessage(body: unknown): Promise<string | null> {
+  if (!(body instanceof Blob)) return null;
+
   try {
-    const payload: unknown = await response.json();
+    const text = await body.text();
+    if (!text.trim()) return null;
+
+    const payload: unknown = JSON.parse(text);
     if (typeof payload === "string" && payload.trim()) return payload;
 
     if (payload && typeof payload === "object") {
-      const body = payload as {
-        message?: unknown;
-        error?: unknown;
-      };
-      if (typeof body.message === "string" && body.message.trim()) {
-        return body.message;
+      const data = payload as { message?: unknown; error?: unknown };
+      if (typeof data.message === "string" && data.message.trim()) {
+        return data.message;
       }
-      if (typeof body.error === "string" && body.error.trim()) {
-        return body.error;
+      if (typeof data.error === "string" && data.error.trim()) {
+        return data.error;
       }
-      if (body.error && typeof body.error === "object") {
-        const message = (body.error as { message?: unknown }).message;
+      if (data.error && typeof data.error === "object") {
+        const message = (data.error as { message?: unknown }).message;
         if (typeof message === "string" && message.trim()) return message;
       }
     }
   } catch {
-    // Fall back to a status-bearing message for non-JSON server responses.
+    // Not JSON — the status-bearing fallback is the best we can do.
   }
 
-  return `${fallback} (${response.status})`;
+  return null;
 }
 
 const MOCK_RESUME_DATA: ResumePreviewData = {
@@ -149,66 +159,49 @@ export async function getResumePreviewData(
   resumeId: string,
   signal?: AbortSignal,
 ): Promise<ResumePreviewData> {
-  const token =
-    typeof window === "undefined"
-      ? null
-      : localStorage.getItem("resumax_token");
-  if (!token)
+  if (!getAccessToken()) {
     return {
       ...MOCK_RESUME_DATA,
       resumeId,
       updatedAt: new Date().toISOString(),
     };
+  }
 
-  const response = await fetch(
-    buildBackendUrl(`/api/resumes/${encodeURIComponent(resumeId)}/preview`),
-    {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: "include",
-      cache: "no-store",
-      signal,
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      await getResumeApiErrorMessage(response, "Failed to load resume preview"),
+  try {
+    const { data } = await apiClient.get(
+      API_ENDPOINTS.resumes.preview(resumeId),
+      { signal },
     );
+
+    const snapshot = normalizeBackendPayload<ResumeRenderSnapshot>(data);
+    if ("error" in snapshot) throw new Error(snapshot.error);
+    if (!isResumeTemplateId(snapshot.templateId)) {
+      throw new Error("The selected resume template is unavailable");
+    }
+
+    const preview: ResumePreviewData = {
+      resumeId: snapshot.resumeId,
+      resumeName: snapshot.title,
+      purpose: getStoredResumePurpose(snapshot.resumeId) ?? "general",
+      selectedTemplate: getResumeTemplateMetadata(snapshot.templateId),
+      content: snapshot.content,
+      customization: snapshot.customization,
+      pdfDownloadUrl: null,
+      jpgDownloadUrl: null,
+      creditsRemaining: 1,
+      creditsTotal: 1,
+      updatedAt: snapshot.createdAt,
+    };
+
+    if (!isResumePreviewData(preview)) {
+      throw new Error("Invalid resume preview response");
+    }
+
+    return preview;
+  } catch (error) {
+    throwIfAborted(signal);
+    throw createApiRequestError(error, "Failed to load resume preview");
   }
-
-  const payload: unknown = await response.json();
-  const snapshot = normalizeBackendPayload<ResumeRenderSnapshot>(payload);
-  if ("error" in snapshot) throw new Error(snapshot.error);
-  if (!isResumeTemplateId(snapshot.templateId)) {
-    throw new Error("The selected resume template is unavailable");
-  }
-  const snapshotPurpose = typeof snapshot.purpose === "string" && isResumePurpose(snapshot.purpose)
-    ? snapshot.purpose
-    : "general";
-
-  const data: ResumePreviewData = {
-    resumeId: snapshot.resumeId,
-    resumeName: snapshot.title,
-    purpose: getStoredResumePurpose(snapshot.resumeId) ?? "general",
-    selectedTemplate: getResumeTemplateMetadata(snapshot.templateId),
-    content: snapshot.content,
-    customization: snapshot.customization,
-    pdfDownloadUrl: null,
-    jpgDownloadUrl: null,
-    creditsRemaining: 1,
-    creditsTotal: 1,
-    updatedAt: snapshot.createdAt,
-  };
-
-  if (!isResumePreviewData(data)) {
-    throw new Error("Invalid resume preview response");
-  }
-
-  return data;
 }
 
 export async function updateCurrentResumeTemplate(
@@ -217,48 +210,34 @@ export async function updateCurrentResumeTemplate(
   signal?: AbortSignal,
   resumeId?: string,
 ): Promise<CurrentResumeTemplateResult> {
-  const token =
-    typeof window === "undefined"
-      ? null
-      : localStorage.getItem("resumax_token");
-  if (!token) {
+  if (!getAccessToken()) {
     throw new Error("Authentication is required to update a resume template");
   }
 
-  const endpoint = resumeId && resumeId !== "current" && resumeId !== "resume-123"
-    ? `/api/resumes/current?resumeId=${encodeURIComponent(resumeId)}`
-    : "/api/resumes/current";
+  const targetsExistingResume =
+    Boolean(resumeId) && resumeId !== "current" && resumeId !== "resume-123";
 
-  const response = await fetch(buildBackendUrl(endpoint), {
-    method: "PUT",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: "include",
-    cache: "no-store",
-    signal,
-    body: JSON.stringify({ title, templateId }),
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      await getResumeApiErrorMessage(
-        response,
-        "Failed to update resume template",
-      ),
+  try {
+    const { data } = await apiClient.put(
+      API_ENDPOINTS.resumes.current,
+      { title, templateId },
+      {
+        signal,
+        params: targetsExistingResume ? { resumeId } : undefined,
+      },
     );
-  }
 
-  const payload: unknown = await response.json();
-  const result = normalizeBackendPayload<CurrentResumeTemplateResult>(payload);
-  if ("error" in result) throw new Error(result.error);
-  if (!isResumeTemplateId(result.templateId)) {
-    throw new Error("The server returned an invalid resume template");
-  }
+    const result = normalizeBackendPayload<CurrentResumeTemplateResult>(data);
+    if ("error" in result) throw new Error(result.error);
+    if (!isResumeTemplateId(result.templateId)) {
+      throw new Error("The server returned an invalid resume template");
+    }
 
-  return result;
+    return result;
+  } catch (error) {
+    throwIfAborted(signal);
+    throw createApiRequestError(error, "Failed to update resume template");
+  }
 }
 
 export async function exportResume(
@@ -268,55 +247,53 @@ export async function exportResume(
   templateId: ResumeTemplateId = "minimal",
   customization?: ResumeCustomization,
 ): Promise<ResumeExportResult> {
-  const token =
-    typeof window === "undefined"
-      ? null
-      : localStorage.getItem("resumax_token");
-  if (!token) throw new Error("Authentication is required to export a resume");
+  if (!getAccessToken()) {
+    throw new Error("Authentication is required to export a resume");
+  }
 
   const contentType = format === "pdf" ? "application/pdf" : "image/jpeg";
+  const fallback = "Failed to export resume";
 
-  const response = await fetch(
-    buildBackendUrl(
-      `/api/resumes/${encodeURIComponent(resumeId)}/exports/${format}`,
-    ),
-    {
-      method: "POST",
-      headers: {
-        Accept: contentType,
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+  try {
+    const response = await apiClient.post(
+      API_ENDPOINTS.resumes.exports(resumeId, format),
+      { templateId, customization },
+      {
+        signal,
+        responseType: "blob",
+        headers: { Accept: contentType },
+        timeout: EXPORT_TIMEOUT_MS,
+        validateStatus: () => true,
       },
-      credentials: "include",
-      cache: "no-store",
-      signal,
-      body: JSON.stringify({ templateId, customization }),
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(
-      await getResumeApiErrorMessage(response, "Failed to export resume"),
     );
-  }
 
-  if (
-    !response.headers
-      .get("content-type")
-      ?.toLowerCase()
-      .includes(contentType)
-  ) {
-    throw new Error(
-      `The server returned an invalid ${format.toUpperCase()} response`,
-    );
-  }
+    if (response.status < 200 || response.status >= 300) {
+      const message = await readBlobErrorMessage(response.data);
+      throw createApiRequestError(
+        {
+          status: response.status,
+          message: message ?? `${fallback} (${response.status})`,
+        },
+        fallback,
+      );
+    }
 
-  const blob = await response.blob();
-  return {
-    downloadUrl: URL.createObjectURL(blob),
-    creditsRemaining: 0,
-    creditsTotal: 1,
-  };
+    const received = String(response.headers["content-type"] ?? "").toLowerCase();
+    if (!received.includes(contentType)) {
+      throw new Error(
+        `The server returned an invalid ${format.toUpperCase()} response`,
+      );
+    }
+
+    return {
+      downloadUrl: URL.createObjectURL(response.data as Blob),
+      creditsRemaining: 0,
+      creditsTotal: 1,
+    };
+  } catch (error) {
+    throwIfAborted(signal);
+    throw createApiRequestError(error, fallback);
+  }
 }
 
 function isResumePreviewData(value: unknown): value is ResumePreviewData {
@@ -349,11 +326,6 @@ function isResumePreviewData(value: unknown): value is ResumePreviewData {
 
 const RESUME_PURPOSE_STORAGE_PREFIX = "resumax_resume_purpose:";
 
-// The backend's Resume model has no `purpose` field, and the update call
-// only ever sends {title, templateId} — persisting purpose server-side is a
-// schema/API change out of scope here. Until that lands, remember the
-// user's choice per-resume in localStorage so a reload doesn't silently
-// reset it to "general" despite the UI reporting the change as applied.
 export function getStoredResumePurpose(resumeId: string): ResumePurpose | null {
   if (typeof window === "undefined") return null;
   const stored = window.localStorage.getItem(
@@ -393,26 +365,15 @@ export type UserResumeSummary = {
   createdAt: string;
 };
 
-export async function getUserResumesList(signal?: AbortSignal): Promise<UserResumeSummary[]> {
-  const token = typeof window === "undefined" ? null : localStorage.getItem("resumax_token");
-  if (!token) return [];
+export async function getUserResumesList(
+  signal?: AbortSignal,
+): Promise<UserResumeSummary[]> {
+  if (!getAccessToken()) return [];
 
   try {
-    const response = await fetch(buildBackendUrl("/api/resumes"), {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: "include",
-      cache: "no-store",
-      signal,
-    });
-
-    if (!response.ok) return [];
-    const payload: unknown = await response.json();
-    const data = normalizeBackendPayload<UserResumeSummary[]>(payload);
-    return Array.isArray(data) ? data : [];
+    const { data } = await apiClient.get(API_ENDPOINTS.resumes.root, { signal });
+    const list = normalizeBackendPayload<UserResumeSummary[]>(data);
+    return Array.isArray(list) ? list : [];
   } catch {
     return [];
   }
@@ -423,90 +384,55 @@ export async function renameResumeDraft(
   newTitle: string,
   templateId?: ResumeTemplateId,
 ): Promise<boolean> {
-  const token = typeof window === "undefined" ? null : localStorage.getItem("resumax_token");
-  if (!token) return false;
+  if (!getAccessToken()) return false;
 
   try {
     if (!resumeId || resumeId === "current" || resumeId === "resume-123") {
-      const response = await fetch(buildBackendUrl("/api/resumes/current"), {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: "include",
-        cache: "no-store",
-        body: JSON.stringify({ title: newTitle, templateId: templateId ?? "minimal" }),
+      await apiClient.put(API_ENDPOINTS.resumes.current, {
+        title: newTitle,
+        templateId: templateId ?? "minimal",
       });
-      return response.ok;
+      return true;
     }
 
-    const response = await fetch(buildBackendUrl(`/api/resumes/${encodeURIComponent(resumeId)}`), {
-      method: "PATCH",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: "include",
-      cache: "no-store",
-      body: JSON.stringify({ title: newTitle }),
+    await apiClient.patch(API_ENDPOINTS.resumes.byId(resumeId), {
+      title: newTitle,
     });
-
-    return response.ok;
+    return true;
   } catch {
     return false;
   }
 }
 
-export async function createNewClonedDraft(): Promise<{ id: string; title: string; templateId: string }> {
-  const token = typeof window === "undefined" ? null : localStorage.getItem("resumax_token");
-  if (!token) {
+export async function createNewClonedDraft(): Promise<{
+  id: string;
+  title: string;
+  templateId: string;
+}> {
+  if (!getAccessToken()) {
     throw new Error("Authentication is required to create a new draft");
   }
 
-  const response = await fetch(buildBackendUrl("/api/resumes/new-draft"), {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: "include",
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      await getResumeApiErrorMessage(response, "Failed to create new draft"),
-    );
+  try {
+    const { data } = await apiClient.post(API_ENDPOINTS.resumes.newDraft);
+    const result = normalizeBackendPayload<{
+      id: string;
+      title: string;
+      templateId: string;
+    }>(data);
+    if ("error" in result) throw new Error(result.error);
+    return result;
+  } catch (error) {
+    throw createApiRequestError(error, "Failed to create new draft");
   }
-
-  const payload: unknown = await response.json();
-  const data = normalizeBackendPayload<{ id: string; title: string; templateId: string }>(payload);
-  if ('error' in data) {
-    throw new Error(data.error);
-  }
-  return data;
 }
 
 export async function deleteResumeDraft(resumeId: string): Promise<boolean> {
-  const token = typeof window === "undefined" ? null : localStorage.getItem("resumax_token");
-  if (!token || !resumeId) return false;
+  if (!getAccessToken() || !resumeId) return false;
 
   try {
-    const response = await fetch(buildBackendUrl(`/api/resumes/${encodeURIComponent(resumeId)}`), {
-      method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: "include",
-      cache: "no-store",
-    });
-
-    return response.ok;
+    await apiClient.delete(API_ENDPOINTS.resumes.byId(resumeId));
+    return true;
   } catch {
     return false;
   }

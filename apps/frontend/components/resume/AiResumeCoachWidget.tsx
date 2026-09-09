@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
@@ -16,17 +16,15 @@ import {
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
-import {
-  analyzeWithAiCoach,
-  type AiCoachAnalysisResult,
-  type AiCoachTip,
-} from '@/lib/backend';
-import { getAccessToken } from '@/lib/auth/token';
+import type { AiCoachAnalysisResult, AiCoachTip } from '@/lib/backend';
+import type { DashboardDraftData } from '@/lib/types/dashboard.types';
+import { useAiCoachAnalysisMutation } from '@/hooks/mutations/useAiCoach';
+import { getErrorMessage } from '@/lib/api/errors';
 import { AiCoachSkeleton } from '@/components/ui/Skeletons';
 
 interface AiResumeCoachWidgetProps {
   userPlanName?: string;
-  currentDraft?: any;
+  currentDraft?: DashboardDraftData;
   resumeId?: string;
   purpose?: string;
   bottomOffsetClassName?: string;
@@ -50,28 +48,41 @@ export default function AiResumeCoachWidget({
   const t = useTranslations('aiCoach');
   const locale = useLocale();
   const [isOpen, setIsOpen] = useState(initialOpen);
-  const [isLoading, setIsLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AiCoachAnalysisResult | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  const fetchAnalysis = async () => {
-    setIsLoading(true);
-    try {
-      const token = getAccessToken();
-      const res = await analyzeWithAiCoach(token || '', {
-        draft: currentDraft,
-        resumeId,
-        purpose,
-      });
+  const analyzeMutation = useAiCoachAnalysisMutation();
+  const isLoading = analyzeMutation.isPending;
+  const pendingRefresh = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-      setAnalysis(res);
-    } catch (err) {
-      console.warn('[AiResumeCoach] Failed to analyze:', err);
-      toast.error(t('analysisFailed'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const latestInput = useRef({ currentDraft, resumeId, purpose });
+
+  useEffect(() => {
+    latestInput.current = { currentDraft, resumeId, purpose };
+  }, [currentDraft, resumeId, purpose]);
+
+  const runAnalysis = useCallback(() => {
+    const { currentDraft: draft, resumeId: id, purpose: reason } =
+      latestInput.current;
+
+    analyzeMutation.mutate(
+      { draft, resumeId: id, purpose: reason },
+      {
+        onSuccess: setAnalysis,
+        onError: (error) => {
+          console.warn('[AiResumeCoach] Failed to analyze:', error);
+          toast.error(getErrorMessage(error, t('analysisFailed')));
+        },
+      },
+    );
+  }, [analyzeMutation, t]);
+
+  useEffect(
+    () => () => {
+      if (pendingRefresh.current) clearTimeout(pendingRefresh.current);
+    },
+    [],
+  );
 
   const isEnterprise = userPlanName.toUpperCase() === 'ENTERPRISE';
 
@@ -84,22 +95,26 @@ export default function AiResumeCoachWidget({
     }
   }
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     if (!isEnterprise) {
       setShowUpgradeModal(true);
       return;
     }
+
     setIsOpen(true);
-    if (!analysis) {
-      void fetchAnalysis();
+
+    if (!analysis && !analyzeMutation.isPending) {
+      runAnalysis();
     }
-  };
+  }, [analysis, analyzeMutation.isPending, isEnterprise, runAnalysis]);
+
+  const hasAutoOpened = useRef(false);
 
   useEffect(() => {
-    if (initialOpen) {
-      handleOpen();
-    }
-  }, [initialOpen]);
+    if (!initialOpen || hasAutoOpened.current) return;
+    hasAutoOpened.current = true;
+    handleOpen();
+  }, [initialOpen, handleOpen]);
 
   const [appliedTipIds, setAppliedTipIds] = useState<Set<string>>(new Set());
   const [appliedTipTitles, setAppliedTipTitles] = useState<Set<string>>(new Set());
@@ -130,8 +145,12 @@ export default function AiResumeCoachWidget({
 
     toast.success(t('appliedToast', { title: tip.title }));
 
-    setTimeout(() => {
-      void fetchAnalysis();
+    // Applying several tips inside the debounce window used to stack one
+    // 60s analysis per tip, and none of the timers were cleared on unmount.
+    if (pendingRefresh.current) clearTimeout(pendingRefresh.current);
+    pendingRefresh.current = setTimeout(() => {
+      pendingRefresh.current = null;
+      runAnalysis();
     }, 1200);
   };
 
@@ -187,7 +206,7 @@ export default function AiResumeCoachWidget({
                     setAppliedTipTitles(new Set());
                     setAppliedTargetFields(new Set());
                     toast.info(t('rescanToast'));
-                    void fetchAnalysis();
+                    runAnalysis();
                   }}
                   disabled={isLoading}
                   title={t('refreshTitle')}
