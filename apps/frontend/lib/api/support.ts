@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
-import type { NormalizedApiError } from "@/lib/api/client";
+import { isEnvelope, type ApiEnvelope } from "@/lib/api/envelope";
+import { ApiError, getErrorMessage } from "@/lib/api/errors";
 
 export interface SupportContactPayload {
   name: string;
@@ -8,7 +9,6 @@ export interface SupportContactPayload {
   topic: string;
   message: string;
   locale: string;
-  /** Honeypot — must stay empty. Bots that fill every field trip it. */
   website?: string;
 }
 
@@ -17,36 +17,19 @@ export interface SupportContactResult {
   delivered?: boolean;
 }
 
-/**
- * Posts a help-centre message.
- *
- * Errors are thrown rather than returned so react-query can drive the retry
- * and error state; the caller maps them to a user-facing string.
- */
 export async function sendSupportMessage(
   payload: SupportContactPayload,
 ): Promise<SupportContactResult> {
-  const { data } = await apiClient.post(API_ENDPOINTS.support.contact, payload);
+  const { data } = await apiClient.post<
+    ApiEnvelope<SupportContactResult> | SupportContactResult
+  >(API_ENDPOINTS.support.contact, payload);
 
-  if (data && typeof data === "object" && "success" in data) {
-    const envelope = data as {
-      success: boolean;
-      data?: SupportContactResult;
-      error?: string | { message?: string };
-    };
-
-    if (!envelope.success) {
-      const message =
-        typeof envelope.error === "string"
-          ? envelope.error
-          : envelope.error?.message;
-      throw new Error(message || "Request failed");
+  if (isEnvelope<SupportContactResult>(data)) {
+    if (!data.success) {
+      throw new ApiError(getErrorMessage(data, "Request failed"));
     }
-
-    return envelope.data ?? { received: true };
+    return data.data ?? { received: true };
   }
 
   return data as SupportContactResult;
 }
-
-export type { NormalizedApiError };

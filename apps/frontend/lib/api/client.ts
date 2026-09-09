@@ -1,6 +1,8 @@
 import axios, { AxiosError } from "axios";
 import { getAccessToken, clearAccessToken } from "@/lib/auth/token";
+import { ApiError, getErrorMessage } from "@/lib/api/errors";
 
+/** @deprecated Use `ApiError` from `@/lib/api/errors`. */
 export type NormalizedApiError = {
   message: string;
   status?: number;
@@ -29,11 +31,10 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    // Only clear the token when the failing request actually carried the
-    // current session's Authorization header — a 401 from an unauthenticated
-    // call (login, register, forgot/reset-password, resend-code) is about
-    // that request's own credentials, not the still-valid session token, and
-    // clearing it here would silently sign the user out as a side effect.
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && error.config?.headers?.Authorization) {
       clearAccessToken();
     }
@@ -46,16 +47,20 @@ apiClient.interceptors.response.use(
       }
       | undefined;
 
-    const normalized: NormalizedApiError = {
-      message:
-        data?.message ||
-        (typeof data?.error === "string" ? data.error : data?.error?.message) ||
-        error.message ||
-        "Unexpected error",
-      status: error.response?.status,
-      code: data?.code,
-    };
 
-    return Promise.reject(normalized);
+
+
+    return Promise.reject(
+      new ApiError(
+        getErrorMessage(
+          error.response?.data,
+          error.message || "Unexpected error",
+        ),
+        {
+          status: error.response?.status,
+          code: typeof data?.code === "string" ? data.code : undefined,
+        },
+      ),
+    );
   },
 );

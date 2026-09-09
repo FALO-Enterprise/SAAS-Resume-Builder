@@ -13,11 +13,27 @@ export const API_ENDPOINTS = {
   },
   users: {
     byId: (id: string) => `/api/users/${id}`,
+    preferences: "/api/users/me/preferences",
   },
   support: {
     contact: "/api/support/contact",
   },
+  payments: {
+    plans: "/api/payments/plans",
+    subscription: "/api/payments/subscription",
+    checkoutSession: "/api/payments/checkout-session",
+    syncCheckout: "/api/payments/sync-checkout",
+    cancel: "/api/payments/cancel",
+  },
   resumes: {
+    root: "/api/resumes",
+    current: "/api/resumes/current",
     generate: "/api/resumes/current/generate",
+    drafts: "/api/resumes/drafts",
+    newDraft: "/api/resumes/new-draft",
+    aiCoachAnalyze: "/api/resumes/ai-coach/analyze",
+    byId: (id: string) => `/api/resumes/${encodeURIComponent(id)}`,
+    preview: (id: string) => `/api/resumes/${encodeURIComponent(id)}/preview`,
+    exports: (id: string, format: string) => `/api/resumes/${encodeURIComponent(id)}/exports/${format}`,
   },
 } as const;
