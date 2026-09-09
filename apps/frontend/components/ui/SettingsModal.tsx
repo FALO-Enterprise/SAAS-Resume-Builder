@@ -47,13 +47,11 @@ import {
 import { useIsClient } from "@/hooks/useIsClient";
 import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
 import { getInitials } from "@/lib/utilities/getName";
-import { getAccessToken } from "@/lib/auth/token";
 import { toast } from "sonner";
-import {
-  getBillingSubscription,
-  cancelBillingSubscription,
-  type BillingSubscriptionDetails,
-} from "@/lib/backend";
+import type { BillingSubscriptionDetails } from "@/lib/backend";
+import { getErrorMessage } from "@/lib/api/errors";
+import { useBillingSubscriptionQuery } from "@/hooks/queries/useBilling";
+import { useCancelSubscriptionMutation } from "@/hooks/mutations/useBillingMutations";
 
 export type SettingsTab =
   | "general"
@@ -260,9 +258,15 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     | "PRO"
     | "ENTERPRISE";
 
-  const [billingDetails, setBillingDetails] =
-    useState<BillingSubscriptionDetails | null>(null);
-  const [cancelingBilling, setCancelingBilling] = useState(false);
+  // Fetched through the query cache rather than a bare effect: opening and
+  // reclosing the modal inside the request window used to leave two unordered
+  // responses racing, and the stale result could repaint the previous
+  // session's billing block.
+  const billingQuery = useBillingSubscriptionQuery(isOpen);
+  const billingDetails: BillingSubscriptionDetails | null =
+    billingQuery.data ?? null;
+  const cancelSubscriptionMutation = useCancelSubscriptionMutation();
+  const cancelingBilling = cancelSubscriptionMutation.isPending;
 
   /* --- Profile editing (auto-saved) --- */
   const [nameDraft, setNameDraft] = useState(user?.name ?? "");
@@ -278,17 +282,6 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const token = getAccessToken();
-    if (!token) return;
-    getBillingSubscription(token)
-      .then((res) => setBillingDetails(res))
-      .catch((err) => {
-        console.warn("Could not fetch billing details:", err);
-      });
-  }, [isOpen]);
-
   // Release the last object URL when the modal unmounts.
   useEffect(
     () => () => {
@@ -300,25 +293,22 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   );
 
   const handleCancelSubscription = async () => {
-    const token = getAccessToken();
-    if (!token) return;
     try {
-      setCancelingBilling(true);
-      await cancelBillingSubscription(token);
-      const updated = await getBillingSubscription(token);
-      setBillingDetails(updated);
-      if (user && updated.plan && updated.plan !== user.planName) {
+      await cancelSubscriptionMutation.mutateAsync(false);
+
+      // The mutation invalidates the billing/user/drafts caches, so refetch
+      // here to read back the plan the server actually settled on.
+      const { data: updated } = await billingQuery.refetch();
+
+      if (user && updated?.plan && updated.plan !== user.planName) {
         updateUser({ ...user, planName: updated.plan });
       }
+
       toast.success(t("billing.cancelSuccess"));
       onClose();
       router.push(`/${locale}`);
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t("billing.cancelFailed"),
-      );
-    } finally {
-      setCancelingBilling(false);
+      toast.error(getErrorMessage(err, t("billing.cancelFailed")));
     }
   };
 
@@ -465,7 +455,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     } catch (error) {
       console.error("Delete account error:", error);
       setServerError(
-        error instanceof Error ? error.message : t("privacy.errors.deleteFailed"),
+        getErrorMessage(error, t("privacy.errors.deleteFailed")),
       );
     } finally {
       setIsDeleting(false);

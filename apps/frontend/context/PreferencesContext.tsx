@@ -17,22 +17,19 @@ import {
   type NotificationPreferences,
   type Preferences,
 } from '@/lib/preferences';
+import {
+  useNotificationPreferencesQuery,
+  useUpdateNotificationPreferencesMutation,
+} from '@/hooks/queries/usePreferences';
 
 interface PreferencesContextType {
   preferences: Preferences;
-  /** False during SSR and the hydration render. */
   mounted: boolean;
   setPreference: <K extends keyof Preferences>(key: K, value: Preferences[K]) => void;
   setNotification: (key: keyof NotificationPreferences, value: boolean) => void;
 }
 
 const PreferencesContext = createContext<PreferencesContextType | null>(null);
-
-/* localStorage as an external store — same approach as ThemeContext, so both
-   settings layers behave identically across tabs and during hydration.
-   Snapshots are cached because `getSnapshot` must be referentially stable:
-   parsing JSON on every render would hand React a new object each time and
-   spin forever. */
 
 const listeners = new Set<() => void>();
 let cachedRaw: string | null = null;
@@ -82,6 +79,9 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const preferences = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const mounted = useSyncExternalStore(neverChanges, () => true, () => false);
 
+  const serverPreferences = useNotificationPreferencesQuery(mounted);
+  const updatePreferences = useUpdateNotificationPreferencesMutation();
+
   const write = useCallback((next: Preferences) => {
     try {
       window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(next));
@@ -102,25 +102,30 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     (key: keyof NotificationPreferences, value: boolean) => {
       const current = getSnapshot();
       const updatedNotifications = { ...current.notifications, [key]: value };
-      write({ ...current, notifications: updatedNotifications });
 
-      try {
-        const authRaw = window.localStorage.getItem('auth_session') || window.localStorage.getItem('session');
-        if (authRaw) {
-          const parsed = JSON.parse(authRaw);
-          const token = parsed?.token || parsed?.state?.token;
-          if (token && typeof token === 'string') {
-            import('@/lib/backend').then(({ updateBackendPreferences }) => {
-              void updateBackendPreferences(token, updatedNotifications);
-            }).catch(() => {});
-          }
-        }
-      } catch {
-        // localStorage parse failure
-      }
+      // Written locally first so the switch responds immediately; the server
+      // copy is the durable one and is reconciled by the effect below.
+      write({ ...current, notifications: updatedNotifications });
+      updatePreferences.mutate(updatedNotifications);
     },
-    [write],
+    [updatePreferences, write],
   );
+
+  // These settings used to be write-only: every toggle was PATCHed but nothing
+  // ever read them back, so signing in on a new device silently reset them to
+  // the defaults. Server values win on load; local state is the offline cache.
+  const serverNotifications = serverPreferences.data;
+
+  useEffect(() => {
+    if (!mounted || !serverNotifications) return;
+
+    const current = getSnapshot();
+    const merged = { ...current.notifications, ...serverNotifications };
+
+    if (JSON.stringify(merged) === JSON.stringify(current.notifications)) return;
+
+    write({ ...current, notifications: merged });
+  }, [mounted, serverNotifications, write]);
 
   useEffect(() => {
     if (!mounted) return;
