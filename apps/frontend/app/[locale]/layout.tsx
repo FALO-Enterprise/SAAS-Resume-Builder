@@ -38,8 +38,10 @@ export default async function LocaleLayout({
       <NextIntlClientProvider messages={messages}>
         <HtmlDirSync />
         <ThemeProvider>
-          <PreferencesProvider>
-            <AuthProvider>
+          {/* AuthProvider wraps PreferencesProvider so preferences can be
+              cached per user — the notification settings are server-backed. */}
+          <AuthProvider>
+            <PreferencesProvider>
               <Toaster
                 position="top-right"
                 richColors
@@ -48,8 +50,8 @@ export default async function LocaleLayout({
               <RouteNotification />
               {children}
               <AuthModal />
-            </AuthProvider>
-          </PreferencesProvider>
+            </PreferencesProvider>
+          </AuthProvider>
         </ThemeProvider>
       </NextIntlClientProvider>
     </Providers>
