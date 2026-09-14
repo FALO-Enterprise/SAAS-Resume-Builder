@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -38,8 +39,6 @@ export default async function LocaleLayout({
       <NextIntlClientProvider messages={messages}>
         <HtmlDirSync />
         <ThemeProvider>
-          {/* AuthProvider wraps PreferencesProvider so preferences can be
-              cached per user — the notification settings are server-backed. */}
           <AuthProvider>
             <PreferencesProvider>
               <Toaster
@@ -47,7 +46,9 @@ export default async function LocaleLayout({
                 richColors
                 closeButton
               />
-              <RouteNotification />
+              <Suspense fallback={null}>
+                <RouteNotification />
+              </Suspense>
               {children}
               <AuthModal />
             </PreferencesProvider>
