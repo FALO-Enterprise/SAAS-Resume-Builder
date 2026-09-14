@@ -74,7 +74,8 @@ export default function TemplatesPage() {
   const searchParams = useSearchParams();
   const resumeId = searchParams.get('resumeId')?.trim() || '';
   const prefersReducedMotion = useReducedMotion();
-  const { user } = useAuth();
+  const tNotifications = useTranslations('notifications');
+  const { user, openLogin } = useAuth();
   const isFreeUser = user?.planName === 'FREE' || !user?.planName;
 
   const getPreviewLink = (templateId: string) => {
@@ -118,13 +119,31 @@ export default function TemplatesPage() {
   const previewPanelRef = useRef<HTMLDivElement>(null);
 
   const handleTemplateClick = (templateId: string, templateCard: TemplateCard, e: React.MouseEvent) => {
+    // Signed out comes first: `isFreeUser` is also true without a user, and
+    // telling a Pro member who is merely logged out to upgrade is wrong.
+    if (!user) {
+      e.preventDefault();
+      // Closed so the login modal the toast action opens is not stacked on it.
+      setPreviewTemplate(null);
+      toast.warning(
+        tNotifications('loginRequired.template', {
+          title: t(`templates.${templateCard.id}.title`),
+        }),
+        {
+          // Shared with the route toasts so a later redirect rewords this one.
+          id: 'login-required',
+          action: { label: tNotifications('logIn'), onClick: openLogin },
+        },
+      );
+      return;
+    }
+
     if (isFreeUser && templateId !== FREE_TEMPLATE_ID) {
       e.preventDefault();
       setUpgradeModalTemplate(templateCard);
       // One dialog at a time: the upgrade prompt takes over from the preview,
       // so focus is never trapped inside a panel that is no longer the subject.
       setPreviewTemplate(null);
-      toast.error(`The ${t(`templates.${templateCard.id}.title`)} template is reserved for Pro & Enterprise members.`);
     }
   };
 
