@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { resolveGatedArea, resolveLocale } from "./lib/protected-routes";
 
 const intlMiddleware = createMiddleware(routing);
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  const isProtectedRoute =
-    pathname.includes("/dashboard") || pathname.includes("/onboarding");
-
   const token = request.cookies.get("resumax_token")?.value;
+  const area = resolveGatedArea(pathname);
 
-  if (isProtectedRoute && !token) {
+  if (area && !token) {
     const url = request.nextUrl.clone();
 
-    const locale = pathname.split("/")[1] === "ar" ? "ar" : "en";
-    url.pathname = `/${locale}`;
+    url.pathname = `/${resolveLocale(pathname)}`;
 
-    url.searchParams.set("message", "login-required");
+    // The area rides along so the toast can name the place they were headed
+    // rather than always saying "dashboard".
+    url.searchParams.set("message", `login-required-${area}`);
 
     return NextResponse.redirect(url);
   }
