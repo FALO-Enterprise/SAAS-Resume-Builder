@@ -11,6 +11,20 @@
     "drafts": "My Drafts",
     "logout": "Log Out"
   },
+  "notifications": {
+    "loginRequired": {
+      "dashboard": "Please log in to access your dashboard.",
+      "drafts": "Please log in to access your drafts.",
+      "onboarding": "Please log in to continue setting up your account.",
+      "template": "Please log in to use the {title} template."
+    },
+    "verifyRequired": {
+      "dashboard": "Verify your account first to access your dashboard.",
+      "drafts": "Verify your account first to access your drafts."
+    },
+    "verifyNow": "Verify now",
+    "logIn": "Log in"
+  },
   "drafts": {
     "title": "My Resumes & Drafts",
     "subtitle": "Manage, organize, and edit all your saved resume versions and drafts in one place.",
