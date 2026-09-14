@@ -17,6 +17,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getAvatarUrl, isUploadedAvatar } from "@/lib/utilities/avatar";
 import { getInitials } from "@/lib/utilities/getName";
 import { PLAN_BADGES } from "@/lib/placeholder-data/plans.placeholder";
+import { useVerificationGate } from "@/hooks/useVerificationGate";
 import SettingsModal from "./SettingsModal";
 
 
@@ -24,6 +25,7 @@ export default function UserAvatarMenu() {
   const t = useTranslations("nav");
   const locale = useLocale();
   const { user, logout, isVerified } = useAuth();
+  const { guardNavigation } = useVerificationGate();
 
   const [open, setOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -139,7 +141,10 @@ export default function UserAvatarMenu() {
                 {/* Dashboard */}
                 <Link
                   href={`/${locale}/dashboard`}
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => {
+                    guardNavigation(e, "dashboard");
+                    setOpen(false);
+                  }}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-secondary hover:bg-card-hover hover:text-primary transition-colors delay-150"
                 >
                   <LayoutDashboard size={14} />
@@ -149,7 +154,10 @@ export default function UserAvatarMenu() {
                 {/* Drafts */}
                 <Link
                   href={`/${locale}/drafts`}
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => {
+                    guardNavigation(e, "drafts");
+                    setOpen(false);
+                  }}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-secondary hover:bg-card-hover hover:text-primary transition-colors delay-150"
                 >
                   <FileText size={14} />

@@ -11,6 +11,7 @@ import UserAvatarMenu from "@/components/ui/UserAvatarMenu";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useAuth } from "@/context/AuthContext";
 import { usePreferences } from "@/context/PreferencesContext";
+import { useVerificationGate } from "@/hooks/useVerificationGate";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -19,6 +20,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, openLogin, closeModal } = useAuth();
+  const { guardNavigation } = useVerificationGate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -165,14 +167,20 @@ export default function Navbar() {
                 <>
                   <Link
                     href={`/${locale}/dashboard`}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={(e) => {
+                      guardNavigation(e, "dashboard");
+                      setMobileOpen(false);
+                    }}
                     className="text-primary text-lg font-bold decoration-0 py-2 px-0"
                   >
                     {t("dashboard")}
                   </Link>
                   <Link
                     href={`/${locale}/drafts`}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={(e) => {
+                      guardNavigation(e, "drafts");
+                      setMobileOpen(false);
+                    }}
                     className="text-primary text-lg font-bold decoration-0 py-2 px-0"
                   >
                     {t("drafts")}
