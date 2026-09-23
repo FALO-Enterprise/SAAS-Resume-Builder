@@ -1,23 +1,19 @@
-# Install dependencies only when needed
-FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Copy root and workspace package files
-COPY package.json package-lock.json turbo.json tsconfig.json ./
-COPY packages/shared-types/package.json packages/shared-types/tsconfig.json ./packages/shared-types/
-COPY packages/shared-utils/package.json packages/shared-utils/tsconfig.json ./packages/shared-utils/
-COPY apps/frontend/package.json apps/frontend/tsconfig.json ./apps/frontend/
-
-RUN npm ci --include=dev
-
-# Rebuild the source code only when needed
+# Install dependencies and build Next.js application
 FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
+# Copy root and all workspace package manifests
 COPY package.json package-lock.json turbo.json tsconfig.json ./
+COPY packages/shared-types/package.json packages/shared-types/tsconfig.json ./packages/shared-types/
+COPY packages/shared-utils/package.json packages/shared-utils/tsconfig.json ./packages/shared-utils/
+COPY apps/backend/package.json apps/backend/tsconfig.json ./apps/backend/
+COPY apps/frontend/package.json apps/frontend/tsconfig.json ./apps/frontend/
+
+# Install dependencies across workspaces (ignoring lifecycle scripts until sources are copied)
+RUN npm ci --include=dev --ignore-scripts
+
+# Copy package sources
 COPY packages/shared-types ./packages/shared-types
 COPY packages/shared-utils ./packages/shared-utils
 COPY apps/frontend ./apps/frontend

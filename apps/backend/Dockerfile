@@ -19,14 +19,15 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 
 WORKDIR /app
 
-# Copy root manifest files and package manifests for clean layer caching
+# Copy root manifest files and all workspace package manifests for clean layer caching
 COPY package.json package-lock.json turbo.json tsconfig.json ./
 COPY packages/shared-types/package.json packages/shared-types/tsconfig.json ./packages/shared-types/
 COPY packages/shared-utils/package.json packages/shared-utils/tsconfig.json ./packages/shared-utils/
 COPY apps/backend/package.json apps/backend/tsconfig.json apps/backend/prisma.config.ts ./apps/backend/
+COPY apps/frontend/package.json apps/frontend/tsconfig.json ./apps/frontend/
 
-# Install dependencies across workspaces (including dev dependencies for build)
-RUN npm ci --include=dev
+# Install dependencies across workspaces (ignoring lifecycle scripts until sources are copied)
+RUN npm ci --include=dev --ignore-scripts
 
 # Copy package sources
 COPY packages/shared-types ./packages/shared-types
