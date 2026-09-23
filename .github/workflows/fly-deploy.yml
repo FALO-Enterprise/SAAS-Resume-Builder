@@ -56,6 +56,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Authenticate Docker with Fly Registry
+        run: flyctl auth docker
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -70,7 +76,7 @@ jobs:
         id: repo_owner
         run: echo "owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
-      - name: Build and Push Backend Image to GHCR
+      - name: Build and Push Backend Image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -79,17 +85,15 @@ jobs:
           tags: |
             ghcr.io/${{ steps.repo_owner.outputs.owner }}/resumax-backend:latest
             ghcr.io/${{ steps.repo_owner.outputs.owner }}/resumax-backend:${{ github.sha }}
+            registry.fly.io/resumax-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Setup Flyctl
-        uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly.io
         run: |
           flyctl deploy \
             --config apps/backend/fly.toml \
-            --image ghcr.io/${{ steps.repo_owner.outputs.owner }}/resumax-backend:${{ github.sha }}
+            --image registry.fly.io/resumax-backend:${{ github.sha }}
 
   deploy-frontend:
     name: Build & Deploy Frontend Container
@@ -102,6 +106,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Authenticate Docker with Fly Registry
+        run: flyctl auth docker
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -116,7 +126,7 @@ jobs:
         id: repo_owner
         run: echo "owner=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
-      - name: Build and Push Frontend Image to GHCR
+      - name: Build and Push Frontend Image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -125,6 +135,7 @@ jobs:
           tags: |
             ghcr.io/${{ steps.repo_owner.outputs.owner }}/resumax-frontend:latest
             ghcr.io/${{ steps.repo_owner.outputs.owner }}/resumax-frontend:${{ github.sha }}
+            registry.fly.io/resumax-frontend:${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_BACKEND_URL=${{ vars.NEXT_PUBLIC_BACKEND_URL || secrets.NEXT_PUBLIC_BACKEND_URL || 'https://resumax-backend.fly.dev' }}
             NEXT_PUBLIC_PADDLE_ENVIRONMENT=${{ vars.NEXT_PUBLIC_PADDLE_ENVIRONMENT || secrets.NEXT_PUBLIC_PADDLE_ENVIRONMENT || 'sandbox' }}
@@ -134,11 +145,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Setup Flyctl
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
       - name: Deploy to Fly.io
         run: |
           flyctl deploy \
             --config apps/frontend/fly.toml \
-            --image ghcr.io/${{ steps.repo_owner.outputs.owner }}/resumax-frontend:${{ github.sha }}
+            --image registry.fly.io/resumax-frontend:${{ github.sha }}
