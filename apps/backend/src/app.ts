@@ -21,6 +21,11 @@ if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
 
+// Health check endpoint for Fly.io and load balancers
+app.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 app.use(express.json({
     verify: (req, _res, buf) => {
         (req as unknown as { rawBody?: Buffer }).rawBody = buf;
@@ -55,11 +60,6 @@ app.use(
 );
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-
-// Health check endpoint for Fly.io and load balancers
-app.get('/health', (_req, res) => {
-    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 // Routes
 app.use('/api/auth', authRouter)

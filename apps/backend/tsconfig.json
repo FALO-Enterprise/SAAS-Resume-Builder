@@ -18,8 +18,8 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": false,
     "jsx": "react-jsx",
-    "module": "ES2022",
-    "moduleResolution": "bundler",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
@@ -29,13 +29,9 @@
       "@shared/*": ["../../packages/*/src"],
       "@shared-types": ["../../packages/shared-types/src"],
       "@shared-utils": ["../../packages/shared-utils/src"],
-      "@prisma/client": ["./generated/prisma"],
-      "@shared-utils": ["../../packages/shared-utils/src"],
       "@prisma/client": ["./src/generated/prisma"]
     }
   },
-  "include": ["src/**/*", "generated/**/*"],
-  "exclude": ["node_modules", "dist"],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "src/generated"]
 }
