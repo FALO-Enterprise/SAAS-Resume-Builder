@@ -1357,7 +1357,7 @@ function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSec
   };
 
   return (
-    <aside className={`fixed inset-y-0 inset-s-0 z-50 flex h-dvh w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`fixed inset-y-0 inset-s-0 z-50 flex h-dvh w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full max-lg:rtl:translate-x-full'}`}>
       <div className="px-6 pt-7">
         <div className="flex items-center justify-between">
           <Link href={`/${locale}`} aria-label="ResuMax home">
