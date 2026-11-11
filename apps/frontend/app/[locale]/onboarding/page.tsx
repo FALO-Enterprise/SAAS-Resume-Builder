@@ -480,7 +480,7 @@ export default function OnboardingPage() {
 
   return (
     <main
-      className="relative min-h-dvh overflow-x-hidden bg-base font-syne text-primary"
+      className="relative min-h-dvh overflow-x-hidden bg-base font-franklin text-primary"
     >
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(245,166,35,0.11),transparent_42%)]" />

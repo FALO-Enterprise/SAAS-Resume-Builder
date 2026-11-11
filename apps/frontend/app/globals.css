@@ -2,7 +2,7 @@
 
 @theme {
   --font-playfair: var(--font-playfair);
-  --font-syne: var(--font-syne);
+  --font-franklin: var(--font-franklin);
   --font-arabic: var(--font-arabic);
 
   --color-ink: #0a0b0f;
@@ -255,12 +255,12 @@ body {
 }
 
 /* RTL overrides */
-[dir="rtl"] .font-syne {
+[dir="rtl"] .font-franklin {
   font-family: var(--ff-arabic), sans-serif;
 }
 
-.font-syne {
-  font-family: 'Syne', 'DM Sans', system-ui, sans-serif;
+.font-franklin {
+  font-family: var(--ff-franklin), system-ui, sans-serif;
 }
 
 .font-playfair {

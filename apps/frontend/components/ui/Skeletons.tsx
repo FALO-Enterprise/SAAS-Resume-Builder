@@ -117,7 +117,7 @@ export function DashboardSkeleton({ label }: { label?: string }) {
 
   return (
     <div
-      className="flex h-dvh overflow-hidden bg-base font-syne"
+      className="flex h-dvh overflow-hidden bg-base font-franklin"
       aria-busy="true"
       aria-label={label ?? t("loadingDraft")}
     >

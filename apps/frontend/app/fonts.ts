@@ -1,4 +1,4 @@
-import { Playfair_Display, Syne, Noto_Kufi_Arabic } from "next/font/google";
+import { Playfair_Display, Libre_Franklin, Noto_Kufi_Arabic } from "next/font/google";
 
 export const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -7,10 +7,10 @@ export const playfair = Playfair_Display({
   fallback: ["Georgia", "serif"],
 });
 
-export const syne = Syne({
+export const libreFranklin = Libre_Franklin({
   subsets: ["latin"],
   display: "swap",
-  variable: "--ff-syne",
+  variable: "--ff-franklin",
   fallback: ["system-ui", "sans-serif"],
 });
 
@@ -21,4 +21,4 @@ export const notoKufiArabic = Noto_Kufi_Arabic({
   fallback: ["sans-serif"],
 });
 
-export const FONT_VARIABLES = `${playfair.variable} ${syne.variable} ${notoKufiArabic.variable}`;
+export const FONT_VARIABLES = `${playfair.variable} ${libreFranklin.variable} ${notoKufiArabic.variable}`;

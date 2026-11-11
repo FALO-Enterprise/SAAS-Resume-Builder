@@ -152,7 +152,7 @@ function FieldCard({
           <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${iconBox}`}>
             <Icon size={14} className={`transition-colors ${iconColor}`} />
           </div>
-          <span className={`font-syne text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
+          <span className={`font-franklin text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
             {label}
           </span>
           {optional && (
@@ -179,7 +179,7 @@ function FieldCard({
           type={type} placeholder={placeholder} value={value}
           onChange={e => onChange(e.target.value)}
           onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-          className="w-full border-none bg-transparent ps-9 font-syne text-[15px] font-medium text-primary outline-none placeholder:text-muted"
+          className="w-full border-none bg-transparent ps-9 font-franklin text-[15px] font-medium text-primary outline-none placeholder:text-muted"
         />
       </div>
 
@@ -287,7 +287,7 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
           <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${iconBox}`}>
             <Icon size={14} className={`transition-colors ${iconColor}`} />
           </div>
-          <span className={`font-syne text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
+          <span className={`font-franklin text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
             {label}
           </span>
           {filled && !active && (
@@ -311,7 +311,7 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
               if (e.key === 'Enter') { e.preventDefault(); saveEdit(); }
               if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
             }}
-            className={`w-full border-none bg-transparent ps-9 font-syne text-[15px] font-medium text-primary outline-none placeholder:text-muted ${editing ? 'pe-20' : 'cursor-default pe-11'}`}
+            className={`w-full border-none bg-transparent ps-9 font-franklin text-[15px] font-medium text-primary outline-none placeholder:text-muted ${editing ? 'pe-20' : 'cursor-default pe-11'}`}
           />
           <div className="absolute inset-e-0 flex items-center gap-1.5">
             {editing ? (
@@ -385,7 +385,7 @@ function ExpField({ label, icon: Icon, placeholder, value, onChange, type = 'tex
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+      <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
         {Icon && <Icon size={12} />} {label}
       </label>
       <div className="relative">
@@ -447,7 +447,7 @@ function CommaListField({ label, placeholder, value, onChange }: {
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{label}</label>
+      <label className="font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{label}</label>
       <textarea
         rows={3}
         value={draft}
@@ -482,7 +482,7 @@ function SummaryStep({ value, onChange }: {
       <p className="mb-8 max-w-150 text-[15px] leading-[1.7] text-faint">{t('subtitle')}</p>
       <div className="rounded-2xl border border-edge bg-card p-5 sm:p-7">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <label htmlFor="professional-summary" className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+          <label htmlFor="professional-summary" className="font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
             {t('label')}
           </label>
           <span className="text-[11px] text-muted">{t('wordCount', { count: words })}</span>
@@ -611,7 +611,7 @@ function ExperienceStep({ items, onChange }: {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> {t('startDate')}
                           </label>
                           <div className="flex gap-2.5">
@@ -621,7 +621,7 @@ function ExperienceStep({ items, onChange }: {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> {t('endDate')}
                           </label>
                           <div className="flex gap-2.5">
@@ -633,7 +633,7 @@ function ExperienceStep({ items, onChange }: {
 
                       <div className="mt-5 flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-3">
-                          <label className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             {t('descriptionLabel')}
                           </label>
                           <span className="rounded-md border border-azure-light/20 bg-azure-light/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.06em] text-faint">
@@ -718,7 +718,7 @@ function ProjectsStep({ items, onChange }: {
                   value={project.technologies} onChange={technologies => update(project.id, { technologies })} />
               </div>
               <div className="flex flex-col gap-2 sm:col-span-2">
-                <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                   <Calendar size={12} /> {t('date')}
                 </label>
                 <div className="flex gap-2.5">
@@ -731,7 +731,7 @@ function ProjectsStep({ items, onChange }: {
             </div>
 
             <div className="mt-5 flex flex-col gap-2">
-              <label className="font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{t('description.label')}</label>
+              <label className="font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{t('description.label')}</label>
               <textarea rows={5} value={project.description}
                 onChange={event => update(project.id, { description: event.target.value })}
                 placeholder={t('description.placeholder')}
@@ -889,7 +889,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> {t('startDate')}
                           </label>
                           <div className="flex gap-2.5">
@@ -901,7 +901,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-syne text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> {t('endDate')}
                           </label>
                           <div className="flex gap-2.5">
@@ -2216,7 +2216,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
 
   return (
     <div
-      className="flex h-dvh overflow-hidden bg-base font-syne"
+      className="flex h-dvh overflow-hidden bg-base font-franklin"
       inert={isFinishing}
       aria-busy={isFinishing}
     >
