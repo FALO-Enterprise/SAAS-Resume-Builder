@@ -435,9 +435,11 @@ input::placeholder {
   letter-spacing: 0;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-gold);
-  outline-offset: 2px;
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
 }
 
 @keyframes hero-rise {
