@@ -388,9 +388,6 @@ export default function DraftsPage() {
                         className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                        <span className="px-3 py-1.5 rounded-xl bg-gold text-slate-950 text-xs font-black shadow-md flex items-center gap-1.5">
-                          <Pencil size={12} /> {t("editResume")}
-                        </span>
                       </div>
                     </div>
 
