@@ -9,17 +9,11 @@ import type {
 } from "@/lib/types/landing.types";
 import MiniSheet from "@/components/ui/MiniSheet";
 
-/* The hero's working diagram: seven onboarding answers stitched into one
-   sheet. The seventh answer is the template, so the switcher below is the
-   same control the product asks for in its last question. Picking a template
-   re-cuts the sheet. */
 
 const ROWS = 7;
 const VIEW_H = 700;
 const VIEW_W = 80;
 
-/* Each stitch leaves the vertical centre of its slip and lands on the sheet
-   edge inside a narrower band, so the seven threads visibly gather. */
 const stitches = Array.from({ length: ROWS }, (_, i) => {
   const from = (VIEW_H * (i + 0.5)) / ROWS;
   const to = VIEW_H * 0.22 + (i * VIEW_H * 0.56) / (ROWS - 1);
@@ -40,28 +34,28 @@ function Glyph({ id }: { id: TemplateId }) {
     </span>
   );
   const frame =
-    "flex h-[30px] w-[22px] border border-current p-[2px]";
+    "flex h-7.5 w-5.5 border border-current p-0.5";
 
   switch (id) {
     case "executive":
       return (
-        <span aria-hidden className={`${frame} flex-col gap-[2px]`}>
-          <span className="block h-[6px] bg-current" />
+        <span aria-hidden className={`${frame} flex-col gap-0.5`}>
+          <span className="block h-1.5 bg-current" />
           {body}
         </span>
       );
     case "developer":
       return (
-        <span aria-hidden className={`${frame} gap-[2px]`}>
-          <span className="block w-[6px] bg-current" />
+        <span aria-hidden className={`${frame} gap-0.5`}>
+          <span className="block w-1.5 bg-current" />
           {body}
         </span>
       );
     case "director":
       return (
-        <span aria-hidden className={`${frame} flex-col gap-[2px]`}>
+        <span aria-hidden className={`${frame} flex-col gap-0.5`}>
           <span className={`${line} w-2/3`} />
-          <span className="flex h-[7px] gap-[2px]">
+          <span className="flex h-1.75 gap-0.5">
             <span className="flex-1 border border-current" />
             <span className="flex-1 border border-current" />
             <span className="flex-1 border border-current" />
@@ -71,7 +65,7 @@ function Glyph({ id }: { id: TemplateId }) {
       );
     case "minimal":
       return (
-        <span aria-hidden className={`${frame} flex-col gap-[2px]`}>
+        <span aria-hidden className={`${frame} flex-col gap-0.5`}>
           <span className={`${line} mx-auto w-1/2`} />
           {body}
         </span>
@@ -88,10 +82,10 @@ function Glyph({ id }: { id: TemplateId }) {
       );
     case "global":
       return (
-        <span aria-hidden className={`${frame} flex-col gap-[2px]`}>
+        <span aria-hidden className={`${frame} flex-col gap-0.5`}>
           <span className="flex items-center justify-between">
             <span className={`${line} w-1/2`} />
-            <span className="block size-[5px] bg-current" />
+            <span className="block size-1.25 bg-current" />
           </span>
           {body}
         </span>
@@ -126,7 +120,7 @@ export default function HeroDiagram({
   ];
 
   return (
-    <div className="mx-auto w-full max-w-[620px]">
+    <div className="mx-auto w-full max-w-155">
       <div className="flex flex-col lg:grid lg:grid-cols-[minmax(0,200px)_64px_minmax(0,1fr)]">
         {/* Seven answers: an even grid on small screens, a column beside the
             sheet on large ones. */}
@@ -141,7 +135,7 @@ export default function HeroDiagram({
                 <span
                   className={`lp-sheet block w-full px-3 py-2 ${last ? "outline outline-2 -outline-offset-2 outline-[#6e5bc4]" : ""}`}
                 >
-                  <span className="lp-mono block !text-[10px] text-[#6d6a80]">
+                  <span className="lp-mono block text-[10px]! text-[#6d6a80]">
                     {i + 1} · {slip.label}
                   </span>
                   <span className="block text-[13px] font-semibold leading-snug">
@@ -182,25 +176,25 @@ export default function HeroDiagram({
         </svg>
 
         {/* The sheet */}
-        <div className="relative mx-auto w-full max-w-[340px] lg:max-w-none">
+        <div className="relative mx-auto w-full max-w-85 lg:max-w-none">
           <div
             key={active}
             className="lp-cut-in text-[10px] sm:text-[11px] lg:text-[12px]"
           >
             <MiniSheet template={active} copy={sheet} />
           </div>
-          <span className="lp-label absolute end-2 top-2 bg-[#1c1830] px-1.5 py-0.5 !text-[11px] text-white">
+          <span className="lp-label absolute inset-e-2 top-2 bg-[#1c1830] px-1.5 py-0.5 text-[11px]! text-white">
             {sampleLabel}
           </span>
         </div>
       </div>
 
       {/* Measurements and the template switcher share the sheet's width. */}
-      <div className="mx-auto mt-4 max-w-[340px] lg:ms-[264px] lg:max-w-none">
+      <div className="mx-auto mt-4 max-w-85 lg:ms-66 lg:max-w-none">
         <div className="lp-ruler" aria-hidden />
         <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
           {specs.map((spec) => (
-            <li key={spec} className="lp-mono !text-[10px] text-lp-ink">
+            <li key={spec} className="lp-mono text-[10px]! text-lp-ink">
               {spec}
             </li>
           ))}

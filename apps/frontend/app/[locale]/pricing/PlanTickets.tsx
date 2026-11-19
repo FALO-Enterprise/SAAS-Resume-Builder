@@ -172,7 +172,7 @@ export default function PlanTickets() {
       );
     }
     return (
-      <span className="lp-mono !text-[14px] !tracking-normal">{value}</span>
+      <span className="lp-mono text-[14px]! tracking-normal!">{value}</span>
     );
   };
 
@@ -181,7 +181,7 @@ export default function PlanTickets() {
       <div className="relative">
         {/* The rail the tickets hang from */}
         <div
-          className="absolute inset-x-0 top-0 hidden h-[2px] bg-lp-ink lg:block"
+          className="absolute inset-x-0 top-0 hidden h-0.5 bg-lp-ink lg:block"
           aria-hidden
         />
 
@@ -216,12 +216,12 @@ export default function PlanTickets() {
                   aria-hidden
                 />
                 <article
-                  className={`relative flex flex-1 flex-col overflow-hidden rounded-lg p-7 shadow-[var(--lp-shadow)] sm:p-8 ${
+                  className={`relative flex flex-1 flex-col overflow-hidden rounded-lg p-7 shadow-(--lp-shadow) sm:p-8 ${
                     featured ? "lp-night" : "bg-lp-card text-lp-ink"
                   }`}
                 >
                   <span
-                    className="absolute start-1/2 top-3 hidden size-3 -translate-x-1/2 rounded-full bg-lp-mat lg:block rtl:translate-x-1/2"
+                    className="absolute inset-s-1/2 top-3 hidden size-3 -translate-x-1/2 rounded-full bg-lp-mat lg:block rtl:translate-x-1/2"
                     aria-hidden
                   />
 
@@ -244,7 +244,7 @@ export default function PlanTickets() {
                       : `${t("plans.perMonth")} · ${t("plans.billedMonthly")}`}
                   </p>
 
-                  <div className="mt-7 flex min-h-[60px] items-center">
+                  <div className="mt-7 flex min-h-15 items-center">
                     {isCurrent ? (
                       <p className="w-full rounded-lg border border-dashed border-lp-rule-strong px-4 py-4 text-center text-[15px] font-semibold text-lp-ink2">
                         {t("plans.currentPlan")}

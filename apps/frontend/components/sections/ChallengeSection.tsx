@@ -14,7 +14,7 @@ const FLAG_LETTER = { a: "A", b: "B", c: "C" } as const;
 
 function FlagBadge({ flag }: { flag: "a" | "b" | "c" }) {
   return (
-    <span className="lp-mono inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-lp-flag !text-[10px] !tracking-normal text-lp-paper">
+    <span className="lp-mono inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-lp-flag text-[10px]! tracking-normal! text-lp-paper">
       {FLAG_LETTER[flag]}
     </span>
   );
@@ -51,7 +51,7 @@ export default function ChallengeSection() {
                 </p>
                 <p className="mt-4 flex items-baseline justify-between gap-2 font-semibold">
                   {t("challenge.specimen.role")}
-                  <span className="lp-mono !text-[10px] opacity-70">
+                  <span className="lp-mono text-[10px]! opacity-70">
                     {t("challenge.specimen.date")}
                   </span>
                 </p>
@@ -101,7 +101,7 @@ export default function ChallengeSection() {
                 {parsed.map((line) => (
                   <li
                     key={line.text}
-                    className={`lp-mono flex items-start gap-3 !text-[12.5px] !normal-case !tracking-normal ${
+                    className={`lp-mono flex items-start gap-3 text-[12.5px]! normal-case! tracking-normal! ${
                       line.flag ? "text-lp-ink" : "text-lp-ink2"
                     }`}
                   >
@@ -110,7 +110,7 @@ export default function ChallengeSection() {
                     ) : (
                       <span className="size-5 shrink-0" aria-hidden />
                     )}
-                    <span className="min-w-0 break-words">{line.text}</span>
+                    <span className="min-w-0 wrap-break-word">{line.text}</span>
                   </li>
                 ))}
               </ol>
@@ -156,7 +156,7 @@ export default function ChallengeSection() {
               {t("challenge.stat")}
             </span>
             <span>
-              <blockquote className="max-w-[30rem] text-[19px] leading-[1.5]">
+              <blockquote className="max-w-120 text-[19px] leading-normal">
                 {t("challenge.statText")}
               </blockquote>
               <figcaption className="lp-label mt-3 text-lp-ink3">

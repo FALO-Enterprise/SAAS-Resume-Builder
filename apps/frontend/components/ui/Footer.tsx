@@ -40,11 +40,11 @@ export default function Footer() {
 
   return (
     <footer className="bg-lp-soft py-16">
-      <div className="mx-auto w-full max-w-[1320px] px-5 sm:px-8">
+      <div className="mx-auto w-full max-w-330 px-5 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-[5fr_7fr]">
           <div>
             <Logo />
-            <p className="mt-4 max-w-[22rem] text-[16px] leading-[1.6] text-lp-ink2">
+            <p className="mt-4 max-w-88 text-[16px] leading-[1.6] text-lp-ink2">
               {tFooter("tagline")}
             </p>
           </div>

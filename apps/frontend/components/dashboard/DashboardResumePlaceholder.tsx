@@ -47,11 +47,11 @@ const LINES: Record<Exclude<StepId, 'contact'>, number[]> = {
 
 function Lines({ widths, tone }: { widths: number[]; tone: string }) {
   return (
-    <span aria-hidden className="flex flex-col gap-[5px]">
+    <span aria-hidden className="flex flex-col gap-1.25">
       {widths.map((width, index) => (
         <span
           key={index}
-          className="block h-[3px]"
+          className="block h-0.75"
           style={{ width: `${width}%`, background: tone }}
         />
       ))}
@@ -78,7 +78,7 @@ function Block({
       aria-label={label}
       data-resume-section={id}
       data-active={active}
-      className={`relative p-[5px] outline-2 -outline-offset-1 transition-[background-color,outline-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${className}`}
+      className={`relative p-1.25 outline-2 -outline-offset-1 transition-[background-color,outline-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${className}`}
       style={{
         outlineStyle: 'solid',
         outlineColor: active ? HIGHLIGHT : 'transparent',
@@ -124,7 +124,7 @@ export default function DashboardResumePlaceholder({
   const heading = (id: StepId, tone: string, center = false) => (
     <span
       aria-hidden
-      className={`mb-[5px] block truncate text-[6.5px] font-bold uppercase leading-none tracking-[0.1em] rtl:tracking-normal ${center ? 'text-center' : ''}`}
+      className={`mb-1.25 block truncate text-[6.5px] font-bold uppercase leading-none tracking-widest rtl:tracking-normal ${center ? 'text-center' : ''}`}
       style={{ color: tone }}
     >
       {sectionLabel(id)}
@@ -182,10 +182,10 @@ export default function DashboardResumePlaceholder({
               id="contact"
               active={isActive('contact')}
               label={sectionLabel('contact')}
-              className={band ? '!p-0' : 'mx-[5%] mt-[5%] !p-0'}
+              className={band ? 'p-0!' : 'mx-[5%] mt-[5%] p-0!'}
             >
               <span
-                className={`block px-[6%] py-[5%] ${centered ? 'text-center' : ''} ${band ? '' : 'border-b-2 !px-[3px]'}`}
+                className={`block px-[6%] py-[5%] ${centered ? 'text-center' : ''} ${band ? '' : 'border-b-2 px-0.75!'}`}
                 style={
                   band
                     ? { background: shape.accent, color: contactTone }
@@ -196,16 +196,16 @@ export default function DashboardResumePlaceholder({
                   {name?.trim() || (
                     <span
                       aria-hidden
-                      className={`block h-[6px] w-2/3 ${centered ? 'mx-auto' : ''}`}
+                      className={`block h-1.5 w-2/3 ${centered ? 'mx-auto' : ''}`}
                       style={{ background: band ? '#ffffff99' : '#cbc8d6' }}
                     />
                   )}
                 </span>
-                <span className="mt-[3px] block truncate text-[7.5px] leading-tight opacity-80">
+                <span className="mt-0.75 block truncate text-[7.5px] leading-tight opacity-80">
                   {title?.trim() || (
                     <span
                       aria-hidden
-                      className={`block h-[3px] w-2/5 ${centered ? 'mx-auto' : ''}`}
+                      className={`block h-0.75 w-2/5 ${centered ? 'mx-auto' : ''}`}
                       style={{ background: band ? '#ffffff80' : '#cbc8d6' }}
                     />
                   )}
@@ -236,7 +236,7 @@ export default function DashboardResumePlaceholder({
                 </div>
               )}
 
-              <div className="flex min-w-0 flex-1 flex-col gap-[3px] p-[4%]">
+              <div className="flex min-w-0 flex-1 flex-col gap-0.75 p-[4%]">
                 {mainOrder.map((id) => body(id))}
               </div>
             </div>

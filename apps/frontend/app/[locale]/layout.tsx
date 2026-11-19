@@ -46,14 +46,14 @@ export default async function LocaleLayout({
                 toastOptions={{
                   classNames: {
                     toast:
-                      "!rounded-lg !border !border-edge-strong !bg-elevated !text-primary !shadow-[var(--lp-shadow)] !font-sans",
-                    description: "!text-secondary",
-                    success: "!border-s-4 !border-s-pass",
-                    error: "!border-s-4 !border-s-flag",
-                    warning: "!border-s-4 !border-s-accent",
-                    info: "!border-s-4 !border-s-accent",
-                    actionButton: "!rounded-lg !bg-lp-tag !text-lp-on-tag",
-                    closeButton: "!border-edge-strong !bg-elevated !text-primary",
+                      "rounded-lg! border! border-edge-strong! bg-elevated! text-primary! shadow-(--lp-shadow)! font-sans!",
+                    description: "text-secondary!",
+                    success: "border-s-4! border-s-pass!",
+                    error: "border-s-4! border-s-flag!",
+                    warning: "border-s-4! border-s-accent!",
+                    info: "border-s-4! border-s-accent!",
+                    actionButton: "rounded-lg! bg-lp-tag! text-lp-on-tag!",
+                    closeButton: "border-edge-strong! bg-elevated! text-primary!",
                   },
                 }}
                 closeButton

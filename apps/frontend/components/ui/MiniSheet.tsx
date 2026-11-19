@@ -74,7 +74,7 @@ export default function MiniSheet({
     <span className="mb-[0.9em] block">
       <span className="mb-[0.45em] flex items-baseline justify-between gap-2">
         <span className="text-[0.82em] font-semibold">{title}</span>
-        <span className="lp-mono shrink-0 !text-[0.62em] opacity-70">
+        <span className="lp-mono shrink-0 text-[0.62em]! opacity-70">
           {date}
         </span>
       </span>
@@ -126,7 +126,7 @@ export default function MiniSheet({
         </Heading>
         <span className="flex items-baseline justify-between gap-2">
           <span className="text-[0.82em] font-semibold">{copy.degree}</span>
-          <span className="lp-mono shrink-0 !text-[0.62em] opacity-70">
+          <span className="lp-mono shrink-0 text-[0.62em]! opacity-70">
             {copy.date3}
           </span>
         </span>
@@ -174,7 +174,7 @@ export default function MiniSheet({
   return (
     <span
       dir={dir}
-      className={`lp-sheet flex aspect-[210/297] w-full flex-col overflow-hidden text-start ${className}`}
+      className={`lp-sheet flex aspect-210/297 w-full flex-col overflow-hidden text-start ${className}`}
     >
       {cut.header === "band" ? (
         <span

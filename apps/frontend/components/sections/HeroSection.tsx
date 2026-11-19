@@ -39,7 +39,7 @@ export default function HeroSection() {
           <span className="block">{t("hero.titleB")}</span>
           <span className="block text-lp-violet">{t("hero.titleAccent")}</span>
         </h1>
-        <p className={`${BODY} mt-7 max-w-[34rem] text-[19px]`}>
+        <p className={`${BODY} mt-7 max-w-136 text-[19px]`}>
           {t("hero.lead")}
         </p>
 

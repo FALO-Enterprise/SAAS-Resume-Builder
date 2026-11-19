@@ -14,7 +14,7 @@ import TemplateRack from "./TemplateRack";
    "100% ATS-optimized", an "ATS Shield Guarantee" and compliance with US, EU
    and UK standards; none of those can be demonstrated, so none is repeated. */
 
-const WRAP = "mx-auto w-full max-w-[1320px] px-5 sm:px-8";
+const WRAP = "mx-auto w-full max-w-330 px-5 sm:px-8";
 const H2 = "lp-display text-[clamp(2rem,4.4vw,3.75rem)]";
 const BODY = "text-[17px] leading-[1.65] text-lp-ink2";
 
@@ -70,7 +70,7 @@ export default async function TemplatesPage({
                 <h3 className="text-[24px] font-bold leading-tight tracking-[-0.03em] rtl:tracking-normal">
                   {item.title}
                 </h3>
-                <p className="mt-3 max-w-[38rem] text-[16.5px] leading-[1.65] text-lp-ink2">
+                <p className="mt-3 max-w-152 text-[16.5px] leading-[1.65] text-lp-ink2">
                   {item.desc}
                 </p>
               </li>
@@ -85,7 +85,7 @@ export default async function TemplatesPage({
           <h2 className="lp-display max-w-[16ch] text-[clamp(2.5rem,5.6vw,5rem)]">
             {t("close2.title")}
           </h2>
-          <p className={`${BODY} mt-6 max-w-[30rem] text-[19px]`}>
+          <p className={`${BODY} mt-6 max-w-120 text-[19px]`}>
             {t("close2.lead")}
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-5">

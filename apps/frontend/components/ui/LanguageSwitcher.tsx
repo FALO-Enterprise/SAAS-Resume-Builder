@@ -49,7 +49,7 @@ export default function LanguageSwitcher() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute top-[calc(100%+8px)] inset-e-0 z-100 min-w-32 overflow-hidden rounded-lg border border-edge-strong bg-elevated shadow-[var(--lp-shadow)]"
+              className="absolute top-[calc(100%+8px)] inset-e-0 z-100 min-w-32 overflow-hidden rounded-lg border border-edge-strong bg-elevated shadow-(--lp-shadow)"
             >
               {languages.map((lang) => (
                 <button

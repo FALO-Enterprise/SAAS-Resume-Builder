@@ -51,9 +51,9 @@ function OtpBox({
   const stateClasses = hasError
     ? "border-flag/60 bg-flag/[0.07] text-flag"
     : focused
-      ? "border-accent bg-accent/[0.06] text-primary shadow-[0_0_0_3px_rgba(110,91,196,0.12)]"
+      ? "border-accent bg-accent/6 text-primary shadow-[0_0_0_3px_rgba(110,91,196,0.12)]"
       : value
-        ? "border-accent/40 bg-accent/[0.03] text-primary"
+        ? "border-accent/40 bg-accent/3 text-primary"
         : "border-edge-strong bg-card text-primary";
 
   return (

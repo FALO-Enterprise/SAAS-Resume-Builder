@@ -27,7 +27,7 @@ export default function CTASection() {
           <h2 className="lp-display text-[clamp(2.75rem,6vw,5.5rem)]">
             {t("cta.title")}
           </h2>
-          <p className={`${BODY} mt-6 max-w-[30rem] text-[19px]`}>
+          <p className={`${BODY} mt-6 max-w-120 text-[19px]`}>
             {t("cta.lead")}
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-5">

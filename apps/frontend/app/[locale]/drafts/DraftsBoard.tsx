@@ -12,16 +12,10 @@ import { templates } from "@/lib/placeholder-data/templates.placeholder";
 import { PLAN_FACTS } from "@/lib/placeholder-data/pricing.placeholder";
 import type { PlanId } from "@/lib/placeholder-data/plans.placeholder";
 
-/* The drafts board, in the FALO house system (`app/globals.css`). This is a
-   working page, so it stays quieter than the marketing pages: one mat field
-   holding the saved sheets, plain controls above it, and three small dialogs.
-
-   `useDraftsFlow` owns the requests and which dialog is open; this file owns
-   the layout and the wording. */
 
 type SortKey = "newest" | "oldest" | "title" | "template";
 
-const WRAP = "mx-auto w-full max-w-[1320px] px-5 sm:px-8";
+const WRAP = "mx-auto w-full max-w-330 px-5 sm:px-8";
 const FIELD =
   "min-h-11 border border-lp-rule-strong bg-lp-card px-3.5 text-[15px] text-lp-ink outline-offset-2 placeholder:text-lp-ink3";
 const QUIET_BUTTON =
@@ -96,7 +90,7 @@ function Modal({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="m-auto w-[min(100%-1.5rem,30rem)] bg-lp-paper p-0 text-lp-ink shadow-[var(--lp-shadow)] backdrop:bg-[#1c1830]/75"
+      className="m-auto w-[min(100%-1.5rem,30rem)] bg-lp-paper p-0 text-lp-ink shadow-(--lp-shadow) backdrop:bg-[#1c1830]/75"
     >
       {open && (
         <div className="p-7 sm:p-8">
@@ -105,7 +99,7 @@ function Modal({
             type="button"
             onClick={onClose}
             aria-label={closeLabel}
-            className="absolute end-3 top-3 flex size-11 cursor-pointer items-center justify-center text-lp-ink hover:bg-lp-soft"
+            className="absolute inset-e-3 top-3 flex size-11 cursor-pointer items-center justify-center text-lp-ink hover:bg-lp-soft"
           >
             <X size={20} aria-hidden />
           </button>
@@ -246,7 +240,7 @@ export default function DraftsBoard() {
             <h1 className="lp-display text-[clamp(2.25rem,4.4vw,3.5rem)]">
               {t("title")}
             </h1>
-            <p className="mt-4 max-w-[36rem] text-[17px] leading-[1.6] text-lp-ink2">
+            <p className="mt-4 max-w-xl text-[17px] leading-[1.6] text-lp-ink2">
               {t("subtitle")}
             </p>
           </div>
@@ -255,7 +249,7 @@ export default function DraftsBoard() {
             {/* The quota as slots: one mark per draft the plan holds. */}
             <div>
               <p className="flex items-baseline gap-2">
-                <span className="lp-mono !text-[15px] !tracking-normal text-lp-ink">
+                <span className="lp-mono text-[15px]! tracking-normal! text-lp-ink">
                   {draftsCount} / {maxDrafts}
                 </span>
                 <span className="lp-label text-lp-ink2">{t("quotaLabel")}</span>
@@ -277,7 +271,7 @@ export default function DraftsBoard() {
         {planKey === "free" && isLimitReached && !isLoading && (
           <div className={`${WRAP} mt-8`}>
             <div className="flex flex-col gap-3 rounded-lg border border-dashed border-lp-rule-strong p-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-[16px] leading-[1.5]">
+              <p className="text-[16px] leading-normal">
                 <span className="font-bold">{t("upgradePrompt")}</span>{" "}
                 <span className="text-lp-ink2">{t("upgradeBannerDesc")}</span>
               </p>
@@ -300,7 +294,7 @@ export default function DraftsBoard() {
               <Search
                 size={18}
                 aria-hidden
-                className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 text-lp-ink3"
+                className="pointer-events-none absolute inset-s-3.5 top-1/2 -translate-y-1/2 text-lp-ink3"
               />
               <input
                 type="search"
@@ -362,7 +356,7 @@ export default function DraftsBoard() {
               >
                 {[0, 1, 2].map((i) => (
                   <li key={i} className="animate-pulse">
-                    <div className="aspect-[210/297] rounded-t-lg bg-lp-card/70" />
+                    <div className="aspect-210/297 rounded-t-lg bg-lp-card/70" />
                     <div className="h-28 rounded-b-lg bg-lp-card/40" />
                   </li>
                 ))}
@@ -370,7 +364,7 @@ export default function DraftsBoard() {
             ) : visibleDrafts.length === 0 ? (
               <div className="mx-auto flex max-w-md flex-col items-center py-10 text-center text-lp-ink">
                 <div
-                  className="aspect-[210/297] w-32 rounded-lg border-2 border-dashed border-lp-ink/50"
+                  className="aspect-210/297 w-32 rounded-lg border-2 border-dashed border-lp-ink/50"
                   aria-hidden
                 />
                 <h2 className="mt-6 text-[24px] font-bold tracking-[-0.03em] rtl:tracking-normal">
@@ -386,12 +380,12 @@ export default function DraftsBoard() {
                 {visibleDrafts.map((draft) => (
                   <li
                     key={draft.id}
-                    className="flex flex-col overflow-hidden rounded-lg shadow-[var(--lp-shadow)]"
+                    className="flex flex-col overflow-hidden rounded-lg shadow-(--lp-shadow)"
                   >
                     <Link
                       href={editHref(draft)}
                       aria-label={`${t("edit")}: ${draft.title}`}
-                      className="lp-sheet group relative block aspect-[210/297] overflow-hidden !rounded-none !shadow-none"
+                      className="lp-sheet group relative block aspect-210/297 overflow-hidden rounded-none! shadow-none!"
                     >
                       <Image
                         src={thumbnailFor(draft)}
@@ -427,14 +421,14 @@ export default function DraftsBoard() {
                 ))}
               </ul>
             ) : (
-              <ul className="overflow-hidden rounded-lg bg-lp-card text-lp-ink shadow-[var(--lp-shadow)]">
+              <ul className="overflow-hidden rounded-lg bg-lp-card text-lp-ink shadow-(--lp-shadow)">
                 {visibleDrafts.map((draft) => (
                   <li
                     key={draft.id}
                     className="flex flex-col gap-4 border-b border-lp-rule p-4 last:border-b-0 sm:flex-row sm:items-center sm:p-5"
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-4">
-                      <div className="relative h-[68px] w-12 shrink-0 overflow-hidden rounded-sm border border-lp-rule-strong">
+                      <div className="relative h-17 w-12 shrink-0 overflow-hidden rounded-sm border border-lp-rule-strong">
                         <Image
                           src={thumbnailFor(draft)}
                           alt=""
@@ -463,7 +457,7 @@ export default function DraftsBoard() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 sm:w-[19rem]">
+                    <div className="flex items-center gap-4 sm:w-76">
                       {rowActions(draft)}
                     </div>
                   </li>
@@ -566,7 +560,7 @@ export default function DraftsBoard() {
           <span className="lp-label text-lp-ink2">
             {planLabel} · {t("currentDraftsLabel")}
           </span>
-          <span className="lp-mono !text-[15px] !tracking-normal">
+          <span className="lp-mono text-[15px]! tracking-normal!">
             {draftsCount} / {maxDrafts}
           </span>
         </p>

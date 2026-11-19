@@ -58,7 +58,7 @@ export default function HowItWorksSection() {
             key={section}
             className={`flex items-center gap-2 border px-2 py-1.5 text-[12.5px] ${
               i === 3
-                ? "relative z-10 -translate-y-1 translate-x-2 border-lp-violet bg-lp-card font-semibold shadow-[var(--lp-shadow)] rtl:-translate-x-2"
+                ? "relative z-10 -translate-y-1 translate-x-2 border-lp-violet bg-lp-card font-semibold shadow-(--lp-shadow) rtl:-translate-x-2"
                 : "border-lp-rule-strong"
             }`}
           >
@@ -99,10 +99,10 @@ export default function HowItWorksSection() {
     <div key="export">
       <div className="flex items-stretch gap-4">
         <div
-          className="lp-sheet aspect-[210/297] w-[92px] shrink-0 p-2.5"
+          className="lp-sheet aspect-210/297 w-23 shrink-0 p-2.5"
           aria-hidden
         >
-          <span className="lp-bar mb-2.5 w-2/3 !bg-[#6e5bc4]" />
+          <span className="lp-bar mb-2.5 w-2/3 bg-[#6e5bc4]!" />
           <span className="lp-bar mb-1.5 w-full" />
           <span className="lp-bar mb-1.5 w-5/6" />
           <span className="lp-bar mb-4 w-3/5" />
@@ -130,7 +130,7 @@ export default function HowItWorksSection() {
           <li
             key={file}
             dir="ltr"
-            className="lp-mono flex-1 border border-lp-rule-strong px-2 py-1.5 !normal-case !tracking-normal"
+            className="lp-mono flex-1 border border-lp-rule-strong px-2 py-1.5 normal-case! tracking-normal!"
           >
             {file}
           </li>
@@ -146,18 +146,18 @@ export default function HowItWorksSection() {
 
         <div className="relative mt-16">
           <div
-            className="lp-thread absolute inset-x-0 top-0 hidden h-[2px] bg-lp-ink xl:block"
+            className="lp-thread absolute inset-x-0 top-0 hidden h-0.5 bg-lp-ink xl:block"
             aria-hidden
           />
           <ol className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {STEP_KEYS.map((key, i) => (
               <li key={key} className="relative flex flex-col xl:pt-7">
                 <span
-                  className="absolute start-6 top-[-5px] hidden size-3 rounded-full border-2 border-lp-ink bg-lp-mat xl:block"
+                  className="absolute inset-s-6 -top-1.25 hidden size-3 rounded-full border-2 border-lp-ink bg-lp-mat xl:block"
                   aria-hidden
                 />
-                <div className="flex flex-1 flex-col rounded-lg bg-lp-card p-6 shadow-[var(--lp-shadow)]">
-                  <div className="flex min-h-[272px] flex-col justify-center">
+                <div className="flex flex-1 flex-col rounded-lg bg-lp-card p-6 shadow-(--lp-shadow)">
+                  <div className="flex min-h-68 flex-col justify-center">
                     {stepDemos[i]}
                   </div>
                   <div className="mt-6 border-t border-lp-rule-strong pt-5">

@@ -84,7 +84,7 @@ export default function TemplateRack() {
     t(templateId === FREE_TEMPLATE_ID ? "studio.plans.free" : "studio.plans.paid");
 
   const dialogBase =
-    "lp m-auto max-h-[92dvh] w-[min(100%-1.5rem,72rem)] overflow-hidden bg-lp-paper p-0 text-lp-ink shadow-[var(--lp-shadow)] backdrop:bg-[#1c1830]/75";
+    "lp m-auto max-h-[92dvh] w-[min(100%-1.5rem,72rem)] overflow-hidden bg-lp-paper p-0 text-lp-ink shadow-(--lp-shadow) backdrop:bg-[#1c1830]/75";
 
   return (
     <>
@@ -122,13 +122,13 @@ export default function TemplateRack() {
           return (
             <li
               key={template.id}
-              className="flex flex-col overflow-hidden rounded-lg shadow-[var(--lp-shadow)]"
+              className="flex flex-col overflow-hidden rounded-lg shadow-(--lp-shadow)"
             >
               <button
                 type="button"
                 onClick={() => openPreview(template)}
                 aria-label={t("studio.previewOf", { name: title })}
-                className="lp-sheet group block cursor-zoom-in overflow-hidden !rounded-none !shadow-none"
+                className="lp-sheet group block cursor-zoom-in overflow-hidden rounded-none! shadow-none!"
               >
                 <Image
                   src={template.image}
@@ -264,7 +264,7 @@ export default function TemplateRack() {
                 height={1684}
                 unoptimized
                 loading="eager"
-                className="lp-sheet aspect-[210/297] h-[38dvh] w-auto max-w-full object-contain lg:h-[min(82dvh,880px)]"
+                className="lp-sheet aspect-210/297 h-[38dvh] w-auto max-w-full object-contain lg:h-[min(82dvh,880px)]"
               />
             </div>
 
@@ -272,7 +272,7 @@ export default function TemplateRack() {
               type="button"
               onClick={() => previewRef.current?.close()}
               aria-label={t("studio.close")}
-              className="absolute end-3 top-3 flex size-11 cursor-pointer items-center justify-center bg-lp-tag text-lp-on-tag"
+              className="absolute inset-e-3 top-3 flex size-11 cursor-pointer items-center justify-center bg-lp-tag text-lp-on-tag"
             >
               <X size={20} aria-hidden />
             </button>
@@ -288,7 +288,7 @@ export default function TemplateRack() {
         onClick={(event) => {
           if (event.target === event.currentTarget) lockedRef.current?.close();
         }}
-        className={`${dialogBase} !w-[min(100%-1.5rem,30rem)]`}
+        className={`${dialogBase} w-[min(100%-1.5rem,30rem)]!`}
       >
         {locked && (
           <div className="p-7 sm:p-8">
@@ -325,7 +325,7 @@ export default function TemplateRack() {
               type="button"
               onClick={() => lockedRef.current?.close()}
               aria-label={t("studio.upgrade.close")}
-              className="absolute end-3 top-3 flex size-11 cursor-pointer items-center justify-center text-lp-ink hover:bg-lp-soft"
+              className="absolute inset-e-3 top-3 flex size-11 cursor-pointer items-center justify-center text-lp-ink hover:bg-lp-soft"
             >
               <X size={20} aria-hidden />
             </button>

@@ -82,7 +82,7 @@ export default function Navbar() {
         solid ? "border-lp-rule bg-lp-paper" : "border-transparent lg:bg-lp-paper"
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-[1320px] items-center justify-between gap-4 px-5 sm:px-8">
+      <div className="mx-auto flex h-16 max-w-330 items-center justify-between gap-4 px-5 sm:px-8">
         <Link href={`/${locale}`} aria-label={t("home")} className="no-underline">
           <Logo />
         </Link>

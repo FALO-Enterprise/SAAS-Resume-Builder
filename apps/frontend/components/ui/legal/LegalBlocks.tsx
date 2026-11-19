@@ -10,9 +10,9 @@ import RichText from "./RichText";
  */
 
 const TONES = {
-  note: { wrap: "border-accent/20 bg-accent/[0.06]", title: "text-accent" },
-  tip: { wrap: "border-pass/20 bg-pass/[0.06]", title: "text-pass" },
-  warning: { wrap: "border-flag/20 bg-flag/[0.06]", title: "text-flag" },
+  note: { wrap: "border-accent/20 bg-accent/6", title: "text-accent" },
+  tip: { wrap: "border-pass/20 bg-pass/6", title: "text-pass" },
+  warning: { wrap: "border-flag/20 bg-flag/6", title: "text-flag" },
 } as const;
 
 function Block({ block, locale }: { block: LegalBlock; locale: string }) {

@@ -26,7 +26,7 @@ export default function PrinciplesSection() {
               <h3 className="text-[24px] font-bold leading-tight tracking-[-0.03em] rtl:tracking-normal">
                 {tRefusals(`${key}.title`)}
               </h3>
-              <p className="mt-3 max-w-[38rem] text-[16.5px] leading-[1.65] text-lp-ink2">
+              <p className="mt-3 max-w-152 text-[16.5px] leading-[1.65] text-lp-ink2">
                 {tRefusals(`${key}.desc`)}
               </p>
               <p className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">

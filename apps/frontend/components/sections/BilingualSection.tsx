@@ -17,7 +17,7 @@ export default function BilingualSection() {
       <div className={`${WRAP} grid items-center gap-14 lg:grid-cols-[5fr_7fr] lg:gap-20`}>
         <div>
           <h2 className={H2}>{t("bilingual.title")}</h2>
-          <p className={`${BODY} mt-6 max-w-[30rem]`}>{t("bilingual.lead")}</p>
+          <p className={`${BODY} mt-6 max-w-120`}>{t("bilingual.lead")}</p>
         </div>
 
         <div>

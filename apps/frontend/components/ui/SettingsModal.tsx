@@ -1020,7 +1020,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ duration: 0.18 }}
-            className="relative flex h-[85vh] w-full max-w-4xl flex-col sm:flex-row overflow-hidden rounded-xl border border-edge-strong bg-base shadow-[var(--lp-shadow)] z-10 focus:outline-none"
+            className="relative flex h-[85vh] w-full max-w-4xl flex-col sm:flex-row overflow-hidden rounded-xl border border-edge-strong bg-base shadow-(--lp-shadow) z-10 focus:outline-none"
           >
             <button
               onClick={onClose}
@@ -1173,7 +1173,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 12 }}
                   transition={{ duration: 0.15 }}
-                  className="relative w-full max-w-sm rounded-xl border border-edge-strong bg-base shadow-[var(--lp-shadow)] p-6 space-y-4 z-20"
+                  className="relative w-full max-w-sm rounded-xl border border-edge-strong bg-base shadow-(--lp-shadow) p-6 space-y-4 z-20"
                 >
                   <div className="flex justify-center">
                     <div className="flex items-center justify-center w-12 h-12 rounded-full bg-flag/20">

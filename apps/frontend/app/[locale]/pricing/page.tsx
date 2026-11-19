@@ -17,7 +17,7 @@ import PlanTickets from "./PlanTickets";
    them comes from `pricing.placeholder.ts`, which mirrors the limits the
    backend enforces. Nothing here may promise more than that file holds. */
 
-const WRAP = "mx-auto w-full max-w-[1320px] px-5 sm:px-8";
+const WRAP = "mx-auto w-full max-w-330 px-5 sm:px-8";
 const H2 = "lp-display text-[clamp(2rem,4.4vw,3.75rem)]";
 const BODY = "text-[17px] leading-[1.65] text-lp-ink2";
 
@@ -96,7 +96,7 @@ export default async function PricingPage({
                   {tape.name}
                 </h3>
                 <div
-                  className="flex h-9 gap-[3px]"
+                  className="flex h-9 gap-0.75"
                   style={{ width: `${(tape.drafts / longest) * 100}%` }}
                   aria-hidden
                 >
@@ -144,7 +144,7 @@ export default async function PricingPage({
                 <h3 className="text-[24px] font-bold leading-tight tracking-[-0.03em] rtl:tracking-normal">
                   {item.title}
                 </h3>
-                <p className="mt-3 max-w-[38rem] text-[16.5px] leading-[1.65] text-lp-ink2">
+                <p className="mt-3 max-w-152 text-[16.5px] leading-[1.65] text-lp-ink2">
                   {item.desc}
                 </p>
               </li>
@@ -172,7 +172,7 @@ export default async function PricingPage({
                     className="shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-open:rotate-45"
                   />
                 </summary>
-                <p className="max-w-[38rem] pb-7 text-[16.5px] leading-[1.65] text-lp-ink2">
+                <p className="max-w-152 pb-7 text-[16.5px] leading-[1.65] text-lp-ink2">
                   {item.a}
                 </p>
               </details>
@@ -187,7 +187,7 @@ export default async function PricingPage({
           <h2 className="lp-display text-[clamp(2.5rem,5.6vw,5rem)]">
             {t("close.title")}
           </h2>
-          <p className={`${BODY} mt-6 max-w-[30rem] text-[19px]`}>
+          <p className={`${BODY} mt-6 max-w-120 text-[19px]`}>
             {t("close.lead")}
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-5">
