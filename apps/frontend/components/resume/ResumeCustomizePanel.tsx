@@ -486,20 +486,20 @@ export default function ResumeCustomizePanel({
 
   return (
     <div className="fixed inset-0 z-80 flex min-h-0 flex-col overflow-hidden bg-base text-primary animate-in fade-in duration-200">
-      <header className="flex min-h-17 shrink-0 items-center justify-between gap-3 border-b border-edge bg-elevated/95 px-3 shadow-sm backdrop-blur-xl sm:px-5 lg:min-h-16">
+      <header className="flex min-h-17 shrink-0 items-center justify-between gap-3 border-b border-edge bg-elevated/95 px-3 shadow-sm sm:px-5 lg:min-h-16">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={closePanel}
-            className="hidden h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-edge bg-card px-3 text-xs font-bold text-secondary transition-colors hover:border-gold/40 hover:text-gold lg:flex"
+            className="hidden h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-edge bg-card px-3 text-xs font-bold text-secondary transition-colors hover:border-accent/40 hover:text-accent lg:flex"
           >
             <ArrowLeft size={16} className="rtl:rotate-180" />
             <span>{t("doneClose")}</span>
           </button>
           <div className="hidden h-5 w-px bg-edge lg:block" />
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gold/25 bg-gold/10 shadow-sm">
-              <SlidersHorizontal size={16} className="text-gold" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-accent/25 bg-accent/10 shadow-sm">
+              <SlidersHorizontal size={16} className="text-accent" />
             </div>
             <div className="min-w-0">
               <div className="flex min-w-0 items-center gap-2">
@@ -507,7 +507,7 @@ export default function ResumeCustomizePanel({
                   {t("title")}
                 </h1>
                 {resumeName && (
-                  <span className="hidden max-w-44 truncate rounded-md border border-gold/30 bg-gold/10 px-2 py-0.5 text-[11px] font-bold text-gold xl:inline-block">
+                  <span className="hidden max-w-44 truncate rounded-md border border-accent/30 bg-accent/10 px-2 py-0.5 text-[11px] font-bold text-accent xl:inline-block">
                     {resumeName}
                   </span>
                 )}
@@ -533,7 +533,7 @@ export default function ResumeCustomizePanel({
             >
               <Minus size={13} />
             </button>
-            <span className="min-w-11 text-center text-xs font-black text-gold">
+            <span className="min-w-11 text-center text-xs font-black text-accent">
               {zoom}%
             </span>
             <button
@@ -549,7 +549,7 @@ export default function ResumeCustomizePanel({
               type="button"
               onClick={() => setZoom(PREVIEW_ZOOM_DEFAULT)}
               disabled={zoom === PREVIEW_ZOOM_DEFAULT}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-secondary transition-colors hover:bg-soft hover:text-gold disabled:cursor-not-allowed disabled:opacity-30"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-secondary transition-colors hover:bg-soft hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
               title={t("resetZoom")}
             >
               <RotateCcw size={12} />
@@ -558,7 +558,7 @@ export default function ResumeCustomizePanel({
           <button
             type="button"
             onClick={closePanel}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card transition-colors hover:bg-soft hover:text-gold"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card transition-colors hover:bg-soft hover:text-accent"
             aria-label={t("close")}
           >
             <X size={17} />
@@ -573,7 +573,7 @@ export default function ResumeCustomizePanel({
             onClick={openMobilePreview}
             className={`flex min-h-10 items-center justify-center gap-2 rounded-xl text-xs font-black transition-all ${
               mobileView === "preview"
-                ? "bg-elevated text-gold shadow-sm ring-1 ring-gold/20"
+                ? "bg-elevated text-accent shadow-sm ring-1 ring-accent/20"
                 : "text-secondary hover:bg-elevated/60 hover:text-primary"
             }`}
           >
@@ -585,7 +585,7 @@ export default function ResumeCustomizePanel({
             onClick={() => setMobileView("customize")}
             className={`flex min-h-10 items-center justify-center gap-2 rounded-xl text-xs font-black transition-all ${
               mobileView === "customize"
-                ? "bg-elevated text-gold shadow-sm ring-1 ring-gold/20"
+                ? "bg-elevated text-accent shadow-sm ring-1 ring-accent/20"
                 : "text-secondary hover:bg-elevated/60 hover:text-primary"
             }`}
           >
@@ -599,7 +599,7 @@ export default function ResumeCustomizePanel({
         <section
           className={`${
             mobileView === "preview" ? "flex" : "hidden"
-          } min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-soft/70 dark:bg-black/45 lg:flex`}
+          } min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-soft/70 dark:bg-scrim/45 lg:flex`}
         >
           <div
             ref={mobilePreviewViewportRef}
@@ -612,7 +612,7 @@ export default function ResumeCustomizePanel({
           >
             {!mobilePreviewReady && (
               <div className="absolute inset-0 z-20 flex items-center justify-center bg-soft">
-                <div className="h-9 w-9 animate-spin rounded-full border-4 border-edge border-t-gold" />
+                <div className="h-9 w-9 animate-spin rounded-full border-4 border-edge border-t-accent" />
               </div>
             )}
 
@@ -648,13 +648,13 @@ export default function ResumeCustomizePanel({
             )}
 
             {mobilePreviewReady && (
-              <span className="pointer-events-none absolute -inset-s-3 top-3 z-20 inline-flex min-h-9 items-center rounded-full border border-edge bg-elevated/95 px-3 text-[10px] font-black uppercase tracking-wide text-gold shadow-lg backdrop-blur">
+              <span className="pointer-events-none absolute -inset-s-3 top-3 z-20 inline-flex min-h-9 items-center rounded-full border border-edge bg-elevated/95 px-3 text-[10px] font-black uppercase tracking-wide text-accent shadow-lg">
                 {t("livePreview")}
               </span>
             )}
 
             {mobilePreviewReady && mobileZoom === MIN_MOBILE_ZOOM && (
-              <p className="pointer-events-none absolute inset-x-3 bottom-3 z-20 mx-auto w-fit max-w-[calc(100%-1.5rem)] rounded-full border border-edge bg-elevated/95 px-3 py-2 text-center text-[11px] font-semibold text-secondary shadow-lg backdrop-blur">
+              <p className="pointer-events-none absolute inset-x-3 bottom-3 z-20 mx-auto w-fit max-w-[calc(100%-1.5rem)] rounded-full border border-edge bg-elevated/95 px-3 py-2 text-center text-[11px] font-semibold text-secondary shadow-lg">
                 {t("pinchHint")}
               </p>
             )}
@@ -663,10 +663,10 @@ export default function ResumeCustomizePanel({
               <button
                 type="button"
                 onClick={resetMobilePreview}
-                className="absolute inset-e-3 top-3 z-20 flex min-h-9 items-center gap-1.5 rounded-full border border-edge bg-elevated/95 px-3 text-[11px] font-black text-primary shadow-lg backdrop-blur"
+                className="absolute inset-e-3 top-3 z-20 flex min-h-9 items-center gap-1.5 rounded-full border border-edge bg-elevated/95 px-3 text-[11px] font-black text-primary shadow-lg"
                 aria-label={t("resetZoom")}
               >
-                <RotateCcw size={13} className="text-gold" />
+                <RotateCcw size={13} className="text-accent" />
                 {Math.round(mobileZoom * 100)}%
               </button>
             )}
@@ -697,7 +697,7 @@ export default function ResumeCustomizePanel({
           } min-h-0 min-w-0 w-full shrink-0 flex-col overflow-hidden bg-base shadow-2xl lg:flex lg:w-102.5 lg:border-s lg:border-edge xl:w-110`}
         >
           <div className="min-h-0 flex-1 space-y-3 overflow-x-hidden overflow-y-auto overscroll-contain bg-soft/30 p-3 pb-5 sm:p-4 lg:space-y-0 lg:bg-transparent lg:p-0">
-            <div className="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 lg:hidden">
+            <div className="rounded-2xl border border-accent/20 bg-accent/10 px-4 py-3 lg:hidden">
               <p className="text-xs font-black text-primary">
                 {t("customizationTitle")}
               </p>
@@ -708,7 +708,7 @@ export default function ResumeCustomizePanel({
 
             <section className="rounded-2xl border border-edge bg-elevated px-4 py-5 shadow-sm sm:px-5 lg:rounded-none lg:border-x-0 lg:border-t-0 lg:shadow-none">
               <div className="mb-4 flex items-center gap-2">
-                <Type size={16} className="text-gold" />
+                <Type size={16} className="text-accent" />
                 <h2 className="text-sm font-bold text-primary">
                   {t("fontFamily")}
                 </h2>
@@ -721,8 +721,8 @@ export default function ResumeCustomizePanel({
                     onClick={() => onFontFamilyChange(font.value)}
                     className={`flex min-h-11 min-w-0 items-center gap-2 rounded-xl border px-3 py-2.5 text-start text-xs font-semibold transition-all ${
                       currentFontId === font.id
-                        ? "border-gold bg-gold/10 text-gold shadow-sm"
-                        : "border-edge bg-card text-secondary hover:border-gold/40 hover:text-primary"
+                        ? "border-accent bg-accent/10 text-accent shadow-sm"
+                        : "border-edge bg-card text-secondary hover:border-accent/40 hover:text-primary"
                     }`}
                     style={{ fontFamily: font.value }}
                   >
@@ -737,7 +737,7 @@ export default function ResumeCustomizePanel({
 
             <section className="rounded-2xl border border-edge bg-elevated px-4 py-5 shadow-sm sm:px-5 lg:rounded-none lg:border-x-0 lg:border-t-0 lg:shadow-none">
               <div className="mb-4 flex items-center gap-2">
-                <Type size={16} className="text-gold" />
+                <Type size={16} className="text-accent" />
                 <h2 className="text-sm font-bold text-primary">
                   {t("fontSize")}
                 </h2>
@@ -747,7 +747,7 @@ export default function ResumeCustomizePanel({
                   type="button"
                   onClick={() => handleFontScaleChange(-FONT_SCALE_STEP)}
                   disabled={customization.fontScale <= FONT_SCALE_MIN}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card transition-colors hover:border-gold/40 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card transition-colors hover:border-accent/40 disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label={t("decreaseFontSize")}
                 >
                   <Minus size={14} />
@@ -764,11 +764,11 @@ export default function ResumeCustomizePanel({
                         fontScale: Number(event.target.value) / 100,
                       })
                     }
-                    className="w-full cursor-pointer accent-gold"
+                    className="w-full cursor-pointer accent-accent"
                   />
                   <div className="mt-1 flex justify-between px-0.5 text-[10px] text-faint">
                     <span>75%</span>
-                    <span className="font-bold text-gold">
+                    <span className="font-bold text-accent">
                       {fontScalePercent}%
                     </span>
                     <span>125%</span>
@@ -778,7 +778,7 @@ export default function ResumeCustomizePanel({
                   type="button"
                   onClick={() => handleFontScaleChange(FONT_SCALE_STEP)}
                   disabled={customization.fontScale >= FONT_SCALE_MAX}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card transition-colors hover:border-gold/40 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card transition-colors hover:border-accent/40 disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label={t("increaseFontSize")}
                 >
                   <Plus size={14} />
@@ -788,7 +788,7 @@ export default function ResumeCustomizePanel({
 
             <section className="rounded-2xl border border-edge bg-elevated px-4 py-5 shadow-sm sm:px-5 lg:rounded-none lg:border-x-0 lg:border-t-0 lg:shadow-none">
               <div className="mb-4 flex items-center gap-2">
-                <Palette size={16} className="text-gold" />
+                <Palette size={16} className="text-accent" />
                 <h2 className="text-sm font-bold text-primary">
                   {t("accentColor")}
                 </h2>
@@ -804,7 +804,7 @@ export default function ResumeCustomizePanel({
                     }
                     className={`relative flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all ${
                       customization.accentColor === color.hex
-                        ? "scale-110 border-gold shadow-md"
+                        ? "scale-110 border-accent shadow-md"
                         : "border-transparent hover:scale-105"
                     }`}
                     style={{ backgroundColor: color.hex }}
@@ -815,7 +815,7 @@ export default function ResumeCustomizePanel({
                   </button>
                 ))}
                 <label
-                  className="relative flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-edge transition-colors hover:border-gold/50"
+                  className="relative flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-edge transition-colors hover:border-accent/50"
                   title={t("customColor")}
                 >
                   <input
@@ -841,7 +841,7 @@ export default function ResumeCustomizePanel({
               <div className="mb-4 flex items-start gap-2.5">
                 <SlidersHorizontal
                   size={16}
-                  className="mt-0.5 shrink-0 text-gold"
+                  className="mt-0.5 shrink-0 text-accent"
                 />
                 <div>
                   <h2 className="text-sm font-bold text-primary">
@@ -866,10 +866,10 @@ export default function ResumeCustomizePanel({
                       onDragEnd={() => setDraggedSection(null)}
                       className={`flex min-w-0 items-center gap-2 rounded-xl border px-2.5 py-2.5 transition-all sm:px-3 ${
                         draggedSection === sectionId
-                          ? "border-gold/50 bg-gold/5 opacity-70"
+                          ? "border-accent/50 bg-accent/5 opacity-70"
                           : isHidden
                             ? "border-edge bg-soft/50 opacity-60"
-                            : "border-edge bg-card hover:border-gold/30"
+                            : "border-edge bg-card hover:border-accent/30"
                       }`}
                     >
                       <GripVertical
@@ -909,7 +909,7 @@ export default function ResumeCustomizePanel({
                           onClick={() => toggleSectionVisibility(sectionId)}
                           className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
                             isHidden
-                              ? "text-faint hover:bg-gold/10"
+                              ? "text-faint hover:bg-accent/10"
                               : "text-secondary hover:bg-soft"
                           }`}
                           title={isHidden ? t("showSection") : t("hideSection")}
@@ -924,11 +924,11 @@ export default function ResumeCustomizePanel({
             </section>
           </div>
 
-          <footer className="grid shrink-0 grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-2 border-t border-edge bg-elevated/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_35px_rgba(0,0,0,0.10)] backdrop-blur-xl sm:p-4">
+          <footer className="grid shrink-0 grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-2 border-t border-edge bg-elevated/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-12px_35px_rgba(0,0,0,0.10)] sm:p-4">
             <button
               type="button"
               onClick={resetToDefaults}
-              className="flex min-h-12 min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-edge bg-card px-2 text-[11px] font-bold text-secondary transition-all hover:border-gold/40 hover:text-gold sm:px-3 sm:text-xs"
+              className="flex min-h-12 min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-edge bg-card px-2 text-[11px] font-bold text-secondary transition-all hover:border-accent/40 hover:text-accent sm:px-3 sm:text-xs"
             >
               <RotateCcw size={13} className="shrink-0" />
               <span className="truncate">{t("resetDefaults")}</span>
@@ -936,7 +936,7 @@ export default function ResumeCustomizePanel({
             <button
               type="button"
               onClick={closePanel}
-              className="flex min-h-12 min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gold px-2 text-[11px] font-black text-ink shadow-[0_10px_28px_rgba(245,158,11,0.22)] transition-all hover:-translate-y-0.5 hover:opacity-95 sm:px-3 sm:text-xs"
+              className="flex min-h-12 min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-accent px-2 text-[11px] font-black text-on-accent shadow-[0_10px_28px_rgba(245,158,11,0.22)] transition-all hover:-translate-y-0.5 hover:opacity-95 sm:px-3 sm:text-xs"
             >
               <Check size={14} className="shrink-0" />
               <span className="truncate">{t("applyDone")}</span>

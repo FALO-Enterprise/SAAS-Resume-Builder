@@ -1,195 +1,249 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
-import { FileText, UserRound } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { ResumeTemplateId } from '@shared-types/resume';
 import type { StepId } from '@/lib/types/dashboard.types';
 import { getResumePlaceholderSections } from './resume-placeholder.model';
 
-type PlaceholderSectionProps = {
-  id: StepId;
-  currentStep: StepId;
-  label: string;
-  className?: string;
-  children: ReactNode;
+/* The outline beside the editor. It is drawn in the shape of the template the
+   resume will use (header band, sidebar, centred heading), carries the
+   writer's own name and title, lists the sections in their own order, and
+   highlights the one being edited.
+
+   It is a drawing, not a photo of the template sample: the sample shows
+   someone else's content with sections in fixed places, so a highlight laid
+   over it would point at the wrong block as soon as sections are reordered.
+
+   The sheet keeps fixed paper colours in both themes, because a resume is
+   paper either way. The shapes mirror `components/resume/templates`. */
+
+type Shape = {
+  header: 'band' | 'left' | 'center';
+  side: 'none' | 'dark' | 'light';
+  accent: string;
 };
 
-function SkeletonLine({ width = '100%' }: { width?: string }) {
+const SHAPES: Record<ResumeTemplateId, Shape> = {
+  executive: { header: 'band', side: 'light', accent: '#0f766e' },
+  developer: { header: 'left', side: 'dark', accent: '#b4415b' },
+  director: { header: 'left', side: 'none', accent: '#b45309' },
+  minimal: { header: 'center', side: 'none', accent: '#1c1830' },
+  academic: { header: 'center', side: 'none', accent: '#1e3a8a' },
+  global: { header: 'left', side: 'none', accent: '#15803d' },
+};
+
+const PAPER_INK = '#1c1830';
+const HIGHLIGHT = '#6e5bc4';
+
+const LINES: Record<Exclude<StepId, 'contact'>, number[]> = {
+  summary: [100, 91, 72],
+  skills: [82, 100, 64, 90],
+  experience: [65, 40, 100, 88],
+  projects: [70, 48, 100],
+  education: [86, 68, 52],
+};
+
+function Lines({ widths, tone }: { widths: number[]; tone: string }) {
   return (
-    <span
-      aria-hidden="true"
-      className="block h-1 rounded-full bg-slate-300"
-      style={{ width }}
-    />
+    <span aria-hidden className="flex flex-col gap-[5px]">
+      {widths.map((width, index) => (
+        <span
+          key={index}
+          className="block h-[3px]"
+          style={{ width: `${width}%`, background: tone }}
+        />
+      ))}
+    </span>
   );
 }
 
-function PlaceholderSection({
+function Block({
   id,
-  currentStep,
+  active,
   label,
   className = '',
   children,
-}: PlaceholderSectionProps) {
-  const active = id === currentStep;
-
+}: {
+  id: StepId;
+  active: boolean;
+  label: string;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <motion.section
+    <section
       aria-current={active ? 'step' : undefined}
       aria-label={label}
       data-resume-section={id}
       data-active={active}
-      animate={{
-        backgroundColor: active ? 'rgba(59, 130, 246, 0.09)' : 'rgba(255, 255, 255, 0)',
-        borderColor: active ? 'rgba(37, 99, 235, 0.95)' : 'rgba(148, 163, 184, 0)',
-        boxShadow: active ? '0 0 0 2px rgba(59, 130, 246, 0.10)' : '0 0 0 0 rgba(59, 130, 246, 0)',
+      className={`relative p-[5px] outline-2 -outline-offset-1 transition-[background-color,outline-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${className}`}
+      style={{
+        outlineStyle: 'solid',
+        outlineColor: active ? HIGHLIGHT : 'transparent',
+        background: active ? `${HIGHLIGHT}1f` : 'transparent',
       }}
-      transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-      className={`relative rounded-md border p-2 ${className}`}
     >
-      <span
-        aria-hidden="true"
-        className={`mb-1.5 block text-[6px] font-bold uppercase tracking-[0.13em] transition-colors ${active ? 'text-blue-600' : 'text-slate-400'}`}
-      >
-        {label}
-      </span>
-      <div aria-hidden="true">{children}</div>
-    </motion.section>
+      {children}
+    </section>
   );
 }
 
-export default function DashboardResumePlaceholder({ currentStep, order }: { currentStep: StepId; order?: StepId[] }) {
+export default function DashboardResumePlaceholder({
+  currentStep,
+  order,
+  template = 'minimal',
+  name,
+  title,
+}: {
+  currentStep: StepId;
+  order?: StepId[];
+  template?: ResumeTemplateId;
+  name?: string;
+  title?: string;
+}) {
   const t = useTranslations('dashboard');
   const activeSection = t(`steps.${currentStep}.label`);
   const sectionStates = getResumePlaceholderSections(currentStep);
-  const isActive = (id: StepId) => sectionStates.find((section) => section.id === id)?.active ?? false;
+  const isActive = (id: StepId) =>
+    sectionStates.find((section) => section.id === id)?.active ?? false;
   const sectionLabel = (id: StepId) => t(`steps.${id}.label`);
 
+  const shape = SHAPES[template] ?? SHAPES.minimal;
+  const centered = shape.header === 'center';
+  const band = shape.header === 'band';
+  const hasSide = shape.side !== 'none';
+  const darkSide = shape.side === 'dark';
+
   const defaultOrder: StepId[] = ['summary', 'skills', 'experience', 'projects', 'education'];
-  const resumeOrder = ['contact', ...(order ?? defaultOrder)];
+  const bodyOrder = (order ?? defaultOrder).filter((id) => id !== 'contact') as Exclude<StepId, 'contact'>[];
+  /* Templates with a sidebar carry skills there, as the real ones do. */
+  const mainOrder = hasSide ? bodyOrder.filter((id) => id !== 'skills') : bodyOrder;
+
+  const heading = (id: StepId, tone: string, center = false) => (
+    <span
+      aria-hidden
+      className={`mb-[5px] block truncate text-[6.5px] font-bold uppercase leading-none tracking-[0.1em] rtl:tracking-normal ${center ? 'text-center' : ''}`}
+      style={{ color: tone }}
+    >
+      {sectionLabel(id)}
+    </span>
+  );
+
+  const body = (id: Exclude<StepId, 'contact'>) => (
+    <Block
+      key={id}
+      id={id}
+      active={isActive(id)}
+      label={sectionLabel(id)}
+      className={id === 'experience' ? 'flex-[1.35]' : 'flex-1'}
+    >
+      {heading(id, shape.accent, centered)}
+      <Lines widths={LINES[id]} tone="#cbc8d6" />
+    </Block>
+  );
+
+  const contactTone = band ? '#ffffff' : PAPER_INK;
 
   return (
     <aside
       aria-label={t('resumePlaceholder.ariaLabel', { section: activeSection })}
       className="hidden self-start xl:sticky xl:top-6 xl:block xl:h-fit"
     >
-      <figure className="rounded-2xl border border-edge bg-card p-4 shadow-[0_18px_55px_var(--shadow-color)] 2xl:p-5">
+      <figure className="rounded-lg border border-edge bg-card p-4 2xl:p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-azure-light/20 bg-azure-light/10">
-              <FileText size={14} className="text-azure-light" />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-accent/30 bg-accent/10">
+              <FileText size={14} className="text-accent" />
             </div>
             <div className="min-w-0">
-              <h2 className="truncate text-[12px] font-bold text-primary">
+              <h2 className="truncate text-[13px] font-bold text-primary">
                 {t('resumePlaceholder.title')}
               </h2>
-              <motion.p
+              <p
                 key={currentStep}
-                initial={{ opacity: 0, y: 3 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-0.5 truncate text-[10px] font-semibold text-azure-light"
+                className="mt-0.5 truncate text-[12px] font-semibold text-accent"
               >
                 {t('resumePlaceholder.editing', { section: activeSection })}
-              </motion.p>
+              </p>
             </div>
           </div>
-          <span className="h-2 w-2 shrink-0 rounded-full bg-azure-light shadow-[0_0_12px_rgba(59,130,246,0.85)]" />
         </div>
 
-        <div className="relative mx-auto aspect-210/297 w-full rounded-xl bg-white p-[6%] shadow-[0_12px_35px_rgba(15,23,42,0.18)]">
-          <div className="flex min-h-full flex-col gap-2">
-            {resumeOrder.map((sectionId) => {
-              switch (sectionId) {
-                case 'contact':
-                  return (
-                    <PlaceholderSection
-                      key="contact"
-                      id="contact"
-                      currentStep={currentStep}
-                      label={sectionLabel('contact')}
-                      className="flex-1"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex flex-1 flex-col gap-1.5 pt-0.5">
-                          <SkeletonLine width="68%" />
-                          <SkeletonLine width="46%" />
-                          <div className="flex gap-1.5 pt-1">
-                            <SkeletonLine width="32%" />
-                            <SkeletonLine width="25%" />
-                            <SkeletonLine width="24%" />
-                          </div>
-                        </div>
-                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${isActive('contact') ? 'bg-blue-200 text-blue-600' : 'bg-slate-200 text-slate-400'}`}>
-                          <UserRound size={18} strokeWidth={1.8} />
-                        </div>
-                      </div>
-                    </PlaceholderSection>
-                  );
+        {/* The sheet sits on a patch of the cutting mat. */}
+        <div className="lp-mat overflow-hidden rounded-lg p-3">
+          <div
+            className="relative mx-auto flex aspect-210/297 w-full flex-col overflow-hidden rounded-sm bg-white shadow-[0_14px_30px_-14px_rgba(28,24,48,0.45)]"
+            style={{ color: PAPER_INK }}
+          >
+            {/* Contact: the head of the page, in the template's own style */}
+            <Block
+              id="contact"
+              active={isActive('contact')}
+              label={sectionLabel('contact')}
+              className={band ? '!p-0' : 'mx-[5%] mt-[5%] !p-0'}
+            >
+              <span
+                className={`block px-[6%] py-[5%] ${centered ? 'text-center' : ''} ${band ? '' : 'border-b-2 !px-[3px]'}`}
+                style={
+                  band
+                    ? { background: shape.accent, color: contactTone }
+                    : { borderColor: shape.accent }
+                }
+              >
+                <span className="block truncate text-[12px] font-bold leading-tight tracking-[-0.02em] rtl:tracking-normal">
+                  {name?.trim() || (
+                    <span
+                      aria-hidden
+                      className={`block h-[6px] w-2/3 ${centered ? 'mx-auto' : ''}`}
+                      style={{ background: band ? '#ffffff99' : '#cbc8d6' }}
+                    />
+                  )}
+                </span>
+                <span className="mt-[3px] block truncate text-[7.5px] leading-tight opacity-80">
+                  {title?.trim() || (
+                    <span
+                      aria-hidden
+                      className={`block h-[3px] w-2/5 ${centered ? 'mx-auto' : ''}`}
+                      style={{ background: band ? '#ffffff80' : '#cbc8d6' }}
+                    />
+                  )}
+                </span>
+              </span>
+            </Block>
 
-                case 'summary':
-                  return (
-                    <PlaceholderSection key="summary" id="summary" currentStep={currentStep} label={sectionLabel('summary')} className="flex-1">
-                      <div className="flex flex-col gap-1.5">
-                        <SkeletonLine />
-                        <SkeletonLine width="91%" />
-                        <SkeletonLine width="72%" />
-                      </div>
-                    </PlaceholderSection>
-                  );
+            <div className="flex min-h-0 flex-1">
+              {hasSide && (
+                <div
+                  className="flex w-[32%] shrink-0 flex-col p-[4%]"
+                  style={{
+                    background: darkSide ? PAPER_INK : `${shape.accent}14`,
+                  }}
+                >
+                  <Block
+                    id="skills"
+                    active={isActive('skills')}
+                    label={sectionLabel('skills')}
+                    className="flex-1"
+                  >
+                    {heading('skills', darkSide ? '#cfc4ff' : shape.accent)}
+                    <Lines
+                      widths={[90, 70, 84, 60, 76, 52]}
+                      tone={darkSide ? '#ffffff59' : '#b9b5c8'}
+                    />
+                  </Block>
+                </div>
+              )}
 
-                case 'experience':
-                  return (
-                    <PlaceholderSection key="experience" id="experience" currentStep={currentStep} label={sectionLabel('experience')} className="flex-[1.35]">
-                      <div className="flex flex-col gap-1.5">
-                        <SkeletonLine width="65%" />
-                        <SkeletonLine width="40%" />
-                        <SkeletonLine />
-                      </div>
-                    </PlaceholderSection>
-                  );
-
-                case 'projects':
-                  return (
-                    <PlaceholderSection key="projects" id="projects" currentStep={currentStep} label={sectionLabel('projects')} className="flex-1">
-                      <div className="flex flex-col gap-1.5">
-                        <SkeletonLine width="70%" />
-                        <SkeletonLine width="48%" />
-                        <SkeletonLine />
-                      </div>
-                    </PlaceholderSection>
-                  );
-
-                case 'skills':
-                  return (
-                    <PlaceholderSection key="skills" id="skills" currentStep={currentStep} label={sectionLabel('skills')} className="flex-1">
-                      <div className="grid grid-cols-[1fr_0.85fr] gap-x-1.5 gap-y-2">
-                        {Array.from({ length: 6 }, (_, index) => (
-                          <SkeletonLine key={index} width={index % 3 === 0 ? '82%' : '100%'} />
-                        ))}
-                      </div>
-                    </PlaceholderSection>
-                  );
-
-                case 'education':
-                  return (
-                    <PlaceholderSection key="education" id="education" currentStep={currentStep} label={sectionLabel('education')} className="flex-[1.1]">
-                      <div className="flex flex-col gap-1.5">
-                        <SkeletonLine width="86%" />
-                        <SkeletonLine width="68%" />
-                        <SkeletonLine width="52%" />
-                      </div>
-                    </PlaceholderSection>
-                  );
-
-                default:
-                  return null;
-              }
-            })}
+              <div className="flex min-w-0 flex-1 flex-col gap-[3px] p-[4%]">
+                {mainOrder.map((id) => body(id))}
+              </div>
+            </div>
           </div>
         </div>
 
-        <figcaption className="mt-3 text-center text-[10px] leading-relaxed text-muted">
+        <figcaption className="mt-3 text-center text-[12px] leading-relaxed text-secondary">
           {t('resumePlaceholder.hint')}
         </figcaption>
       </figure>

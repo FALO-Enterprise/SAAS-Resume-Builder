@@ -119,31 +119,31 @@ function FieldCard({
   const filled = value.length > 0;
 
   const wrapState = error
-    ? 'border-pink-light/50 bg-card shadow-[0_0_0_3px_rgba(248,113,113,0.08)]'
+    ? 'border-flag/50 bg-card shadow-[0_0_0_3px_rgba(248,113,113,0.08)]'
     : focused
-      ? 'border-gold/60 bg-gold/4 shadow-[0_0_0_3px_rgba(245,166,35,0.1),0_8px_32px_var(--shadow-color)]'
+      ? 'border-accent/60 bg-accent/4 shadow-[0_0_0_3px_rgba(110,91,196,0.1),0_8px_32px_var(--shadow-color)]'
       : filled
-        ? 'border-gold/20 bg-card shadow-[0_2px_8px_var(--shadow-color)]'
+        ? 'border-accent/20 bg-card shadow-[0_2px_8px_var(--shadow-color)]'
         : 'border-edge bg-card shadow-[0_2px_8px_var(--shadow-color)]';
 
   const iconBox = focused
-    ? 'bg-gold/15'
+    ? 'bg-accent/15'
     : filled
-      ? 'bg-gold/8'
+      ? 'bg-accent/8'
       : 'bg-card-hover';
 
-  const iconColor = focused ? 'text-gold' : filled ? 'text-gold/70' : 'text-muted';
-  const labelColor = focused ? 'text-gold' : filled ? 'text-gold/70' : 'text-faint';
+  const iconColor = focused ? 'text-accent' : filled ? 'text-accent/70' : 'text-muted';
+  const labelColor = focused ? 'text-accent' : filled ? 'text-accent/70' : 'text-faint';
 
   return (
     <div className="relative flex flex-col">
-      <div className={`relative overflow-visible rounded-[14px] border px-5 py-4.5 transition-all duration-200 ${wrapState}`}>
+      <div className={`relative overflow-visible rounded-lg border px-5 py-4.5 transition-all duration-200 ${wrapState}`}>
         <AnimatePresence>
           {focused && (
             <motion.div
               initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }}
               transition={{ duration: 0.25 }}
-              className="absolute inset-x-0 top-0 h-0.5 origin-left bg-[linear-gradient(to_right,transparent,var(--color-gold),transparent)]"
+              className="absolute inset-x-0 top-0 h-0.5 origin-left bg-[linear-gradient(to_right,transparent,var(--color-accent),transparent)]"
             />
           )}
         </AnimatePresence>
@@ -152,11 +152,11 @@ function FieldCard({
           <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${iconBox}`}>
             <Icon size={14} className={`transition-colors ${iconColor}`} />
           </div>
-          <span className={`font-franklin text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
+          <span className={` text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
             {label}
           </span>
           {optional && (
-            <span className="rounded-full border border-edge bg-card px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.06em] text-gold">
+            <span className="rounded-full border border-edge bg-card px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.06em] text-accent">
               {t('optional')}
             </span>
           )}
@@ -165,9 +165,9 @@ function FieldCard({
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="flex h-4 w-4 items-center justify-center rounded-full border border-green/30 bg-green/15"
+                className="flex h-4 w-4 items-center justify-center rounded-full border border-pass/30 bg-pass/15"
               >
-                <Check size={9} className="text-green" />
+                <Check size={9} className="text-pass" />
               </motion.div>
             )}
 
@@ -179,14 +179,14 @@ function FieldCard({
           type={type} placeholder={placeholder} value={value}
           onChange={e => onChange(e.target.value)}
           onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-          className="w-full border-none bg-transparent ps-9 font-franklin text-[15px] font-medium text-primary outline-none placeholder:text-muted"
+          className="w-full border-none bg-transparent ps-9 text-[15px] font-medium text-primary outline-none placeholder:text-muted"
         />
       </div>
 
       <AnimatePresence>
         {error && (
           <motion.p initial={{ opacity: 0, height: 0, y: -4 }} animate={{ opacity: 1, height: 'auto', y: 0 }} exit={{ opacity: 0, height: 0 }}
-            className="mt-1.5 ps-1 text-[11.5px] font-medium text-pink-light">
+            className="mt-1.5 ps-1 text-[11.5px] font-medium text-flag">
             {error}
           </motion.p>
         )}
@@ -259,26 +259,26 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
 
   const active = focused || editing;
   const wrapState = displayError
-    ? 'border-pink-light/50 bg-card shadow-[0_0_0_3px_rgba(248,113,113,0.08)]'
+    ? 'border-flag/50 bg-card shadow-[0_0_0_3px_rgba(248,113,113,0.08)]'
     : active
-      ? 'border-gold/60 bg-gold/4 shadow-[0_0_0_3px_rgba(245,166,35,0.1),0_8px_32px_var(--shadow-color)]'
+      ? 'border-accent/60 bg-accent/4 shadow-[0_0_0_3px_rgba(110,91,196,0.1),0_8px_32px_var(--shadow-color)]'
       : filled
-        ? 'border-gold/20 bg-card shadow-[0_2px_8px_var(--shadow-color)]'
+        ? 'border-accent/20 bg-card shadow-[0_2px_8px_var(--shadow-color)]'
         : 'border-edge bg-card shadow-[0_2px_8px_var(--shadow-color)]';
 
-  const iconBox = active ? 'bg-gold/15' : filled ? 'bg-gold/8' : 'bg-card-hover';
-  const iconColor = active ? 'text-gold' : filled ? 'text-gold/70' : 'text-muted';
-  const labelColor = active ? 'text-gold' : filled ? 'text-gold/70' : 'text-faint';
+  const iconBox = active ? 'bg-accent/15' : filled ? 'bg-accent/8' : 'bg-card-hover';
+  const iconColor = active ? 'text-accent' : filled ? 'text-accent/70' : 'text-muted';
+  const labelColor = active ? 'text-accent' : filled ? 'text-accent/70' : 'text-faint';
 
   return (
     <div className="relative flex flex-col">
-      <div className={`relative overflow-hidden rounded-[14px] border px-5 py-4.5 transition-all duration-200 ${wrapState}`}>
+      <div className={`relative overflow-hidden rounded-lg border px-5 py-4.5 transition-all duration-200 ${wrapState}`}>
         <AnimatePresence>
           {active && (
             <motion.div
               initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} exit={{ scaleX: 0 }}
               transition={{ duration: 0.25 }}
-              className="absolute inset-x-0 top-0 h-0.5 origin-left bg-[linear-gradient(to_right,transparent,var(--color-gold),transparent)]"
+              className="absolute inset-x-0 top-0 h-0.5 origin-left bg-[linear-gradient(to_right,transparent,var(--color-accent),transparent)]"
             />
           )}
         </AnimatePresence>
@@ -287,13 +287,13 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
           <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${iconBox}`}>
             <Icon size={14} className={`transition-colors ${iconColor}`} />
           </div>
-          <span className={`font-franklin text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
+          <span className={` text-[11px] font-bold uppercase tracking-[0.09em] transition-colors ${labelColor}`}>
             {label}
           </span>
           {filled && !active && (
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-              className="ms-auto flex h-4 w-4 items-center justify-center rounded-full border border-green/30 bg-green/15">
-              <Check size={9} className="text-green" />
+              className="ms-auto flex h-4 w-4 items-center justify-center rounded-full border border-pass/30 bg-pass/15">
+              <Check size={9} className="text-pass" />
             </motion.div>
           )}
         </div>
@@ -311,7 +311,7 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
               if (e.key === 'Enter') { e.preventDefault(); saveEdit(); }
               if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
             }}
-            className={`w-full border-none bg-transparent ps-9 font-franklin text-[15px] font-medium text-primary outline-none placeholder:text-muted ${editing ? 'pe-20' : 'cursor-default pe-11'}`}
+            className={`w-full border-none bg-transparent ps-9 text-[15px] font-medium text-primary outline-none placeholder:text-muted ${editing ? 'pe-20' : 'cursor-default pe-11'}`}
           />
           <div className="absolute inset-e-0 flex items-center gap-1.5">
             {editing ? (
@@ -319,14 +319,14 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
                 <button
                   type="button" onClick={saveEdit} disabled={!canSave}
                   aria-label={t('save')}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-green/30 bg-green/15 text-green transition-all hover:bg-green/25 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-pass/30 bg-pass/15 text-pass transition-all hover:bg-pass/25 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {saving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
                 </button>
                 <button
                   type="button" onClick={cancelEdit} disabled={saving}
                   aria-label={t('cancel')}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-flag/40 hover:bg-flag/10 hover:text-flag disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <X size={13} />
                 </button>
@@ -336,7 +336,7 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
                 ref={editBtnRef}
                 type="button" onClick={startEdit}
                 aria-label={t('edit')}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-edge bg-card text-muted transition-all hover:border-gold/40 hover:bg-gold/10 hover:text-gold"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-edge bg-card text-muted transition-all hover:border-accent/40 hover:bg-accent/10 hover:text-accent"
               >
                 <Pencil size={13} />
               </button>
@@ -350,7 +350,7 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
       <AnimatePresence>
         {displayError && (
           <motion.p initial={{ opacity: 0, height: 0, y: -4 }} animate={{ opacity: 1, height: 'auto', y: 0 }} exit={{ opacity: 0, height: 0 }}
-            className="mt-1.5 ps-1 text-[11.5px] font-medium text-pink-light">
+            className="mt-1.5 ps-1 text-[11.5px] font-medium text-flag">
             {displayError}
           </motion.p>
         )}
@@ -359,12 +359,12 @@ function EmailFieldCard({ label, icon: Icon, placeholder, value, error, hint, on
       <AnimatePresence>
         {savedOk && !editing && !displayError && (
           <motion.p initial={{ opacity: 0, height: 0, y: -4 }} animate={{ opacity: 1, height: 'auto', y: 0 }} exit={{ opacity: 0, height: 0 }}
-            className="mt-1.5 ps-1 text-[11.5px] font-medium text-green">
+            className="mt-1.5 ps-1 text-[11.5px] font-medium text-pass">
             {verifyEmail ? (
               <>
                 {t('updatedVerify')}{' '}
                 <Link href={`/${locale}/verificationcode?email=${encodeURIComponent(verifyEmail)}`}
-                  className="font-semibold text-green underline underline-offset-2 hover:text-green-light">
+                  className="font-semibold text-pass underline underline-offset-2 hover:text-pass">
                   {t('verifyNow')}
                 </Link>
               </>
@@ -385,14 +385,14 @@ function ExpField({ label, icon: Icon, placeholder, value, onChange, type = 'tex
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+      <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
         {Icon && <Icon size={12} />} {label}
       </label>
       <div className="relative">
         <input
           type={type} placeholder={placeholder} value={value}
           onChange={e => onChange(e.target.value)}
-          className="w-full rounded-xl border border-edge bg-base/40 px-4 py-3 pe-10 text-[14px] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4 focus:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]"
+          className="w-full rounded-xl border border-edge bg-base/40 px-4 py-3 pe-10 text-[14px] text-primary outline-none transition-all placeholder:text-muted focus:border-accent/50 focus:bg-accent/4 focus:shadow-[0_0_0_3px_rgba(110,91,196,0.08)]"
         />
         {RightIcon && <RightIcon size={15} className="pointer-events-none absolute inset-e-3.5 top-1/2 -translate-y-1/2 text-muted" />}
       </div>
@@ -408,7 +408,7 @@ function ExpSelect({ value, onChange, options, placeholder, disabled }: {
     <div className="relative flex-1">
       <select
         value={value} onChange={e => onChange(e.target.value)} disabled={disabled}
-        className="w-full appearance-none rounded-xl border border-edge bg-base/40 px-4 py-3 text-[14px] text-primary outline-none transition-all focus:border-gold/50 disabled:cursor-not-allowed disabled:opacity-40"
+        className="w-full appearance-none rounded-xl border border-edge bg-base/40 px-4 py-3 text-[14px] text-primary outline-none transition-all focus:border-accent/50 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <option value="" className="bg-elevated text-primary">{placeholder}</option>
         {options.map(o => <option key={o} value={o} className="bg-elevated text-primary">{o}</option>)}
@@ -447,7 +447,7 @@ function CommaListField({ label, placeholder, value, onChange }: {
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{label}</label>
+      <label className="text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{label}</label>
       <textarea
         rows={3}
         value={draft}
@@ -455,7 +455,7 @@ function CommaListField({ label, placeholder, value, onChange }: {
         onFocus={() => { focused.current = true; }}
         onBlur={commit}
         onChange={event => setDraft(event.target.value)}
-        className="w-full resize-y rounded-xl border border-edge bg-base/40 px-4 py-3 text-[14px] leading-relaxed text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4"
+        className="w-full resize-y rounded-xl border border-edge bg-base/40 px-4 py-3 text-[14px] leading-relaxed text-primary outline-none transition-all placeholder:text-muted focus:border-accent/50 focus:bg-accent/4"
       />
     </div>
   );
@@ -471,18 +471,18 @@ function SummaryStep({ value, onChange }: {
   return (
     <div>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
-        <FileText size={13} className="text-gold" />
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-accent/20 bg-accent/10 px-3.5 py-1.25">
+        <FileText size={13} className="text-accent" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-accent">{t('badge')}</span>
       </motion.div>
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        className="mb-3.5 font-display text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
         {t('title')}
       </motion.h1>
       <p className="mb-8 max-w-150 text-[15px] leading-[1.7] text-faint">{t('subtitle')}</p>
       <div className="rounded-2xl border border-edge bg-card p-5 sm:p-7">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <label htmlFor="professional-summary" className="font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+          <label htmlFor="professional-summary" className="text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
             {t('label')}
           </label>
           <span className="text-[11px] text-muted">{t('wordCount', { count: words })}</span>
@@ -494,7 +494,7 @@ function SummaryStep({ value, onChange }: {
           value={value}
           onChange={event => onChange(event.target.value)}
           placeholder={t('placeholder')}
-          className="w-full resize-y rounded-xl border border-edge bg-base/40 px-4 py-4 text-[15px] leading-[1.75] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4"
+          className="w-full resize-y rounded-xl border border-edge bg-base/40 px-4 py-4 text-[15px] leading-[1.75] text-primary outline-none transition-all placeholder:text-muted focus:border-accent/50 focus:bg-accent/4"
         />
         <p className="mt-3 text-[12px] leading-relaxed text-faint">{t('hint')}</p>
       </div>
@@ -529,13 +529,13 @@ function ExperienceStep({ items, onChange }: {
   return (
     <div>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
-        <span className="inline-block h-1.25 w-1.25 rounded-full bg-gold" />
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-accent/20 bg-accent/10 px-3.5 py-1.25">
+        <span className="inline-block h-1.25 w-1.25 rounded-full bg-accent" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-accent">{t('badge')}</span>
       </motion.div>
 
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
-        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        className="mb-3.5 font-display text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
         {t('title')}
       </motion.h1>
 
@@ -557,8 +557,8 @@ function ExperienceStep({ items, onChange }: {
                 onClick={() => toggle(role.id)}
                 className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-card-hover sm:px-7"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold/20 bg-gold/10">
-                  <Briefcase size={15} className="text-gold" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent/10">
+                  <Briefcase size={15} className="text-accent" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[14px] font-semibold text-primary">{title}</div>
@@ -571,7 +571,7 @@ function ExperienceStep({ items, onChange }: {
                     onClick={(e) => { e.stopPropagation(); removeRole(role.id); }}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); removeRole(role.id); } }}
                     aria-label={t('removeRole')}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-flag/40 hover:bg-flag/10 hover:text-flag"
                   >
                     <Trash2 size={14} />
                   </span>
@@ -602,16 +602,16 @@ function ExperienceStep({ items, onChange }: {
                           <label className="flex cursor-pointer items-center gap-2.5 py-3">
                             <button type="button" role="checkbox" aria-checked={role.current}
                               onClick={() => update(role.id, { current: !role.current, endMonth: '', endYear: '' })}
-                              className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${role.current ? 'border-gold bg-gold' : 'border-edge-strong bg-transparent'
+                              className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${role.current ? 'border-accent bg-accent' : 'border-edge-strong bg-transparent'
                                 }`}>
-                              {role.current && <Check size={12} className="text-ink" />}
+                              {role.current && <Check size={12} className="text-on-accent" />}
                             </button>
                             <span className="text-[14px] text-secondary">{t('currentlyWorkHere')}</span>
                           </label>
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> {t('startDate')}
                           </label>
                           <div className="flex gap-2.5">
@@ -621,7 +621,7 @@ function ExperienceStep({ items, onChange }: {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> {t('endDate')}
                           </label>
                           <div className="flex gap-2.5">
@@ -633,17 +633,17 @@ function ExperienceStep({ items, onChange }: {
 
                       <div className="mt-5 flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-3">
-                          <label className="font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             {t('descriptionLabel')}
                           </label>
-                          <span className="rounded-md border border-azure-light/20 bg-azure-light/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.06em] text-faint">
+                          <span className="rounded-md border border-accent/20 bg-accent/10 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.06em] text-faint">
                             {t('atsTipsAvailable')}
                           </span>
                         </div>
                         <textarea
                           rows={5} placeholder={t('descriptionPlaceholder')}
                           value={role.description} onChange={e => update(role.id, { description: e.target.value })}
-                          className="w-full resize-none rounded-xl border border-edge bg-base/40 px-4 py-3.5 text-[14px] leading-[1.6] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4 focus:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]"
+                          className="w-full resize-none rounded-xl border border-edge bg-base/40 px-4 py-3.5 text-[14px] leading-[1.6] text-primary outline-none transition-all placeholder:text-muted focus:border-accent/50 focus:bg-accent/4 focus:shadow-[0_0_0_3px_rgba(110,91,196,0.08)]"
                         />
                         <p className="flex items-center gap-1.5 text-[12px] text-muted">
                           <Info size={12} /> {t('descriptionHint')}
@@ -659,7 +659,7 @@ function ExperienceStep({ items, onChange }: {
       </div>
 
       <button onClick={addRole}
-        className="mx-auto mt-6 flex items-center gap-2 rounded-xl border border-dashed border-azure-light/40 bg-azure-light/4 px-6 py-3.5 text-[14px] font-semibold text-faint transition-all hover:border-azure-light/60 hover:bg-azure-light/8">
+        className="mx-auto mt-6 flex items-center gap-2 rounded-xl border border-dashed border-accent/40 bg-accent/4 px-6 py-3.5 text-[14px] font-semibold text-faint transition-all hover:border-accent/60 hover:bg-accent/8">
         <Plus size={16} /> {t('addAnotherRole')}
       </button>
     </div>
@@ -680,12 +680,12 @@ function ProjectsStep({ items, onChange }: {
   return (
     <div>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
-        <FolderKanban size={13} className="text-gold" />
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-accent/20 bg-accent/10 px-3.5 py-1.25">
+        <FolderKanban size={13} className="text-accent" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-accent">{t('badge')}</span>
       </motion.div>
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        className="mb-3.5 font-display text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
         {t('title')}
       </motion.h1>
       <p className="mb-8 max-w-150 text-[15px] leading-[1.7] text-faint">{t('subtitle')}</p>
@@ -695,14 +695,14 @@ function ProjectsStep({ items, onChange }: {
           <div key={project.id} className="rounded-2xl border border-edge bg-card p-5 sm:p-7">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-gold/20 bg-gold/10">
-                  <FolderKanban size={15} className="text-gold" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-accent/20 bg-accent/10">
+                  <FolderKanban size={15} className="text-accent" />
                 </div>
                 <h2 className="font-bold text-primary">{project.name || t('projectFallback', { n: index + 1 })}</h2>
               </div>
               {items.length > 1 && (
                 <button type="button" onClick={() => removeProject(project.id)} aria-label={t('removeProject')}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:text-pink-light">
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-flag/40 hover:text-flag">
                   <Trash2 size={14} />
                 </button>
               )}
@@ -718,7 +718,7 @@ function ProjectsStep({ items, onChange }: {
                   value={project.technologies} onChange={technologies => update(project.id, { technologies })} />
               </div>
               <div className="flex flex-col gap-2 sm:col-span-2">
-                <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                   <Calendar size={12} /> {t('date')}
                 </label>
                 <div className="flex gap-2.5">
@@ -731,11 +731,11 @@ function ProjectsStep({ items, onChange }: {
             </div>
 
             <div className="mt-5 flex flex-col gap-2">
-              <label className="font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{t('description.label')}</label>
+              <label className="text-[11px] font-bold uppercase tracking-[0.09em] text-faint">{t('description.label')}</label>
               <textarea rows={5} value={project.description}
                 onChange={event => update(project.id, { description: event.target.value })}
                 placeholder={t('description.placeholder')}
-                className="w-full resize-y rounded-xl border border-edge bg-base/40 px-4 py-3 text-[14px] leading-relaxed text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4" />
+                className="w-full resize-y rounded-xl border border-edge bg-base/40 px-4 py-3 text-[14px] leading-relaxed text-primary outline-none transition-all placeholder:text-muted focus:border-accent/50 focus:bg-accent/4" />
               <p className="text-[11px] text-muted">{t('description.hint')}</p>
             </div>
           </div>
@@ -743,7 +743,7 @@ function ProjectsStep({ items, onChange }: {
       </div>
 
       <button type="button" onClick={addProject}
-        className="mx-auto mt-6 flex items-center gap-2 rounded-xl border border-dashed border-azure-light/40 bg-azure-light/4 px-6 py-3.5 text-[14px] font-semibold text-faint transition-all hover:border-azure-light/60 hover:bg-azure-light/8">
+        className="mx-auto mt-6 flex items-center gap-2 rounded-xl border border-dashed border-accent/40 bg-accent/4 px-6 py-3.5 text-[14px] font-semibold text-faint transition-all hover:border-accent/60 hover:bg-accent/8">
         <Plus size={16} /> {t('addProject')}
       </button>
     </div>
@@ -794,13 +794,13 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
   return (
     <div>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
-        <span className="inline-block h-1.25 w-1.25 rounded-full bg-gold" />
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-accent/20 bg-accent/10 px-3.5 py-1.25">
+        <span className="inline-block h-1.25 w-1.25 rounded-full bg-accent" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-accent">{t('badge')}</span>
       </motion.div>
 
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
-        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        className="mb-3.5 font-display text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
         {t('title')}
       </motion.h1>
 
@@ -811,11 +811,11 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
 
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <GraduationCap size={20} className="text-gold" />
+          <GraduationCap size={20} className="text-accent" />
           <h2 className="text-[20px] font-bold text-primary">{t('formalEducation')}</h2>
         </div>
         <button onClick={addEdu}
-          className="flex items-center gap-1.5 text-[14px] font-semibold text-faint transition-colors hover:text-azure">
+          className="flex items-center gap-1.5 text-[14px] font-semibold text-faint transition-colors hover:text-accent">
           <PlusCircle size={16} /> {t('addInstitution')}
         </button>
       </div>
@@ -833,8 +833,8 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                 onClick={() => toggleEdu(edu.id)}
                 className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-card-hover sm:px-7"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gold/20 bg-gold/10">
-                  <GraduationCap size={15} className="text-gold" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent/10">
+                  <GraduationCap size={15} className="text-accent" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[14px] font-semibold text-primary">{title}</div>
@@ -847,7 +847,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                     onClick={(e) => { e.stopPropagation(); removeEdu(edu.id); }}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); removeEdu(edu.id); } }}
                     aria-label={t('removeInstitution')}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge text-muted transition-all hover:border-flag/40 hover:bg-flag/10 hover:text-flag"
                   >
                     <Trash2 size={14} />
                   </span>
@@ -881,15 +881,15 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                           <label className="flex cursor-pointer items-center gap-2.5 py-3">
                             <button type="button" role="checkbox" aria-checked={edu.current}
                               onClick={() => updateEdu(edu.id, { current: !edu.current, endMonth: '', endYear: '', gradYear: '' })}
-                              className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${edu.current ? 'border-gold bg-gold' : 'border-edge-strong bg-transparent'}`}>
-                              {edu.current && <Check size={12} className="text-ink" />}
+                              className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${edu.current ? 'border-accent bg-accent' : 'border-edge-strong bg-transparent'}`}>
+                              {edu.current && <Check size={12} className="text-on-accent" />}
                             </button>
                             <span className="text-[14px] text-secondary">{t('currentlyStudying')}</span>
                           </label>
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> {t('startDate')}
                           </label>
                           <div className="flex gap-2.5">
@@ -901,7 +901,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <label className="flex items-center gap-1.5 font-franklin text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
+                          <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.09em] text-faint">
                             <Calendar size={12} /> {t('endDate')}
                           </label>
                           <div className="flex gap-2.5">
@@ -922,7 +922,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
       </div>
 
       <div className="mb-4 flex items-center gap-2.5">
-        <Award size={20} className="text-gold" />
+        <Award size={20} className="text-accent" />
         <h2 className="text-[20px] font-bold text-primary">{t('professionalCertifications')}</h2>
       </div>
 
@@ -942,7 +942,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
                 </div>
                 {certs.length > 1 && (
                   <button onClick={() => removeCert(cert.id)} aria-label={t('removeCertificate')}
-                    className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light">
+                    className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-edge text-muted transition-all hover:border-flag/40 hover:bg-flag/10 hover:text-flag">
                     <Trash2 size={15} />
                   </button>
                 )}
@@ -953,7 +953,7 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
 
         <div className="mt-6 flex justify-end">
           <button onClick={addCert}
-            className="flex items-center gap-2 rounded-xl border border-azure-light/25 bg-azure-light/10 px-4 py-2.5 text-[13px] font-semibold text-faint transition-all hover:border-azure-light/40 hover:bg-azure-light/15">
+            className="flex items-center gap-2 rounded-xl border border-accent/25 bg-accent/10 px-4 py-2.5 text-[13px] font-semibold text-faint transition-all hover:border-accent/40 hover:bg-accent/15">
             <Plus size={15} /> {t('addCertificate')}
           </button>
         </div>
@@ -961,19 +961,19 @@ function EducationStep({ education, onEducationChange, certs, onCertsChange }: {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto]">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-          className="relative overflow-hidden rounded-2xl border border-gold/50 bg-gold/4 p-6">
+          className="relative overflow-hidden rounded-2xl border border-accent/50 bg-accent/4 p-6">
           <div className="relative z-10">
-            <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-gold">{t('proTip')}</div>
+            <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-accent">{t('proTip')}</div>
             <p className="max-w-[90%] text-[14px] leading-[1.7] text-secondary">
               {t('proTipText')}
             </p>
           </div>
-          <Lightbulb size={90} className="pointer-events-none absolute -bottom-3 i-2 text-gold/10" />
+          <Lightbulb size={90} className="pointer-events-none absolute -bottom-3 i-2 text-accent/10" />
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
           className="flex flex-col items-center justify-center rounded-2xl border border-edge bg-card p-6 text-center lg:w-64">
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/30 bg-gold/10 text-gold shadow-md">
+          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-accent/30 bg-accent/10 text-accent shadow-md">
             <CheckCircle2 size={28} />
           </div>
           <div className="text-[22px] font-black text-primary">{percent}%</div>
@@ -1047,7 +1047,7 @@ function SkillsStep({ groups, onChange }: {
   return (
     <div>
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        className="mb-3.5 font-display text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
         {t('title')}
       </motion.h1>
 
@@ -1074,7 +1074,7 @@ function SkillsStep({ groups, onChange }: {
                   {groups.length > 1 && (
                     <button type="button" onClick={() => removeGroup(group.id)}
                       aria-label={t('removeCategory', { n: index + 1 })}
-                      className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-edge text-muted transition-all hover:border-pink-light/40 hover:bg-pink-light/10 hover:text-pink-light">
+                      className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-edge text-muted transition-all hover:border-flag/40 hover:bg-flag/10 hover:text-flag">
                       <Trash2 size={15} />
                     </button>
                   )}
@@ -1088,7 +1088,7 @@ function SkillsStep({ groups, onChange }: {
               </div>
             ))}
             <button type="button" onClick={addGroup}
-              className="mx-auto flex items-center gap-2 rounded-xl border border-dashed border-azure-light/40 bg-azure-light/4 px-5 py-3 text-[13px] font-semibold text-faint transition-all hover:border-azure-light/60 hover:bg-azure-light/8">
+              className="mx-auto flex items-center gap-2 rounded-xl border border-dashed border-accent/40 bg-accent/4 px-5 py-3 text-[13px] font-semibold text-faint transition-all hover:border-accent/60 hover:bg-accent/8">
               <Plus size={15} /> {t('addCategory')}
             </button>
           </div>
@@ -1102,7 +1102,7 @@ function SkillsStep({ groups, onChange }: {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder={t('inputPlaceholder')}
-                className="w-full rounded-xl border border-edge bg-base/40 py-3.5 ps-11 pe-4 text-[14px] text-primary outline-none transition-all placeholder:text-muted focus:border-gold/50 focus:bg-gold/4 focus:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]"
+                className="w-full rounded-xl border border-edge bg-base/40 py-3.5 ps-11 pe-4 text-[14px] text-primary outline-none transition-all placeholder:text-muted focus:border-accent/50 focus:bg-accent/4 focus:shadow-[0_0_0_3px_rgba(110,91,196,0.08)]"
               />
             </div>
 
@@ -1117,7 +1117,7 @@ function SkillsStep({ groups, onChange }: {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.15 }}
-                    className="flex items-center gap-2 rounded-full border border-gold/50 bg-gold/10 px-4 py-2 text-[13px] font-semibold text-gold transition-colors hover:bg-gold/15"
+                    className="flex items-center gap-2 rounded-full border border-accent/50 bg-accent/10 px-4 py-2 text-[13px] font-semibold text-accent transition-colors hover:bg-accent/15"
                   >
                     {skill} <X size={13} />
                   </motion.button>
@@ -1141,12 +1141,12 @@ function SkillsStep({ groups, onChange }: {
                     <button
                       key={skill}
                       onClick={() => addSkill(skill)}
-                      className="group flex min-h-24 flex-col justify-between rounded-xl border border-edge bg-card p-4 text-left transition-all hover:border-gold/30 hover:bg-card-hover"
+                      className="group flex min-h-24 flex-col justify-between rounded-xl border border-edge bg-card p-4 text-left transition-all hover:border-accent/30 hover:bg-card-hover"
                     >
                       <span className="text-[14px] font-semibold text-primary">
                         {skill}
                       </span>
-                      <PlusCircle size={18} className="text-muted group-hover:text-gold" />
+                      <PlusCircle size={18} className="text-muted group-hover:text-accent" />
                     </button>
                   ))}
                 </div>
@@ -1155,7 +1155,7 @@ function SkillsStep({ groups, onChange }: {
                   <p className="text-sm font-medium text-primary">No matching skills found</p>
                   <p className="mt-2 text-sm text-muted">
                     Press Enter to add
-                    <span className="mx-1 font-semibold text-gold">&quot;{input}&quot;</span>
+                    <span className="mx-1 font-semibold text-accent">&quot;{input}&quot;</span>
                     as a custom skill.
                   </p>
                 </div>
@@ -1170,10 +1170,10 @@ function SkillsStep({ groups, onChange }: {
                 <button
                   key={s}
                   onClick={() => addSkill(s)}
-                  className="group flex min-h-24 flex-col justify-between rounded-xl border border-edge bg-card p-4 text-left transition-all hover:border-gold/30 hover:bg-card-hover"
+                  className="group flex min-h-24 flex-col justify-between rounded-xl border border-edge bg-card p-4 text-left transition-all hover:border-accent/30 hover:bg-card-hover"
                 >
                   <span className="text-[14px] font-semibold text-primary">{s}</span>
-                  <PlusCircle size={18} className="text-muted transition-colors group-hover:text-gold" />
+                  <PlusCircle size={18} className="text-muted transition-colors group-hover:text-accent" />
                 </button>
               ))}
               {!isSearching && remaining > 0 && (
@@ -1192,31 +1192,31 @@ function SkillsStep({ groups, onChange }: {
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl border border-edge bg-card p-5">
             <div className="mb-3 text-[11px] font-bold uppercase tracking-widest text-faint flex items-center gap-1.5">
-              <CheckCircle2 size={14} className="text-gold" />
+              <CheckCircle2 size={14} className="text-accent" />
               <span>Resume Section Quality</span>
             </div>
             <div className="space-y-2 text-xs font-semibold text-secondary">
               <div className="flex items-center justify-between py-1 border-b border-edge/50">
                 <span>Contact Details</span>
-                <span className="text-emerald-400 font-bold">✓ Ready</span>
+                <span className="text-pass font-bold">✓ Ready</span>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-edge/50">
                 <span>Summary Statement</span>
-                <span className="text-emerald-400 font-bold">✓ Ready</span>
+                <span className="text-pass font-bold">✓ Ready</span>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-edge/50">
                 <span>Work Experience</span>
-                <span className="text-emerald-400 font-bold">✓ Ready</span>
+                <span className="text-pass font-bold">✓ Ready</span>
               </div>
               <div className="flex items-center justify-between py-1">
                 <span>Education & Skills</span>
-                <span className="text-emerald-400 font-bold">✓ Ready</span>
+                <span className="text-pass font-bold">✓ Ready</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-start gap-3 rounded-2xl border border-edge bg-card p-5">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-azure-light/20 bg-azure-light/12">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent/12">
               <Sparkles size={15} className="text-faint" />
             </div>
             <div>
@@ -1269,7 +1269,7 @@ function SortableSidebarStep({
       dragControls={dragControls}
       onDragEnd={() => onMoveComplete(step.id)}
       whileDrag={{ scale: 1.02, zIndex: 10 }}
-      className={`flex w-full items-stretch rounded-xl border transition-[border-color,background-color,box-shadow,opacity] ${isActive ? 'border-gold/15 bg-gold/10' : 'border-gold/10 bg-transparent'
+      className={`flex w-full items-stretch rounded-xl border transition-[border-color,background-color,box-shadow,opacity] ${isActive ? 'border-accent/15 bg-accent/10' : 'border-accent/10 bg-transparent'
         } ${isLocked ? 'opacity-35' : ''}`}
     >
       <button
@@ -1278,9 +1278,9 @@ function SortableSidebarStep({
         onClick={() => onStepClick(step.id)}
         className={`flex min-w-0 flex-1 items-center gap-3 rounded-xl px-3.5 py-3 text-left ${isLocked ? 'cursor-default' : 'cursor-pointer'}`}
       >
-        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-all ${isActive ? 'border-gold/30 bg-gold/15' : isComplete ? 'border-green/20 bg-green/10' : 'border-edge bg-card'
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-all ${isActive ? 'border-accent/30 bg-accent/15' : isComplete ? 'border-pass/20 bg-pass/10' : 'border-edge bg-card'
           }`}>
-          {isComplete ? <Check size={15} className="text-green" /> : <Icon size={15} className={isActive ? 'text-gold' : 'text-muted'} />}
+          {isComplete ? <Check size={15} className="text-pass" /> : <Icon size={15} className={isActive ? 'text-accent' : 'text-muted'} />}
         </div>
         <div className="min-w-0 flex-1">
           <div className={`text-[13px] transition-colors ${isActive ? 'font-bold text-primary' : 'font-medium text-secondary'}`}>
@@ -1312,7 +1312,7 @@ function SortableSidebarStep({
           event.preventDefault();
           onMove(step.id, destination);
         }}
-        className="m-1.5 ms-0 flex w-8 touch-none cursor-grab items-center justify-center rounded-lg text-muted transition-colors hover:bg-gold/10 hover:text-gold focus-visible:bg-gold/10 focus-visible:text-gold focus-visible:outline-2 focus-visible:outline-gold active:cursor-grabbing"
+        className="m-1.5 ms-0 flex w-8 touch-none cursor-grab items-center justify-center rounded-lg text-muted transition-colors hover:bg-accent/10 hover:text-accent focus-visible:bg-accent/10 focus-visible:text-accent focus-visible:outline-2 focus-visible:outline-accent active:cursor-grabbing"
       >
         <GripVertical size={16} aria-hidden="true" />
       </button>
@@ -1360,7 +1360,7 @@ function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSec
     <aside className={`fixed inset-y-0 inset-s-0 z-50 flex h-dvh w-70 min-w-70 flex-col border-e border-edge bg-soft transition-transform duration-300 lg:sticky lg:top-0 lg:z-auto lg:w-65 lg:min-w-65 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full max-lg:rtl:translate-x-full'}`}>
       <div className="px-6 pt-7">
         <div className="flex items-center justify-between">
-          <Link href={`/${locale}`} aria-label="ResuMax home">
+          <Link href={`/${locale}`} aria-label="Resumax AI home">
             <Logo />
           </Link>
           <button onClick={onClose} aria-label="Close menu" className="text-secondary lg:hidden">
@@ -1375,20 +1375,20 @@ function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSec
       </div>
 
       <div className="px-6 pb-6 pt-7">
-        <div className="rounded-[14px] border border-gold/12 bg-gold/6 px-4.5 py-4">
+        <div className="rounded-lg border border-accent/12 bg-accent/6 px-4.5 py-4">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <div className="text-[15px] font-bold text-primary">{t('onboarding')}</div>
               <div className="mt-0.5 text-xs text-faint">{t('stepOf', { current: currentNum, total: STEPS.length })}</div>
             </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-gold/25 bg-gold/12">
-              <span className="text-[13px] font-extrabold text-gold">{currentNum}/{STEPS.length}</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-accent/25 bg-accent/12">
+              <span className="text-[13px] font-extrabold text-accent">{currentNum}/{STEPS.length}</span>
             </div>
           </div>
           <div className="flex gap-1">
             {STEPS.map(s => (
               <motion.div key={s.id}
-                animate={{ background: completedSteps.has(s.id) ? 'var(--color-gold)' : s.id === currentStep ? 'color-mix(in srgb, var(--color-gold) 50%, transparent)' : 'var(--edge)' }}
+                animate={{ background: completedSteps.has(s.id) ? 'var(--color-accent)' : s.id === currentStep ? 'color-mix(in srgb, var(--color-accent) 50%, transparent)' : 'var(--edge)' }}
                 transition={{ duration: 0.3 }}
                 className="h-0.75 flex-1 rounded-full"
               />
@@ -1415,12 +1415,12 @@ function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSec
               type="button"
               onClick={() => !isLocked && onStepClick(contactStep.id)}
               whileHover={!isLocked ? { x: 2 } : {}}
-              className={`flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${isActive ? 'border-gold/15 bg-gold/10' : 'border-gold/10 bg-transparent'
+              className={`flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${isActive ? 'border-accent/15 bg-accent/10' : 'border-accent/10 bg-transparent'
                 } ${isLocked ? 'cursor-default opacity-35' : 'cursor-pointer'}`}
             >
-              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border transition-all ${isActive ? 'border-gold/30 bg-gold/15' : isComplete ? 'border-green/20 bg-green/10' : 'border-edge bg-card'
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-all ${isActive ? 'border-accent/30 bg-accent/15' : isComplete ? 'border-pass/20 bg-pass/10' : 'border-edge bg-card'
                 }`}>
-                {isComplete ? <Check size={15} className="text-green" /> : <Icon size={15} className={isActive ? 'text-gold' : 'text-muted'} />}
+                {isComplete ? <Check size={15} className="text-pass" /> : <Icon size={15} className={isActive ? 'text-accent' : 'text-muted'} />}
               </div>
               <div className="min-w-0 flex-1">
                 <div className={`text-[13px] transition-colors ${isActive ? 'font-bold text-primary' : 'font-medium text-secondary'}`}>
@@ -1430,7 +1430,7 @@ function Sidebar({ currentStep, completedSteps, sectionOrder, onStepClick, onSec
                   {t('steps.contact.desc')}
                 </div>
               </div>
-              {isActive && <ChevronRight size={14} className={`text-gold/60 ${isRTL ? 'rotate-180' : ''}`} />}
+              {isActive && <ChevronRight size={14} className={`text-accent/60 ${isRTL ? 'rotate-180' : ''}`} />}
             </motion.button>
           );
         })()}
@@ -1498,15 +1498,15 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
   return (
     <div>
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.25">
-        <span className="inline-block h-1.25 w-1.25 rounded-full bg-gold" />
-        <span className="text-[11px] font-bold uppercase tracking-widest text-gold">{t('badge')}</span>
+        className="mb-6 inline-flex items-center gap-1.75 rounded-full border border-accent/20 bg-accent/10 px-3.5 py-1.25">
+        <span className="inline-block h-1.25 w-1.25 rounded-full bg-accent" />
+        <span className="text-[11px] font-bold uppercase tracking-widest text-accent">{t('badge')}</span>
       </motion.div>
 
       <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
-        className="mb-3.5 font-playfair text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
+        className="mb-3.5 font-display text-[clamp(28px,4vw,44px)] font-black leading-[1.1] text-primary">
         {t('titleLine1')}
-        <span className="block text-gradient-gold">{t('titleHighlight')}</span>
+        <span className="block text-accent">{t('titleHighlight')}</span>
       </motion.h1>
 
       <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
@@ -1517,11 +1517,11 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mb-8">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-xs font-medium text-muted">{t('sectionCompletion')}</span>
-          <span className={`text-xs font-bold ${filledCount === fields.length ? 'text-green' : 'text-gold'}`}>{t('fieldsCount', { count: filledCount, total: fields.length })}</span>
+          <span className={`text-xs font-bold ${filledCount === fields.length ? 'text-pass' : 'text-accent'}`}>{t('fieldsCount', { count: filledCount, total: fields.length })}</span>
         </div>
         <div className="h-1 overflow-hidden rounded-full bg-card">
           <motion.div animate={{ width: `${(filledCount / fields.length) * 100}%` }} transition={{ duration: 0.4, ease: 'easeOut' }}
-            className={`h-full rounded-full ${filledCount === fields.length ? 'bg-linear-to-r from-green to-green-light' : 'bg-linear-to-r from-gold to-gold-light'}`} />
+            className={`h-full rounded-full ${filledCount === fields.length ? 'bg-pass' : 'bg-accent'}`} />
         </div>
       </motion.div>
 
@@ -1547,16 +1547,16 @@ function ContactStep({ data, onChange, errors, onSaveEmail }: {
       </div>
 
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.4 }}
-        className="mt-7 flex items-start gap-3.5 rounded-[14px] border border-azure/15 bg-azure/[0.07] px-5 py-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-azure-light/20 bg-azure-light/12">
+        className="mt-7 flex items-start gap-3.5 rounded-lg border border-accent/15 bg-accent/[0.07] px-5 py-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-accent/20 bg-accent/12">
           <Sparkles size={15} className="text-faint" />
         </div>
         <div>
-          <div className="mb-1 text-xs font-bold uppercase tracking-[0.08em] text-[#93c5fd]">{t('atsTipLabel')}</div>
+          <div className="mb-1 text-xs font-bold uppercase tracking-[0.08em] text-accent">{t('atsTipLabel')}</div>
           <p className="text-[13px] leading-[1.6] text-faint">
             {t.rich('atsTipText', {
               b: (chunks) => <span className="font-semibold text-secondary">{chunks}</span>,
-              gold: (chunks) => <span className="font-semibold text-gold">{chunks}</span>,
+              accent: (chunks) => <span className="font-semibold text-accent">{chunks}</span>,
             })}
           </p>
         </div>
@@ -2216,12 +2216,10 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
 
   return (
     <div
-      className="flex h-dvh overflow-hidden bg-base font-franklin"
+      className="lp flex h-dvh overflow-hidden bg-base"
       inert={isFinishing}
       aria-busy={isFinishing}
     >
-      <div className="pointer-events-none fixed right-[15%] top-[20%] z-0 h-100 w-100 rounded-full bg-gold/4 blur-[100px]" />
-      <div className="pointer-events-none fixed bottom-[20%] right-[30%] z-0 h-75 w-75 rounded-full bg-azure/4 blur-[80px]" />
 
       <Sidebar
         currentStep={currentStep}
@@ -2236,26 +2234,26 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
       {navOpen && (
         <div
           onClick={() => setNavOpen(false)}
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-40 bg-scrim/60 lg:hidden"
         />
       )}
 
       <div className="relative z-1 flex h-dvh min-h-0 flex-1 flex-col overflow-hidden">
         {/* Sticky Unified Top Header across Mobile & Desktop */}
-        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-edge bg-elevated/90 px-3 sm:px-5 py-2 backdrop-blur-xl shrink-0">
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-edge bg-elevated/90 px-3 sm:px-5 py-2 shrink-0">
           {/* Left: Mobile Drawer Trigger + Active Draft Info & Rename */}
           <div className="flex items-center gap-2.5 min-w-0">
             <button
               onClick={() => setNavOpen(true)}
               aria-label="Open menu"
-              className="text-primary lg:hidden shrink-0 p-1 -ms-1 hover:text-gold transition-colors cursor-pointer"
+              className="text-primary lg:hidden shrink-0 p-1 -ms-1 hover:text-accent transition-colors cursor-pointer"
             >
               <Menu size={20} />
             </button>
 
             {/* Draft Identity & Rename */}
             <div className="flex items-center gap-2 min-w-0">
-              <div className="hidden sm:flex h-7 w-7 items-center justify-center rounded-lg bg-gold/15 text-gold shrink-0 border border-gold/25">
+              <div className="hidden sm:flex h-7 w-7 items-center justify-center rounded-lg bg-accent/15 text-accent shrink-0 border border-accent/25">
                 <FileText size={14} />
               </div>
               <div className="min-w-0">
@@ -2270,27 +2268,27 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                         setIsRenaming(true);
                       }}
                       title="Rename Draft"
-                      className="text-muted hover:text-gold p-0.5 rounded hover:bg-card transition-colors cursor-pointer shrink-0"
+                      className="text-muted hover:text-accent p-0.5 rounded hover:bg-card transition-colors cursor-pointer shrink-0"
                     >
                       <Pencil size={10} />
                     </button>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] text-secondary">
-                  <span className="capitalize text-gold font-medium">
+                  <span className="capitalize text-accent font-medium">
                     {selectedTemplate}
                   </span>
                   <span className="text-faint">•</span>
                   <span className="flex items-center gap-1">
                     {saveStatus === 'saving' ? (
                       <>
-                        <Loader2 size={9} className="animate-spin text-gold" />
-                        <span className="text-gold">Saving...</span>
+                        <Loader2 size={9} className="animate-spin text-accent" />
+                        <span className="text-accent">Saving...</span>
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 size={10} className="text-emerald-400" />
-                        <span className="text-emerald-400">Draft saved</span>
+                        <CheckCircle2 size={10} className="text-pass" />
+                        <span className="text-pass">Draft saved</span>
                       </>
                     )}
                   </span>
@@ -2307,9 +2305,9 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                 onClick={() => setDraftSwitcherOpen(!draftSwitcherOpen)}
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-edge bg-card hover:bg-card-hover text-xs font-bold text-secondary hover:text-primary transition-colors cursor-pointer shadow-xs"
               >
-                <Layers size={12} className="text-gold shrink-0" />
+                <Layers size={12} className="text-accent shrink-0" />
                 <span className="hidden sm:inline">Switch Draft</span>
-                <span className="px-1.5 py-0.2 rounded-md bg-gold/15 text-gold text-[9px] font-black">{userDrafts.length}</span>
+                <span className="px-1.5 py-0.2 rounded-md bg-accent/15 text-accent text-[9px] font-black">{userDrafts.length}</span>
                 <ChevronDown size={11} className={`transition-transform duration-200 ${draftSwitcherOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -2322,11 +2320,11 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 6, scale: 0.96 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-[calc(100%+6px)] inset-e-0 z-50 w-72 sm:w-80 rounded-xl border border-edge bg-elevated shadow-[0_20px_60px_rgba(0,0,0,0.65)] p-2 space-y-1 backdrop-blur-2xl"
+                      className="absolute top-[calc(100%+6px)] inset-e-0 z-50 w-72 sm:w-80 rounded-xl border border-edge bg-elevated shadow-[0_20px_60px_rgba(0,0,0,0.65)] p-2 space-y-1"
                     >
                       <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-muted border-b border-edge/60 flex items-center justify-between">
                         <span>Your Resumes</span>
-                        <span className="text-gold font-mono font-bold bg-gold/10 px-1.5 py-0.2 rounded border border-gold/20 text-[9px]">
+                        <span className="text-accent font-mono font-bold bg-accent/10 px-1.5 py-0.2 rounded border border-accent/20 text-[9px]">
                           {userDrafts.length}
                         </span>
                       </div>
@@ -2343,15 +2341,15 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                               }}
                               className={`group w-full flex items-center gap-2.5 p-2 rounded-lg text-start transition-all cursor-pointer ${
                                 isActive
-                                  ? 'bg-gold/15 border border-gold/35 shadow-xs'
+                                  ? 'bg-accent/15 border border-accent/35 shadow-xs'
                                   : 'hover:bg-card border border-transparent hover:border-edge'
                               }`}
                             >
                               <div
                                 className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
                                   isActive
-                                    ? 'bg-gold text-slate-950 shadow-sm'
-                                    : 'bg-card border border-edge text-secondary group-hover:text-gold group-hover:border-gold/30'
+                                    ? 'bg-accent text-on-accent shadow-sm'
+                                    : 'bg-card border border-edge text-secondary group-hover:text-accent group-hover:border-accent/30'
                                 }`}
                               >
                                 <FileText size={13} />
@@ -2362,7 +2360,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                                   {d.title}
                                 </div>
                                 <div className="flex items-center gap-1.5 mt-0.5">
-                                  <span className="px-1 py-0.2 rounded text-[9px] font-semibold uppercase tracking-wider bg-gold/10 text-gold border border-gold/20">
+                                  <span className="px-1 py-0.2 rounded text-[9px] font-semibold uppercase tracking-wider bg-accent/10 text-accent border border-accent/20">
                                     {d.templateName}
                                   </span>
                                   <span className="text-faint text-[8px]">•</span>
@@ -2373,7 +2371,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                               </div>
 
                               {isActive ? (
-                                <span className="px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase tracking-wider shrink-0">
+                                <span className="px-1.5 py-0.2 rounded-full bg-pass/15 text-pass border border-pass/30 text-[9px] font-black uppercase tracking-wider shrink-0">
                                   Active
                                 </span>
                               ) : (
@@ -2411,7 +2409,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                               }
                             }
                           }}
-                          className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-black bg-linear-to-r from-gold via-amber-400 to-gold hover:from-gold-light hover:to-gold text-slate-950 shadow-sm transition-all cursor-pointer"
+                          className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-black bg-accent hover:from-accent-strong hover:to-accent text-on-accent shadow-sm transition-all cursor-pointer"
                         >
                           <Plus size={12} />
                           <span>Create New Resume</span>
@@ -2463,11 +2461,17 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
               </AnimatePresence>
             </div>
 
-            <DashboardResumePlaceholder currentStep={currentStep} order={getResumeStepOrder(sectionOrder)} />
+            <DashboardResumePlaceholder
+              currentStep={currentStep}
+              order={getResumeStepOrder(sectionOrder)}
+              template={isFreeUser ? DEFAULT_TEMPLATE_ID : selectedTemplate}
+              name={contact.fullName}
+              title={contact.title}
+            />
           </div>
         </div>
 
-        <div className="sticky bottom-0 z-10 flex shrink-0 items-center justify-between gap-3 border-t border-edge bg-linear-to-r from-bg-base to-bg-transparent px-5 py-3.5 backdrop-blur-[20px] sm:px-8 lg:px-15 lg:py-4.5">
+        <div className="sticky bottom-0 z-10 flex shrink-0 items-center justify-between gap-3 border-t border-edge bg-bg-base px-5 py-3.5 sm:px-8 lg:px-15 lg:py-4.5">
           {prevStep ? (
             <button onClick={() => setCurrentStep(prevStep.id)}
               className="flex items-center gap-2 border-none bg-transparent py-2.5 text-sm font-semibold text-muted transition-colors hover:text-secondary">
@@ -2484,18 +2488,18 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
             {STEPS.map(s => (
               <motion.div key={s.id}
                 transition={{ duration: 0.3 }}
-                className={`h-1.5 rounded-full ${s.id === currentStep ? 'w-6' : 'w-1.5'} ${completedSteps.has(s.id) ? 'bg-green' : s.id === currentStep ? 'bg-gold' : 'bg-edge-strong'}`} />
+                className={`h-1.5 rounded-full ${s.id === currentStep ? 'w-6' : 'w-1.5'} ${completedSteps.has(s.id) ? 'bg-pass' : s.id === currentStep ? 'bg-accent' : 'bg-edge-strong'}`} />
             ))}
           </div>
 
           {currentStep !== 'education' ? (
             <button onClick={handleNext}
-              className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-3.25 text-[13px] font-bold text-ink shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light hover:shadow-[0_10px_28px_rgba(245,166,35,0.5)] sm:px-6.5 sm:text-sm">
+              className="flex shrink-0 items-center gap-2 rounded-xl bg-accent px-4 py-3.25 text-[13px] font-bold text-on-accent shadow-[0_6px_20px_rgba(110,91,196,0.35)] transition-all hover:-translate-y-px hover:bg-accent-strong hover:shadow-[0_10px_28px_rgba(110,91,196,0.5)] sm:px-6.5 sm:text-sm">
               {nextLabel[currentStep]} <ArrowRight size={15} className={isRTL ? "rotate-180" : ""} />
             </button>
           ) : (
             <button onClick={() => { void handleFinish(); }} disabled={isFinishing}
-              className="flex shrink-0 items-center gap-2 rounded-xl bg-gold px-4 py-3.25 text-[13px] font-bold text-ink shadow-[0_6px_20px_rgba(245,166,35,0.35)] transition-all hover:-translate-y-px hover:bg-gold-light disabled:cursor-wait disabled:translate-y-0 disabled:opacity-70 sm:px-6.5 sm:text-sm">
+              className="flex shrink-0 items-center gap-2 rounded-xl bg-accent px-4 py-3.25 text-[13px] font-bold text-on-accent shadow-[0_6px_20px_rgba(110,91,196,0.35)] transition-all hover:-translate-y-px hover:bg-accent-strong disabled:cursor-wait disabled:translate-y-0 disabled:opacity-70 sm:px-6.5 sm:text-sm">
               {t('generateResume')} {isFinishing ? <Loader2 size={15} className="animate-spin" /> : <Zap size={15} />}
             </button>
           )}
@@ -2660,7 +2664,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsRenaming(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-scrim/60"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -2685,7 +2689,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                 onKeyDown={(e) => e.key === 'Enter' && void handleSaveRename()}
                 autoFocus
                 placeholder="Resume Title..."
-                className="w-full rounded-xl border border-edge bg-card px-4 py-3 text-sm font-semibold text-primary outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-xl border border-edge bg-card px-4 py-3 text-sm font-semibold text-primary outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
 
               <div className="flex items-center justify-end gap-3 pt-2">
@@ -2698,7 +2702,7 @@ export default function DashboardPage({ resumeIdProp }: DashboardPageProps = {})
                 <button
                   onClick={() => void handleSaveRename()}
                   disabled={isSavingTitle || !newTitleInput.trim()}
-                  className="px-5 py-2 rounded-xl bg-gold hover:bg-gold-light text-slate-950 text-xs font-black disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-xs font-black disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                 >
                   {isSavingTitle && <Loader2 size={13} className="animate-spin" />}
                   <span>Save Title</span>

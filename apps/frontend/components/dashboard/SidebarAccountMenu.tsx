@@ -213,9 +213,9 @@ export default function SidebarAccountMenu() {
     "flex w-full cursor-pointer items-center gap-2.5 px-4 py-2.5 text-start text-[13px] text-secondary transition-colors hover:bg-card-hover hover:text-primary focus-visible:bg-card-hover focus-visible:text-primary focus-visible:outline-none";
 
   const segmentClass = (active: boolean) =>
-    `flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-2 py-1.5 text-[11px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-gold ${
+    `flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-2 py-1.5 text-[11px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent ${
       active
-        ? "border-gold/25 bg-gold/12 text-gold"
+        ? "border-accent/25 bg-accent/12 text-accent"
         : "border-transparent text-secondary hover:bg-card-hover hover:text-primary"
     }`;
 
@@ -235,7 +235,7 @@ export default function SidebarAccountMenu() {
       <div ref={rowRef} className="px-4 py-4">
         <Link
           href={planCta.href}
-          className="group mb-1.5 flex items-center gap-2.5 rounded-xl border border-gold/12 bg-gold/6 px-2.5 py-2 text-[12px] font-semibold text-gold transition-colors hover:bg-gold/12"
+          className="group mb-1.5 flex items-center gap-2.5 rounded-xl border border-accent/12 bg-accent/6 px-2.5 py-2 text-[12px] font-semibold text-accent transition-colors hover:bg-accent/12"
         >
           <planCta.Icon size={14} className="shrink-0" />
           <span className="min-w-0 flex-1 truncate">{planCta.label}</span>
@@ -256,11 +256,11 @@ export default function SidebarAccountMenu() {
           aria-haspopup="menu"
           aria-expanded={open}
           aria-controls={open ? menuId : undefined}
-          className={`flex w-full cursor-pointer items-center gap-3 rounded-xl px-2 py-2 text-start transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-gold ${
+          className={`flex w-full cursor-pointer items-center gap-3 rounded-xl px-2 py-2 text-start transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent ${
             open ? "bg-card-hover" : "hover:bg-card-hover"
           }`}
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gold text-ink">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent text-on-accent">
             {renderAvatar(40, "text-[12px] font-bold")}
           </span>
 
@@ -273,8 +273,8 @@ export default function SidebarAccountMenu() {
                 planId === "FREE"
                   ? "text-muted"
                   : planId === "PRO"
-                    ? "text-gold"
-                    : "text-violet-300"
+                    ? "text-accent"
+                    : "text-accent"
               }`}
             >
               {planLabel[planId]}
@@ -284,7 +284,7 @@ export default function SidebarAccountMenu() {
           {!isVerified && (
             <span
               aria-hidden
-              className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-pink-light text-ink"
+              className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-flag text-on-accent"
             >
               <TriangleAlert size={10} />
             </span>
@@ -324,9 +324,9 @@ export default function SidebarAccountMenu() {
                   className="z-100 overflow-y-auto overscroll-contain rounded-xl border border-edge bg-elevated shadow-[0_20px_60px_var(--shadow-color)]"
                 >
                   {!isVerified && (
-                    <div className="border-b border-edge bg-pink-light/10 px-4 py-3">
+                    <div className="border-b border-edge bg-flag/10 px-4 py-3">
                       <p className="flex items-start gap-2 text-[11px] leading-relaxed text-secondary">
-                        <TriangleAlert size={13} className="mt-0.5 shrink-0 text-pink-light" />
+                        <TriangleAlert size={13} className="mt-0.5 shrink-0 text-flag" />
                         <span>
                           {t("account.unverifiedBody")}{" "}
                           <Link
@@ -335,7 +335,7 @@ export default function SidebarAccountMenu() {
                             role="menuitem"
                             tabIndex={-1}
                             onClick={() => closeMenu(false)}
-                            className="font-semibold text-pink-light underline underline-offset-2 hover:text-pink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-pink-light"
+                            className="font-semibold text-flag underline underline-offset-2 hover:text-flag focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-flag"
                           >
                             {t("account.verifyNow")}
                           </Link>
@@ -347,7 +347,7 @@ export default function SidebarAccountMenu() {
                   {/* Identity first — a panel that floats away from its trigger has to
                       restate whose account it is about to act on. */}
                   <div className="flex items-start gap-3 border-b border-edge px-4 py-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gold text-ink">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent text-on-accent">
                       {renderAvatar(36, "text-[11px] font-bold")}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -454,7 +454,7 @@ export default function SidebarAccountMenu() {
                         setOpen(false);
                         logout();
                       }}
-                      className={`${itemClass} text-pink-light hover:text-pink focus-visible:text-pink`}
+                      className={`${itemClass} text-flag hover:text-flag focus-visible:text-flag`}
                     >
                       <LogOut size={15} className="shrink-0" />
                       {tNav("logout")}

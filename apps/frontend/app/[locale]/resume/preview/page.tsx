@@ -972,7 +972,7 @@ export default function ResumePreviewPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-base px-5 text-primary">
         <div className="text-center">
-          <LoaderCircle className="mx-auto animate-spin text-gold" size={42} />
+          <LoaderCircle className="mx-auto animate-spin text-accent" size={42} />
           <h1 className="mt-5 text-base font-bold">
             {t("status.loadingTitle")}
           </h1>
@@ -988,7 +988,7 @@ export default function ResumePreviewPage() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-base px-5 text-primary">
         <div className="w-full max-w-md rounded-3xl border border-edge bg-elevated p-7 text-center shadow-xl">
-          <FileText size={28} className="mx-auto text-gold" />
+          <FileText size={28} className="mx-auto text-accent" />
           <h1 className="mt-5 text-lg font-bold">{t("status.errorTitle")}</h1>
           <p className="mt-2 text-sm leading-6 text-secondary">
             {pageError || t("status.errorText")}
@@ -996,7 +996,7 @@ export default function ResumePreviewPage() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="mt-6 min-h-11 rounded-xl bg-gold px-6 text-sm font-bold text-ink"
+            className="mt-6 min-h-11 rounded-xl bg-accent px-6 text-sm font-bold text-on-accent"
           >
             {t("status.retry")}
           </button>
@@ -1024,7 +1024,7 @@ export default function ResumePreviewPage() {
 
   return (
     <main className="min-h-screen bg-base text-primary">
-      <header className="sticky top-0 z-40 border-b border-edge bg-base/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-edge bg-base/90">
         <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-4">
             <Link href={`/${locale}`} className="shrink-0 no-underline">
@@ -1033,7 +1033,7 @@ export default function ResumePreviewPage() {
             <div className="hidden h-6 w-px bg-edge sm:block" />
             <Link
               href={`/${locale}/dashboard?template=${draftTemplateId}`}
-              className="hidden min-h-11 items-center gap-2 text-sm font-semibold text-secondary no-underline hover:text-gold sm:flex"
+              className="hidden min-h-11 items-center gap-2 text-sm font-semibold text-secondary no-underline hover:text-accent sm:flex"
             >
               <ArrowLeft size={16} className={isRTL ? "rotate-180" : ""} />
               {t("backToDashboard")}
@@ -1057,13 +1057,13 @@ export default function ResumePreviewPage() {
               setIsPurposeMenuOpen(false);
             }}
             aria-label={t("customize.closeOptions")}
-            className="fixed inset-0 z-60 bg-black/55 backdrop-blur-[2px] xl:hidden"
+            className="fixed inset-0 z-60 bg-scrim/55 xl:hidden"
           />
         )}
 
         <aside
           id="mobile-preview-sidebar"
-          className={`fixed inset-y-0 z-70 flex w-[min(90vw,390px)] flex-col gap-4 overflow-y-auto border-edge bg-base p-4 shadow-[0_0_80px_rgba(0,0,0,0.38)] transition-transform duration-300 ease-out xl:sticky xl:top-22 xl:right-auto xl:bottom-auto xl:left-auto xl:z-auto xl:w-auto xl:translate-x-0 xl:gap-5 xl:overflow-visible xl:border-0 xl:bg-transparent xl:p-0 xl:shadow-none ${
+          className={`fixed inset-y-0 z-70 flex w-[min(90vw,390px)] flex-col gap-4 overflow-y-auto border-edge bg-base p-4 transition-transform duration-300 ease-out xl:sticky xl:top-22 xl:right-auto xl:bottom-auto xl:left-auto xl:z-auto xl:w-auto xl:translate-x-0 xl:gap-5 xl:overflow-visible xl:border-0 xl:bg-transparent xl:p-0 xl:shadow-none ${
             isRTL ? "right-0 border-l" : "left-0 border-r"
           } ${
             isMobileSidebarOpen
@@ -1075,8 +1075,8 @@ export default function ResumePreviewPage() {
         >
           <div className="sticky top-0 z-10 flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-edge bg-elevated px-3 shadow-sm xl:hidden">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gold/25 bg-gold/10">
-                <SlidersHorizontal size={18} className="text-gold" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accent/25 bg-accent/10">
+                <SlidersHorizontal size={18} className="text-accent" />
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-black text-primary">
@@ -1095,34 +1095,34 @@ export default function ResumePreviewPage() {
                 setIsPurposeMenuOpen(false);
               }}
               aria-label={t("customize.closeOptions")}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-gold/40 hover:bg-soft hover:text-gold"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-edge bg-card text-primary transition-colors hover:border-accent/40 hover:bg-soft hover:text-accent"
             >
               <X size={18} />
             </button>
           </div>
-          <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
+          <section className="rounded-lg border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                  <LayoutTemplate size={19} className="text-gold" />
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
+                  <LayoutTemplate size={19} className="text-accent" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-secondary">
                     {configuration("selectedTemplate")}
                   </p>
-                  <h2 className="mt-1 truncate font-black text-surface">
+                  <h2 className="mt-1 truncate font-black text-primary">
                     {selectedMetadata.name}
                   </h2>
                 </div>
               </div>
-              <span className="shrink-0 inline-flex items-center gap-1 rounded-full border border-green/30 bg-green/10 px-2.5 py-1 text-[11px] font-bold text-green">
+              <span className="shrink-0 inline-flex items-center gap-1 rounded-full border border-pass/30 bg-pass/10 px-2.5 py-1 text-[11px] font-bold text-pass">
                 <Check size={12} />
                 <span>{t("template.selected")}</span>
               </span>
             </div>
 
             {/* Selected Template Preview Card */}
-            <div className="mt-4 overflow-hidden rounded-2xl border border-gold/30 bg-card p-3 shadow-sm">
+            <div className="mt-4 overflow-hidden rounded-2xl border border-accent/30 bg-card p-3 shadow-sm">
               <div className="flex items-center gap-3.5">
                 <div className="aspect-210/297 w-20 shrink-0 overflow-hidden rounded-xl border border-edge bg-white p-1.5 shadow-inner">
                   {selectedMetadata.thumbnailUrl ? (
@@ -1137,7 +1137,7 @@ export default function ResumePreviewPage() {
                       />
                     </div>
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center rounded-md bg-gold/10 text-gold">
+                    <div className="flex h-full w-full items-center justify-center rounded-md bg-accent/10 text-accent">
                       <LayoutTemplate size={20} />
                     </div>
                   )}
@@ -1147,8 +1147,8 @@ export default function ResumePreviewPage() {
                     <span
                       className={`rounded-md border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
                         selectedMetadata.id === "minimal"
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                          : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                          ? "border-pass/30 bg-pass/10 text-pass"
+                          : "border-lilac-500/30 bg-lilac-500/10 text-lilac-400"
                       }`}
                     >
                       {selectedMetadata.id === "minimal"
@@ -1173,9 +1173,9 @@ export default function ResumePreviewPage() {
             <div className="mt-4">
               <Link
                 href={`/${locale}/templates${resumeData?.resumeId ? `?resumeId=${encodeURIComponent(resumeData.resumeId)}` : ""}`}
-                className="group flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-edge bg-card px-4 py-2.5 text-sm font-bold text-primary transition-all hover:border-gold/50 hover:bg-gold/10 hover:text-gold"
+                className="group flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-edge bg-card px-4 py-2.5 text-sm font-bold text-primary transition-all hover:border-accent/50 hover:bg-accent/10 hover:text-accent"
               >
-                <Sparkles size={15} className="text-gold" />
+                <Sparkles size={15} className="text-accent" />
                 <span>{t("template.changeButton")}</span>
                 <ArrowRight
                   size={15}
@@ -1185,11 +1185,11 @@ export default function ResumePreviewPage() {
             </div>
           </section>
 
-          <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
+          <section className="rounded-lg border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-azure/25 bg-azure/10">
-                  <Sparkles size={19} className="text-azure-light" />
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
+                  <Sparkles size={19} className="text-accent" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-secondary">
@@ -1205,8 +1205,8 @@ export default function ResumePreviewPage() {
                 <span
                   className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
                     dailyPurposeUsage >= maxDailyPurposeRewrites
-                      ? "bg-red-500/10 text-red-400 border-red-500/20"
-                      : "bg-gold/10 text-gold border-gold/20"
+                      ? "bg-flag/10 text-flag border-flag/20"
+                      : "bg-accent/10 text-accent border-accent/20"
                   }`}
                 >
                   {dailyPurposeUsage}/{maxDailyPurposeRewrites} Today
@@ -1217,9 +1217,9 @@ export default function ResumePreviewPage() {
             {/* Select Input Dropdown Area (Blurred for Free Users) */}
             <div ref={purposeMenuRef} className="relative mt-5">
               {isFreeUser && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-elevated/75 backdrop-blur-sm px-4 py-2 text-center border border-gold/20 shadow-inner">
+                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-xl bg-elevated/75 px-4 py-2 text-center border border-accent/20 shadow-inner">
                   <div className="flex items-center gap-2">
-                    <Lock size={14} className="text-gold" />
+                    <Lock size={14} className="text-accent" />
                     <span className="text-xs font-black text-primary">
                       Pro Feature
                     </span>
@@ -1244,8 +1244,8 @@ export default function ResumePreviewPage() {
                 aria-controls="resume-purpose-options"
                 className={`flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border bg-card px-4 text-start text-sm font-bold text-primary outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50 ${
                   isPurposeMenuOpen
-                    ? "border-gold ring-2 ring-gold/25"
-                    : "border-edge hover:border-gold/45"
+                    ? "border-accent ring-2 ring-accent/25"
+                    : "border-edge hover:border-accent/45"
                 }`}
               >
                 <span className="min-w-0 truncate">
@@ -1254,7 +1254,7 @@ export default function ResumePreviewPage() {
                 <ChevronDown
                   size={17}
                   className={`shrink-0 text-secondary transition-transform duration-200 ${
-                    isPurposeMenuOpen ? "rotate-180 text-gold" : ""
+                    isPurposeMenuOpen ? "rotate-180 text-accent" : ""
                   }`}
                 />
               </button>
@@ -1281,7 +1281,7 @@ export default function ResumePreviewPage() {
                         }}
                         className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-start text-sm font-bold transition-colors ${
                           isSelected
-                            ? "bg-gold/15 text-gold"
+                            ? "bg-accent/15 text-accent"
                             : "text-primary hover:bg-soft"
                         }`}
                       >
@@ -1289,7 +1289,7 @@ export default function ResumePreviewPage() {
                           {configuration(PURPOSE_TRANSLATION_KEYS[purpose])}
                         </span>
                         {isSelected && (
-                          <Check size={15} className="shrink-0 text-gold" />
+                          <Check size={15} className="shrink-0 text-accent" />
                         )}
                       </button>
                     );
@@ -1301,11 +1301,11 @@ export default function ResumePreviewPage() {
 
           {/* Profile Photo Section (for templates supporting photo) */}
           {selectedMetadata.supportsPhoto !== false && (
-            <section className="rounded-[26px] border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
+            <section className="rounded-lg border border-edge bg-elevated p-5 shadow-[0_18px_60px_var(--shadow-color)]">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                    <Camera size={19} className="text-gold" />
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
+                    <Camera size={19} className="text-accent" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-secondary">
@@ -1327,7 +1327,7 @@ export default function ResumePreviewPage() {
                     type="button"
                     onClick={() => void handleRemovePhoto()}
                     disabled={isUploadingPhoto}
-                    className="flex items-center gap-1 text-xs font-semibold text-red-400 transition-colors hover:text-red-300 cursor-pointer"
+                    className="flex items-center gap-1 text-xs font-semibold text-flag transition-colors hover:text-red-300 cursor-pointer"
                     title={locale === "ar" ? "حذف الصورة" : "Remove photo"}
                   >
                     <Trash2 size={13} />
@@ -1338,7 +1338,7 @@ export default function ResumePreviewPage() {
 
               <div className="mt-4 flex items-center gap-3.5 rounded-2xl border border-edge bg-card p-3 shadow-sm">
                 {resumeData.content.contact.photo ? (
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-gold/40 bg-white shadow-md">
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-accent/40 bg-white shadow-md">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={resumeData.content.contact.photo}
@@ -1365,8 +1365,8 @@ export default function ResumePreviewPage() {
                     htmlFor="resume-profile-photo-input"
                     className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition-all cursor-pointer ${
                       isUploadingPhoto
-                        ? "opacity-50 pointer-events-none bg-gold/10 border-gold/20 text-gold"
-                        : "bg-gold/10 border-gold/30 text-gold hover:bg-gold/20"
+                        ? "opacity-50 pointer-events-none bg-accent/10 border-accent/20 text-accent"
+                        : "bg-accent/10 border-accent/30 text-accent hover:bg-accent/20"
                     }`}
                   >
                     {isUploadingPhoto ? (
@@ -1403,7 +1403,7 @@ export default function ResumePreviewPage() {
               type="button"
               onClick={() => void applyConfiguration()}
               disabled={isBusy}
-              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gold px-5 font-black text-ink shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
+              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-accent px-5 font-black text-on-accent shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-55"
             >
               {isApplying ? (
                 <LoaderCircle size={19} className="animate-spin" />
@@ -1418,9 +1418,9 @@ export default function ResumePreviewPage() {
 
           <Link
             href={`/${locale}/dashboard?resumeId=${encodeURIComponent(resumeData?.resumeId ?? "")}&template=${draftTemplateId}`}
-            className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-gold/40 hover:bg-card hover:text-gold"
+            className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-accent/40 hover:bg-card hover:text-accent"
           >
-            <Pencil size={15} className="text-gold" />
+            <Pencil size={15} className="text-accent" />
             <span>{t("editResume")}</span>
           </Link>
 
@@ -1436,17 +1436,17 @@ export default function ResumePreviewPage() {
               if (currentFont) setLocalFontFamily(currentFont);
               setIsCustomizePanelOpen(true);
             }}
-            className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-gold/40 hover:bg-card hover:text-gold"
+            className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl border border-edge bg-elevated px-5 text-sm font-black text-primary shadow-[0_10px_30px_var(--shadow-color)] transition-all hover:border-accent/40 hover:bg-card hover:text-accent"
           >
-            <SlidersHorizontal size={15} className="text-gold" />
+            <SlidersHorizontal size={15} className="text-accent" />
             <span>{t("customize.title")}</span>
           </button>
         </aside>
 
         <section
-          className={`order-1 min-w-0 overflow-hidden rounded-[22px] border border-edge bg-elevated shadow-[0_18px_55px_var(--shadow-color)] transition-all duration-300 sm:rounded-[28px] md:shadow-[0_24px_80px_var(--shadow-color)] xl:order-0 xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col ${
+          className={`order-1 min-w-0 overflow-hidden rounded-lg border border-edge bg-elevated shadow-[0_18px_55px_var(--shadow-color)] transition-all duration-300 sm:rounded-lg md:shadow-[0_24px_80px_var(--shadow-color)] xl:order-0 xl:sticky xl:top-22 xl:flex xl:h-[calc(100dvh-7rem)] xl:flex-col ${
             isCustomizePanelOpen
-              ? "relative z-55 ring-2 ring-gold/40 shadow-[0_24px_100px_rgba(0,0,0,0.5)]"
+              ? "relative z-55 ring-2 ring-accent/40 shadow-[0_24px_100px_rgba(0,0,0,0.5)]"
               : ""
           }`}
         >
@@ -1454,8 +1454,8 @@ export default function ResumePreviewPage() {
             <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <FileText size={18} className="text-gold" />
-                  <h1 className="font-playfair text-2xl font-black sm:text-3xl">
+                  <FileText size={18} className="text-accent" />
+                  <h1 className="font-display text-2xl font-black sm:text-3xl">
                     {configuration("preview")}
                   </h1>
                   <button
@@ -1467,7 +1467,7 @@ export default function ResumePreviewPage() {
                     aria-controls="mobile-preview-sidebar"
                     aria-expanded={isMobileSidebarOpen}
                     aria-label={t("customize.openOptions")}
-                    className="ms-auto flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-gold/30 bg-gold/10 px-3 text-xs font-black text-gold transition-all hover:border-gold/60 hover:bg-gold/20 active:scale-95 xl:hidden"
+                    className="ms-auto flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-accent/30 bg-accent/10 px-3 text-xs font-black text-accent transition-all hover:border-accent/60 hover:bg-accent/20 active:scale-95 xl:hidden"
                   >
                     <SlidersHorizontal size={16} />
                     <span className="hidden sm:inline">
@@ -1492,12 +1492,12 @@ export default function ResumePreviewPage() {
                       onChange={(e) => setEditingDraftTitle(e.target.value)}
                       disabled={isRenaming}
                       autoFocus
-                      className="min-h-8 flex-1 rounded-lg border border-gold bg-card px-2.5 text-xs font-bold text-primary outline-none focus:ring-1 focus:ring-gold"
+                      className="min-h-8 flex-1 rounded-lg border border-accent bg-card px-2.5 text-xs font-bold text-primary outline-none focus:ring-1 focus:ring-accent"
                     />
                     <button
                       type="submit"
                       disabled={isRenaming}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold text-ink hover:opacity-90 transition-opacity shrink-0"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-on-accent hover:opacity-90 transition-opacity shrink-0"
                       title={locale === "ar" ? "حفظ" : "Save"}
                     >
                       <Check size={14} />
@@ -1523,7 +1523,7 @@ export default function ResumePreviewPage() {
                         setEditingDraftId(`header-${resumeData.resumeId}`);
                         setEditingDraftTitle(resumeData.resumeName);
                       }}
-                      className="opacity-60 hover:opacity-100 p-1 text-gold transition-opacity"
+                      className="opacity-60 hover:opacity-100 p-1 text-accent transition-opacity"
                       title={locale === "ar" ? "إعادة تسمية" : "Rename draft"}
                     >
                       <Pencil size={13} />
@@ -1543,7 +1543,7 @@ export default function ResumePreviewPage() {
                     </label>
                     <output
                       htmlFor="resume-zoom"
-                      className="text-xs font-black text-gold"
+                      className="text-xs font-black text-accent"
                     >
                       {zoom}%
                     </output>
@@ -1570,7 +1570,7 @@ export default function ResumePreviewPage() {
                       step={ZOOM_STEP}
                       value={zoom}
                       onChange={(event) => setZoom(Number(event.target.value))}
-                      className="h-2 min-w-0 flex-1 cursor-pointer accent-gold"
+                      className="h-2 min-w-0 flex-1 cursor-pointer accent-accent"
                     />
                     <button
                       type="button"
@@ -1652,7 +1652,7 @@ export default function ResumePreviewPage() {
                       onClick={() => void handleExport()}
                       disabled={exportDisabled}
                       aria-label={configuration("exportAs")}
-                      className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-gold px-3 text-ink disabled:cursor-not-allowed disabled:opacity-45"
+                      className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-accent px-3 text-on-accent disabled:cursor-not-allowed disabled:opacity-45"
                     >
                       {exportingFormat ? (
                         <LoaderCircle size={17} className="animate-spin" />
@@ -1686,7 +1686,7 @@ export default function ResumePreviewPage() {
                   <div className="absolute inset-0 z-20 flex items-center justify-center bg-soft">
                     <LoaderCircle
                       size={34}
-                      className="animate-spin text-gold"
+                      className="animate-spin text-accent"
                     />
                   </div>
                 )}
@@ -1721,7 +1721,7 @@ export default function ResumePreviewPage() {
 
                 {isMobilePreviewReady && mobileZoom === MIN_MOBILE_ZOOM && (
                   <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 flex justify-center">
-                    <span className="rounded-full border border-edge bg-elevated/90 px-3 py-1.5 text-[10px] font-bold text-secondary shadow-lg backdrop-blur">
+                    <span className="rounded-full border border-edge bg-elevated/90 px-3 py-1.5 text-[10px] font-bold text-secondary shadow-lg">
                       {t("customize.pinchHint")}
                     </span>
                   </div>
@@ -1731,10 +1731,10 @@ export default function ResumePreviewPage() {
                   <button
                     type="button"
                     onClick={resetMobilePreview}
-                    className="absolute inset-e-3 top-3 z-20 flex min-h-9 items-center gap-1.5 rounded-full border border-edge bg-elevated/95 px-3 text-[11px] font-black text-primary shadow-lg backdrop-blur"
+                    className="absolute inset-e-3 top-3 z-20 flex min-h-9 items-center gap-1.5 rounded-full border border-edge bg-elevated/95 px-3 text-[11px] font-black text-primary shadow-lg"
                     aria-label={t("preview.resetZoom")}
                   >
-                    <RotateCcw size={13} className="text-gold" />
+                    <RotateCcw size={13} className="text-accent" />
                     {Math.round(mobileZoom * 100)}%
                   </button>
                 )}
@@ -1756,7 +1756,7 @@ export default function ResumePreviewPage() {
             </>
           ) : (
             <div className="flex min-h-105 items-center justify-center bg-soft p-5 md:min-h-180">
-              <div className="rounded-xl border border-red-400/20 bg-red-400/10 p-5 text-sm text-red-400">
+              <div className="rounded-xl border border-flag/20 bg-flag/10 p-5 text-sm text-flag">
                 {t("status.errorText")}
               </div>
             </div>
@@ -1823,12 +1823,12 @@ export default function ResumePreviewPage() {
             router.push(`/${locale}/dashboard?openCoach=true`);
           }}
           title="AI Resume Coach"
-          className="relative group flex items-center justify-center w-11 h-11 rounded-full bg-linear-to-tr from-amber-500 via-amber-600 to-yellow-400 text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-300/50 hover:shadow-amber-500/50 transition-all cursor-pointer"
+          className="relative group flex items-center justify-center w-11 h-11 rounded-full bg-lilac-500 text-plum-950 shadow-lg shadow-lilac-500/30 border border-lilac-300/50 hover:shadow-lilac-500/50 transition-all cursor-pointer"
         >
-          <Sparkles size={20} className="text-slate-950 animate-pulse" />
+          <Sparkles size={20} className="text-plum-950 animate-pulse" />
           <span className="absolute -top-1 -inset-e-1 flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-200 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-100"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lilac-200 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-lilac-100"></span>
           </span>
         </motion.button>
       </div>

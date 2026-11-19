@@ -114,16 +114,20 @@ function SectionHeader({
   description?: string;
 }) {
   return (
-    <div className="border-b border-edge pb-3">
-      <h3 className="font-semibold text-primary">{title}</h3>
-      {description && <p className="text-xs text-secondary">{description}</p>}
+    <div className="border-b border-edge-strong pb-4">
+      <h3 className="text-[22px] font-bold leading-tight tracking-[-0.03em] text-primary rtl:tracking-normal">
+        {title}
+      </h3>
+      {description && (
+        <p className="mt-1 text-[14px] leading-normal text-secondary">{description}</p>
+      )}
     </div>
   );
 }
 
 function GroupHeader({ title }: { title: string }) {
   return (
-    <h4 className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+    <h4 className="lp-label text-secondary">
       {title}
     </h4>
   );
@@ -143,16 +147,16 @@ function ToggleRow({
   return (
     <label className="flex items-center justify-between gap-4 cursor-pointer">
       <span>
-        <span className="block text-xs font-medium text-primary">{label}</span>
+        <span className="block text-[14px] font-medium text-primary">{label}</span>
         {description && (
-          <span className="block text-[11px] text-secondary">{description}</span>
+          <span className="block text-[12.5px] text-secondary">{description}</span>
         )}
       </span>
       <input
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="accent-gold h-4 w-4 cursor-pointer shrink-0"
+        className="accent-accent h-4 w-4 cursor-pointer shrink-0"
       />
     </label>
   );
@@ -173,7 +177,7 @@ function OptionCards<T extends string>({
 }) {
   return (
     <div className="space-y-2">
-      <span className="block text-xs font-medium text-secondary">{label}</span>
+      <span className="block text-[13px] font-medium text-secondary">{label}</span>
       <div
         role="radiogroup"
         aria-label={label}
@@ -191,8 +195,8 @@ function OptionCards<T extends string>({
               onClick={() => onChange(option.id)}
               className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
                 isActive
-                  ? "border-gold bg-gold/10 text-gold"
-                  : "border-edge bg-card text-secondary hover:border-gold/40"
+                  ? "border-lp-tag bg-lp-tag text-lp-on-tag"
+                  : "border-edge bg-card text-secondary hover:border-accent/40"
               }`}
             >
               {Icon && <Icon size={18} />}
@@ -216,14 +220,14 @@ function SaveIndicator({
   return (
     <span
       aria-live="polite"
-      className={`inline-flex items-center gap-1 text-[11px] ${
-        status === "error" ? "text-red-400" : "text-secondary"
+      className={`inline-flex items-center gap-1 text-[12.5px] ${
+        status === "error" ? "text-flag" : "text-secondary"
       }`}
     >
       {status === "saving" && (
         <LoaderCircle size={11} className="animate-spin" />
       )}
-      {status === "saved" && <Check size={11} className="text-green" />}
+      {status === "saved" && <Check size={11} className="text-pass" />}
       {status === "error" && <AlertTriangle size={11} />}
       {labels[status]}
     </span>
@@ -511,9 +515,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       <div
         className={`rounded-xl border p-4 flex flex-wrap items-center justify-between gap-3 ${
           currentPlanName === "ENTERPRISE"
-            ? "border-violet-500/30 bg-violet-500/5"
+            ? "border-accent/30 bg-accent/5"
             : currentPlanName === "PRO"
-              ? "border-gold/30 bg-gold/5"
+              ? "border-accent/30 bg-accent/5"
               : "border-edge bg-card/40"
         }`}
       >
@@ -522,9 +526,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <span
               className={`text-xs font-bold uppercase tracking-wider ${
                 currentPlanName === "ENTERPRISE"
-                  ? "text-violet-400"
+                  ? "text-accent"
                   : currentPlanName === "PRO"
-                    ? "text-gold"
+                    ? "text-accent"
                     : "text-secondary"
               }`}
             >
@@ -532,17 +536,17 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </span>
             {billingDetails?.status && (
               <span
-                className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
+                className={`text-[12px] px-2 py-0.5 rounded font-bold uppercase ${
                   billingDetails.status === "ACTIVE"
-                    ? "bg-green/15 text-green"
-                    : "bg-red-500/15 text-red-400"
+                    ? "bg-pass/15 text-pass"
+                    : "bg-flag/15 text-flag"
                 }`}
               >
                 {billingDetails.status}
               </span>
             )}
           </div>
-          <p className="text-[11px] text-secondary">
+          <p className="text-[12.5px] text-secondary">
             {currentPlanName === "ENTERPRISE"
               ? t("billing.planDescriptions.enterprise")
               : currentPlanName === "PRO"
@@ -550,7 +554,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 : t("billing.planDescriptions.free")}
           </p>
           {billingDetails?.currentPeriodEnd && (
-            <p className="text-[11px] text-muted">
+            <p className="text-[12.5px] text-muted">
               {t("billing.renewsOn", {
                 date: new Date(
                   billingDetails.currentPeriodEnd,
@@ -572,7 +576,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           <Link
             href={`/${locale}/pricing`}
             onClick={onClose}
-            className="text-xs font-semibold bg-gold text-ink px-4 py-2 rounded-lg hover:opacity-90 cursor-pointer transition-opacity"
+            className="text-xs font-semibold bg-accent text-on-accent px-4 py-2 rounded-lg hover:opacity-90 cursor-pointer transition-opacity"
           >
             {t("billing.upgradeToPro")}
           </Link>
@@ -617,7 +621,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               )}
             </div>
             {avatarStatus === "saving" && (
-              <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+              <span className="absolute inset-0 flex items-center justify-center rounded-full bg-scrim/50">
                 <LoaderCircle size={18} className="animate-spin text-white" />
               </span>
             )}
@@ -627,12 +631,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <button
               type="button"
               onClick={() => avatarInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-card px-3 py-1.5 text-xs font-medium text-primary hover:bg-card-hover transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-card px-3 py-1.5 text-[14px] font-medium text-primary hover:bg-card-hover transition-colors cursor-pointer"
             >
               <Camera size={13} />
               {t("general.changePhoto")}
             </button>
-            <p className="text-[11px] text-secondary">
+            <p className="text-[12.5px] text-secondary">
               {t("general.avatarHint")}
             </p>
             <input
@@ -650,7 +654,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           <div className="flex items-center justify-between gap-2">
             <label
               htmlFor={nameId}
-              className="text-xs font-medium text-secondary"
+              className="text-[13px] font-medium text-secondary"
             >
               {t("general.nameLabel")}
             </label>
@@ -663,15 +667,15 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             maxLength={NAME_MAX_LENGTH}
             onChange={(event) => setNameDraft(event.target.value)}
             onBlur={() => setNameDraft((current) => current.trim())}
-            className="w-full max-w-sm rounded-lg border border-edge bg-card px-3 py-2 text-xs text-primary focus:outline-none focus:ring-1 focus:ring-gold"
+            className="w-full max-w-sm rounded-lg border border-edge bg-card px-3 py-2 text-xs text-primary focus:outline-none focus:ring-1 focus:ring-accent"
           />
           {/* This product prints names onto documents — say which name this is. */}
-          <p className="text-[11px] text-secondary">{t("general.nameHelp")}</p>
+          <p className="text-[12.5px] text-secondary">{t("general.nameHelp")}</p>
         </div>
 
         {/* Email — read-only; changing it is a credential operation */}
         <div className="space-y-1.5">
-          <span className="block text-xs font-medium text-secondary">
+          <span className="block text-[13px] font-medium text-secondary">
             {t("general.emailLabel")}
           </span>
           <div className="flex w-full max-w-sm items-center justify-between gap-2 rounded-lg border border-edge bg-card/40 px-3 py-2">
@@ -679,9 +683,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               {user?.email}
             </span>
             {user?.isVerified ? (
-              <MailCheck size={14} className="text-green shrink-0" />
+              <MailCheck size={14} className="text-pass shrink-0" />
             ) : (
-              <MailWarning size={14} className="text-gold shrink-0" />
+              <MailWarning size={14} className="text-accent shrink-0" />
             )}
           </div>
         </div>
@@ -719,7 +723,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 { id: "ar", label: "العربية", icon: Languages },
               ]}
             />
-            <p className="text-[11px] text-secondary">
+            <p className="text-[12.5px] text-secondary">
               {t("general.languageHelp")}
             </p>
           </div>
@@ -745,7 +749,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               { id: "jpg", label: t("general.formats.jpg") },
             ]}
           />
-          <p className="text-[11px] text-secondary">
+          <p className="text-[12.5px] text-secondary">
             {t("general.exportFormatHelp")}
           </p>
         </div>
@@ -813,7 +817,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <Link
               href={`/${locale}/pricing`}
               onClick={onClose}
-              className="text-xs font-semibold bg-violet-500/20 border border-violet-500/30 text-violet-400 px-3 py-2 rounded-lg hover:bg-violet-500/30 transition-colors"
+              className="text-xs font-semibold bg-accent/20 border border-accent/30 text-accent px-3 py-2 rounded-lg hover:bg-accent/30 transition-colors"
             >
               {t("billing.upgradeToEnterprise")}
             </Link>
@@ -824,7 +828,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               type="button"
               onClick={() => void handleCancelSubscription()}
               disabled={cancelingBilling || billingDetails?.cancelAtPeriodEnd}
-              className="text-xs font-semibold bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg hover:bg-red-500/20 transition-colors disabled:opacity-50 cursor-pointer"
+              className="text-xs font-semibold bg-flag/10 border border-flag/20 text-flag px-3 py-2 rounded-lg hover:bg-flag/20 transition-colors disabled:opacity-50 cursor-pointer"
             >
               {cancelingBilling ? (
                 <span className="inline-flex items-center gap-1">
@@ -851,16 +855,16 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       />
 
       <div className="space-y-1.5">
-        <span className="block text-xs font-medium text-secondary">
+        <span className="block text-[13px] font-medium text-secondary">
           {t("security.accountEmail")}
         </span>
         <div className="flex items-center justify-between gap-3 rounded-lg border border-edge bg-card p-3">
           <span className="text-xs text-primary truncate">{user?.email}</span>
           <span
-            className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
+            className={`inline-flex items-center gap-1 text-[12px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
               user?.isVerified
-                ? "bg-green/15 text-green"
-                : "bg-gold/15 text-gold"
+                ? "bg-pass/15 text-pass"
+                : "bg-accent/15 text-accent"
             }`}
           >
             {user?.isVerified ? (
@@ -877,11 +881,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
       <div className="space-y-2">
         <GroupHeader title={t("security.passwordHeading")} />
-        <p className="text-[11px] text-secondary">{t("security.passwordDesc")}</p>
+        <p className="text-[12.5px] text-secondary">{t("security.passwordDesc")}</p>
         <Link
           href={`/${locale}/forgetpassword`}
           onClick={onClose}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-card px-3 py-2 text-xs font-medium text-primary hover:bg-card-hover transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-edge bg-card px-3 py-2 text-[14px] font-medium text-primary hover:bg-card-hover transition-colors cursor-pointer"
         >
           <KeyRound size={13} />
           {t("security.changePassword")}
@@ -911,33 +915,33 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             key={slug}
             href={legalHref(slug, locale)}
             onClick={onClose}
-            className="flex items-center justify-between gap-3 rounded-xl border border-edge bg-card px-4 py-3 no-underline transition-colors hover:border-gold/30 hover:bg-card-hover"
+            className="flex items-center justify-between gap-3 rounded-xl border border-edge bg-card px-4 py-3 no-underline transition-colors hover:border-accent/30 hover:bg-card-hover"
           >
             <span className="flex items-center gap-2.5">
-              <Icon size={14} className="text-gold" />
-              <span className="text-xs font-medium text-primary">{label}</span>
+              <Icon size={14} className="text-accent" />
+              <span className="text-[14px] font-medium text-primary">{label}</span>
             </span>
             <ExternalLink size={13} className="text-muted" />
           </Link>
         ))}
       </div>
 
-      <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-4 space-y-3">
-        <div className="flex items-center gap-2 text-red-400 font-semibold text-xs">
+      <div className="rounded-xl border border-flag/30 bg-flag/5 p-4 space-y-3">
+        <div className="flex items-center gap-2 text-flag font-semibold text-xs">
           <AlertTriangle size={15} />
           <span>{t("privacy.dangerZone")}</span>
         </div>
-        <p className="text-xs text-secondary">{t("privacy.dangerZoneDesc")}</p>
+        <p className="text-[14px] leading-normal text-secondary">{t("privacy.dangerZoneDesc")}</p>
         {serverError && (
-          <div className="bg-red-500/20 border border-red-500/50 rounded-lg px-3 py-2">
-            <p className="text-xs text-red-400">{serverError}</p>
+          <div className="bg-flag/20 border border-flag/50 rounded-lg px-3 py-2">
+            <p className="text-xs text-flag">{serverError}</p>
           </div>
         )}
         <button
           type="button"
           onClick={() => setShowDeleteConfirmation(true)}
           disabled={isDeleting}
-          className="flex items-center gap-1.5 rounded-lg bg-red-500/20 border border-red-500/30 px-3 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-500/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 rounded-lg bg-flag/20 border border-flag/30 px-3 py-1.5 text-xs font-semibold text-flag hover:bg-flag/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Trash2 size={13} />
           {t("privacy.deleteAccount")}
@@ -993,13 +997,17 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-150 flex items-center justify-center p-3 sm:p-6">
+        <div
+          className="lp fixed inset-0 z-150 flex items-center justify-center bg-transparent p-3 sm:p-6"
+        >
+          {/* `lp` puts the window in the FALO system wherever it opens:
+              it is portalled to <body>, outside any page-level scope. */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/70 backdrop-blur-md"
+            className="fixed inset-0 bg-[#1c1830]/75"
           />
 
           <motion.div
@@ -1012,24 +1020,27 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ duration: 0.18 }}
-            className="relative flex h-[85vh] w-full max-w-4xl flex-col sm:flex-row overflow-hidden rounded-2xl border border-edge bg-elevated shadow-2xl z-10 focus:outline-none"
+            className="relative flex h-[85vh] w-full max-w-4xl flex-col sm:flex-row overflow-hidden rounded-xl border border-edge-strong bg-base shadow-[var(--lp-shadow)] z-10 focus:outline-none"
           >
             <button
               onClick={onClose}
               aria-label={t("close")}
-              className="absolute inset-e-3 top-3 sm:inset-e-4 sm:top-4 z-30 rounded-lg p-1.5 text-secondary hover:bg-card-hover hover:text-primary transition-colors cursor-pointer bg-elevated/80 backdrop-blur-sm sm:bg-transparent"
+              className="absolute inset-e-3 top-3 sm:inset-e-4 sm:top-4 z-30 flex size-10 items-center justify-center text-primary hover:bg-card-hover transition-colors cursor-pointer bg-base sm:bg-transparent"
             >
               <X size={18} />
             </button>
 
             {/* Sidebar — desktop */}
-            <aside className="hidden sm:flex w-60 border-e border-edge bg-card/40 p-4 shrink-0 flex-col justify-between overflow-y-auto">
+            <aside className="hidden sm:flex w-60 border-e border-edge bg-soft p-4 shrink-0 flex-col justify-between overflow-y-auto">
               <div>
                 <div className="px-3 py-2 mb-2">
-                  <h2 id="settings-title" className="font-bold text-primary">
+                  <h2
+                    id="settings-title"
+                    className="text-[22px] font-bold tracking-[-0.03em] text-primary rtl:tracking-normal"
+                  >
                     {t("title")}
                   </h2>
-                  <p className="text-[11px] text-secondary">{t("subtitle")}</p>
+                  <p className="text-[12.5px] text-secondary">{t("subtitle")}</p>
                 </div>
 
                 <nav aria-label={t("title")} className="flex flex-col gap-1">
@@ -1041,9 +1052,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         key={tabId}
                         onClick={() => setActiveTab(tabId)}
                         aria-current={isActive ? "page" : undefined}
-                        className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition-all cursor-pointer whitespace-nowrap ${
+                        className={`flex items-center gap-2.5 rounded-lg min-h-10 px-3 py-2 text-[14px] font-medium transition-colors cursor-pointer whitespace-nowrap ${
                           isActive
-                            ? "bg-gold/15 text-gold font-semibold"
+                            ? "bg-lp-tag text-lp-on-tag font-semibold"
                             : "text-secondary hover:bg-card-hover hover:text-primary"
                         }`}
                       >
@@ -1055,7 +1066,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </nav>
               </div>
 
-              <div className="px-3 py-2 border-t border-edge text-[11px] text-secondary">
+              <div className="px-3 py-2 border-t border-edge text-[12.5px] text-secondary">
                 {t("version")}
               </div>
             </aside>
@@ -1072,7 +1083,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       key={tabId}
                       className={`rounded-xl border overflow-hidden transition-colors ${
                         isExpanded
-                          ? "border-gold/30 bg-card/60"
+                          ? "border-accent/30 bg-card/60"
                           : "border-edge bg-card/40"
                       }`}
                     >
@@ -1080,13 +1091,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         type="button"
                         onClick={() => toggleSection(tabId)}
                         aria-expanded={isExpanded}
-                        className="w-full flex items-center justify-between gap-2 px-4 py-3 text-xs font-medium text-primary hover:bg-card-hover transition-colors cursor-pointer"
+                        className="w-full flex items-center justify-between gap-2 px-4 py-3 text-[14px] font-medium text-primary hover:bg-card-hover transition-colors cursor-pointer"
                       >
                         <span className="flex items-center gap-2.5">
                           <Icon
                             size={15}
                             className={
-                              isExpanded ? "text-gold" : "text-secondary"
+                              isExpanded ? "text-accent" : "text-secondary"
                             }
                           />
                           <span>{t(`tabs.${tabId}`)}</span>
@@ -1151,7 +1162,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => !isDeleting && setShowDeleteConfirmation(false)}
-                  className="fixed inset-0 bg-black/70 backdrop-blur-md"
+                  className="fixed inset-0 bg-[#1c1830]/75"
                 />
 
                 <motion.div
@@ -1162,11 +1173,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 12 }}
                   transition={{ duration: 0.15 }}
-                  className="relative w-full max-w-sm rounded-2xl border border-edge bg-elevated shadow-2xl p-6 space-y-4 z-20"
+                  className="relative w-full max-w-sm rounded-xl border border-edge-strong bg-base shadow-[var(--lp-shadow)] p-6 space-y-4 z-20"
                 >
                   <div className="flex justify-center">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-500/20">
-                      <AlertTriangle size={24} className="text-red-400" />
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-flag/20">
+                      <AlertTriangle size={24} className="text-flag" />
                     </div>
                   </div>
 
@@ -1195,11 +1206,11 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       type="button"
                       onClick={handleDeleteAccount}
                       disabled={isDeleting}
-                      className="flex-1 px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-colors cursor-pointer text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="flex-1 px-4 py-2 rounded-lg bg-flag/20 border border-flag/30 text-flag hover:bg-flag/30 transition-colors cursor-pointer text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isDeleting ? (
                         <>
-                          <div className="w-3 h-3 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                          <div className="w-3 h-3 border-2 border-flag border-t-transparent rounded-full animate-spin" />
                           {t("deleteConfirm.deleting")}
                         </>
                       ) : (

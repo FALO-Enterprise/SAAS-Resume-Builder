@@ -163,12 +163,12 @@ export default function AiResumeCoachWidget({
           whileTap={{ scale: 0.92 }}
           onClick={handleOpen}
           title={t('triggerTitle')}
-          className="relative group flex items-center justify-center w-11 h-11 rounded-full bg-linear-to-tr from-amber-500 via-amber-600 to-yellow-400 text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-300/50 hover:shadow-amber-500/50 transition-all cursor-pointer"
+          className="relative group flex items-center justify-center w-11 h-11 rounded-full bg-lilac-500 text-plum-950 shadow-lg shadow-lilac-500/30 border border-lilac-300/50 hover:shadow-lilac-500/50 transition-all cursor-pointer"
         >
-          <Sparkles size={20} className="text-slate-950 animate-pulse" />
+          <Sparkles size={20} className="text-plum-950 animate-pulse" />
           <span className="absolute -top-1 -inset-e-1 flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-200 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-100"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-lilac-200 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-lilac-100"></span>
           </span>
         </motion.button>
       </div>
@@ -181,18 +181,18 @@ export default function AiResumeCoachWidget({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.96 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className={`fixed ${bottomOffsetClassName === 'bottom-6' ? 'bottom-20' : 'bottom-20'} inset-e-6 z-50 w-105 max-w-[calc(100vw-2rem)] h-155 max-h-[82vh] bg-slate-900/95 backdrop-blur-xl border border-amber-500/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-100`}
+            className={`fixed ${bottomOffsetClassName === 'bottom-6' ? 'bottom-20' : 'bottom-20'} inset-e-6 z-50 w-105 max-w-[calc(100vw-2rem)] h-155 max-h-[82vh] bg-plum-900/95 border border-lilac-500/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-100`}
           >
             {/* Header */}
-            <div className="p-4 border-b border-slate-800 bg-slate-950/70 flex items-center justify-between">
+            <div className="p-4 border-b border-plum-800 bg-plum-950/70 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-linear-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-slate-950 shadow-md">
+                <div className="w-8 h-8 rounded-xl bg-lilac-500 flex items-center justify-center text-plum-950 shadow-md">
                   <Bot size={18} />
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-sm text-slate-100">{t('title')}</h3>
-                    <span className="px-1.5 py-0.2 rounded text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold uppercase">
+                    <span className="px-1.5 py-0.2 rounded text-[9px] bg-lilac-500/20 text-lilac-300 border border-lilac-500/30 font-bold uppercase">
                       {t('badge')}
                     </span>
                   </div>
@@ -210,13 +210,13 @@ export default function AiResumeCoachWidget({
                   }}
                   disabled={isLoading}
                   title={t('refreshTitle')}
-                  className="p-1.5 text-slate-400 hover:text-amber-300 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                  className="p-1.5 text-slate-400 hover:text-lilac-300 hover:bg-plum-800 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                 >
                   <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-plum-800 rounded-lg transition-colors cursor-pointer"
                 >
                   <X size={17} />
                 </button>
@@ -230,12 +230,12 @@ export default function AiResumeCoachWidget({
               ) : analysis ? (
                 <>
                   {/* Polished Score Card with SVG Radial Ring Gauge */}
-                  <div className="relative bg-linear-to-br from-slate-800 via-slate-900 to-slate-950 p-4 rounded-xl border border-amber-500/30 shadow-lg flex items-center justify-between overflow-hidden">
-                    <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                  <div className="relative bg-plum-800 p-4 rounded-xl border border-lilac-500/30 shadow-lg flex items-center justify-between overflow-hidden">
+                    <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-lilac-500/10 rounded-full blur-2xl pointer-events-none"></div>
                     <div className="pr-3 z-10">
                       <div className="flex items-center gap-1.5">
-                        <Crown size={13} className="text-amber-400" />
-                        <span className="text-[10px] font-extrabold text-amber-400 uppercase tracking-wider">
+                        <Crown size={13} className="text-lilac-400" />
+                        <span className="text-[10px] font-extrabold text-lilac-400 uppercase tracking-wider">
                           {t('scoreLabel')}
                         </span>
                       </div>
@@ -252,14 +252,14 @@ export default function AiResumeCoachWidget({
                     <div className="relative w-18 h-18 shrink-0 flex items-center justify-center">
                       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                         <path
-                          className="text-slate-800"
+                          className="text-plum-800"
                           strokeWidth="3.5"
                           stroke="currentColor"
                           fill="none"
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                         <path
-                          className="text-amber-400 transition-all duration-700 ease-out"
+                          className="text-lilac-400 transition-all duration-700 ease-out"
                           strokeDasharray={`${analysis.atsScore}, 100`}
                           strokeWidth="3.5"
                           strokeLinecap="round"
@@ -269,21 +269,21 @@ export default function AiResumeCoachWidget({
                         />
                       </svg>
                       <div className="absolute flex flex-col items-center justify-center">
-                        <TrendingUp size={16} className="text-amber-400" />
+                        <TrendingUp size={16} className="text-lilac-400" />
                       </div>
                     </div>
                   </div>
 
                   {/* Breakdown Bars */}
-                  <div className="grid grid-cols-2 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                  <div className="grid grid-cols-2 gap-2 bg-plum-950/60 p-3 rounded-xl border border-plum-800">
                     <div>
                       <div className="flex justify-between text-[10px] text-slate-400 mb-1">
                         <span>{t('impact')}</span>
                         <span className="font-bold text-slate-200">{analysis.scoreBreakdown.impact}%</span>
                       </div>
-                      <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-plum-800 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-amber-400 rounded-full transition-all duration-500"
+                          className="h-full bg-lilac-400 rounded-full transition-all duration-500"
                           style={{ width: `${analysis.scoreBreakdown.impact}%` }}
                         ></div>
                       </div>
@@ -293,9 +293,9 @@ export default function AiResumeCoachWidget({
                         <span>{t('keywords')}</span>
                         <span className="font-bold text-slate-200">{analysis.scoreBreakdown.keywords}%</span>
                       </div>
-                      <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-plum-800 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-emerald-400 rounded-full transition-all duration-500"
+                          className="h-full bg-pass rounded-full transition-all duration-500"
                           style={{ width: `${analysis.scoreBreakdown.keywords}%` }}
                         ></div>
                       </div>
@@ -306,12 +306,12 @@ export default function AiResumeCoachWidget({
                   <div className="space-y-2.5">
                     <h4 className="font-bold text-slate-200 text-xs flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <Zap size={14} className="text-amber-400" />
+                        <Zap size={14} className="text-lilac-400" />
                         {t('fixesHeading', {
                           count: analysis.tips.filter((tip) => !isTipApplied(tip)).length,
                         })}
                       </span>
-                      {isLoading && <span className="text-[10px] text-amber-400 animate-pulse">{t('refreshingScore')}</span>}
+                      {isLoading && <span className="text-[10px] text-lilac-400 animate-pulse">{t('refreshingScore')}</span>}
                     </h4>
                     <AnimatePresence>
                       {analysis.tips
@@ -322,10 +322,10 @@ export default function AiResumeCoachWidget({
                             initial={{ opacity: 1, scale: 1, height: 'auto' }}
                             exit={{ opacity: 0, scale: 0.9, height: 0, marginBottom: 0 }}
                             transition={{ duration: 0.35, ease: 'easeInOut' }}
-                            className="bg-slate-800/70 border border-slate-700/80 p-3 rounded-xl space-y-2 hover:border-amber-500/40 transition-colors"
+                            className="bg-plum-800/70 border border-plum-700/80 p-3 rounded-xl space-y-2 hover:border-lilac-500/40 transition-colors"
                           >
                             <div className="flex items-start justify-between gap-2">
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20 uppercase">
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-lilac-500/10 text-lilac-300 border border-lilac-500/20 uppercase">
                                 {tip.category}
                               </span>
                             </div>
@@ -334,7 +334,7 @@ export default function AiResumeCoachWidget({
                             {tip.suggestedFix && onApplyFix && (
                               <button
                                 onClick={() => handleApplyTipFix(tip)}
-                                className="mt-2 w-full py-1.5 px-3 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-[11px] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                                className="mt-2 w-full py-1.5 px-3 rounded-lg bg-lilac-500/20 hover:bg-lilac-500/30 text-lilac-300 border border-lilac-500/40 font-semibold text-[11px] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                               >
                                 <Check size={13} />
                                 {tip.suggestedActionText || t('applyFix')}
@@ -358,14 +358,14 @@ export default function AiResumeCoachWidget({
       {/* Upgrade Prompt Modal for non-Enterprise Users */}
       <AnimatePresence>
         {showUpgradeModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-plum-950/80">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-slate-900 border border-amber-500/40 p-6 rounded-2xl max-w-md w-full shadow-2xl text-center space-y-4 text-slate-100"
+              className="bg-plum-900 border border-lilac-500/40 p-6 rounded-2xl max-w-md w-full shadow-2xl text-center space-y-4 text-slate-100"
             >
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-linear-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-slate-950 shadow-lg shadow-amber-500/30">
+              <div className="w-14 h-14 mx-auto rounded-2xl bg-lilac-500 flex items-center justify-center text-plum-950 shadow-lg shadow-lilac-500/30">
                 <Crown size={28} />
               </div>
               <h3 className="text-lg font-black text-slate-100">{t('upgrade.title')}</h3>
@@ -375,13 +375,13 @@ export default function AiResumeCoachWidget({
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setShowUpgradeModal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl border border-plum-700 hover:bg-plum-800 text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
                 >
                   {t('upgrade.close')}
                 </button>
                 <Link
                   href={`/${locale}/pricing`}
-                  className="flex-1 py-2.5 rounded-xl bg-linear-to-r from-amber-500 to-yellow-500 text-slate-950 text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 hover:shadow-amber-500/40 transition-all cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl bg-lilac-500 text-plum-950 text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-lilac-500/20 hover:shadow-lilac-500/40 transition-all cursor-pointer"
                 >
                   {t('upgrade.cta')}
                   <ChevronRight size={14} />
