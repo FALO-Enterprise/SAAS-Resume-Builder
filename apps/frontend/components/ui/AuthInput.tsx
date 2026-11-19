@@ -10,11 +10,11 @@ export default function AuthInput({ icon: Icon, type, placeholder, value, onChan
       {label && <label className="text-[13px] font-medium text-faint">{label}</label>}
       <div
         className={`group flex items-center rounded-xl bg-card px-4 transition-all focus-within:bg-card-hover ${error
-            ? 'border border-pink-light/50'
-            : 'border border-edge focus-within:border-gold/50 focus-within:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]'
+            ? 'border border-flag/50'
+            : 'border border-edge focus-within:border-accent/50 focus-within:shadow-[0_0_0_3px_rgba(110,91,196,0.08)]'
           }`}
       >
-        <Icon size={16} className="shrink-0 text-faint transition-colors group-focus-within:text-gold" />
+        <Icon size={16} className="shrink-0 text-faint transition-colors group-focus-within:text-accent" />
         <input
           type={type} placeholder={placeholder} value={value}
           onChange={e => onChange(e.target.value)}
@@ -24,7 +24,7 @@ export default function AuthInput({ icon: Icon, type, placeholder, value, onChan
       </div>
       {error && (
         <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-          className="pl-1 text-xs text-pink-light">
+          className="pl-1 text-xs text-flag">
           {error}
         </motion.p>
       )}

@@ -471,7 +471,7 @@ export default function OnboardingPage() {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-base text-primary">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 size={29} className="animate-spin text-gold" />
+          <Loader2 size={29} className="animate-spin text-accent" />
           <p className="text-sm font-semibold text-secondary">{t("loading")}</p>
         </div>
       </main>
@@ -480,23 +480,23 @@ export default function OnboardingPage() {
 
   return (
     <main
-      className="relative min-h-dvh overflow-x-hidden bg-base font-franklin text-primary"
+      className="relative min-h-dvh overflow-x-hidden bg-base text-primary"
     >
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(245,166,35,0.11),transparent_42%)]" />
-        <div className="absolute -inset-s-48 top-1/3 h-96 w-96 rounded-full bg-azure/5 blur-3xl" />
-        <div className="absolute -inset-e-48 bottom-0 h-96 w-96 rounded-full bg-gold/6 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(110,91,196,0.11),transparent_42%)]" />
+        <div className="absolute -inset-s-48 top-1/3 h-96 w-96 rounded-full bg-accent/5 blur-3xl" />
+        <div className="absolute -inset-e-48 bottom-0 h-96 w-96 rounded-full bg-accent/6 blur-3xl" />
       </div>
 
-      <header className="relative z-30 border-b border-edge bg-base/85 backdrop-blur-xl">
+      <header className="relative z-30 border-b border-edge bg-base/85">
         <div className="mx-auto flex h-17 max-w-360 items-center justify-between px-4 sm:h-19 sm:px-7 lg:px-10">
-          <Link href={`/${locale}`} aria-label="ResuMax home">
+          <Link href={`/${locale}`} aria-label="Resumax AI home">
             <Logo />
           </Link>
 
           <div className="hidden items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] text-muted sm:flex">
             <span>{t("surveyLabel")}</span>
-            <span className="h-1 w-1 rounded-full bg-gold" />
+            <span className="h-1 w-1 rounded-full bg-accent" />
             <span className="text-secondary">
               {t("stepCounter", {
                 current: currentStep + 1,
@@ -525,7 +525,7 @@ export default function OnboardingPage() {
           <motion.div
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="h-full bg-linear-to-r from-gold-dark via-gold to-gold-light"
+            className="h-full bg-accent-strong"
           />
         </div>
       </header>
@@ -556,11 +556,11 @@ export default function OnboardingPage() {
               >
                 <div className="mb-7 sm:mb-9">
                   <div className="mb-4 flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-gold/25 bg-gold/10 text-gold">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/25 bg-accent/10 text-accent">
                       {stepIcon(step)}
                     </span>
                     <div>
-                      <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-gold">
+                      <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-accent">
                         {t("quick.questionLabel", {
                           current: currentStep + 1,
                           total: STEPS.length,
@@ -572,7 +572,7 @@ export default function OnboardingPage() {
                     </div>
                   </div>
 
-                  <h1 className="max-w-210 font-playfair text-[clamp(34px,5.5vw,58px)] font-black leading-[1.06] tracking-tight text-primary">
+                  <h1 className="max-w-210 font-display text-[clamp(34px,5.5vw,58px)] font-black leading-[1.06] tracking-tight text-primary">
                     {stepTitle()}
                   </h1>
                   <p className="mt-4 max-w-175 text-[13px] font-medium leading-6.5 text-secondary sm:text-[15px] sm:leading-7">
@@ -609,7 +609,7 @@ export default function OnboardingPage() {
                 )}
 
                 <p className="mt-5 flex max-w-205 items-center gap-2 text-[10px] font-semibold leading-5 text-muted">
-                  <Check size={13} className="shrink-0 text-green" />
+                  <Check size={13} className="shrink-0 text-pass" />
                   {step === "template"
                     ? t("quick.dashboardSaveNote")
                     : t("quick.changeLater")}
@@ -651,7 +651,7 @@ function CustomRoleInput({
         htmlFor="custom-target-role"
         className="mb-3 flex items-center gap-2 text-[11px] font-black text-primary"
       >
-        <PenLine size={15} className="text-gold" />
+        <PenLine size={15} className="text-accent" />
         {t("quick.targetRoleQuestion.customLabel")}
       </label>
       <div className="relative">
@@ -664,13 +664,13 @@ function CustomRoleInput({
           placeholder={t("quick.targetRoleQuestion.customPlaceholder")}
           className={`h-13 w-full rounded-xl border bg-card px-4 pe-12 text-[13px] font-bold text-primary outline-none transition-all placeholder:text-muted ${
             active
-              ? "border-gold shadow-[0_0_0_3px_rgba(245,166,35,0.07)]"
-              : "border-edge-strong focus:border-gold"
+              ? "border-accent shadow-[0_0_0_3px_rgba(110,91,196,0.07)]"
+              : "border-edge-strong focus:border-accent"
           }`}
         />
         <span
           className={`absolute inset-e-4 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full ${
-            active ? "bg-gold text-ink" : "bg-elevated text-muted"
+            active ? "bg-accent text-on-accent" : "bg-elevated text-muted"
           }`}
         >
           {active ? <Check size={13} /> : <PenLine size={12} />}
@@ -730,15 +730,15 @@ function ChoiceGrid({
             aria-pressed={active}
             className={`group relative flex min-h-21 items-center gap-4 rounded-2xl border px-4 py-3.5 text-start transition-all sm:min-h-23 sm:px-5 ${
               active
-                ? "border-gold bg-gold/10 shadow-[0_0_0_3px_rgba(245,166,35,0.07),0_14px_42px_var(--shadow-color)]"
-                : "border-edge bg-elevated/85 hover:-translate-y-0.5 hover:border-gold/35 hover:shadow-[0_14px_42px_var(--shadow-color)]"
+                ? "border-accent bg-accent/10 shadow-[0_0_0_3px_rgba(110,91,196,0.07),0_14px_42px_var(--shadow-color)]"
+                : "border-edge bg-elevated/85 hover:-translate-y-0.5 hover:border-accent/35 hover:shadow-[0_14px_42px_var(--shadow-color)]"
             }`}
           >
             <span
               className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors ${
                 active
-                  ? "border-gold bg-gold text-ink"
-                  : "border-edge-strong bg-card text-secondary group-hover:border-gold/35 group-hover:text-gold"
+                  ? "border-accent bg-accent text-on-accent"
+                  : "border-edge-strong bg-card text-secondary group-hover:border-accent/35 group-hover:text-accent"
               }`}
             >
               {optionIcon(step, option)}
@@ -750,7 +750,7 @@ function ChoiceGrid({
                   {title}
                 </strong>
                 {isRecommended && (
-                  <span className="rounded-full bg-gold/12 px-2 py-1 text-[8px] font-black uppercase tracking-[0.08em] text-gold">
+                  <span className="rounded-full bg-accent/12 px-2 py-1 text-[8px] font-black uppercase tracking-[0.08em] text-accent">
                     {t("quick.recommended")}
                   </span>
                 )}
@@ -761,13 +761,13 @@ function ChoiceGrid({
             </span>
 
             {active ? (
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold text-ink">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent">
                 <Check size={15} />
               </span>
             ) : (
               <ChevronRight
                 size={17}
-                className={`shrink-0 text-muted transition-all group-hover:text-gold ${
+                className={`shrink-0 text-muted transition-all group-hover:text-accent ${
                   isRTL
                     ? "rotate-180 group-hover:-translate-x-1"
                     : "group-hover:translate-x-1"
@@ -798,7 +798,7 @@ function SkillsGrid({
         <span className="text-[10px] font-bold text-secondary">
           {t("quick.skillsQuestion.hint")}
         </span>
-        <span className="rounded-lg border border-gold/20 bg-gold/10 px-2.5 py-1.5 text-[10px] font-black text-gold">
+        <span className="rounded-lg border border-accent/20 bg-accent/10 px-2.5 py-1.5 text-[10px] font-black text-accent">
           {selected.length}/5
         </span>
       </div>
@@ -814,14 +814,14 @@ function SkillsGrid({
               aria-pressed={active}
               className={`flex min-h-14 items-center gap-3 rounded-2xl border px-4 text-start transition-all ${
                 active
-                  ? "border-gold bg-gold/10 shadow-[0_0_0_3px_rgba(245,166,35,0.06)]"
-                  : "border-edge bg-elevated/85 hover:-translate-y-0.5 hover:border-gold/35"
+                  ? "border-accent bg-accent/10 shadow-[0_0_0_3px_rgba(110,91,196,0.06)]"
+                  : "border-edge bg-elevated/85 hover:-translate-y-0.5 hover:border-accent/35"
               }`}
             >
               <span
                 className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border ${
                   active
-                    ? "border-gold bg-gold text-ink"
+                    ? "border-accent bg-accent text-on-accent"
                     : "border-edge-strong bg-card text-muted"
                 }`}
               >
@@ -858,7 +858,7 @@ function SurveyNavigation({
   t: ReturnType<typeof useTranslations<"onboarding">>;
 }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-edge bg-base/92 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_40px_var(--shadow-color)] backdrop-blur-xl sm:px-8 lg:px-12">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-edge bg-base/92 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-12px_40px_var(--shadow-color)] sm:px-8 lg:px-12">
       <div className="mx-auto flex max-w-215 items-center justify-between gap-3">
         <button
           type="button"
@@ -874,7 +874,7 @@ function SurveyNavigation({
           type="button"
           onClick={() => void onNext()}
           disabled={!canContinue || saving}
-          className="inline-flex h-12 min-w-42 flex-1 items-center justify-center gap-2 rounded-xl bg-gold px-5 text-xs font-black text-ink shadow-[0_10px_30px_rgba(245,166,35,0.24)] transition-all hover:-translate-y-0.5 hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none sm:flex-none"
+          className="inline-flex h-12 min-w-42 flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-5 text-xs font-black text-on-accent shadow-[0_10px_30px_rgba(110,91,196,0.24)] transition-all hover:-translate-y-0.5 hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none sm:flex-none"
         >
           {saving ? (
             <Loader2 size={16} className="animate-spin" />
@@ -919,16 +919,16 @@ function CompletionScreen({
             initial={{ scale: 0.4, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.12, type: "spring" }}
-            className="absolute inset-0 rounded-full border border-gold/25 bg-gold/10"
+            className="absolute inset-0 rounded-full border border-accent/25 bg-accent/10"
           />
-          <Check size={32} className="relative text-gold" />
+          <Check size={32} className="relative text-accent" />
         </div>
 
-        <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-gold">
+        <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-accent">
           <Sparkles size={13} />
           {t("completion.eyebrow")}
         </span>
-        <h1 className="mx-auto mt-4 max-w-185 font-playfair text-[clamp(36px,6vw,62px)] font-black leading-[1.04] tracking-[-0.03em] text-primary">
+        <h1 className="mx-auto mt-4 max-w-185 font-display text-[clamp(36px,6vw,62px)] font-black leading-[1.04] tracking-[-0.03em] text-primary">
           {t("completion.title")}
         </h1>
         <p className="mx-auto mt-5 max-w-155 text-[14px] font-medium leading-7 text-secondary sm:text-[16px] sm:leading-8">
@@ -956,7 +956,7 @@ function CompletionScreen({
             {t("quick.selectedSkills", { count: answers.skills.length })}
           </span>
           {answers.template && (
-            <span className="rounded-full border border-gold/25 bg-gold/8 px-4 py-2 text-[11px] font-bold text-gold">
+            <span className="rounded-full border border-accent/25 bg-accent/8 px-4 py-2 text-[11px] font-bold text-accent">
               {t(`templates.${answers.template}`)}
             </span>
           )}
@@ -965,7 +965,7 @@ function CompletionScreen({
         <div className="mx-auto mt-10 flex max-w-135 flex-col justify-center gap-3 sm:flex-row">
           <Link
             href={`/${locale}/dashboard`}
-            className="inline-flex h-13 flex-1 items-center justify-center gap-2 rounded-xl bg-gold px-6 text-xs font-black text-ink no-underline shadow-[0_12px_35px_rgba(245,166,35,0.25)] transition-all hover:-translate-y-0.5 hover:bg-gold-light"
+            className="inline-flex h-13 flex-1 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-xs font-black text-on-accent no-underline shadow-[0_12px_35px_rgba(110,91,196,0.25)] transition-all hover:-translate-y-0.5 hover:bg-accent-strong"
           >
             {t("completion.primary")}
             <ArrowRight size={15} className={isRTL ? "rotate-180" : ""} />

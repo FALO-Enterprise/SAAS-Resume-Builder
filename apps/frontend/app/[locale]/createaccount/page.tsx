@@ -88,7 +88,7 @@ function RegisterForm({ onSubmit, loading }: { onSubmit: (data: RegisterData) =>
       <button
         onClick={() => { if (validate()) onSubmit(form); }}
         disabled={loading}
-        className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_25px_rgba(245,166,35,0.3)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.45)] disabled:cursor-not-allowed disabled:bg-gold/60 disabled:shadow-none">
+        className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-6 py-4 text-[15px] font-bold text-on-accent shadow-[0_8px_25px_rgba(110,91,196,0.3)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(110,91,196,0.45)] disabled:cursor-not-allowed disabled:bg-accent/60 disabled:shadow-none">
         {loading ? <><Loader2 size={16} className="animate-spin" /> {t('loading')}</> : <><span>{t('submit')}</span><ArrowRight size={16} /></>}
       </button>
     </div>
@@ -108,14 +108,14 @@ function SuccessScreen({ name }: { name: string }) {
     >
       <motion.div
         animate={{ scale: [0, 1.2, 1] }} transition={{ duration: 0.5 }}
-        className="mx-auto mb-6 flex h-18 w-18 items-center justify-center rounded-full border-[1.5px] border-green/30 bg-green/12"
+        className="mx-auto mb-6 flex h-18 w-18 items-center justify-center rounded-full border-[1.5px] border-pass/30 bg-pass/12"
       >
-        <Check size={32} className="text-green" />
+        <Check size={32} className="text-pass" />
       </motion.div>
-      <h2 className="mb-2 font-playfair text-[26px] font-extrabold text-primary">{t('successTitle', { name: name.split(' ')[0] })}</h2>
+      <h2 className="mb-2 font-display text-[26px] font-extrabold text-primary">{t('successTitle', { name: name.split(' ')[0] })}</h2>
       <p className="mx-auto mb-8 max-w-[320px] text-[15px] leading-[1.6] text-faint">{t('successReady')}</p>
-      <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3.5 py-1.5">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green" />
+      <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3.5 py-1.5">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-pass" />
         <span className="text-xs text-secondary">{t('redirecting')}</span>
       </div>
     </motion.div>
@@ -147,9 +147,9 @@ export default function RegisterPage() {
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-base px-6 py-10">
 
       {/* Background glows */}
-      <div className="fixed top-1/6 left-1/6 w-125 h-125 glow-gold rounded-full blur-2xl pointer-events-none" />
-      <div className="fixed bottom-1/6 right-1/12 w-100 h-100 glow-azure rounded-full blur-2xl pointer-events-none" />
-      <div className="fixed top-1/2 right-1/12 w-75 h-75 glow-gold rounded-full blur-2xl pointer-events-none" />
+      <div className="fixed top-1/6 left-1/6 w-125 h-125 rounded-full blur-2xl pointer-events-none" />
+      <div className="fixed bottom-1/6 right-1/12 w-100 h-100 rounded-full blur-2xl pointer-events-none" />
+      <div className="fixed top-1/2 right-1/12 w-75 h-75 rounded-full blur-2xl pointer-events-none" />
 
       {/* Card */}
       <motion.div
@@ -159,7 +159,7 @@ export default function RegisterPage() {
           duration: 0.5,
           ease: [0.16, 1, 0.3, 1],
         }}
-        className="relative z-10 w-full max-w-125 rounded-[28px] border border-edge bg-elevated px-10 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)]"
+        className="relative z-10 w-full max-w-125 rounded-lg border border-edge bg-elevated px-10 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)]"
       >
         {/* Header */}
         <div className="mb-9 flex items-center justify-between">
@@ -171,7 +171,7 @@ export default function RegisterPage() {
         {/* Section heading */}
         {!success && (
           <div className="mb-7">
-            <h1 className="mb-1.5 font-playfair text-2xl font-extrabold text-primary">
+            <h1 className="mb-1.5 font-display text-2xl font-extrabold text-primary">
               {t('title')}
             </h1>
 
@@ -186,7 +186,7 @@ export default function RegisterPage() {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-5 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
+            className="mb-5 rounded-lg border border-flag/25 bg-flag/10 px-4 py-3 text-center text-[13px] text-flag"
           >
             {generalError}
           </motion.div>
@@ -231,7 +231,7 @@ export default function RegisterPage() {
             <Link
               href={`/${locale}`}
               onClick={openLogin}
-              className="font-semibold text-gold no-underline"
+              className="font-semibold text-accent no-underline"
             >
               {t('switchLink')}
             </Link>
@@ -239,8 +239,6 @@ export default function RegisterPage() {
         )}
 
         {/* Card-corner glows */}
-        <div className="pointer-events-none absolute -top-15 -right-15 h-55 w-55 rounded-full bg-[radial-gradient(circle,rgba(245,166,35,0.07)_0%,transparent_70%)]" />
-        <div className="pointer-events-none absolute -bottom-12.5 -left-12.5 h-45 w-45 rounded-full bg-[radial-gradient(circle,rgba(167,139,250,0.06)_0%,transparent_70%)]" />
       </motion.div>
 
       {/* Bottom note */}
@@ -254,14 +252,14 @@ export default function RegisterPage() {
           {t('termsPrefix')}{' '}
           <Link
             href={legalHref('terms', locale)}
-            className="text-faint no-underline underline-offset-4 transition-colors hover:text-gold hover:underline"
+            className="text-faint no-underline underline-offset-4 transition-colors hover:text-accent hover:underline"
           >
             {t('termsLink')}
           </Link>{' '}
           {t('termsAnd')}{' '}
           <Link
             href={legalHref('privacy', locale)}
-            className="text-faint no-underline underline-offset-4 transition-colors hover:text-gold hover:underline"
+            className="text-faint no-underline underline-offset-4 transition-colors hover:text-accent hover:underline"
           >
             {t('policyLink')}
           </Link>

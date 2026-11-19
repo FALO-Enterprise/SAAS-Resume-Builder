@@ -41,7 +41,7 @@ export default function AuthModal() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             onClick={closeModal}
-            className="fixed inset-0 z-1000 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 z-1000 bg-scrim/70"
           />
 
           {/* Modal panel */}
@@ -75,7 +75,7 @@ export default function AuthModal() {
                 transition={{ duration: 0.2 }}
                 className="mb-6"
               >
-                <h2 className="mb-1 font-playfair text-[22px] font-extrabold text-primary">
+                <h2 className="mb-1 font-display text-[22px] font-extrabold text-primary">
                   {t('heading.loginTitle')}
                 </h2>
                 <p className="text-sm text-faint">
@@ -93,8 +93,6 @@ export default function AuthModal() {
               </motion.div>
 
               {/* Decorative glows — brand colors, constant in both themes */}
-              <div className="pointer-events-none absolute -top-15 -right-15 h-50 w-50 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-gold)_8%,transparent)_0%,transparent_70%)]" />
-              <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-azure)_8%,transparent)_0%,transparent_70%)]" />
             </motion.div>
           </div>
         </>

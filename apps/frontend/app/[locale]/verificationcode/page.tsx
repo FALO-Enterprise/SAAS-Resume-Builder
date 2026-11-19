@@ -49,11 +49,11 @@ function OtpBox({
   onBlur: () => void;
 }) {
   const stateClasses = hasError
-    ? "border-pink-light/60 bg-pink-light/[0.07] text-pink-light"
+    ? "border-flag/60 bg-flag/[0.07] text-flag"
     : focused
-      ? "border-gold bg-gold/[0.06] text-primary shadow-[0_0_0_3px_rgba(245,166,35,0.12)]"
+      ? "border-accent bg-accent/[0.06] text-primary shadow-[0_0_0_3px_rgba(110,91,196,0.12)]"
       : value
-        ? "border-gold/40 bg-gold/[0.03] text-primary"
+        ? "border-accent/40 bg-accent/[0.03] text-primary"
         : "border-edge-strong bg-card text-primary";
 
   return (
@@ -77,7 +77,7 @@ function OtpBox({
         onPaste={onPaste}
         onFocus={onFocus}
         onBlur={onBlur}
-        className={`h-16 w-13.5 rounded-[14px] border-[1.5px] text-center font-playfair text-[26px] font-extrabold caret-transparent outline-none transition-all ${stateClasses}`}
+        className={`h-16 w-13.5 rounded-lg border-[1.5px] text-center font-display text-[26px] font-extrabold caret-transparent outline-none transition-all ${stateClasses}`}
       />
     </motion.div>
   );
@@ -339,12 +339,12 @@ export default function VerifyPage() {
               duration: 0.5,
               delay: 0.1,
             }}
-            className="mx-auto mb-7 flex h-20 w-20 items-center justify-center rounded-full border-[1.5px] border-green/30 bg-green/12"
+            className="mx-auto mb-7 flex h-20 w-20 items-center justify-center rounded-full border-[1.5px] border-pass/30 bg-pass/12"
           >
-            <Check size={36} className="text-green" />
+            <Check size={36} className="text-pass" />
           </motion.div>
 
-          <h2 className="mb-2.5 font-playfair text-[28px] font-extrabold text-primary">
+          <h2 className="mb-2.5 font-display text-[28px] font-extrabold text-primary">
             {t("success.title")}
           </h2>
 
@@ -366,7 +366,7 @@ export default function VerifyPage() {
                 duration: 2,
                 ease: "linear",
               }}
-              className="h-full rounded-full bg-linear-to-r from-gold to-gold-light"
+              className="h-full rounded-full bg-accent"
             />
           </div>
         </motion.div>
@@ -382,9 +382,7 @@ export default function VerifyPage() {
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-base px-6 py-10">
       {/* Background glows */}
 
-      <div className="pointer-events-none fixed left-[5%] top-[15%] h-125 w-125 rounded-full bg-gold/4 blur-[120px]" />
 
-      <div className="pointer-events-none fixed bottom-[10%] right-[5%] h-100 w-100 rounded-full bg-azure/5 blur-[100px]" />
 
       {/* Card */}
 
@@ -401,13 +399,11 @@ export default function VerifyPage() {
           duration: 0.5,
           ease: [0.16, 1, 0.3, 1],
         }}
-        className="relative z-10 w-full max-w-120 overflow-hidden rounded-[28px] border border-edge bg-elevated px-10 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)]"
+        className="relative z-10 w-full max-w-120 overflow-hidden rounded-lg border border-edge bg-elevated px-10 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)]"
       >
         {/* Decorative glows */}
 
-        <div className="pointer-events-none absolute -top-15 -right-15 h-50 w-50 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-gold)_8%,transparent)_0%,transparent_70%)]" />
 
-        <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-azure)_8%,transparent)_0%,transparent_70%)]" />
 
         {/* Logo */}
 
@@ -433,9 +429,9 @@ export default function VerifyPage() {
               duration: 0.4,
               delay: 0.15,
             }}
-            className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-gold/20 bg-gold/10"
+            className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10"
           >
-            <ShieldCheck size={26} className="text-gold" />
+            <ShieldCheck size={26} className="text-accent" />
           </motion.div>
 
           <motion.h1
@@ -451,7 +447,7 @@ export default function VerifyPage() {
               duration: 0.4,
               delay: 0.2,
             }}
-            className="mb-2 font-playfair text-2xl font-extrabold text-primary"
+            className="mb-2 font-display text-2xl font-extrabold text-primary"
           >
             {t("heading")}
           </motion.h1>
@@ -520,7 +516,7 @@ export default function VerifyPage() {
                 transition={{
                   duration: 0.2,
                 }}
-                className={`h-1.25 w-1.25 rounded-full transition-colors ${digit ? "bg-gold" : "bg-edge-strong"
+                className={`h-1.25 w-1.25 rounded-full transition-colors ${digit ? "bg-accent" : "bg-edge-strong"
                   }`}
               />
             ))}
@@ -548,7 +544,7 @@ export default function VerifyPage() {
                 y: -8,
                 height: 0,
               }}
-              className="mb-5 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
+              className="mb-5 rounded-lg border border-flag/25 bg-flag/10 px-4 py-3 text-center text-[13px] text-flag"
             >
               {generalError}
             </motion.div>
@@ -576,7 +572,7 @@ export default function VerifyPage() {
                 y: -8,
                 height: 0,
               }}
-              className="mb-5 flex items-center justify-center gap-2 rounded-[10px] border border-green/20 bg-green/8 px-4 py-3 text-[13px] text-green"
+              className="mb-5 flex items-center justify-center gap-2 rounded-lg border border-pass/20 bg-pass/8 px-4 py-3 text-[13px] text-pass"
             >
               <MailOpen size={14} />
               {t("resendSuccess")}
@@ -589,9 +585,9 @@ export default function VerifyPage() {
         <button
           onClick={() => handleSubmit(digits.join(""))}
           disabled={!canSubmit}
-          className={`mb-6 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.75 text-[15px] font-bold text-ink transition-all ${canSubmit
-              ? "cursor-pointer bg-gold shadow-[0_8px_25px_rgba(245,166,35,0.3)] hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.45)]"
-              : "cursor-not-allowed bg-gold/40"
+          className={`mb-6 flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.75 text-[15px] font-bold text-on-accent transition-all ${canSubmit
+              ? "cursor-pointer bg-accent shadow-[0_8px_25px_rgba(110,91,196,0.3)] hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(110,91,196,0.45)]"
+              : "cursor-not-allowed bg-accent/40"
             }`}
         >
           {isVerifying ? (
@@ -626,7 +622,7 @@ export default function VerifyPage() {
             onClick={handleResend}
             disabled={!expired || isResending}
             className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${expired && !isResending
-                ? "cursor-pointer text-gold"
+                ? "cursor-pointer text-accent"
                 : "cursor-default text-muted"
               }`}
           >
@@ -649,7 +645,7 @@ export default function VerifyPage() {
             <span className="text-[13px] text-muted">
               {t("resendIn")}{" "}
               <span
-                className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${count <= 10 ? "text-pink-light" : "text-faint"
+                className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${count <= 10 ? "text-flag" : "text-faint"
                   }`}
               >
                 {String(Math.floor(count / 60)).padStart(2, "0")}:

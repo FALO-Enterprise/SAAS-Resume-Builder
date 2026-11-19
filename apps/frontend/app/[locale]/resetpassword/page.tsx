@@ -89,17 +89,13 @@ function ResetPasswordContent() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base px-6 py-10 text-primary">
-      <div className="pointer-events-none fixed left-[6%] top-[12%] h-125 w-125 rounded-full bg-gold/5 blur-[120px]" />
-      <div className="pointer-events-none fixed bottom-[8%] right-[6%] h-107.5 w-107.5 rounded-full bg-azure/5 blur-[110px]" />
 
       <motion.div
         initial={{ opacity: 0, y: 35 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="relative z-10 w-full max-w-130 overflow-hidden rounded-[28px] border border-edge bg-elevated px-6 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)] sm:px-10"
+        className="relative z-10 w-full max-w-130 overflow-hidden rounded-lg border border-edge bg-elevated px-6 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)] sm:px-10"
       >
-        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gold/5 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-14 -left-14 h-52 w-52 rounded-full bg-azure/5 blur-3xl" />
 
         <div className="relative z-10 mb-12 flex justify-center">
           <Link href={`/${locale}`} className="no-underline">
@@ -128,12 +124,12 @@ function ResetPasswordContent() {
               className="relative z-10 text-center"
             >
               <div className="mb-7 flex justify-center">
-                <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-pink-light/25 bg-pink-light/10">
-                  <ShieldAlert size={28} className="text-pink-light" />
+                <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-flag/25 bg-flag/10">
+                  <ShieldAlert size={28} className="text-flag" />
                 </div>
               </div>
 
-              <h1 className="mb-3 font-playfair text-[28px] font-extrabold leading-tight text-primary">
+              <h1 className="mb-3 font-display text-[28px] font-extrabold leading-tight text-primary">
                 {t("invalidTitle")}
               </h1>
               <p className="mx-auto mb-9 max-w-97.5 text-sm leading-7 text-faint">
@@ -142,7 +138,7 @@ function ResetPasswordContent() {
 
               <Link
                 href={`/${locale}/forgetpassword`}
-                className="mb-8 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink no-underline shadow-[0_8px_25px_rgba(245,166,35,0.28)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.42)]"
+                className="mb-8 flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-6 py-4 text-[15px] font-bold text-on-accent no-underline shadow-[0_8px_25px_rgba(110,91,196,0.28)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(110,91,196,0.42)]"
               >
                 {t("requestNewLink")}
                 <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />
@@ -151,7 +147,7 @@ function ResetPasswordContent() {
               <div className="border-t border-edge pt-8">
                 <Link
                   href={`/${locale}`}
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-gold"
+                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-accent"
                 >
                   <ArrowLeft size={13} className={isRTL ? "rotate-180" : ""} />
                   {t("backToLogin")}
@@ -168,12 +164,12 @@ function ResetPasswordContent() {
               className="relative z-10 py-8 text-center"
             >
               <div className="mb-7 flex justify-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full border border-green/30 bg-green/10">
-                  <Check size={30} className="text-green" />
+                <div className="flex h-16 w-16 items-center justify-center rounded-full border border-pass/30 bg-pass/10">
+                  <Check size={30} className="text-pass" />
                 </div>
               </div>
 
-              <h1 className="mb-3 font-playfair text-[28px] font-extrabold leading-tight text-primary">
+              <h1 className="mb-3 font-display text-[28px] font-extrabold leading-tight text-primary">
                 {t("successTitle")}
               </h1>
               <p className="mx-auto max-w-97.5 text-sm leading-7 text-faint">
@@ -191,13 +187,13 @@ function ResetPasswordContent() {
               className="relative z-10"
             >
               <div className="mb-7 flex justify-center">
-                <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                  <ShieldCheck size={28} className="text-gold" />
+                <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
+                  <ShieldCheck size={28} className="text-accent" />
                 </div>
               </div>
 
               <div className="mb-9 text-center">
-                <h1 className="mb-3 font-playfair text-[28px] font-extrabold leading-tight text-primary">
+                <h1 className="mb-3 font-display text-[28px] font-extrabold leading-tight text-primary">
                   {t("title")}
                 </h1>
                 <p className="mx-auto max-w-97.5 text-sm leading-7 text-faint">
@@ -209,7 +205,7 @@ function ResetPasswordContent() {
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
+                  className="mb-6 rounded-lg border border-flag/25 bg-flag/10 px-4 py-3 text-center text-[13px] text-flag"
                 >
                   {generalError}
                 </motion.div>
@@ -251,7 +247,7 @@ function ResetPasswordContent() {
               <button
                 type="submit"
                 disabled={isPending}
-                className="mb-8 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_25px_rgba(245,166,35,0.28)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.42)] disabled:cursor-not-allowed disabled:bg-gold/45 disabled:shadow-none"
+                className="mb-8 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-accent px-6 py-4 text-[15px] font-bold text-on-accent shadow-[0_8px_25px_rgba(110,91,196,0.28)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(110,91,196,0.42)] disabled:cursor-not-allowed disabled:bg-accent/45 disabled:shadow-none"
               >
                 {isPending ? (
                   <>
@@ -269,7 +265,7 @@ function ResetPasswordContent() {
               <div className="border-t border-edge pt-8 text-center">
                 <Link
                   href={`/${locale}`}
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-gold"
+                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-accent"
                 >
                   <ArrowLeft size={13} className={isRTL ? "rotate-180" : ""} />
                   {t("backToLogin")}
@@ -288,8 +284,8 @@ export default function ResetPasswordPage() {
     <Suspense
       fallback={
         <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base px-6 py-10 text-primary">
-          <div className="flex flex-col items-center justify-center rounded-[28px] border border-edge bg-elevated px-10 py-12 shadow-[0_40px_100px_var(--shadow-color)]">
-            <Loader2 size={28} className="mb-4 animate-spin text-gold" />
+          <div className="flex flex-col items-center justify-center rounded-lg border border-edge bg-elevated px-10 py-12 shadow-[0_40px_100px_var(--shadow-color)]">
+            <Loader2 size={28} className="mb-4 animate-spin text-accent" />
           </div>
         </main>
       }

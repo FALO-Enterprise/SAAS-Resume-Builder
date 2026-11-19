@@ -36,7 +36,7 @@ function PasswordStrength({ password }: { password: string }) {
       <div className="flex flex-wrap gap-x-4 gap-y-1">
         {checks.map(c => (
           <div key={c.label} className="flex items-center gap-1.25">
-            <Check size={11} className={c.pass ? 'text-green' : 'text-muted'} />
+            <Check size={11} className={c.pass ? 'text-pass' : 'text-muted'} />
             <span className={`text-[11px] ${c.pass ? 'text-secondary' : 'text-muted'}`}>{c.label}</span>
           </div>
         ))}

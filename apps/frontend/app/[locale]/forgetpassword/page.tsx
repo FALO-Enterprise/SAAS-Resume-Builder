@@ -65,17 +65,13 @@ export default function ForgetPasswordPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base px-6 py-10">
-      <div className="pointer-events-none fixed left-[6%] top-[12%] h-125 w-125 rounded-full bg-gold/5 blur-[120px]" />
-      <div className="pointer-events-none fixed bottom-[8%] right-[6%] h-107.5 w-107.5 rounded-full bg-azure/5 blur-[110px]" />
 
       <motion.div
         initial={{ opacity: 0, y: 35 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
-        className="relative z-10 w-full max-w-130 overflow-hidden rounded-[28px] border border-edge bg-elevated px-6 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)] sm:px-10"
+        className="relative z-10 w-full max-w-130 overflow-hidden rounded-lg border border-edge bg-elevated px-6 pb-12 pt-10 shadow-[0_40px_100px_var(--shadow-color)] sm:px-10"
       >
-        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-gold/5 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-14 -left-14 h-52 w-52 rounded-full bg-azure/5 blur-3xl" />
 
         <div className="relative z-10 mb-12 flex justify-center">
           <Link href={`/${locale}`} className="no-underline">
@@ -87,7 +83,7 @@ export default function ForgetPasswordPage() {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 rounded-[10px] border border-pink-light/25 bg-pink-light/10 px-4 py-3 text-center text-[13px] text-pink-light"
+            className="mb-6 rounded-lg border border-flag/25 bg-flag/10 px-4 py-3 text-center text-[13px] text-flag"
           >
             {generalError}
           </motion.div>
@@ -106,13 +102,13 @@ export default function ForgetPasswordPage() {
               className="relative z-10"
             >
               <div className="mb-7 flex justify-center">
-                <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                  <Mail size={28} className="text-gold" />
+                <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
+                  <Mail size={28} className="text-accent" />
                 </div>
               </div>
 
               <div className="mb-9 text-center">
-                <h1 className="mb-3 font-playfair text-[28px] font-extrabold leading-tight text-primary">
+                <h1 className="mb-3 font-display text-[28px] font-extrabold leading-tight text-primary">
                   {t("title")}
                 </h1>
                 <p className="mx-auto max-w-95 text-sm leading-7 text-faint">
@@ -138,7 +134,7 @@ export default function ForgetPasswordPage() {
               <button
                 type="submit"
                 disabled={isPending}
-                className="mb-9 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gold px-6 py-4 text-[15px] font-bold text-ink shadow-[0_8px_25px_rgba(245,166,35,0.28)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(245,166,35,0.42)] disabled:cursor-not-allowed disabled:bg-gold/45 disabled:shadow-none"
+                className="mb-9 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-accent px-6 py-4 text-[15px] font-bold text-on-accent shadow-[0_8px_25px_rgba(110,91,196,0.28)] transition-all hover:-translate-y-px hover:shadow-[0_12px_35px_rgba(110,91,196,0.42)] disabled:cursor-not-allowed disabled:bg-accent/45 disabled:shadow-none"
               >
                 {isPending ? (
                   <>
@@ -162,7 +158,7 @@ export default function ForgetPasswordPage() {
               <div className="text-center">
                 <Link
                   href={`/${locale}`}
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-gold"
+                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-accent"
                 >
                   <ArrowLeft size={13} className={isRTL ? "rotate-180" : ""} />
                   {t("signIn")}
@@ -179,13 +175,13 @@ export default function ForgetPasswordPage() {
               className="relative z-10 text-center"
             >
               <div className="mb-7 flex justify-center">
-                <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-gold/25 bg-gold/10">
-                  <ShieldCheck size={28} className="text-gold" />
+                <div className="flex h-15.5 w-15.5 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
+                  <ShieldCheck size={28} className="text-accent" />
                 </div>
               </div>
 
               <div className="mb-8">
-                <h1 className="mb-3 font-playfair text-[28px] font-extrabold leading-tight text-primary">
+                <h1 className="mb-3 font-display text-[28px] font-extrabold leading-tight text-primary">
                   {t("sentTitle")}
                 </h1>
                 <p className="mx-auto max-w-97.5 text-sm leading-7 text-faint">
@@ -194,8 +190,8 @@ export default function ForgetPasswordPage() {
               </div>
 
               <div className="mb-8 flex justify-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-green/30 bg-green/10">
-                  <Check size={26} className="text-green" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-pass/30 bg-pass/10">
+                  <Check size={26} className="text-pass" />
                 </div>
               </div>
 
@@ -206,7 +202,7 @@ export default function ForgetPasswordPage() {
                     initial={{ opacity: 0, y: -8, height: 0 }}
                     animate={{ opacity: 1, y: 0, height: "auto" }}
                     exit={{ opacity: 0, y: -8, height: 0 }}
-                    className="mb-6 rounded-[10px] border border-green/20 bg-green/10 px-4 py-3 text-[13px] text-green"
+                    className="mb-6 rounded-lg border border-pass/20 bg-pass/10 px-4 py-3 text-[13px] text-pass"
                   >
                     {t("resendSuccess")}
                   </motion.div>
@@ -226,7 +222,7 @@ export default function ForgetPasswordPage() {
                   disabled={!expired || isPending}
                   className={`flex items-center gap-1.5 border-none bg-transparent py-1 text-[13px] font-semibold transition-colors ${
                     expired && !isPending
-                      ? "cursor-pointer text-gold"
+                      ? "cursor-pointer text-accent"
                       : "cursor-default text-muted"
                   }`}
                 >
@@ -248,7 +244,7 @@ export default function ForgetPasswordPage() {
                     {verifyT("resendIn")}{" "}
                     <span
                       className={`inline-block min-w-10.5 text-center font-semibold tabular-nums transition-colors ${
-                        count <= 10 ? "text-pink-light" : "text-faint"
+                        count <= 10 ? "text-flag" : "text-faint"
                       }`}
                     >
                       {String(Math.floor(count / 60)).padStart(2, "0")}:
@@ -261,7 +257,7 @@ export default function ForgetPasswordPage() {
               <div className="border-t border-edge pt-8">
                 <Link
                   href={`/${locale}`}
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-gold"
+                  className="inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-accent"
                 >
                   <ArrowLeft size={13} className={isRTL ? "rotate-180" : ""} />
                   {t("backToLogin")}

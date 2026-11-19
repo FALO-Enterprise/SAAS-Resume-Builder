@@ -75,14 +75,14 @@ function OAuthCallbackContent() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-base px-6">
-      <div className="w-full max-w-md rounded-[28px] border border-edge bg-elevated px-8 py-10 text-center shadow-[0_40px_100px_var(--shadow-color)]">
+      <div className="w-full max-w-md rounded-lg border border-edge bg-elevated px-8 py-10 text-center shadow-[0_40px_100px_var(--shadow-color)]">
         <Link href={`/${locale}`} className="mb-8 inline-block no-underline">
           <Logo />
         </Link>
 
         {status === "loading" && (
           <>
-            <Loader2 className="mx-auto mb-4 animate-spin text-gold" size={42} />
+            <Loader2 className="mx-auto mb-4 animate-spin text-accent" size={42} />
             <h1 className="text-xl font-bold text-primary">{t("completing")}</h1>
             <p className="mt-2 text-sm text-faint">{t("pleaseWait")}</p>
           </>
@@ -90,19 +90,19 @@ function OAuthCallbackContent() {
 
         {status === "success" && (
           <>
-            <CheckCircle2 className="mx-auto mb-4 text-gold" size={42} />
+            <CheckCircle2 className="mx-auto mb-4 text-accent" size={42} />
             <h1 className="text-xl font-bold text-primary">{t("success")}</h1>
           </>
         )}
 
         {status === "error" && (
           <>
-            <XCircle className="mx-auto mb-4 text-pink-light" size={42} />
+            <XCircle className="mx-auto mb-4 text-flag" size={42} />
             <h1 className="text-xl font-bold text-primary">{t("errorTitle")}</h1>
             <p className="mt-2 text-sm text-faint">{error}</p>
             <Link
               href={`/${locale}`}
-              className="mt-6 inline-flex rounded-xl bg-gold px-5 py-3 text-sm font-bold text-ink no-underline"
+              className="mt-6 inline-flex rounded-xl bg-accent px-5 py-3 text-sm font-bold text-on-accent no-underline"
             >
               {t("backHome")}
             </Link>
