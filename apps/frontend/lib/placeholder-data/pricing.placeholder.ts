@@ -1,67 +1,73 @@
-export type CellValue =
-  | boolean
-  | string
-  | { i18nKey: string; params?: Record<string, string | number> };
+import type { PlanId } from "@/lib/placeholder-data/plans.placeholder";
 
-export const TABLE_SECTIONS: {
-  key: string;
-  rows: { key: string; free: CellValue; pro: CellValue; enterprise: CellValue }[];
-}[] = [
-  {
-    key: 'core',
-    rows: [
-      {
-        key: 'resumeExports',
-        free: '3',
-        pro: { i18nKey: 'pricing.table.values.unlimited' },
-        enterprise: { i18nKey: 'pricing.table.values.unlimited' },
-      },
-      { key: 'templates', free: '5', pro: '120+', enterprise: '120+' },
-      { key: 'realTimePreview', free: true, pro: true, enterprise: true },
-      { key: 'pdfExport', free: true, pro: true, enterprise: true },
-      { key: 'docxExport', free: false, pro: true, enterprise: true },
-      { key: 'linkedinExport', free: false, pro: true, enterprise: true },
-    ],
+/* What each plan actually allows. These mirror `PLAN_LIMITS` in
+   `apps/backend/src/modules/plan/plan-usage.service.ts` and the AI coach gate
+   in `resume-coach.service.ts`. The pricing page draws every figure from here,
+   so when a backend limit changes, change it here in the same commit.
+
+   The export and credit counts are totals: nothing in the backend resets them
+   at renewal, so the page must not call them monthly. */
+
+export type PlanFacts = {
+  resumes: number;
+  daily: number;
+  templates: "classicOnly" | "allSix";
+  reuse: number;
+  pdf: number;
+  jpg: number;
+  credits: number;
+  coach: boolean;
+  watermark: boolean;
+};
+
+export const PLAN_FACTS: Record<PlanId, PlanFacts> = {
+  free: {
+    resumes: 1,
+    daily: 1,
+    templates: "classicOnly",
+    reuse: 1,
+    pdf: 1,
+    jpg: 0,
+    credits: 10,
+    coach: false,
+    watermark: true,
   },
-  {
-    key: 'ai',
-    rows: [
-      {
-        key: 'atsCheck',
-        free: { i18nKey: 'pricing.table.values.basic' },
-        pro: { i18nKey: 'pricing.table.values.full' },
-        enterprise: { i18nKey: 'pricing.table.values.full' },
-      },
-      { key: 'atsScore', free: false, pro: true, enterprise: true },
-      { key: 'keywordAnalysis', free: false, pro: true, enterprise: true },
-      { key: 'aiCoverLetter', free: false, pro: true, enterprise: true },
-      { key: 'gptCoach', free: false, pro: false, enterprise: true },
-      { key: 'jobMatch', free: false, pro: false, enterprise: true },
-    ],
+  pro: {
+    resumes: 3,
+    daily: 2,
+    templates: "allSix",
+    reuse: 2,
+    pdf: 2,
+    jpg: 2,
+    credits: 50,
+    coach: false,
+    watermark: false,
   },
-  {
-    key: 'global',
-    rows: [
-      { key: 'usFormat', free: true, pro: true, enterprise: true },
-      { key: 'euFormat', free: false, pro: true, enterprise: true },
-      { key: 'gccFormat', free: false, pro: true, enterprise: true },
-      { key: 'apacFormat', free: false, pro: true, enterprise: true },
-      { key: 'academicCv', free: false, pro: true, enterprise: true },
-      { key: 'rtlSupport', free: true, pro: true, enterprise: true },
-    ],
+  enterprise: {
+    resumes: 5,
+    daily: 4,
+    templates: "allSix",
+    reuse: 3,
+    pdf: 4,
+    jpg: 4,
+    credits: 100,
+    coach: true,
+    watermark: false,
   },
-  {
-    key: 'team',
-    rows: [
-      {
-        key: 'teamWorkspace',
-        free: false,
-        pro: false,
-        enterprise: { i18nKey: 'pricing.table.values.upTo', params: { count: 20 } },
-      },
-      { key: 'linkedinSync', free: false, pro: false, enterprise: true },
-      { key: 'prioritySupport', free: false, pro: false, enterprise: true },
-      { key: 'customBranding', free: false, pro: false, enterprise: true },
-    ],
-  },
-];
+};
+
+/** Credits one AI-written draft costs (`tokensPerAiBuild` in the backend). */
+export const CREDITS_PER_DRAFT = 3;
+
+/** Row order on a plan ticket. */
+export const FACT_ROWS = [
+  "resumes",
+  "daily",
+  "templates",
+  "reuse",
+  "pdf",
+  "jpg",
+  "credits",
+  "coach",
+  "watermark",
+] as const satisfies readonly (keyof PlanFacts)[];

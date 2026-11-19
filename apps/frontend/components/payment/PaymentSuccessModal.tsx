@@ -64,7 +64,7 @@ export default function PaymentSuccessModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-ink/80 backdrop-blur-md"
+            className="fixed inset-0 bg-scrim/80"
           />
 
           {/* Modal Card */}
@@ -73,11 +73,9 @@ export default function PaymentSuccessModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: "spring", duration: 0.5, bounce: 0.2 }}
-            className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-gold/30 bg-base p-6 sm:p-8 shadow-[0_0_80px_rgba(245,166,35,0.15)] text-primary z-10"
+            className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-accent/30 bg-base p-6 sm:p-8 text-primary z-10"
           >
             {/* Ambient Background Glows */}
-            <div className="pointer-events-none absolute -top-24 -left-24 h-48 w-48 rounded-full bg-gold/15 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-vilot/20 blur-3xl" />
 
             {/* Close Button */}
             <button
@@ -88,24 +86,24 @@ export default function PaymentSuccessModal({
             </button>
 
             {/* Top Badge */}
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-gold/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-gold">
-              <Sparkles size={13} className="text-gold" />
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-accent/25 bg-accent/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-accent">
+              <Sparkles size={13} className="text-accent" />
               <span>{t("badge")}</span>
             </div>
 
             {/* Title & Celebration Header */}
             <div className="mb-6">
               <div className="mb-3 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-gold/40 bg-linear-to-br from-gold/20 to-gold/5 shadow-[0_0_20px_rgba(245,166,35,0.25)]">
-                  <Check size={24} className="text-gold stroke-[2.5]" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/40 bg-accent/20">
+                  <Check size={24} className="text-accent stroke-[2.5]" />
                 </div>
                 <div>
-                  <h2 className="font-playfair text-2xl font-black leading-tight text-primary">
+                  <h2 className="font-display text-2xl font-black leading-tight text-primary">
                     {t("welcomeTitle", { plan: formattedPlan })}
                   </h2>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="inline-block h-2 w-2 rounded-full bg-green animate-pulse" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-green">
+                    <span className="inline-block h-2 w-2 rounded-full bg-pass animate-pulse" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-pass">
                       {t("statusActive")}
                     </span>
                   </div>
@@ -121,9 +119,9 @@ export default function PaymentSuccessModal({
             <div className="mb-6 rounded-2xl border border-edge bg-primary/3 p-4 space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted">{t("planLabel")}</span>
-                <span className="font-bold text-gold flex items-center gap-1.5">
-                  <Zap size={13} className="text-gold" />
-                  <span>ResuMax {formattedPlan}</span>
+                <span className="font-bold text-accent flex items-center gap-1.5">
+                  <Zap size={13} className="text-accent" />
+                  <span>Resumax AI {formattedPlan}</span>
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
@@ -143,14 +141,14 @@ export default function PaymentSuccessModal({
             {/* Unlocked Features List */}
             <div className="mb-7">
               <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-gold" />
+                <ShieldCheck size={14} className="text-accent" />
                 <span>{t("unlockedFeaturesTitle")}</span>
               </h4>
               <div className="grid grid-cols-1 gap-2">
                 {features.map((feature, idx) => (
                   <div key={idx} className="flex items-start gap-2.5">
-                    <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gold/15 border border-gold/30">
-                      <Check size={10} className="text-gold stroke-[2.5]" />
+                    <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent/15 border border-accent/30">
+                      <Check size={10} className="text-accent stroke-[2.5]" />
                     </div>
                     <span className="text-xs text-secondary leading-snug">{feature}</span>
                   </div>
@@ -163,7 +161,7 @@ export default function PaymentSuccessModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gold py-3.5 text-sm font-bold text-ink shadow-[0_8px_24px_rgba(245,166,35,0.3)] hover:bg-gold-light hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)] transition-all cursor-pointer"
+                className="w-full flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-accent py-3.5 text-sm font-bold text-on-accent shadow-[0_8px_24px_rgba(110,91,196,0.3)] hover:bg-accent-strong hover:shadow-[0_12px_32px_rgba(110,91,196,0.45)] transition-all cursor-pointer"
               >
                 <span>{locale === "ar" ? "رائع، البدء الآن" : "Awesome, Got It!"}</span>
                 <Check size={16} className="stroke-[2.5]" />

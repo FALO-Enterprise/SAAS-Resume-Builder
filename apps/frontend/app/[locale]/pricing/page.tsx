@@ -1,587 +1,210 @@
-"use client";
-
-import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Check, X, ChevronDown, ArrowRight } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { PLANS, type PlanId } from "@/lib/placeholder-data/plans.placeholder";
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { ArrowRight, Plus } from "lucide-react";
+import { PLANS } from "@/lib/placeholder-data/plans.placeholder";
 import {
-  TABLE_SECTIONS,
-  type CellValue,
+  CREDITS_PER_DRAFT,
+  PLAN_FACTS,
 } from "@/lib/placeholder-data/pricing.placeholder";
+import { legalHref } from "@/lib/legal";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
-import { useAuth } from "@/context/AuthContext";
-import { toast } from "sonner";
-import { usePlansQuery } from "@/hooks/queries/usePlans";
-import {
-  useCreateCheckoutSessionMutation,
-  useSyncCheckoutMutation,
-} from "@/hooks/mutations/useBillingMutations";
-import { getErrorMessage } from "@/lib/api/errors";
-import { openPaddleCheckout } from "@/lib/paddle/paddle";
-import PaymentSuccessModal from "@/components/payment/PaymentSuccessModal";
-import { getAccessToken } from "@/lib/auth/token";
+import PrimaryAction from "@/components/ui/PrimaryAction";
+import PlanTickets from "./PlanTickets";
 
-const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, enterprise: 2 };
+/* Pricing, in the FALO house system shared with the landing page
+   (`app/globals.css`). The plans hang as price tickets, and every figure on
+   them comes from `pricing.placeholder.ts`, which mirrors the limits the
+   backend enforces. Nothing here may promise more than that file holds. */
 
+const WRAP = "mx-auto w-full max-w-[1320px] px-5 sm:px-8";
+const H2 = "lp-display text-[clamp(2rem,4.4vw,3.75rem)]";
+const BODY = "text-[17px] leading-[1.65] text-lp-ink2";
 
-const FALLBACK_PRICES = Object.fromEntries(
-  PLANS.map((plan) => [plan.id, plan.monthlyPrice]),
-) as Record<PlanId, number>;
+type TermItem = { title: string; desc: string };
+type FaqItem = { q: string; a: string };
 
-function formatPrice(value: number) {
-  return Number.isInteger(value) ? String(value) : value.toFixed(2);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Cell renderer — handles boolean | string values in table
-// ─────────────────────────────────────────────────────────────────────────────
-function Cell({
-  value,
-  highlight,
+export default async function PricingPage({
+  params,
 }: {
-  value: boolean | string;
-  highlight?: boolean;
+  params: Promise<{ locale: string }>;
 }) {
-  if (typeof value === "boolean") {
-    return value ? (
-      <span
-        className={`mx-auto flex h-5.5 w-5.5 items-center justify-center rounded-full border ${highlight ? "border-gold/30 bg-gold/15" : "border-green/25 bg-green/12"}`}
-      >
-        <Check size={12} className={highlight ? "text-gold" : "text-green"} />
-      </span>
-    ) : (
-      <span className="flex justify-center">
-        <X size={15} className="text-muted" />
-      </span>
-    );
-  }
-  return (
-    <span
-      className={`text-[13px] font-semibold ${highlight ? "text-gold" : "text-secondary"}`}
-    >
-      {value}
-    </span>
-  );
-}
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pricing" });
+  const tAction = await getTranslations({ locale, namespace: "cta.button" });
+  const tHero = await getTranslations({ locale, namespace: "hero" });
+  const tCta = await getTranslations({ locale, namespace: "cta" });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Resolves a table cell value, translating i18n-keyed values on the fly
-// ─────────────────────────────────────────────────────────────────────────────
-function resolveCellValue(
-  value: CellValue,
-  t: ReturnType<typeof useTranslations>,
-): boolean | string {
-  if (typeof value === "object") {
-    return t(value.i18nKey, value.params);
-  }
-  return value;
-}
+  const terms = t.raw("terms.items") as TermItem[];
+  const faq = t.raw("faq.items") as FaqItem[];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FAQ Item
-// ─────────────────────────────────────────────────────────────────────────────
-function FaqItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border-b border-edge last:border-none">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full cursor-pointer items-center justify-between gap-4 border-none bg-transparent py-5 text-left"
-      >
-        <span className="text-[15px] font-semibold leading-[1.4] text-primary">
-          {q}
-        </span>
-        <motion.div
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.25 }}
-          className="shrink-0"
-        >
-          <ChevronDown size={18} className="text-faint" />
-        </motion.div>
-      </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <p className="pb-5 text-[14px] leading-[1.8] text-secondary">{a}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Main page
-// ─────────────────────────────────────────────────────────────────────────────
-export default function PricingPage() {
-  const t = useTranslations();
-  const successModalT = useTranslations("pricing.successModal");
-  const locale = useLocale();
-  const isRTL = locale === "ar";
-  const router = useRouter();
-  const { isVerified, user, updateUser } = useAuth();
-  const currentPlanId = (user?.planName?.toLowerCase() ?? "free") as PlanId;
-  const currentRank = PLAN_RANK[currentPlanId] ?? 0;
-  const [checkingOutPlan, setCheckingOutPlan] = useState<string | null>(null);
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [upgradedPlanName, setUpgradedPlanName] = useState<string>("PRO");
-  const [upgradedTransactionId, setUpgradedTransactionId] = useState<string | null>(null);
-  // Plan prices live in the Plan table, so the marketing copy must not be the
-  // source of truth for what a tier actually costs. Derived from the query
-  // rather than mirrored into state, so a refetch cannot leave a stale price
-  // on screen.
-  const { data: plans } = usePlansQuery();
-  const createCheckoutSessionMutation = useCreateCheckoutSessionMutation();
-  const syncCheckoutMutation = useSyncCheckoutMutation();
-
-  const planPrices = useMemo(() => {
-    const next = { ...FALLBACK_PRICES };
-    for (const plan of plans ?? []) {
-      const id = plan.name.toLowerCase() as PlanId;
-      if (id in next && typeof plan.price === "number") {
-        next[id] = plan.price;
-      }
-    }
-    return next;
-  }, [plans]);
-
-  const goToRegister = (planId: PlanId) => {
-    router.push(`/${locale}/createaccount?plan=${planId}`);
-  };
-
-  const handlePlanAction = async (planId: PlanId) => {
-    if (!isVerified || !user) {
-      goToRegister(planId);
-      return;
-    }
-
-    if (planId === "free" || (PLAN_RANK[planId] ?? 0) < currentRank) {
-      toast.info(
-        locale === "ar"
-          ? "أنت بالفعل على الخطة المجانية، أو يمكنك إدارة اشتراكك من الإعدادات"
-          : "You can manage or cancel your active subscription in Settings."
-      );
-      return;
-    }
-
-    try {
-      setCheckingOutPlan(planId);
-      const token = getAccessToken();
-      if (!token) {
-        goToRegister(planId);
-        return;
-      }
-
-      const session = await createCheckoutSessionMutation.mutateAsync(planId);
-
-      if (!session.priceId || session.priceId.includes('default')) {
-        toast.error(
-          locale === "ar"
-            ? "يرجى إضافة معرف السعر PADDLE_PRICE_ID الخاص بك في ملف .env أولاً"
-            : "Please set your real Paddle Price ID in .env (e.g. pri_01...)"
-        );
-        return;
-      }
-
-      if (session.priceId.startsWith('pro_')) {
-        toast.error(
-          locale === "ar"
-            ? "لقد استخدمت معرف المنتج (pro_...) بدلاً من معرف السعر (pri_...). يرجى نسخ معرف السعر من لوحة تحكم Paddle."
-            : "You provided a Product ID (pro_...) instead of a Price ID (pri_...). Please copy the Price ID from Paddle dashboard."
-        );
-        return;
-      }
-
-      const opened = await openPaddleCheckout({
-        priceId: session.priceId,
-        userId: user.id,
-        userEmail: user.email,
-        planId: session.planId,
-        locale: locale === "ar" ? "ar" : "en",
-        onSuccess: async (checkoutData) => {
-          const targetPlan = session.planId.toUpperCase();
-          const transactionId = (checkoutData as { transaction_id?: string; id?: string })?.transaction_id || (checkoutData as { transaction_id?: string; id?: string })?.id || null;
-
-          toast.success(
-            locale === "ar"
-              ? `أهلاً بك في باقة ${targetPlan}! تم ترقية حسابك بنجاح.`
-              : `Welcome to ${targetPlan}! Your account is now active.`
-          );
-
-          // Only adopt the plan the backend confirms. This used to run
-          // unconditionally after a swallowed sync failure, leaving the client
-          // permanently believing it had upgraded when the server disagreed —
-          // and because planName is persisted to localStorage, that lie
-          // survived reloads and unlocked gated features.
-          try {
-            const synced = await syncCheckoutMutation.mutateAsync({
-              planId: targetPlan,
-              transactionId: transactionId || undefined,
-            });
-
-            updateUser({
-              ...user,
-              planName: synced.plan as "PRO" | "ENTERPRISE",
-            });
-          } catch (err) {
-            console.error("Auto sync checkout error:", err);
-            toast.error(successModalT("syncPending"));
-          }
-
-          setUpgradedPlanName(targetPlan);
-          setUpgradedTransactionId(transactionId);
-          setSuccessModalOpen(true);
-        },
-      });
-
-      if (!opened) {
-        toast.error(
-          locale === "ar"
-            ? "تعذر فتح نافذة الدفع، يرجى المحاولة لاحقاً"
-            : "Could not open checkout overlay. Please try again."
-        );
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      toast.error(getErrorMessage(error, "Checkout initialization failed"));
-    } finally {
-      setCheckingOutPlan(null);
-    }
-  };
+  /* One mark per AI draft a plan's credits cover. The longest tape sets the
+     scale, so the three tapes can be compared by length. */
+  const tapes = PLANS.map((plan) => {
+    const credits = PLAN_FACTS[plan.id].credits;
+    return {
+      id: plan.id,
+      name: t(`plans.items.${plan.id}.name`),
+      credits,
+      drafts: Math.floor(credits / CREDITS_PER_DRAFT),
+    };
+  });
+  const longest = Math.max(...tapes.map((tape) => tape.drafts));
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-base text-primary">
-      {/* ── Background glows ─────────────────────────────── */}
-      <div className="pointer-events-none fixed left-[5%] top-[5%] z-0 h-125 w-125 rounded-full bg-gold/4 blur-3xl" />
-      <div className="pointer-events-none fixed bottom-[10%] right-[5%] z-0 h-100 w-100 rounded-full bg-vilot/5 blur-3xl" />
-
+    <main className="lp relative z-10 overflow-x-clip">
       <Navbar />
 
-      <div className="relative z-1 mx-auto max-w-7xl px-6">
-        {/* ── Hero header ──────────────────────────────────── */}
-        <div className="pb-16 pt-20 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-4 py-1.5"
-          >
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-gold">
-              {t("pricing.hero.badge")}
-            </span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-5 font-playfair text-[clamp(32px,5vw,56px)] font-black leading-[1.08] tracking-tight"
-          >
-            <span className="text-primary">{t("pricing.hero.titleLine1")}</span>
-            <br />
-            <span className="text-gradient-gold">
-              {t("pricing.hero.titleHighlight")}
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mx-auto max-w-xl leading-[1.7] text-secondary"
-          >
-            {t("pricing.hero.subtitle")}
-          </motion.p>
+      {/* ── Opening ────────────────────────────────────────────────────── */}
+      <section className="pb-14 pt-32 sm:pb-16 sm:pt-36">
+        <div className={`${WRAP} grid gap-6 lg:grid-cols-[7fr_5fr] lg:items-end lg:gap-16`}>
+          <h1 className="lp-display text-[clamp(2.5rem,5.2vw,4.5rem)]">
+            {t("hero.title")}
+          </h1>
+          <div>
+            <p className={`${BODY} text-[19px]`}>{t("hero.lead")}</p>
+            <p className="lp-label mt-3 text-lp-ink3">{t("hero.note")}</p>
+          </div>
         </div>
+      </section>
 
-        {/* ── Plan cards ───────────────────────────────────── */}
-        <div className="mb-20 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] items-start gap-5">
-          {PLANS.map((plan, i) => {
-            const Icon = plan.icon;
-            const isPopular = plan.isPopular;
-            const price = planPrices[plan.id];
-            const isFree = price === 0;
-            const planName = t(`pricing.plans.items.${plan.id}.name`);
-            const planFeatures = t.raw(
-              `pricing.plans.items.${plan.id}.features`,
-            ) as string[];
+      {/* ── The tickets ────────────────────────────────────────────────── */}
+      <section className="lp-mat pb-20 pt-12 sm:pb-28 lg:pt-14">
+        <div className={WRAP}>
+          <PlanTickets />
+          <p className="mt-8 text-[15px] text-lp-ink">{t("totals")}</p>
+        </div>
+      </section>
 
-            const isCurrentPlan = isVerified && currentPlanId === plan.id;
-            const isDowngrade =
-              isVerified && (PLAN_RANK[plan.id] ?? 0) < currentRank;
-            const isDowngradeToFree = isDowngrade && isFree;
+      {/* ── What a credit buys ─────────────────────────────────────────── */}
+      <section className="py-24 sm:py-32">
+        <div className={WRAP}>
+          <div className="grid gap-6 lg:grid-cols-[7fr_5fr] lg:items-end lg:gap-16">
+            <h2 className={H2}>{t("credits.title")}</h2>
+            <p className={BODY}>
+              {t("credits.lead", { cost: CREDITS_PER_DRAFT })}
+            </p>
+          </div>
 
-            let ctaLabel = "";
-            if (isVerified) {
-              if (isCurrentPlan) {
-                ctaLabel = t("pricing.plans.currentPlan");
-              } else if (isDowngradeToFree) {
-                ctaLabel = t("pricing.plans.downgradeToFree");
-              } else if (isDowngrade) {
-                ctaLabel = t("pricing.plans.downgradePlan", { plan: planName });
-              } else {
-                ctaLabel = t("pricing.plans.upgradePlan", { plan: planName });
-              }
-            } else {
-              ctaLabel = isFree
-                ? t("pricing.plans.getStarted")
-                : t("pricing.plans.startPlan", { plan: planName });
-            }
-
-            return (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`relative rounded-3xl border px-7 pb-7 pt-8 ${isPopular ? "-mt-3 border-gold/30 bg-gold/6 shadow-[0_0_50px_rgba(245,166,35,0.08)]" : "border-edge bg-primary/2"}`}
+          <ul className="mt-14 flex flex-col">
+            {tapes.map((tape) => (
+              <li
+                key={tape.id}
+                className="grid gap-x-8 gap-y-3 border-t border-lp-rule-strong py-7 lg:grid-cols-[180px_minmax(0,1fr)_260px] lg:items-center"
               >
-                {/* Popular badge */}
-                {isPopular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-linear-to-br from-gold to-gold-dark px-4.5 py-1.25 text-[11px] font-extrabold uppercase tracking-[0.08em] text-ink">
-                    ⚡ {t("pricing.plans.popular")}
-                  </div>
-                )}
-
-                {/* Plan icon + name */}
-                <div className="mb-6 flex items-center gap-3">
-                  <div
-                    className="flex h-11 w-11 items-center justify-center rounded-xl border"
-                    style={{
-                      background: plan.accentColor,
-                      borderColor: plan.borderColor,
-                    }}
-                  >
-                    <Icon size={22} color={plan.iconColor} />
-                  </div>
-                  <div>
-                    <div className="text-[17px] font-bold text-primary">
-                      <div className="flex items-center gap-2">
-                        <span>{planName}</span>
-                        {isCurrentPlan && (
-                          <span className="rounded-full bg-gold/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold">
-                            {t("pricing.plans.currentPlan")}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-xs text-muted">
-                      {isFree
-                        ? t("pricing.plans.alwaysFree")
-                        : t("pricing.plans.billedMonthly")}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Price */}
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-[13px] font-semibold text-secondary">
-                      $
-                    </span>
-                    <span className="font-playfair text-[44px] font-black leading-none text-primary">
-                      {formatPrice(price)}
-                    </span>
-                    {!isFree && (
-                      <span className="mb-1 self-end text-[13px] text-muted">
-                        {t("pricing.plans.perMonth")}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* CTA button */}
-                <button
-                  type="button"
-                  onClick={() => void handlePlanAction(plan.id)}
-                  disabled={(isVerified && isCurrentPlan) || checkingOutPlan === plan.id}
-                  aria-disabled={(isVerified && isCurrentPlan) || checkingOutPlan === plan.id}
-                  className={`mb-7 w-full rounded-xl py-3.5 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none ${isVerified && isCurrentPlan
-                      ? "pointer-events-none border border-edge bg-primary/5 text-primary/55"
-                      : isDowngrade
-                        ? "border border-edge-strong bg-primary/5 text-secondary hover:bg-primary/10 hover:text-primary"
-                        : "bg-gold text-ink shadow-[0_8px_24px_rgba(245,166,35,0.3)] hover:bg-gold-light hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)]"
-                    }`}
+                <h3 className="text-[22px] font-bold tracking-[-0.02em] rtl:tracking-normal">
+                  {tape.name}
+                </h3>
+                <div
+                  className="flex h-9 gap-[3px]"
+                  style={{ width: `${(tape.drafts / longest) * 100}%` }}
+                  aria-hidden
                 >
-                  <span className="inline-flex items-center gap-1">
-                    <span>{ctaLabel}</span>
-                    {!isCurrentPlan && <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />}
-                  </span>
-                </button>
-
-                {/* Divider */}
-                <div className="mb-6 h-px bg-edge" />
-
-                {/* Features */}
-                <div className="flex flex-col gap-3">
-                  {planFeatures.map((f) => (
-                    <div key={f} className="flex items-start gap-2.5">
-                      <div
-                        className="mt-px flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full border"
-                        style={{
-                          background: plan.accentColor,
-                          borderColor: plan.borderColor,
-                        }}
-                      >
-                        <Check size={10} color={plan.iconColor} />
-                      </div>
-                      <span className="text-[13px] leading-normal text-secondary">
-                        {f}
-                      </span>
-                    </div>
+                  {Array.from({ length: tape.drafts }, (_, i) => (
+                    <span
+                      key={i}
+                      className={`block flex-1 ${i % 5 === 4 ? "bg-lp-ink" : "bg-lp-violet"}`}
+                    />
                   ))}
                 </div>
-              </motion.div>
-            );
-          })}
+                <p className="flex items-baseline gap-3 whitespace-nowrap lg:justify-end">
+                  <span className="text-[17px] font-semibold">
+                    {t("credits.drafts", { count: tape.drafts })}
+                  </span>
+                  <span className="lp-mono text-lp-ink3">
+                    {t("credits.creditCount", { count: tape.credits })}
+                  </span>
+                </p>
+              </li>
+            ))}
+          </ul>
         </div>
+      </section>
 
-        {/* ── Comparison table ─────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-25"
-        >
-          <div className="mb-12 text-center">
-            <h2 className="mb-3 font-playfair text-[clamp(28px,4vw,42px)] font-extrabold text-primary">
-              {t("pricing.table.title")}
-            </h2>
-            <p className="text-[15px] text-faint">
-              {t("pricing.table.subtitle")}
-            </p>
+      {/* ── Before you pay ─────────────────────────────────────────────── */}
+      <section className="bg-lp-soft py-24 sm:py-32">
+        <div className={`${WRAP} grid gap-12 lg:grid-cols-[5fr_7fr] lg:gap-20`}>
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <h2 className={H2}>{t("terms.title")}</h2>
+            <Link
+              href={legalHref("terms", locale)}
+              className="lp-link mt-6 inline-flex items-center gap-1.5 text-[16px]"
+            >
+              {t("terms.link")}
+              <ArrowRight size={16} aria-hidden className="rtl:-scale-x-100" />
+            </Link>
           </div>
 
-          <div className="overflow-hidden rounded-[20px] border border-edge bg-primary/2">
-            {/* Table header */}
-            <div className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-edge bg-primary/3">
-              <div className="px-6 py-5 text-xs font-bold uppercase tracking-[0.08em] text-faint">
-                {t("pricing.table.featureHeader")}
-              </div>
-              {PLANS.map((p) => (
-                <div key={p.id} className="px-4 py-5 text-center">
-                  <span
-                    className={`text-sm font-bold ${p.id === "pro" ? "text-gold" : "text-primary"}`}
-                  >
-                    {t(`pricing.plans.items.${p.id}.name`)}
-                  </span>
-                </div>
-              ))}
-            </div>
+          <ul>
+            {terms.map((item) => (
+              <li
+                key={item.title}
+                className="border-t border-lp-rule-strong py-8"
+              >
+                <h3 className="text-[24px] font-bold leading-tight tracking-[-0.03em] rtl:tracking-normal">
+                  {item.title}
+                </h3>
+                <p className="mt-3 max-w-[38rem] text-[16.5px] leading-[1.65] text-lp-ink2">
+                  {item.desc}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
-            {/* Sections */}
-            {TABLE_SECTIONS.map((section, si) => (
-              <div key={section.key}>
-                <div
-                  className={`bg-primary/2 px-6 py-3.5 ${si > 0 ? "border-t border-edge" : ""}`}
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-secondary">
-                    {t(`pricing.table.sections.${section.key}`)}
-                  </span>
-                </div>
-                {section.rows.map((row, ri) => (
-                  <div
-                    key={row.key}
-                    className={`grid grid-cols-[2fr_1fr_1fr_1fr] border-t border-edge transition-colors duration-200 hover:bg-primary/3 ${ri % 2 === 0 ? "" : "bg-primary/12"}`}
-                  >
-                    <div className="flex items-center px-6 py-3.5 text-[13px] text-secondary">
-                      {t(`pricing.table.rows.${row.key}`)}
-                    </div>
-                    <div className="flex items-center justify-center px-4 py-3.5">
-                      <Cell value={resolveCellValue(row.free, t)} />
-                    </div>
-                    <div className="flex items-center justify-center bg-gold/3 px-4 py-3.5">
-                      <Cell value={resolveCellValue(row.pro, t)} highlight />
-                    </div>
-                    <div className="flex items-center justify-center px-4 py-3.5">
-                      <Cell value={resolveCellValue(row.enterprise, t)} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+      {/* ── Questions ──────────────────────────────────────────────────── */}
+      <section className="py-24 sm:py-32">
+        <div className={`${WRAP} grid gap-12 lg:grid-cols-[5fr_7fr] lg:gap-20`}>
+          <h2 className={H2}>{t("faq.title")}</h2>
+
+          <div className="border-b border-lp-rule-strong">
+            {faq.map((item) => (
+              <details
+                key={item.q}
+                className="group border-t border-lp-rule-strong"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 text-[20px] font-bold leading-snug tracking-[-0.02em] rtl:tracking-normal [&::-webkit-details-marker]:hidden">
+                  {item.q}
+                  <Plus
+                    size={22}
+                    aria-hidden
+                    className="shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-open:rotate-45"
+                  />
+                </summary>
+                <p className="max-w-[38rem] pb-7 text-[16.5px] leading-[1.65] text-lp-ink2">
+                  {item.a}
+                </p>
+              </details>
             ))}
           </div>
-        </motion.div>
+        </div>
+      </section>
 
-        {/* ── FAQ ──────────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto mb-25 max-w-180"
-        >
-          <div className="mb-12 text-center">
-            <h2 className="mb-3 font-playfair text-[clamp(28px,4vw,42px)] font-extrabold text-primary">
-              {t("pricing.faq.title")}
-            </h2>
-            <p className="text-[15px] text-faint">
-              {t("pricing.faq.subtitle")}
-            </p>
+      {/* ── Close ──────────────────────────────────────────────────────── */}
+      <section className="lp-night py-24 sm:py-32">
+        <div className={WRAP}>
+          <h2 className="lp-display text-[clamp(2.5rem,5.6vw,5rem)]">
+            {t("close.title")}
+          </h2>
+          <p className={`${BODY} mt-6 max-w-[30rem] text-[19px]`}>
+            {t("close.lead")}
+          </p>
+          <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-5">
+            <PrimaryAction
+              labels={{
+                new: tAction("new"),
+                onboarding: tAction("onboarding"),
+                dashboard: tAction("dashboard"),
+              }}
+              note={tHero("note")}
+            />
+            <Link href={`/${locale}/templates`} className="lp-link text-[16px]">
+              {tCta("secondary")}
+            </Link>
           </div>
-
-          <div className="rounded-[20px] border border-edge bg-primary/2 px-8 py-2">
-            {(t.raw("pricing.faq.items") as { q: string; a: string }[]).map(
-              (faq) => (
-                <FaqItem key={faq.q} q={faq.q} a={faq.a} />
-              ),
-            )}
-          </div>
-        </motion.div>
-
-        {currentPlanId === "free" && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="relative mb-20 overflow-hidden rounded-3xl border border-gold/15 bg-gold/5 px-8 py-15 text-center"
-          >
-            <div className="pointer-events-none absolute left-1/2 top-1/2 h-50 w-100 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/6 blur-[60px]" />
-            <div className="relative z-1">
-              <h2 className="mb-3 font-playfair text-[clamp(26px,4vw,40px)] font-extrabold text-primary">
-                {t("pricing.ctaBottom.title")}
-              </h2>
-              <p className="mx-auto mb-8 max-w-110 text-[15px] text-secondary">
-                {t("pricing.ctaBottom.subtitle")}
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <button
-                  onClick={() => goToRegister("free")}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gold px-8 py-4 text-[15px] font-bold text-ink shadow-[0_8px_28px_rgba(245,166,35,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-light"
-                >
-                  {t("pricing.ctaBottom.primaryButton")}{" "}
-                  <ArrowRight size={16} className={isRTL ? "rotate-180" : ""} />
-                </button>
-                <button
-                  onClick={() => goToRegister("pro")}
-                  className="inline-flex items-center gap-2 rounded-xl border border-edge-strong bg-primary/6 px-8 py-4 text-[15px] font-semibold text-primary/80 transition-all duration-200 hover:bg-primary/10 hover:text-primary"
-                >
-                  {t("pricing.ctaBottom.secondaryButton")}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </div>
-
-      <PaymentSuccessModal
-        isOpen={successModalOpen}
-        onClose={() => setSuccessModalOpen(false)}
-        planName={upgradedPlanName}
-        transactionId={upgradedTransactionId}
-      />
+        </div>
+      </section>
 
       <Footer />
     </main>

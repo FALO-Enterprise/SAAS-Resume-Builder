@@ -1,4 +1,3 @@
-// lib/plans.ts
 import { Sparkles, Zap, Crown } from 'lucide-react';
 
 export type PlanId = 'free' | 'pro' | 'enterprise';
@@ -8,34 +7,25 @@ export const PLANS = [
     id: 'free' as PlanId,
     monthlyPrice: 0,
     icon: Sparkles,
-    iconColor: '#94a3b8',
-    accentColor: 'rgba(148,163,184,0.12)',
-    borderColor: 'rgba(148,163,184,0.2)',
     isPopular: false,
   },
   {
     id: 'pro' as PlanId,
     monthlyPrice: 9.99,
     icon: Zap,
-    iconColor: '#f5a623',
-    accentColor: 'rgba(245,166,35,0.12)',
-    borderColor: 'rgba(245,166,35,0.35)',
     isPopular: true,
   },
   {
     id: 'enterprise' as PlanId,
     monthlyPrice: 29.99,
     icon: Crown,
-    iconColor: '#a78bfa',
-    accentColor: 'rgba(167,139,250,0.12)',
-    borderColor: 'rgba(167,139,250,0.3)',
     isPopular: false,
   },
 ] as const;
 
 
 export const PLAN_BADGES = {
-  free: "border-slate-500/20 bg-slate-500/10 text-slate-300",
-  pro: "border-gold/20 bg-gold/10 text-gold",
-  enterprise: "border-violet-500/20 bg-violet-500/10 text-violet-300",
+  free: "border-edge-strong bg-card text-secondary",
+  pro: "border-accent/20 bg-accent/10 text-accent",
+  enterprise: "border-accent/20 bg-accent/10 text-accent",
 } as const;
