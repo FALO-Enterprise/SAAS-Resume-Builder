@@ -40,9 +40,9 @@ export default async function NotFoundScreen({
       />
 
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(245,166,35,0.10),transparent_45%)]" />
-        <div className="absolute -inset-s-40 top-1/4 h-96 w-96 rounded-full bg-azure/6 blur-3xl" />
-        <div className="absolute -inset-e-40 bottom-0 h-96 w-96 rounded-full bg-gold/6 blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(110,91,196,0.10),transparent_45%)]" />
+        <div className="absolute -inset-s-40 top-1/4 h-96 w-96 rounded-full bg-accent/6 blur-3xl" />
+        <div className="absolute -inset-e-40 bottom-0 h-96 w-96 rounded-full bg-accent/6 blur-3xl" />
       </div>
 
       {chrome ? (
@@ -50,8 +50,8 @@ export default async function NotFoundScreen({
       ) : (
         <Link
           href={home}
-          aria-label="ResuMax"
-          className="relative z-10 self-start rounded-lg focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
+          aria-label="Resumax AI"
+          className="relative z-10 self-start rounded-lg focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
         >
           <Logo />
         </Link>
@@ -64,23 +64,22 @@ export default async function NotFoundScreen({
       >
         <div
           aria-hidden="true"
-          className="hero-enter-opaque relative flex items-center justify-center gap-[0.02em] font-playfair text-[clamp(5rem,17vw,9.5rem)] leading-none font-black"
+          className="hero-enter-opaque relative flex items-center justify-center gap-[0.02em] font-display text-[clamp(5rem,17vw,9.5rem)] leading-none font-black"
           style={delay(60)}
         >
-          <span className="pointer-events-none absolute top-1/2 left-1/2 h-[1.05em] w-[1.6em] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/12 blur-[70px]" />
-          <span className="text-gradient-gold relative">4</span>
-          <span className="relative mx-[0.04em] grid aspect-square w-[0.74em] place-items-center rounded-full border-[0.045em] border-gold/30">
-            <span className="absolute inset-[0.07em] rounded-full bg-gold/8" />
+          <span className="text-accent relative">4</span>
+          <span className="relative mx-[0.04em] grid aspect-square w-[0.74em] place-items-center rounded-full border-[0.045em] border-accent/30">
+            <span className="absolute inset-[0.07em] rounded-full bg-accent/8" />
             <FileSearch
-              className="relative h-[0.3em] w-[0.3em] text-gold"
+              className="relative h-[0.3em] w-[0.3em] text-accent"
               strokeWidth={1.25}
             />
           </span>
-          <span className="text-gradient-gold relative">4</span>
+          <span className="text-accent relative">4</span>
         </div>
 
         <h1
-          className="hero-enter-opaque mt-10 font-playfair text-[clamp(1.75rem,4.4vw,2.75rem)] leading-[1.1] font-black tracking-tight text-balance text-primary rtl:tracking-normal"
+          className="hero-enter-opaque mt-10 font-display text-[clamp(1.75rem,4.4vw,2.75rem)] leading-[1.1] font-black tracking-tight text-balance text-primary rtl:tracking-normal"
           style={delay(150)}
         >
           {t("title")}
@@ -99,7 +98,7 @@ export default async function NotFoundScreen({
         >
           <Link
             href={home}
-            className="group inline-flex min-h-13 items-center gap-2 rounded-full bg-gold px-7 font-bold text-on-gold transition-all duration-200 hover:scale-105 hover:bg-gold-light hover:shadow-[0_0_30px_rgba(245,166,35,0.4)] focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
+            className="group inline-flex min-h-13 items-center gap-2 rounded-full bg-accent px-7 font-bold text-on-accent transition-all duration-200 hover:scale-105 hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
           >
             {t("ctaHome")}
             <ArrowRight
@@ -111,7 +110,7 @@ export default async function NotFoundScreen({
 
           <Link
             href={`${home}/templates`}
-            className="glass inline-flex min-h-13 items-center gap-2 rounded-full border border-edge px-7 font-semibold text-secondary transition-all duration-200 hover:border-edge-strong hover:text-primary focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
+            className="bg-elevated inline-flex min-h-13 items-center gap-2 rounded-full border border-edge px-7 font-semibold text-secondary transition-all duration-200 hover:border-edge-strong hover:text-primary focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
           >
             {/* Not a chevron: a mirrored one reads as "rewind" in Arabic. */}
             <LayoutTemplate size={17} aria-hidden="true" />
@@ -126,11 +125,11 @@ export default async function NotFoundScreen({
             style={delay(380)}
           >
             <div className="flex items-center gap-4">
-              <span className="h-px flex-1 bg-linear-to-r from-transparent to-edge-strong" />
+              <span className="h-px flex-1 bg-transparent" />
               <span className="text-xs font-bold tracking-widest text-secondary uppercase">
                 {t("linksLabel")}
               </span>
-              <span className="h-px flex-1 bg-linear-to-l from-transparent to-edge-strong" />
+              <span className="h-px flex-1 bg-transparent" />
             </div>
 
             <ul className="mt-6 flex flex-wrap justify-center gap-2.5">
@@ -138,7 +137,7 @@ export default async function NotFoundScreen({
                 <li key={href}>
                   <Link
                     href={href}
-                    className="inline-flex min-h-11 items-center rounded-full border border-edge bg-card px-5 text-sm font-semibold text-secondary transition-colors hover:border-gold/30 hover:bg-card-hover hover:text-primary focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
+                    className="inline-flex min-h-11 items-center rounded-full border border-edge bg-card px-5 text-sm font-semibold text-secondary transition-colors hover:border-accent/30 hover:bg-card-hover hover:text-primary focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base focus-visible:outline-none"
                   >
                     {label}
                   </Link>

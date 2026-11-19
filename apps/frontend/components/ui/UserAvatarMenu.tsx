@@ -49,7 +49,7 @@ export default function UserAvatarMenu() {
               <div
                 onClick={(e) => { e.stopPropagation(); }}
                 aria-label="Account not verified"
-                className="flex h-6 w-6 items-center justify-center rounded-full bg-pink-light text-ink font-bold text-[10px] overflow-hidden shrink-0 animate-pulse"
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-flag text-on-accent font-bold text-[10px] overflow-hidden shrink-0 animate-pulse"
               >
                 <TriangleAlert size={12} />
               </div>
@@ -57,7 +57,7 @@ export default function UserAvatarMenu() {
           ) : null}
 
 
-          <div className="flex items-center justify-center h-6 w-6 rounded-full bg-gold text-ink font-bold text-[10px] overflow-hidden shrink-0">
+          <div className="flex items-center justify-center h-6 w-6 rounded-full bg-accent text-on-accent font-bold text-[10px] overflow-hidden shrink-0">
             {user?.avatar ? (
               <Image
                 src={getAvatarUrl(user.avatar)}
@@ -91,15 +91,15 @@ export default function UserAvatarMenu() {
                 className="absolute top-[calc(100%+8px)] inset-e-0 bg-elevated border border-edge rounded-xl overflow-hidden min-w-52 z-100 shadow-[0_20px_60px_var(--shadow-color)]"
               >
                 {!isVerified && (
-                  <div className="border-b border-edge bg-pink-light/10 px-4 py-3">
+                  <div className="border-b border-edge bg-flag/10 px-4 py-3">
                     <p className="flex items-start gap-2 text-xs text-secondary">
-                      <TriangleAlert size={14} className="mt-0.5 shrink-0 text-pink-light" />
+                      <TriangleAlert size={14} className="mt-0.5 shrink-0 text-flag" />
                       <span>
                         Your account is not verified yet. Verify your account{' '}
                         <Link
                           href={verifyHref}
                           onClick={() => setOpen(false)}
-                          className="font-semibold text-pink-light underline underline-offset-2 hover:text-pink"
+                          className="font-semibold text-flag underline underline-offset-2 hover:text-flag"
                         >
                           here
                         </Link>
@@ -170,7 +170,7 @@ export default function UserAvatarMenu() {
                     setOpen(false);
                     logout();
                   }}
-                  className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-pink-light bg-transparent border-none cursor-pointer hover:bg-card-hover transition-colors delay-150"
+                  className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-flag bg-transparent border-none cursor-pointer hover:bg-card-hover transition-colors delay-150"
                 >
                   <LogOut size={14} />
                   {t("logout")}

@@ -27,7 +27,7 @@ export default function LanguageSwitcher() {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-secondary text-sm font-medium py-2 px-3 rounded-lg bg-transparent border border-edge cursor-pointer transition-all delay-200"
+        className="flex h-10 cursor-pointer items-center gap-1.5 rounded-lg px-3 text-[14px] font-medium text-primary transition-colors duration-200 hover:bg-card-hover"
       >
         <Globe size={14} />
         <span>{locale.toUpperCase()}</span>
@@ -49,14 +49,14 @@ export default function LanguageSwitcher() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="absolute top-[calc(100%+8px)] inset-e-0 bg-elevated border border-edge rounded-xl overflow-hidden min-w-32 z-100 shadow-[0_20px_60px_var(--shadow-color)]"
+              className="absolute top-[calc(100%+8px)] inset-e-0 z-100 min-w-32 overflow-hidden rounded-lg border border-edge-strong bg-elevated shadow-[var(--lp-shadow)]"
             >
               {languages.map((lang) => (
                 <button
                   key={lang.code}
                   onClick={() => switchLocale(lang.code)}
-                  className={`w-full text-left px-3 py-4 text-sm bg-transparent border-none cursor-pointer transition-colors delay-150 hover:bg-card-hover hover:text-primary ${
-                    locale === lang.code ? "text-gold" : "text-secondary"
+                  className={`w-full cursor-pointer border-none bg-transparent px-3 py-3 text-start text-[14px] transition-colors duration-150 hover:bg-card-hover hover:text-primary ${
+                    locale === lang.code ? "font-semibold text-primary" : "text-secondary"
                   }`}
                 >
                   {lang.label}

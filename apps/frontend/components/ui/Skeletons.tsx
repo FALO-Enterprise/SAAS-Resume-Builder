@@ -117,20 +117,18 @@ export function DashboardSkeleton({ label }: { label?: string }) {
 
   return (
     <div
-      className="flex h-dvh overflow-hidden bg-base font-franklin"
+      className="flex h-dvh overflow-hidden bg-base"
       aria-busy="true"
       aria-label={label ?? t("loadingDraft")}
     >
       {/* Ambient glows — mirrors the real shell */}
-      <div className="pointer-events-none fixed right-[15%] top-[20%] z-0 h-100 w-100 rounded-full bg-gold/4 blur-[100px]" />
-      <div className="pointer-events-none fixed bottom-[20%] right-[30%] z-0 h-75 w-75 rounded-full bg-azure/4 blur-[80px]" />
 
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
       <aside className="fixed inset-y-0 inset-s-0 z-50 hidden h-dvh w-70 min-w-70 flex-col border-e border-edge bg-soft lg:sticky lg:top-0 lg:z-auto lg:flex lg:w-65 lg:min-w-65">
         {/* Logo + back link — REAL */}
         <div className="px-6 pt-7">
           <div className="flex items-center justify-between">
-            <Link href={`/${locale}`} aria-label="ResuMax home">
+            <Link href={`/${locale}`} aria-label="Resumax AI home">
               <Logo />
             </Link>
           </div>
@@ -144,7 +142,7 @@ export function DashboardSkeleton({ label }: { label?: string }) {
 
         {/* Progress card — chrome real, step counter + segments boned */}
         <div className="px-6 pb-6 pt-7">
-          <div className="rounded-[14px] border border-gold/12 bg-gold/6 px-4.5 py-4">
+          <div className="rounded-lg border border-accent/12 bg-accent/6 px-4.5 py-4">
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <div className="text-[15px] font-bold text-primary">
@@ -152,7 +150,7 @@ export function DashboardSkeleton({ label }: { label?: string }) {
                 </div>
                 <Bone className="mt-1.5 h-2.5 w-24 rounded" />
               </div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-gold/25 bg-gold/12">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-accent/25 bg-accent/12">
                 <Bone className="h-3 w-6 rounded" />
               </div>
             </div>
@@ -174,9 +172,9 @@ export function DashboardSkeleton({ label }: { label?: string }) {
           {Array.from({ length: 6 }, (_, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 rounded-xl border border-gold/10 px-3.5 py-3"
+              className="flex items-center gap-3 rounded-xl border border-accent/10 px-3.5 py-3"
             >
-              <Bone className="h-9 w-9 shrink-0 rounded-[10px]" />
+              <Bone className="h-9 w-9 shrink-0 rounded-lg" />
               <div className="min-w-0 flex-1">
                 <Bone className="h-3 w-24 rounded" />
                 <Bone className="mt-1.5 h-2.5 w-32 rounded" />
@@ -194,11 +192,11 @@ export function DashboardSkeleton({ label }: { label?: string }) {
       {/* ── Main column ─────────────────────────────────────────────────── */}
       <div className="relative z-1 flex h-dvh min-h-0 flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="sticky top-0 z-40 flex shrink-0 items-center justify-between border-b border-edge bg-elevated/90 px-3 py-2 backdrop-blur-xl sm:px-5">
+        <header className="sticky top-0 z-40 flex shrink-0 items-center justify-between border-b border-edge bg-elevated/90 px-3 py-2 sm:px-5">
           <div className="flex min-w-0 items-center gap-2.5">
             <Bone className="h-5 w-5 rounded lg:hidden" />
             <div className="flex min-w-0 items-center gap-2">
-              <div className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-gold/25 bg-gold/15 text-gold sm:flex">
+              <div className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-accent/25 bg-accent/15 text-accent sm:flex">
                 <FileText size={14} />
               </div>
               <div>
@@ -210,7 +208,7 @@ export function DashboardSkeleton({ label }: { label?: string }) {
 
           <div className="flex shrink-0 items-center gap-2">
             <div className="flex items-center gap-1.5 rounded-lg border border-edge bg-card px-2.5 py-1 shadow-xs">
-              <Layers size={12} className="shrink-0 text-gold" />
+              <Layers size={12} className="shrink-0 text-accent" />
               <Bone className="hidden h-2.5 w-16 rounded sm:block" />
               <Bone className="h-3 w-4 rounded-md" />
             </div>
@@ -253,7 +251,7 @@ export function DashboardSkeleton({ label }: { label?: string }) {
                 {Array.from({ length: 8 }, (_, i) => (
                   <div
                     key={i}
-                    className="rounded-[14px] border border-edge bg-card px-5 py-4.5 shadow-[0_2px_8px_var(--shadow-color)]"
+                    className="rounded-lg border border-edge bg-card px-5 py-4.5 shadow-[0_2px_8px_var(--shadow-color)]"
                   >
                     <div className="mb-2.5 flex items-center gap-2">
                       <Bone className="h-7 w-7 shrink-0 rounded-lg" />
@@ -265,8 +263,8 @@ export function DashboardSkeleton({ label }: { label?: string }) {
               </div>
 
               {/* ATS tip callout */}
-              <div className="mt-7 flex items-start gap-3.5 rounded-[14px] border border-azure/15 bg-azure/[0.07] px-5 py-4">
-                <Bone className="h-8 w-8 shrink-0 rounded-[9px]" />
+              <div className="mt-7 flex items-start gap-3.5 rounded-lg border border-accent/15 bg-accent/[0.07] px-5 py-4">
+                <Bone className="h-8 w-8 shrink-0 rounded-lg" />
                 <div className="flex-1">
                   <Bone className="mb-2 h-2.5 w-28 rounded" />
                   <Bone className="h-3 w-full rounded" />
@@ -289,7 +287,7 @@ export function DashboardSkeleton({ label }: { label?: string }) {
         </div>
 
         {/* Footer nav bar */}
-        <div className="sticky bottom-0 z-10 flex shrink-0 items-center justify-between gap-3 border-t border-edge bg-base/80 px-5 py-3.5 backdrop-blur-[20px] sm:px-8 lg:px-15 lg:py-4.5">
+        <div className="sticky bottom-0 z-10 flex shrink-0 items-center justify-between gap-3 border-t border-edge bg-base/80 px-5 py-3.5 sm:px-8 lg:px-15 lg:py-4.5">
           <Bone className="h-4 w-24 rounded" />
           <div className="hidden items-center gap-2 sm:flex">
             <Bone className="h-1.5 w-6 rounded-full" />
@@ -312,7 +310,7 @@ export function DashboardSkeleton({ label }: { label?: string }) {
 // and their labels, the gauge track — stays real; only analysis-derived values
 // become bones.
 // ─────────────────────────────────────────────────────────────────────────────
-const COACH_BONE = "bg-slate-700/60";
+const COACH_BONE = "bg-plum-700/60";
 
 export function AiCoachSkeleton({
   label = "Analyzing resume against global ATS benchmarks",
@@ -322,12 +320,12 @@ export function AiCoachSkeleton({
   return (
     <div className="space-y-4" aria-busy="true" aria-label={label}>
       {/* Score card */}
-      <div className="relative bg-linear-to-br from-slate-800 via-slate-900 to-slate-950 p-4 rounded-xl border border-amber-500/30 shadow-lg flex items-center justify-between overflow-hidden">
-        <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="relative bg-plum-800 p-4 rounded-xl border border-lilac-500/30 shadow-lg flex items-center justify-between overflow-hidden">
+        <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-lilac-500/10 rounded-full blur-2xl pointer-events-none" />
         <div className="pr-3 z-10 min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <Crown size={13} className="text-amber-400" />
-            <span className="text-[10px] font-extrabold text-amber-400 uppercase tracking-wider">
+            <Crown size={13} className="text-lilac-400" />
+            <span className="text-[10px] font-extrabold text-lilac-400 uppercase tracking-wider">
               ATS Readiness Score
             </span>
           </div>
@@ -342,7 +340,7 @@ export function AiCoachSkeleton({
         <div className="relative w-18 h-18 shrink-0 flex items-center justify-center">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
             <path
-              className="text-slate-800"
+              className="text-plum-800"
               strokeWidth="3.5"
               stroke="currentColor"
               fill="none"
@@ -356,14 +354,14 @@ export function AiCoachSkeleton({
       </div>
 
       {/* Breakdown bars */}
-      <div className="grid grid-cols-2 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+      <div className="grid grid-cols-2 gap-2 bg-plum-950/60 p-3 rounded-xl border border-plum-800">
         {Array.from({ length: 2 }, (_, i) => (
           <div key={i}>
             <div className="flex justify-between mb-1">
               <Bone bg={COACH_BONE} className="h-2 w-20 rounded" />
               <Bone bg={COACH_BONE} className="h-2 w-6 rounded" />
             </div>
-            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-plum-800 rounded-full overflow-hidden">
               <Bone bg={COACH_BONE} className="h-full w-1/3 rounded-full" />
             </div>
           </div>
@@ -373,13 +371,13 @@ export function AiCoachSkeleton({
       {/* Coaching fixes */}
       <div className="space-y-2.5">
         <h4 className="font-bold text-slate-200 text-xs flex items-center gap-1.5">
-          <Zap size={14} className="text-amber-400" />
+          <Zap size={14} className="text-lilac-400" />
           Executive Coaching Fixes
         </h4>
         {Array.from({ length: 3 }, (_, i) => (
           <div
             key={i}
-            className="bg-slate-800/70 border border-slate-700/80 p-3 rounded-xl space-y-2"
+            className="bg-plum-800/70 border border-plum-700/80 p-3 rounded-xl space-y-2"
           >
             {/* category chip */}
             <Bone bg={COACH_BONE} className="h-3.5 w-20 rounded" />

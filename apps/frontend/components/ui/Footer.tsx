@@ -1,124 +1,87 @@
-"use client";
-
-import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { ExternalLink, AtSign, Send, Mail } from "lucide-react";
-import Logo from "@/components/ui/Logo";
+import { useLocale, useTranslations } from "next-intl";
 import { legalHref } from "@/lib/legal";
 import { blogHref } from "@/lib/blog";
+import Logo from "@/components/ui/Logo";
+
+/* The site footer, used by every page. */
 
 export default function Footer() {
-  const t = useTranslations("footer");
+  const tNav = useTranslations("nav");
+  const tFooter = useTranslations("footer");
   const locale = useLocale();
-
-  const productLinks = [
-    "features",
-    "howItWorks",
-    "templates",
-    "pricing",
-  ] as const;
-  const companyLinks = ["about", "blog"] as const;
-  const supportLinks = ["help", "privacy", "terms"] as const;
-
   const home = `/${locale}`;
 
-  const linkRoutes: Partial<Record<string, string>> = {
-    // Product — landing-page sections live behind anchors, the rest are routes.
-    features: `${home}#features`,
-    howItWorks: `${home}#how-it-works`,
-    templates: `${home}/templates`,
-    pricing: `${home}/pricing`,
-    // Company
-    about: `${home}/about`,
-    blog: blogHref(locale),
-    // Support
-    help: `${home}/help`,
-    contact: `${home}/help#contact`,
-    privacy: legalHref("privacy", locale),
-    terms: legalHref("terms", locale),
-  };
+  const columns = [
+    {
+      title: tFooter("product"),
+      links: [
+        { label: tNav("howItWorks"), href: `${home}#how-it-works` },
+        { label: tFooter("links.templates"), href: `${home}/templates` },
+        { label: tFooter("links.pricing"), href: `${home}/pricing` },
+      ],
+    },
+    {
+      title: tFooter("company"),
+      links: [
+        { label: tFooter("links.about"), href: `${home}/about` },
+        { label: tFooter("links.blog"), href: blogHref(locale) },
+      ],
+    },
+    {
+      title: tFooter("support"),
+      links: [
+        { label: tFooter("links.help"), href: `${home}/help` },
+        { label: tFooter("links.privacy"), href: legalHref("privacy", locale) },
+        { label: tFooter("links.terms"), href: legalHref("terms", locale) },
+      ],
+    },
+  ];
 
   return (
-    <footer className="relative border-t border-edge">
-      <div className="absolute inset-0 bg-linear-to-b from-transparent to-base" />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
-        <div className="grid lg:grid-cols-5 gap-12">
-          {/* Brand */}
-          <div className="lg:col-span-2">
+    <footer className="bg-lp-soft py-16">
+      <div className="mx-auto w-full max-w-[1320px] px-5 sm:px-8">
+        <div className="grid gap-12 lg:grid-cols-[5fr_7fr]">
+          <div>
             <Logo />
-            <p className="text-secondary text-sm leading-relaxed mt-4 max-w-xs">
-              {t("tagline")} — Build world-class resumes trusted by
-              professionals in 120+ countries.
+            <p className="mt-4 max-w-[22rem] text-[16px] leading-[1.6] text-lp-ink2">
+              {tFooter("tagline")}
             </p>
-            {/* Social links */}
-            <div className="flex gap-3 mt-6">
-              {[
-                { icon: ExternalLink, href: "#" },
-                { icon: AtSign, href: "#" },
-                { icon: Send, href: "#" },
-                { icon: Mail, href: "mailto:hello@resumax.io" },
-              ].map(({ icon: Icon, href }, i) => (
-                <a
-                  key={i}
-                  href={href}
-                  className="w-9 h-9 glass rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:border-edge-strong transition-all border border-edge"
-                >
-                  <Icon size={16} />
-                </a>
-              ))}
-            </div>
           </div>
-
-          {/* Links */}
-          {[
-            { title: t("product"), links: productLinks },
-            { title: t("company"), links: companyLinks },
-            { title: t("support"), links: supportLinks },
-          ].map(({ title, links }) => (
-            <div key={title}>
-              <h4 className="text-primary font-bold text-sm uppercase tracking-wider mb-5">
-                {title}
-              </h4>
-              <ul className="space-y-3">
-                {links.map((link) => {
-                  const href = linkRoutes[link];
-                  return (
-                    <li key={link}>
-                      {href ? (
-                        <Link
-                          href={href}
-                          className="text-secondary hover:text-primary text-sm transition-colors no-underline"
-                        >
-                          {t(`links.${link}`)}
-                        </Link>
-                      ) : (
-                        <a
-                          href="#"
-                          className="text-secondary hover:text-primary text-sm transition-colors"
-                        >
-                          {t(`links.${link}`)}
-                        </a>
-                      )}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+            {columns.map((column) => (
+              <nav key={column.title} aria-label={column.title}>
+                <h3 className="lp-label text-lp-ink3">{column.title}</h3>
+                <ul className="mt-4 flex flex-col gap-3">
+                  {column.links.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-[15.5px] text-lp-ink no-underline hover:underline"
+                      >
+                        {link.label}
+                      </Link>
                     </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
+                  ))}
+                </ul>
+              </nav>
+            ))}
+          </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-edge mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-secondary text-sm">
-            © 2026 ResuMax · {t("rights")}
+        <div className="mt-14 flex flex-col gap-3 border-t border-lp-rule-strong pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[14px] text-lp-ink2">
+            © 2026 Resumax AI · {tFooter("rights")}{" "}
+            <a
+              href="https://falo.software/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="lp-link font-medium"
+            >
+              {tFooter("poweredBy")}
+            </a>
           </p>
-          <p className="text-secondary text-sm flex items-center gap-2">
-            <span className="w-4 h-4 bg-linear-to-br from-gold to-gold-dark rounded flex items-center justify-center text-on-gold text-xs font-black">
-              F
-            </span>
-            {t("poweredBy")}
-          </p>
+          <p className="lp-label text-lp-ink3">{tFooter("motto")}</p>
         </div>
       </div>
     </footer>

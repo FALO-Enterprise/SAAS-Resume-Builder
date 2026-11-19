@@ -27,7 +27,7 @@ export default function HintTooltip({
         aria-describedby={open ? tooltipId : undefined}
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
-        className="flex h-5 w-5 items-center justify-center rounded-full text-muted outline-none transition-colors hover:text-gold focus-visible:text-gold focus-visible:ring-2 focus-visible:ring-gold/40"
+        className="flex h-5 w-5 items-center justify-center rounded-full text-muted outline-none transition-colors hover:text-accent focus-visible:text-accent focus-visible:ring-2 focus-visible:ring-accent/40"
       >
         <HelpCircle size={14} />
       </button>
