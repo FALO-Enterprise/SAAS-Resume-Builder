@@ -173,7 +173,7 @@ async function sendVerificationEmail(email: string, code: string) {
                     Verify your account
                 </h2>
                 <p style="color: #6B7280; font-size: 15px; margin: 0 0 30px 0;">
-                    Use the code below to complete your <strong style="color: #111827;">ResuMax</strong> registration. 
+                    Use the code below to complete your <strong style="color: #111827;">Resumax AI</strong> registration. 
                     This code expires in <strong style="color: #F5A623;">10 minutes</strong>.
                 </p>
 
@@ -205,7 +205,7 @@ async function sendVerificationEmail(email: string, code: string) {
                     Build Resumes That <span style="color: #F5A623;">Open Doors</span>
                 </p>
                 <p style="color: #9CA3AF; font-size: 12px; margin: 0;">
-                    © ${new Date().getFullYear()} ResuMax. All rights reserved.
+                    © ${new Date().getFullYear()} Resumax AI. All rights reserved.
                 </p>
             </div>
 

@@ -1,4 +1,4 @@
-# ResuMax
+# Resumax AI
 
 A premium SaaS resume builder — Next.js frontend, Express/Prisma backend, structured as an npm-workspaces monorepo orchestrated with Turbo.
 
@@ -100,7 +100,7 @@ SMTP_HOST=smtp.example.com
 SMTP_PORT=587
 SMTP_USER=your-smtp-user
 SMTP_PASS=your-smtp-password
-EMAIL_FROM="ResuMax <no-reply@example.com>"
+EMAIL_FROM="Resumax AI <no-reply@example.com>"
 ```
 
 Apply pending migrations before using the flow:

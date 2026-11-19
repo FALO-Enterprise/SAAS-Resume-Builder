@@ -108,7 +108,7 @@ export class NotificationEmailService {
             if (dbUser?.name) targetName = dbUser.name;
         }
 
-        const fromAddress = process.env.EMAIL_FROM || 'ResuMax <no-reply@resumax.local>';
+        const fromAddress = process.env.EMAIL_FROM || 'Resumax AI <no-reply@resumax.local>';
         const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
         const dashboardUrl = `${frontendUrl}/${locale}/dashboard`;
         const safeName = escapeHtml(targetName?.trim() || (locale === 'ar' ? 'المستخدم' : 'User'));
@@ -124,17 +124,17 @@ export class NotificationEmailService {
                 from: fromAddress,
                 to: user.email,
                 subject: locale === 'ar'
-                    ? 'مرحباً بك في ResuMax! 🚀 فلنأنشئ سيرتك الذاتية احترافياً'
-                    : 'Welcome to ResuMax! 🚀 Build Your Professional Resume',
+                    ? 'مرحباً بك في Resumax AI! 🚀 فلنأنشئ سيرتك الذاتية احترافياً'
+                    : 'Welcome to Resumax AI! 🚀 Build Your Professional Resume',
                 html: locale === 'ar'
                     ? `
                         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; color: #111827; background-color: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb;">
                             <div style="text-align: center; margin-bottom: 24px;">
-                                <h1 style="color: #d97706; font-size: 26px; font-weight: 900; margin: 0;">ResuMax</h1>
+                                <h1 style="color: #d97706; font-size: 26px; font-weight: 900; margin: 0;">Resumax AI</h1>
                             </div>
                             <h2 style="font-size: 20px; font-weight: 800; color: #111827; margin-top: 0;">مرحباً ${safeName}،</h2>
                             <p style="font-size: 15px; line-height: 1.6; color: #374151;">
-                                يسعدنا انضمامك إلى <strong>ResuMax</strong>! لقد أصبحت الآن جاهزاً لإنشاء سيرة ذاتية احترافية تتوافق مع معايير ATS العالمية وتقدمك بأفضل صورة أمام مسؤولي التوظيف.
+                                يسعدنا انضمامك إلى <strong>Resumax AI</strong>! لقد أصبحت الآن جاهزاً لإنشاء سيرة ذاتية احترافية تتوافق مع معايير ATS العالمية وتقدمك بأفضل صورة أمام مسؤولي التوظيف.
                             </p>
                             <div style="background-color: #f9fafb; border-radius: 12px; padding: 20px; margin: 24px 0; border: 1px solid #f3f4f6;">
                                 <h3 style="font-size: 16px; font-weight: 700; color: #111827; margin-top: 0;">خطواتك الأولى:</h3>
@@ -152,18 +152,18 @@ export class NotificationEmailService {
                             </div>
                             <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 24px 0;" />
                             <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">
-                                نتمنى لك كل التوفيق في مسيرتك المهنية!<br />فريق ResuMax
+                                نتمنى لك كل التوفيق في مسيرتك المهنية!<br />فريق Resumax AI
                             </p>
                         </div>
                     `
                     : `
                         <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; color: #111827; background-color: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb;">
                             <div style="text-align: center; margin-bottom: 24px;">
-                                <h1 style="color: #d97706; font-size: 26px; font-weight: 900; margin: 0;">ResuMax</h1>
+                                <h1 style="color: #d97706; font-size: 26px; font-weight: 900; margin: 0;">Resumax AI</h1>
                             </div>
                             <h2 style="font-size: 20px; font-weight: 800; color: #111827; margin-top: 0;">Hello ${safeName},</h2>
                             <p style="font-size: 15px; line-height: 1.6; color: #374151;">
-                                Welcome to <strong>ResuMax</strong>! We're excited to have you on board. You're now ready to craft global, ATS-ready resumes that showcase your expertise to top recruiters.
+                                Welcome to <strong>Resumax AI</strong>! We're excited to have you on board. You're now ready to craft global, ATS-ready resumes that showcase your expertise to top recruiters.
                             </p>
                             <div style="background-color: #f9fafb; border-radius: 12px; padding: 20px; margin: 24px 0; border: 1px solid #f3f4f6;">
                                 <h3 style="font-size: 16px; font-weight: 700; color: #111827; margin-top: 0;">Get Started in 3 Quick Steps:</h3>
@@ -181,7 +181,7 @@ export class NotificationEmailService {
                             </div>
                             <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 24px 0;" />
                             <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">
-                                Wishing you the utmost success in your career journey!<br />The ResuMax Team
+                                Wishing you the utmost success in your career journey!<br />The Resumax AI Team
                             </p>
                         </div>
                     `,
@@ -214,7 +214,7 @@ export class NotificationEmailService {
             if (dbUser?.name) targetName = dbUser.name;
         }
 
-        const fromAddress = process.env.EMAIL_FROM || 'ResuMax <no-reply@resumax.local>';
+        const fromAddress = process.env.EMAIL_FROM || 'Resumax AI <no-reply@resumax.local>';
         const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
         const dashboardUrl = `${frontendUrl}/${locale}/dashboard`;
         const safeName = escapeHtml(targetName?.trim() || (locale === 'ar' ? 'المستخدم' : 'User'));
@@ -232,17 +232,17 @@ export class NotificationEmailService {
                 from: fromAddress,
                 to: user.email,
                 subject: locale === 'ar'
-                    ? `تم تحديث خطتك في ResuMax إلى ${safePlanName} ⚡`
-                    : `Your ResuMax Plan Has Been Updated to ${safePlanName} ⚡`,
+                    ? `تم تحديث خطتك في Resumax AI إلى ${safePlanName} ⚡`
+                    : `Your Resumax AI Plan Has Been Updated to ${safePlanName} ⚡`,
                 html: locale === 'ar'
                     ? `
                         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; color: #111827; background-color: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb;">
                             <div style="text-align: center; margin-bottom: 24px;">
-                                <h1 style="color: #d97706; font-size: 26px; font-weight: 900; margin: 0;">ResuMax</h1>
+                                <h1 style="color: #d97706; font-size: 26px; font-weight: 900; margin: 0;">Resumax AI</h1>
                             </div>
                             <h2 style="font-size: 20px; font-weight: 800; color: #111827; margin-top: 0;">مرحباً ${safeName}،</h2>
                             <p style="font-size: 15px; line-height: 1.6; color: #374151;">
-                                نود إعلامك بأنه تم تحديث اشتراك حسابك في ResuMax بنجاح.
+                                نود إعلامك بأنه تم تحديث اشتراك حسابك في Resumax AI بنجاح.
                             </p>
                             <div style="background-color: #fef3c7; border-radius: 12px; padding: 20px; margin: 24px 0; border: 1px solid #fde68a; text-align: center;">
                                 <span style="font-size: 12px; font-weight: 800; uppercase; color: #92400e; letter-spacing: 1px;">الخطة الحالية</span>
@@ -261,18 +261,18 @@ export class NotificationEmailService {
                             </div>
                             <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 24px 0;" />
                             <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">
-                                شكراً لاستخدامك ResuMax!<br />فريق ResuMax
+                                شكراً لاستخدامك Resumax AI!<br />فريق Resumax AI
                             </p>
                         </div>
                     `
                     : `
                         <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; color: #111827; background-color: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb;">
                             <div style="text-align: center; margin-bottom: 24px;">
-                                <h1 style="color: #d97706; font-size: 26px; font-weight: 900; margin: 0;">ResuMax</h1>
+                                <h1 style="color: #d97706; font-size: 26px; font-weight: 900; margin: 0;">Resumax AI</h1>
                             </div>
                             <h2 style="font-size: 20px; font-weight: 800; color: #111827; margin-top: 0;">Hello ${safeName},</h2>
                             <p style="font-size: 15px; line-height: 1.6; color: #374151;">
-                                This email confirms that your ResuMax account subscription has been successfully updated.
+                                This email confirms that your Resumax AI account subscription has been successfully updated.
                             </p>
                             <div style="background-color: #fef3c7; border-radius: 12px; padding: 20px; margin: 24px 0; border: 1px solid #fde68a; text-align: center;">
                                 <span style="font-size: 12px; font-weight: 800; uppercase; color: #92400e; letter-spacing: 1px;">ACTIVE PLAN</span>
@@ -291,7 +291,7 @@ export class NotificationEmailService {
                             </div>
                             <hr style="border: none; border-top: 1px solid #f3f4f6; margin: 24px 0;" />
                             <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">
-                                Thank you for choosing ResuMax!<br />The ResuMax Team
+                                Thank you for choosing Resumax AI!<br />The Resumax AI Team
                             </p>
                         </div>
                     `,

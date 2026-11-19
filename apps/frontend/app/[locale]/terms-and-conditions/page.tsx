@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     namespace: LEGAL_MESSAGE_KEYS.terms,
   });
 
-  const title = `${t("title")} — ResuMax`;
+  const title = `${t("title")} — Resumax AI`;
   const description = t("description");
 
   return {

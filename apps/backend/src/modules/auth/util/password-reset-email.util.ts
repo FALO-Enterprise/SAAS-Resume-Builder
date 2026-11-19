@@ -44,13 +44,13 @@ export async function sendPasswordResetEmail(
         from: fromAddress,
         to: email,
         subject: locale === 'ar'
-            ? 'إعادة تعيين كلمة مرور ResuMax'
-            : 'Reset your ResuMax password',
+            ? 'إعادة تعيين كلمة مرور Resumax AI'
+            : 'Reset your Resumax AI password',
         html: locale === 'ar'
             ? `
                 <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 20px; color: #111827;">
                     <h2>مرحباً ${safeName}،</h2>
-                    <p>تلقينا طلباً لإعادة تعيين كلمة مرور حسابك في ResuMax.</p>
+                    <p>تلقينا طلباً لإعادة تعيين كلمة مرور حسابك في Resumax AI.</p>
                     <p style="margin: 30px 0;">
                         <a href="${resetUrl}" style="display: inline-block; border-radius: 10px; background: #F5A623; padding: 14px 22px; color: #111827; font-weight: 700; text-decoration: none;">
                             إعادة تعيين كلمة المرور
@@ -63,7 +63,7 @@ export async function sendPasswordResetEmail(
             : `
                 <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 20px; color: #111827;">
                     <h2>Hello ${safeName},</h2>
-                    <p>We received a request to reset your ResuMax account password.</p>
+                    <p>We received a request to reset your Resumax AI account password.</p>
                     <p style="margin: 30px 0;">
                         <a href="${resetUrl}" style="display: inline-block; border-radius: 10px; background: #F5A623; padding: 14px 22px; color: #111827; font-weight: 700; text-decoration: none;">
                             Reset password

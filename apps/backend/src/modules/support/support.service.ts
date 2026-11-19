@@ -24,7 +24,7 @@ export class SupportService {
         const supportInbox =
             process.env.SUPPORT_EMAIL || process.env.EMAIL_FROM || 'hello@resumax.io';
         const fromAddress =
-            process.env.EMAIL_FROM || 'ResuMax <no-reply@resumax.local>';
+            process.env.EMAIL_FROM || 'Resumax AI <no-reply@resumax.local>';
 
         const transporter = getTransporter();
         const topicLabel = TOPIC_LABELS[input.topic];
@@ -80,7 +80,7 @@ export class SupportService {
         if (!transporter) return;
 
         const fromAddress =
-            process.env.EMAIL_FROM || 'ResuMax <no-reply@resumax.local>';
+            process.env.EMAIL_FROM || 'Resumax AI <no-reply@resumax.local>';
         const safeName = escapeHtml(input.name);
         const safeMessage = escapeHtml(input.message).replace(/\n/g, '<br>');
         const isArabic = locale === 'ar';
@@ -89,12 +89,12 @@ export class SupportService {
             from: fromAddress,
             to: input.email,
             subject: isArabic
-                ? 'وصلتنا رسالتك — فريق ResuMax'
-                : 'We got your message — ResuMax Support',
+                ? 'وصلتنا رسالتك — فريق Resumax AI'
+                : 'We got your message — Resumax AI Support',
             html: `
                 <div dir="${isArabic ? 'rtl' : 'ltr'}" style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; color: #111827; background: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb;">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <h1 style="color: #d97706; font-size: 24px; font-weight: 900; margin: 0;">ResuMax</h1>
+                        <h1 style="color: #d97706; font-size: 24px; font-weight: 900; margin: 0;">Resumax AI</h1>
                     </div>
                     <h2 style="font-size: 18px; margin-top: 0;">${isArabic ? `مرحباً ${safeName}،` : `Hi ${safeName},`}</h2>
                     <p style="font-size: 15px; line-height: 1.7; color: #374151;">
