@@ -30,6 +30,10 @@ next-env.d.ts
 .env.test.local
 .env.production.local
 
+# Impeccable (design tool working files: review screenshots, caches, briefs)
+.impeccable/
+
+
 # Logs
 *.log
 npm-debug.log*
