@@ -6,7 +6,7 @@ import { PREFERENCES_INIT_SCRIPT } from "@/lib/preferences";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ResuMax — Trusted. Global. Effortless.",
+  title: "Resumax AI — Trusted. Global. Effortless.",
   description: "Build world-class resumes & CVs that follow global standards.",
 };
 
@@ -33,7 +33,9 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }}
         />
       </head>
-      <body className={isArabic ? "font-arabic" : ""}>{children}</body>
+      <body className="lp">
+        {children}
+      </body>
     </html>
   );
 }
