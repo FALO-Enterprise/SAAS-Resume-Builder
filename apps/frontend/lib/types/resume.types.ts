@@ -20,6 +20,5 @@ export type TemplateCard = {
   id: TemplateId;
   image: string;
   category: Exclude<FilterKey, "all">;
-  icon: LucideIcon;
-  accent: string;
+  icon: LucideIcon;
 };
