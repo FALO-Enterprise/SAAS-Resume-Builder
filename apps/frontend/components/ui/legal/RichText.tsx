@@ -9,17 +9,17 @@ import { Fragment } from "react";
  * here instead. The vocabulary is deliberately tiny; anything richer belongs in
  * the block structure, not in prose.
  *
- *   <b>…</b>                  bold
- *   <mail>name@host</mail>    mailto link
- *   <a href="#anchor">…</a>   in-page anchor
- *   <a href="/pricing">…</a>  internal route, prefixed with the active locale
+ *   <b>…</b> bold
+ *   <mail>name@host</mail> mailto link
+ *   <a href="#anchor">…</a> in-page anchor
+ *   <a href="/pricing">…</a> internal route, prefixed with the active locale
  */
 
 // Tags never nest in this content, so a single non-greedy pass is enough.
 const TAG_PATTERN = /<(b|mail|a)(?:\s+href="([^"]*)")?>([\s\S]*?)<\/\1>/g;
 
 const LINK_CLASS =
-  "font-medium text-gold underline decoration-gold/30 underline-offset-4 transition-colors hover:decoration-gold";
+  "font-medium text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent";
 
 export default function RichText({
   text,

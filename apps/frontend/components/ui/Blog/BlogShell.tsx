@@ -121,7 +121,7 @@ export default function BlogShell({
         aria-hidden
       >
         <div
-          className="h-full bg-linear-to-r from-gold-dark via-gold to-gold-light transition-transform duration-150 ease-out"
+          className="h-full bg-accent-strong transition-transform duration-150 ease-out"
           style={{
             transform: `scaleX(${progress})`,
             transformOrigin: isRtl ? "right" : "left",
@@ -137,10 +137,10 @@ export default function BlogShell({
               type="button"
               onClick={() => setMobileOpen((o) => !o)}
               aria-expanded={mobileOpen}
-              className="glass flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-edge px-4 py-3 text-start"
+              className="bg-elevated flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-edge px-4 py-3 text-start"
             >
               <span className="flex min-w-0 items-center gap-2.5">
-                <ListTree size={15} className="shrink-0 text-gold" />
+                <ListTree size={15} className="shrink-0 text-accent" />
                 <span className="truncate text-[13px] font-semibold text-primary">
                   {activeTitle || t("onThisPage")}
                 </span>
@@ -171,7 +171,7 @@ export default function BlogShell({
                       aria-current={active ? "location" : undefined}
                       className={`-ms-px block w-full cursor-pointer border-s-2 py-1.5 pe-2 ps-4 text-start text-[13px] leading-snug transition-colors ${
                         active
-                          ? "border-gold font-semibold text-primary"
+                          ? "border-accent font-semibold text-primary"
                           : "border-transparent text-muted hover:text-secondary"
                       }`}
                     >
@@ -194,7 +194,7 @@ export default function BlogShell({
                     href={href()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-edge text-secondary transition-colors hover:border-gold/30 hover:text-gold"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-edge text-secondary transition-colors hover:border-accent/30 hover:text-accent"
                   >
                     <Icon size={14} />
                   </a>
@@ -204,10 +204,10 @@ export default function BlogShell({
                   type="button"
                   onClick={copyLink}
                   aria-label={copied ? t("shareCopied") : t("shareCopy")}
-                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-edge text-secondary transition-colors hover:border-gold/30 hover:text-gold"
+                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-edge text-secondary transition-colors hover:border-accent/30 hover:text-accent"
                 >
                   {copied ? (
-                    <Check size={14} className="text-gold" />
+                    <Check size={14} className="text-accent" />
                   ) : (
                     <Link2 size={14} />
                   )}
@@ -216,7 +216,7 @@ export default function BlogShell({
               <p
                 role="status"
                 aria-live="polite"
-                className="mt-2 h-4 text-[11.5px] text-gold"
+                className="mt-2 h-4 text-[11.5px] text-accent"
               >
                 {copied ? t("shareCopied") : ""}
               </p>
@@ -231,7 +231,7 @@ export default function BlogShell({
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="glass fixed bottom-6 inset-e-6 z-40 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-edge text-secondary transition-colors hover:border-gold/30 hover:text-gold"
+          className="bg-elevated fixed bottom-6 inset-e-6 z-40 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-edge text-secondary transition-colors hover:border-accent/30 hover:text-accent"
           aria-label={t("back")}
         >
           <ArrowUp size={17} />

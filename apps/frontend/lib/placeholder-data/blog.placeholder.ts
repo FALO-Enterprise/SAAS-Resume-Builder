@@ -14,9 +14,9 @@ export const filters: BlogFilterKey[] = [
 ];
 
 export const authors: BlogAuthorMeta[] = [
-  { id: "lina-haddad", accent: "from-gold/30 to-gold-dark/20" },
-  { id: "omar-rashid", accent: "from-azure-light/30 to-azure/20" },
-  { id: "sofia-marchetti", accent: "from-teal-light/30 to-teal/20" },
+  { id: "lina-haddad", accent: "from-accent/30 to-accent-strong/20" },
+  { id: "omar-rashid", accent: "from-accent/30 to-accent/20" },
+  { id: "sofia-marchetti", accent: "from-pass/30 to-pass/20" },
 ];
 
 export const posts: BlogPostMeta[] = [
@@ -26,7 +26,7 @@ export const posts: BlogPostMeta[] = [
     author: "sofia-marchetti",
     publishedAt: "2026-07-28",
     featured: true,
-    accent: "from-gold/25 via-card-hover to-base",
+    accent: "from-accent/25 via-card-hover to-base",
     icon: "scan-line",
   },
   {
@@ -34,7 +34,7 @@ export const posts: BlogPostMeta[] = [
     category: "career",
     author: "lina-haddad",
     publishedAt: "2026-07-14",
-    accent: "from-azure-light/20 via-card-hover to-base",
+    accent: "from-accent/20 via-card-hover to-base",
     icon: "target",
   },
   {
@@ -42,7 +42,7 @@ export const posts: BlogPostMeta[] = [
     category: "templates",
     author: "omar-rashid",
     publishedAt: "2026-06-30",
-    accent: "from-teal-light/20 via-card-hover to-base",
+    accent: "from-pass/20 via-card-hover to-base",
     icon: "layout-template",
   },
   {
@@ -50,7 +50,7 @@ export const posts: BlogPostMeta[] = [
     category: "interview",
     author: "sofia-marchetti",
     publishedAt: "2026-06-12",
-    accent: "from-vilot/20 via-card-hover to-base",
+    accent: "from-accent/20 via-card-hover to-base",
     icon: "messages-square",
   },
   {
@@ -58,7 +58,7 @@ export const posts: BlogPostMeta[] = [
     category: "product",
     author: "omar-rashid",
     publishedAt: "2026-05-26",
-    accent: "from-gold/20 via-card-hover to-base",
+    accent: "from-accent/20 via-card-hover to-base",
     icon: "sparkles",
   },
   {
@@ -66,7 +66,7 @@ export const posts: BlogPostMeta[] = [
     category: "career",
     author: "lina-haddad",
     publishedAt: "2026-05-08",
-    accent: "from-pink/20 via-card-hover to-base",
+    accent: "from-flag/20 via-card-hover to-base",
     icon: "trending-up",
   },
 ];

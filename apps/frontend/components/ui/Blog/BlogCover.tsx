@@ -29,7 +29,7 @@ export default function BlogCover({
   accent: string;
   image?: string;
   /** Only used as alt text when real art is supplied; the generated cover is
-   *  decorative, since the title always sits beside it in the DOM. */
+   * decorative, since the title always sits beside it in the DOM. */
   title: string;
   size?: "card" | "feature";
 }) {
@@ -61,7 +61,7 @@ export default function BlogCover({
 
       <div className="absolute inset-0 flex items-center justify-center">
         <span
-          className={`flex items-center justify-center rounded-2xl border border-gold/20 bg-base/40 text-gold backdrop-blur-sm ${
+          className={`flex items-center justify-center rounded-2xl border border-accent/20 bg-base/40 text-accent ${
             size === "feature" ? "h-20 w-20" : "h-14 w-14"
           }`}
         >

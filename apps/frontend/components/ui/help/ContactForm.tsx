@@ -114,13 +114,13 @@ export default function ContactForm({ supportEmail }: { supportEmail: string }) 
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass rounded-2xl border border-edge p-8 text-center sm:p-10"
+        className="bg-elevated rounded-2xl border border-edge p-8 text-center sm:p-10"
         role="status"
       >
-        <span className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-gold/25 bg-gold/12 text-gold">
+        <span className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-accent/25 bg-accent/12 text-accent">
           <CheckCircle2 size={24} />
         </span>
-        <p className="mb-2 font-playfair text-xl font-bold text-primary">
+        <p className="mb-2 font-display text-xl font-bold text-primary">
           {t("successTitle")}
         </p>
         <p className="mx-auto mb-6 max-w-sm text-[14px] leading-[1.75] text-secondary">
@@ -140,8 +140,8 @@ export default function ContactForm({ supportEmail }: { supportEmail: string }) 
   const fieldClass = (field: FieldName) =>
     `w-full rounded-xl border bg-card px-4 py-3 text-[14.5px] text-primary outline-none transition-all placeholder:text-muted ${
       visible(field)
-        ? "border-pink-light/50"
-        : "border-edge focus:border-gold/50 focus:shadow-[0_0_0_3px_rgba(245,166,35,0.08)]"
+        ? "border-flag/50"
+        : "border-edge focus:border-accent/50 focus:shadow-[0_0_0_3px_rgba(110,91,196,0.08)]"
     }`;
 
   return (
@@ -153,9 +153,9 @@ export default function ContactForm({ supportEmail }: { supportEmail: string }) 
           ref={summaryRef}
           tabIndex={-1}
           role="alert"
-          className="rounded-xl border border-pink-light/30 bg-pink/[0.07] p-4 outline-none"
+          className="rounded-xl border border-flag/30 bg-flag/[0.07] p-4 outline-none"
         >
-          <p className="mb-2 flex items-center gap-2 text-[13px] font-bold text-pink-light">
+          <p className="mb-2 flex items-center gap-2 text-[13px] font-bold text-flag">
             <AlertCircle size={15} />
             {t("errorSummary")}
           </p>
@@ -267,7 +267,7 @@ export default function ContactForm({ supportEmail }: { supportEmail: string }) 
       {mutation.isError && (
         <p
           role="alert"
-          className="flex items-center gap-2 text-[13px] text-pink-light"
+          className="flex items-center gap-2 text-[13px] text-flag"
         >
           <AlertCircle size={15} className="shrink-0" />
           {/* The backend's own reason (rate limit, rejected address) is more
@@ -278,14 +278,14 @@ export default function ContactForm({ supportEmail }: { supportEmail: string }) 
 
       <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
         <p className="flex items-center gap-2 text-[12.5px] text-muted">
-          <Clock3 size={14} className="shrink-0 text-gold/70" />
+          <Clock3 size={14} className="shrink-0 text-accent/70" />
           {t("replyNote")}
         </p>
 
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-gold px-6 py-3 text-[14px] font-bold text-ink transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-accent px-6 py-3 text-[14px] font-bold text-on-accent transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {mutation.isPending ? (
             <>
@@ -306,7 +306,7 @@ export default function ContactForm({ supportEmail }: { supportEmail: string }) 
         <a
           href={`mailto:${supportEmail}`}
           dir="ltr"
-          className="font-semibold text-gold underline decoration-gold/30 underline-offset-4 hover:decoration-gold"
+          className="font-semibold text-accent underline decoration-accent/30 underline-offset-4 hover:decoration-accent"
         >
           {supportEmail}
         </a>
@@ -316,7 +316,7 @@ export default function ContactForm({ supportEmail }: { supportEmail: string }) 
 }
 
 /** Label above the field — never a placeholder standing in for one, which
- *  disappears the moment someone types and breaks under RTL reflow. */
+ * disappears the moment someone types and breaks under RTL reflow. */
 function Field({
   id,
   label,
@@ -341,7 +341,7 @@ function Field({
           initial={{ opacity: 0, y: -3 }}
           animate={{ opacity: 1, y: 0 }}
           id={`${id}-error`}
-          className="flex items-center gap-1.5 text-[12px] text-pink-light"
+          className="flex items-center gap-1.5 text-[12px] text-flag"
         >
           <AlertCircle size={12} className="shrink-0" />
           {error}

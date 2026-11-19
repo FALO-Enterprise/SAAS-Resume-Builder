@@ -102,7 +102,7 @@ export default function LegalShell({
         aria-hidden
       >
         <div
-          className="h-full bg-linear-to-r from-gold-dark via-gold to-gold-light transition-transform duration-150 ease-out"
+          className="h-full bg-accent-strong transition-transform duration-150 ease-out"
           style={{
             transform: `scaleX(${progress})`,
             transformOrigin: isRtl ? "right" : "left",
@@ -119,10 +119,10 @@ export default function LegalShell({
               type="button"
               onClick={() => setMobileOpen((o) => !o)}
               aria-expanded={mobileOpen}
-              className="glass flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-edge px-4 py-3 text-start"
+              className="bg-elevated flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-edge px-4 py-3 text-start"
             >
               <span className="flex min-w-0 items-center gap-2.5">
-                <ListTree size={15} className="shrink-0 text-gold" />
+                <ListTree size={15} className="shrink-0 text-accent" />
                 <span className="truncate text-[13px] font-semibold text-primary">
                   {activeTitle || t("onThisPage")}
                 </span>
@@ -138,7 +138,7 @@ export default function LegalShell({
             {mobileOpen && (
               <nav
                 aria-label={t("onThisPage")}
-                className="glass mt-2 max-h-80 overflow-y-auto rounded-xl border border-edge p-2"
+                className="bg-elevated mt-2 max-h-80 overflow-y-auto rounded-xl border border-edge p-2"
               >
                 {entries.map((entry) => (
                   <button
@@ -147,7 +147,7 @@ export default function LegalShell({
                     onClick={() => jumpTo(entry.id)}
                     className={`block w-full cursor-pointer rounded-lg px-3 py-2 text-start text-[13px] transition-colors ${
                       entry.id === activeId
-                        ? "bg-gold/10 font-semibold text-gold"
+                        ? "bg-accent/10 font-semibold text-accent"
                         : "text-secondary hover:text-primary"
                     }`}
                   >
@@ -178,7 +178,7 @@ export default function LegalShell({
                       aria-current={active ? "true" : undefined}
                       className={`-ms-px block w-full cursor-pointer border-s-2 py-1.5 pe-2 ps-4 text-start text-[13px] leading-snug transition-all ${
                         active
-                          ? "border-gold font-semibold text-gold"
+                          ? "border-accent font-semibold text-accent"
                           : "border-transparent text-secondary hover:border-edge-strong hover:text-primary"
                       }`}
                     >
@@ -200,7 +200,7 @@ export default function LegalShell({
         type="button"
         onClick={() => window.scrollTo({ top: 0 })}
         aria-label={t("backToTop")}
-        className={`glass fixed bottom-6 inset-e-6 z-40 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-edge text-secondary transition-all hover:border-gold/40 hover:text-gold ${
+        className={`bg-elevated fixed bottom-6 inset-e-6 z-40 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-edge text-secondary transition-all hover:border-accent/40 hover:text-accent ${
           showTop
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none translate-y-3 opacity-0"

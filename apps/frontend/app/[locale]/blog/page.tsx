@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
 
-  const title = `${t("title")} — ResuMax`;
+  const title = `${t("title")} — Resumax AI`;
   const description = t("subtitle");
 
   return {
@@ -68,9 +68,9 @@ export default async function BlogPage({ params }: Params) {
       {/* ── Hero ───────────────────────────────────────────────────────── */}
       <header className="relative overflow-hidden pt-32 pb-10">
         <div className="relative z-10 mx-auto max-w-6xl px-6">
-          <SectionLabel text={t("eyebrow")} color="gold" />
+          <SectionLabel text={t("eyebrow")} />
 
-          <h1 className="mt-5 font-playfair text-4xl font-black leading-tight text-primary lg:text-5xl">
+          <h1 className="mt-5 font-display text-4xl font-black leading-tight text-primary lg:text-5xl">
             {t("title")}
           </h1>
 

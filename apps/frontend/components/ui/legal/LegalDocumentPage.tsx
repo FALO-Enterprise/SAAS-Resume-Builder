@@ -91,8 +91,8 @@ function formatDate(iso: string, locale: string) {
 function KeyPointCard({ point }: { point: LegalKeyPoint }) {
   const Icon = KEY_POINT_ICONS[point.icon];
   return (
-    <div className="glass rounded-2xl border border-edge p-5 transition-colors hover:border-gold/30">
-      <span className="mb-3.5 flex h-9 w-9 items-center justify-center rounded-lg border border-gold/20 bg-gold/10 text-gold">
+    <div className="bg-elevated rounded-2xl border border-edge p-5 transition-colors hover:border-accent/30">
+      <span className="mb-3.5 flex h-9 w-9 items-center justify-center rounded-lg border border-accent/20 bg-accent/10 text-accent">
         <Icon size={17} />
       </span>
       <p className="mb-1.5 text-[14px] font-bold text-primary">{point.title}</p>
@@ -114,7 +114,7 @@ function MetaItem({
 }) {
   return (
     <span className="flex items-center gap-2 text-[13px] text-faint">
-      <Icon size={14} className="shrink-0 text-gold/70" />
+      <Icon size={14} className="shrink-0 text-accent/70" />
       <span className="text-muted">{label}</span>
       <span className="font-semibold text-secondary">{value}</span>
     </span>
@@ -159,9 +159,9 @@ export default async function LegalDocumentPage({
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <header className="relative overflow-hidden pt-32 pb-12">
         <div className="relative z-10 mx-auto max-w-7xl px-6">
-          <SectionLabel text={tDoc("eyebrow")} color="gold" />
+          <SectionLabel text={tDoc("eyebrow")} />
 
-          <h1 className="mt-5 font-playfair text-4xl font-black leading-tight text-primary lg:text-5xl">
+          <h1 className="mt-5 font-display text-4xl font-black leading-tight text-primary lg:text-5xl">
             {tDoc("title")}
           </h1>
 
@@ -216,13 +216,13 @@ export default async function LegalDocumentPage({
             >
               <h2
                 id={`${section.id}-heading`}
-                className="group mb-5 flex items-center gap-2.5 font-playfair text-2xl font-bold text-primary"
+                className="group mb-5 flex items-center gap-2.5 font-display text-2xl font-bold text-primary"
               >
                 <span>{section.title}</span>
                 <a
                   href={`#${section.id}`}
                   aria-label={t("anchorLabel", { section: section.title })}
-                  className="text-muted opacity-0 transition-opacity hover:text-gold focus-visible:opacity-100 group-hover:opacity-100"
+                  className="text-muted opacity-0 transition-opacity hover:text-accent focus-visible:opacity-100 group-hover:opacity-100"
                 >
                   <Link2 size={15} />
                 </a>
@@ -234,8 +234,8 @@ export default async function LegalDocumentPage({
 
         {/* ── Questions + cross-link ─────────────────────────────────────── */}
         <div className="mt-16 grid gap-4 border-t border-edge pt-10 sm:grid-cols-2">
-          <div className="glass-gold rounded-2xl border border-gold/15 p-6">
-            <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-gold/20 bg-gold/10 text-gold">
+          <div className="bg-accent/8 rounded-2xl border border-accent/15 p-6">
+            <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-accent/20 bg-accent/10 text-accent">
               <Mail size={17} />
             </span>
             <p className="mb-1.5 text-[15px] font-bold text-primary">
@@ -251,7 +251,7 @@ export default async function LegalDocumentPage({
                   : LEGAL_CONFIG.contact.legal
               }`}
               dir="ltr"
-              className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-gold underline decoration-gold/30 underline-offset-4 hover:decoration-gold"
+              className="inline-flex items-center gap-2 text-[13.5px] font-semibold text-accent underline decoration-accent/30 underline-offset-4 hover:decoration-accent"
             >
               {slug === "privacy"
                 ? LEGAL_CONFIG.contact.privacy
@@ -261,7 +261,7 @@ export default async function LegalDocumentPage({
 
           <Link
             href={legalHref(otherSlug, locale)}
-            className="glass group flex flex-col justify-between rounded-2xl border border-edge p-6 no-underline transition-colors hover:border-gold/30"
+            className="bg-elevated group flex flex-col justify-between rounded-2xl border border-edge p-6 no-underline transition-colors hover:border-accent/30"
           >
             <div>
               <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-faint">
@@ -274,7 +274,7 @@ export default async function LegalDocumentPage({
                 {tOther("description")}
               </p>
             </div>
-            <span className="mt-4 inline-flex items-center gap-2 text-[13.5px] font-semibold text-gold">
+            <span className="mt-4 inline-flex items-center gap-2 text-[13.5px] font-semibold text-accent">
               {t("readDocument")}
               <ArrowRight
                 size={15}

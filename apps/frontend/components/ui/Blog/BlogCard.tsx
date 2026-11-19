@@ -29,7 +29,7 @@ export default function BlogCard({
       viewport={{ once: true, amount: 0.2 }}
       // Capped so a full grid entering at once never staggers past ~0.4s.
       transition={{ duration: 0.45, ease, delay: Math.min(index, 5) * 0.06 }}
-      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-edge bg-elevated transition-colors duration-300 hover:border-gold/30"
+      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-edge bg-elevated transition-colors duration-300 hover:border-accent/30"
     >
       <div className="relative aspect-video overflow-hidden">
         <BlogCover
@@ -41,14 +41,14 @@ export default function BlogCard({
       </div>
 
       <div className="flex flex-1 flex-col p-6">
-        <span className="mb-3 inline-flex w-fit items-center rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-gold">
+        <span className="mb-3 inline-flex w-fit items-center rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent">
           {categoryLabel}
         </span>
 
-        <h3 className="mb-2.5 font-playfair text-[20px] font-bold leading-snug text-primary">
+        <h3 className="mb-2.5 font-display text-[20px] font-bold leading-snug text-primary">
           <Link
             href={blogHref(locale, post.slug)}
-            className="no-underline transition-colors after:absolute after:inset-0 after:content-[''] group-hover:text-gold"
+            className="no-underline transition-colors after:absolute after:inset-0 after:content-[''] group-hover:text-accent"
           >
             <span className="line-clamp-2">{post.title}</span>
           </Link>

@@ -57,7 +57,7 @@ export default function BlogBrowser({
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease }}
-          className="group relative mb-20 overflow-hidden rounded-[28px] border border-edge bg-elevated transition-colors duration-300 hover:border-gold/30"
+          className="group relative mb-20 overflow-hidden rounded-lg border border-edge bg-elevated transition-colors duration-300 hover:border-accent/30"
         >
           <div className="grid lg:grid-cols-2">
             <div className="relative aspect-video overflow-hidden lg:aspect-auto lg:min-h-88">
@@ -72,7 +72,7 @@ export default function BlogBrowser({
 
             <div className="flex flex-col justify-center p-7 sm:p-10">
               <div className="mb-4 flex flex-wrap items-center gap-2.5">
-                <span className="inline-flex items-center rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-ink">
+                <span className="inline-flex items-center rounded-full bg-accent px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-on-accent">
                   {t("featuredLabel")}
                 </span>
                 <span className="inline-flex items-center rounded-full border border-edge px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-secondary">
@@ -80,10 +80,10 @@ export default function BlogBrowser({
                 </span>
               </div>
 
-              <h2 className="mb-4 font-playfair text-[28px] font-black leading-tight text-primary sm:text-[34px]">
+              <h2 className="mb-4 font-display text-[28px] font-black leading-tight text-primary sm:text-[34px]">
                 <Link
                   href={blogHref(locale, featured.slug)}
-                  className="no-underline transition-colors after:absolute after:inset-0 after:content-[''] hover:text-gold"
+                  className="no-underline transition-colors after:absolute after:inset-0 after:content-[''] hover:text-accent"
                 >
                   {featured.title}
                 </Link>
@@ -117,7 +117,7 @@ export default function BlogBrowser({
                   {t("readingTime", { minutes: featured.readingMinutes })}
                 </span>
 
-                <span className="ms-auto flex items-center gap-1.5 text-[13px] font-bold text-gold">
+                <span className="ms-auto flex items-center gap-1.5 text-[13px] font-bold text-accent">
                   {t("readMore")}
                   <ArrowRight
                     size={15}
@@ -134,7 +134,7 @@ export default function BlogBrowser({
       <div className="mb-10">
         <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="font-playfair text-2xl font-bold text-primary">
+            <h2 className="font-display text-2xl font-bold text-primary">
               {t("latestTitle")}
             </h2>
             <p className="mt-1.5 text-[14px] text-secondary">
@@ -155,7 +155,7 @@ export default function BlogBrowser({
               onChange={(e) => setQuery(e.target.value)}
               aria-label={t("searchLabel")}
               placeholder={t("searchPlaceholder")}
-              className="glass w-full rounded-full border border-edge py-2.5 pe-4 ps-11 text-[14px] text-primary outline-none transition-colors focus:border-gold/40"
+              className="bg-elevated w-full rounded-full border border-edge py-2.5 pe-4 ps-11 text-[14px] text-primary outline-none transition-colors focus:border-accent/40"
             />
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function BlogBrowser({
                 aria-pressed={active}
                 className={`relative cursor-pointer rounded-full border px-4 py-2 text-[13px] font-semibold transition-colors ${
                   active
-                    ? "border-gold/40 text-gold"
+                    ? "border-accent/40 text-accent"
                     : "border-edge text-secondary hover:border-edge-strong hover:text-primary"
                 }`}
               >
@@ -183,7 +183,7 @@ export default function BlogBrowser({
                   <motion.span
                     layoutId="blog-filter-pill"
                     transition={{ type: "spring", stiffness: 320, damping: 28 }}
-                    className="absolute inset-0 rounded-full bg-gold/10"
+                    className="absolute inset-0 rounded-full bg-accent/10"
                   />
                 )}
                 <span className="relative">{t(`categories.${key}`)}</span>
@@ -224,8 +224,8 @@ export default function BlogBrowser({
           </AnimatePresence>
         </div>
       ) : (
-        <div className="glass rounded-3xl border border-edge px-6 py-16 text-center">
-          <p className="mb-2 font-playfair text-xl font-bold text-primary">
+        <div className="bg-elevated rounded-3xl border border-edge px-6 py-16 text-center">
+          <p className="mb-2 font-display text-xl font-bold text-primary">
             {t("noResultsTitle")}
           </p>
           <p className="mx-auto mb-6 max-w-md text-[14.5px] leading-[1.7] text-secondary">
@@ -234,7 +234,7 @@ export default function BlogBrowser({
           <button
             type="button"
             onClick={reset}
-            className="cursor-pointer rounded-full border border-gold/30 bg-gold/10 px-5 py-2.5 text-[13px] font-bold text-gold transition-colors hover:bg-gold/15"
+            className="cursor-pointer rounded-full border border-accent/30 bg-accent/10 px-5 py-2.5 text-[13px] font-bold text-accent transition-colors hover:bg-accent/15"
           >
             {t("clearFilters")}
           </button>

@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "about" });
 
-  const title = `${t("eyebrow")} — ResuMax`;
+  const title = `${t("eyebrow")} — Resumax AI`;
   const description = t("metaDescription");
 
   return {
@@ -92,10 +92,10 @@ export default async function Page({ params }: Params) {
 
         <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
           <div className="flex justify-center">
-            <SectionLabel text={t("eyebrow")} color="gold" />
+            <SectionLabel text={t("eyebrow")} />
           </div>
 
-          <h1 className="mt-6 font-playfair text-[34px] font-black leading-[1.15] text-primary sm:text-5xl">
+          <h1 className="mt-6 font-display text-[34px] font-black leading-[1.15] text-primary sm:text-5xl">
             {t("title")}
           </h1>
 
@@ -111,12 +111,12 @@ export default async function Page({ params }: Params) {
         className="relative z-10 mx-auto max-w-3xl px-6 pb-24"
       >
         <Reveal>
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-gold">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">
             {t("story.eyebrow")}
           </p>
           <h2
             id="about-story-heading"
-            className="mb-12 font-playfair text-[28px] font-bold leading-snug text-primary sm:text-[32px]"
+            className="mb-12 font-display text-[28px] font-bold leading-snug text-primary sm:text-[32px]"
           >
             {t("story.title")}
           </h2>
@@ -126,7 +126,7 @@ export default async function Page({ params }: Params) {
           {chapters.map((chapter, i) => (
             <Reveal key={chapter.id} delay={i * 0.05}>
               <section id={chapter.id} className="scroll-mt-28">
-                <h3 className="mb-5 font-playfair text-[21px] font-bold text-primary">
+                <h3 className="mb-5 font-display text-[21px] font-bold text-primary">
                   {chapter.title}
                 </h3>
 
@@ -135,9 +135,9 @@ export default async function Page({ params }: Params) {
                     block.type === "quote" ? (
                       <figure
                         key={j}
-                        className="border-s-2 border-gold/40 py-1 ps-6"
+                        className="border-s-2 border-accent/40 py-1 ps-6"
                       >
-                        <blockquote className="font-playfair text-[20px] leading-[1.6] text-primary">
+                        <blockquote className="font-display text-[20px] leading-[1.6] text-primary">
                           <RichText text={block.text} locale={locale} />
                         </blockquote>
                         {block.attribution && (
@@ -182,7 +182,7 @@ export default async function Page({ params }: Params) {
                   <dt className="mx-auto mt-2 max-w-[16rem] text-[13px] leading-[1.6] text-secondary">
                     {stats[id].label}
                   </dt>
-                  <dd className="font-playfair text-4xl font-black text-gradient-gold">
+                  <dd className="font-display text-4xl font-black text-accent">
                     {/* Figures stay LTR; Arabic keeps Western digits here to
                         match how the rest of the product renders numbers. */}
                     <span dir="ltr">{stats[id].value}</span>
@@ -204,12 +204,12 @@ export default async function Page({ params }: Params) {
         className="relative z-10 mx-auto max-w-4xl px-6 py-24"
       >
         <Reveal className="mb-14 text-center">
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-gold">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">
             {t("values.eyebrow")}
           </p>
           <h2
             id="about-values-heading"
-            className="mb-4 font-playfair text-[28px] font-bold text-primary sm:text-[32px]"
+            className="mb-4 font-display text-[28px] font-bold text-primary sm:text-[32px]"
           >
             {t("values.title")}
           </h2>
@@ -263,12 +263,12 @@ export default async function Page({ params }: Params) {
         className="relative z-10 mx-auto max-w-5xl px-6 pb-24"
       >
         <Reveal className="mb-12 text-center">
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-gold">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">
             {t("reach.eyebrow")}
           </p>
           <h2
             id="about-reach-heading"
-            className="mb-4 font-playfair text-[28px] font-bold text-primary sm:text-[32px]"
+            className="mb-4 font-display text-[28px] font-bold text-primary sm:text-[32px]"
           >
             {t("reach.title")}
           </h2>
@@ -284,8 +284,8 @@ export default async function Page({ params }: Params) {
 
             return (
               <Reveal key={id} delay={i * 0.05}>
-                <div className="glass h-full rounded-2xl border border-edge p-5 transition-colors hover:border-gold/30">
-                  <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-gold/20 bg-gold/10 text-gold">
+                <div className="bg-elevated h-full rounded-2xl border border-edge p-5 transition-colors hover:border-accent/30">
+                  <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-accent/20 bg-accent/10 text-accent">
                     <FileCheck2 size={16} />
                   </span>
                   <h3 className="mb-1.5 text-[15px] font-bold text-primary">
@@ -307,13 +307,13 @@ export default async function Page({ params }: Params) {
         className="relative z-10 mx-auto max-w-4xl px-6 pb-24"
       >
         <Reveal>
-          <div className="glass rounded-3xl border border-edge p-7 sm:p-10">
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-gold">
+          <div className="bg-elevated rounded-3xl border border-edge p-7 sm:p-10">
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-accent">
               {t("company.eyebrow")}
             </p>
             <h2
               id="about-company-heading"
-              className="mb-3 font-playfair text-2xl font-bold text-primary"
+              className="mb-3 font-display text-2xl font-bold text-primary"
             >
               {t("company.title")}
             </h2>
@@ -334,7 +334,7 @@ export default async function Page({ params }: Params) {
                       <a
                         href={`mailto:${value}`}
                         dir="ltr"
-                        className="inline-block text-gold underline decoration-gold/30 underline-offset-4 transition-colors hover:decoration-gold"
+                        className="inline-block text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:decoration-accent"
                       >
                         {value}
                       </a>
@@ -361,7 +361,7 @@ export default async function Page({ params }: Params) {
                   <Link
                     key={key}
                     href={href}
-                    className="rounded-full border border-edge px-4 py-2 text-[13px] font-semibold text-secondary no-underline transition-colors hover:border-gold/30 hover:text-gold"
+                    className="rounded-full border border-edge px-4 py-2 text-[13px] font-semibold text-secondary no-underline transition-colors hover:border-accent/30 hover:text-accent"
                   >
                     {t(`company.links.${key}`)}
                   </Link>
@@ -375,8 +375,8 @@ export default async function Page({ params }: Params) {
       {/* ── Closing CTA ────────────────────────────────────────────────── */}
       <section className="relative z-10 mx-auto max-w-4xl px-6 pb-28">
         <Reveal>
-          <div className="glass-gold rounded-3xl p-9 text-center sm:p-12">
-            <h2 className="mb-3 font-playfair text-[26px] font-bold text-primary sm:text-3xl">
+          <div className="bg-accent/8 rounded-3xl p-9 text-center sm:p-12">
+            <h2 className="mb-3 font-display text-[26px] font-bold text-primary sm:text-3xl">
               {t("cta.title")}
             </h2>
             <p className="mx-auto mb-8 max-w-lg text-[15.5px] leading-[1.75] text-secondary">
@@ -386,7 +386,7 @@ export default async function Page({ params }: Params) {
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link
                 href={`/${locale}/resume/getstarted`}
-                className="group inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-[14px] font-bold text-ink no-underline transition-colors hover:bg-gold-light"
+                className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-[14px] font-bold text-on-accent no-underline transition-colors hover:bg-accent-strong"
               >
                 {t("cta.button")}
                 <ArrowRight

@@ -9,9 +9,9 @@ import type { LegalSlug } from "./types/legal.types";
  * and both documents at once.
  */
 export const LEGAL_CONFIG = {
-  /** Registered operating entity behind the ResuMax product. */
+  /** Registered operating entity behind the Resumax AI product. */
   entity: "FALO Enterprise",
-  product: "ResuMax",
+  product: "Resumax AI",
   domain: "resumax.io",
 
   contact: {
@@ -24,7 +24,7 @@ export const LEGAL_CONFIG = {
   },
 
   /**
-   * Governing-law seat. ResuMax serves users worldwide, so the documents grant
+   * Governing-law seat. Resumax AI serves users worldwide, so the documents grant
    * GDPR-level rights to every user regardless of residence; this value only
    * controls the forum for contractual disputes.
    *

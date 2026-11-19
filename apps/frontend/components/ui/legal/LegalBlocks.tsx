@@ -10,16 +10,9 @@ import RichText from "./RichText";
  */
 
 const TONES = {
-  gold: { wrap: "border-gold/20 bg-gold/[0.06]", title: "text-gold" },
-  azure: {
-    wrap: "border-azure-light/20 bg-azure-light/[0.06]",
-    title: "text-azure-light",
-  },
-  teal: {
-    wrap: "border-teal-light/20 bg-teal-light/[0.06]",
-    title: "text-teal-light",
-  },
-  pink: { wrap: "border-pink/20 bg-pink/[0.06]", title: "text-pink" },
+  note: { wrap: "border-accent/20 bg-accent/[0.06]", title: "text-accent" },
+  tip: { wrap: "border-pass/20 bg-pass/[0.06]", title: "text-pass" },
+  warning: { wrap: "border-flag/20 bg-flag/[0.06]", title: "text-flag" },
 } as const;
 
 function Block({ block, locale }: { block: LegalBlock; locale: string }) {
@@ -42,7 +35,7 @@ function Block({ block, locale }: { block: LegalBlock; locale: string }) {
             >
               <span
                 aria-hidden
-                className="absolute top-[0.7em] inset-s-0 flex h-1.5 w-1.5 items-center justify-center rounded-full bg-gold/60"
+                className="absolute top-[0.7em] inset-s-0 flex h-1.5 w-1.5 items-center justify-center rounded-full bg-accent/60"
               />
               <RichText text={item} locale={locale} />
             </li>
@@ -57,7 +50,7 @@ function Block({ block, locale }: { block: LegalBlock; locale: string }) {
           {block.items.map((item, i) => (
             <div
               key={i}
-              className="border-s-2 border-edge ps-5 transition-colors hover:border-gold/40"
+              className="border-s-2 border-edge ps-5 transition-colors hover:border-accent/40"
             >
               <dt className="mb-1.5 text-[15px] font-bold text-primary">
                 {item.term}

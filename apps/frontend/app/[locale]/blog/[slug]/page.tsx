@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const post = t.raw(`posts.${slug}`) as BlogPostContent;
 
   return {
-    title: `${post.title} — ResuMax`,
+    title: `${post.title} — Resumax AI`,
     description: post.excerpt,
     alternates: {
       canonical: `/${locale}/${BLOG_ROUTE}/${slug}`,
@@ -98,17 +98,17 @@ export default async function BlogPostPage({ params }: Params) {
         <div className="relative z-10 mx-auto max-w-3xl px-6">
           <Link
             href={blogHref(locale)}
-            className="mb-8 inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-gold"
+            className="mb-8 inline-flex items-center gap-2 text-[13px] font-semibold text-muted no-underline transition-colors hover:text-accent"
           >
             <ArrowLeft size={15} className="rtl:rotate-180" />
             {tArticle("back")}
           </Link>
 
-          <span className="mb-5 inline-flex w-fit items-center rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-gold">
+          <span className="mb-5 inline-flex w-fit items-center rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent">
             {t(`categories.${meta.category}`)}
           </span>
 
-          <h1 className="font-playfair text-[32px] font-black leading-[1.2] text-primary sm:text-[42px]">
+          <h1 className="font-display text-[32px] font-black leading-[1.2] text-primary sm:text-[42px]">
             {post.title}
           </h1>
 
@@ -168,7 +168,7 @@ export default async function BlogPostPage({ params }: Params) {
               // Clears the fixed navbar when a TOC entry or deep link jumps here.
               className="scroll-mt-28 pt-10 first:pt-0"
             >
-              <h2 className="mb-5 font-playfair text-[26px] font-bold leading-snug text-primary">
+              <h2 className="mb-5 font-display text-[26px] font-bold leading-snug text-primary">
                 {section.title}
               </h2>
               <BlogBlocks blocks={section.blocks} locale={locale} />
@@ -180,8 +180,8 @@ export default async function BlogPostPage({ params }: Params) {
           </p>
 
           {/* ── Closing CTA ──────────────────────────────────────────── */}
-          <aside className="glass mt-10 rounded-3xl border border-edge p-7 sm:p-9">
-            <h2 className="mb-2.5 font-playfair text-2xl font-bold text-primary">
+          <aside className="bg-elevated mt-10 rounded-3xl border border-edge p-7 sm:p-9">
+            <h2 className="mb-2.5 font-display text-2xl font-bold text-primary">
               {tArticle("ctaTitle")}
             </h2>
             <p className="mb-6 max-w-lg text-[15.5px] leading-[1.75] text-secondary">
@@ -189,7 +189,7 @@ export default async function BlogPostPage({ params }: Params) {
             </p>
             <Link
               href={`/${locale}/resume/getstarted`}
-              className="inline-flex items-center rounded-full bg-gold px-6 py-3 text-[14px] font-bold text-ink no-underline transition-colors hover:bg-gold-light"
+              className="inline-flex items-center rounded-full bg-accent px-6 py-3 text-[14px] font-bold text-on-accent no-underline transition-colors hover:bg-accent-strong"
             >
               {tArticle("ctaButton")}
             </Link>
@@ -201,7 +201,7 @@ export default async function BlogPostPage({ params }: Params) {
       {related.length > 0 && (
         <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24">
           <div className="mb-8 border-t border-edge pt-12">
-            <h2 className="font-playfair text-2xl font-bold text-primary">
+            <h2 className="font-display text-2xl font-bold text-primary">
               {tArticle("relatedTitle")}
             </h2>
             <p className="mt-1.5 text-[14px] text-secondary">

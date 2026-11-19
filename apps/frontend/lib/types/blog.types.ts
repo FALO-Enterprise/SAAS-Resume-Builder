@@ -28,7 +28,7 @@ export type BlogBlock =
   | { type: "takeaways"; title: string; items: string[] }
   | {
       type: "callout";
-      tone: "gold" | "azure" | "teal" | "pink";
+      tone: "note" | "tip" | "warning";
       title: string;
       text: string;
     };

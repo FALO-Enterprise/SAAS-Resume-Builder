@@ -32,7 +32,7 @@ const CATEGORY_ICONS: Record<HelpIcon, typeof Rocket> = {
 };
 
 /** Case- and diacritic-insensitive match, so Arabic search works with or
- *  without harakat and English search ignores capitalisation. */
+ * without harakat and English search ignores capitalisation. */
 function normalize(value: string) {
   return value
     .toLowerCase()
@@ -115,17 +115,17 @@ function CategoryTile({
       type="button"
       onClick={onSelect}
       aria-pressed={active}
-      className={`glass group flex cursor-pointer flex-col items-start rounded-2xl border p-5 text-start transition-all ${
+      className={`bg-elevated group flex cursor-pointer flex-col items-start rounded-2xl border p-5 text-start transition-all ${
         active
-          ? "border-gold/40 bg-gold/6"
-          : "border-edge hover:border-gold/25"
+          ? "border-accent/40 bg-accent/6"
+          : "border-edge hover:border-accent/25"
       }`}
     >
       <span
         className={`mb-3.5 flex h-10 w-10 items-center justify-center rounded-xl border transition-colors ${
           active
-            ? "border-gold/30 bg-gold/15 text-gold"
-            : "border-edge bg-card text-faint group-hover:text-gold"
+            ? "border-accent/30 bg-accent/15 text-accent"
+            : "border-edge bg-card text-faint group-hover:text-accent"
         }`}
       >
         <Icon size={18} />
@@ -180,10 +180,10 @@ export default function HelpBrowser({
     <>
       {/* ── Search: the single focal element of the page ─────────────────── */}
       <div className="mx-auto max-w-2xl">
-        <div className="glass group flex items-center rounded-2xl border border-edge px-5 transition-all focus-within:border-gold/50 focus-within:shadow-[0_0_0_4px_rgba(245,166,35,0.08)]">
+        <div className="bg-elevated group flex items-center rounded-2xl border border-edge px-5 transition-all focus-within:border-accent/50 focus-within:shadow-[0_0_0_4px_rgba(110,91,196,0.08)]">
           <Search
             size={19}
-            className="shrink-0 text-faint transition-colors group-focus-within:text-gold"
+            className="shrink-0 text-faint transition-colors group-focus-within:text-accent"
             aria-hidden
           />
           <input
@@ -219,7 +219,7 @@ export default function HelpBrowser({
                 setQuery(s);
                 setCategory(null);
               }}
-              className="cursor-pointer rounded-full border border-edge bg-card px-3.5 py-1.5 text-[12.5px] text-secondary transition-colors hover:border-gold/30 hover:text-primary"
+              className="cursor-pointer rounded-full border border-edge bg-card px-3.5 py-1.5 text-[12.5px] text-secondary transition-colors hover:border-accent/30 hover:text-primary"
             >
               {s}
             </button>
@@ -240,7 +240,7 @@ export default function HelpBrowser({
             <button
               type="button"
               onClick={() => setCategory(null)}
-              className="cursor-pointer text-[12.5px] font-semibold text-gold hover:underline"
+              className="cursor-pointer text-[12.5px] font-semibold text-accent hover:underline"
             >
               {t("allCategories")}
             </button>
@@ -264,7 +264,7 @@ export default function HelpBrowser({
         <div className="mb-2 flex flex-wrap items-baseline justify-between gap-3">
           <h2
             id="help-faq-heading"
-            className="font-playfair text-2xl font-bold text-primary"
+            className="font-display text-2xl font-bold text-primary"
           >
             {t("faqTitle")}
           </h2>
@@ -277,13 +277,13 @@ export default function HelpBrowser({
         <p className="mb-6 text-[14px] text-secondary">{t("faqSubtitle")}</p>
 
         {results.length > 0 ? (
-          <div className="glass rounded-2xl border border-edge px-5 sm:px-7">
+          <div className="bg-elevated rounded-2xl border border-edge px-5 sm:px-7">
             {results.map((faq) => (
               <FaqRow key={faq.id} faq={faq} />
             ))}
           </div>
         ) : (
-          <div className="glass rounded-2xl border border-edge p-10 text-center">
+          <div className="bg-elevated rounded-2xl border border-edge p-10 text-center">
             <span className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-edge bg-card text-faint">
               <MessageCircleQuestion size={20} />
             </span>
@@ -303,7 +303,7 @@ export default function HelpBrowser({
               </button>
               <a
                 href={contactHref}
-                className="rounded-xl bg-gold px-4 py-2 text-[13px] font-bold text-ink no-underline transition-opacity hover:opacity-90"
+                className="rounded-xl bg-accent px-4 py-2 text-[13px] font-bold text-on-accent no-underline transition-opacity hover:opacity-90"
               >
                 {contactLabel}
               </a>

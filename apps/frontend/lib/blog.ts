@@ -20,7 +20,7 @@ export function blogHref(locale: string, slug?: string): string {
 /* ── Post lookup ──────────────────────────────────────────────────────── */
 
 /** Newest first. The placeholder array is authored in no particular order, so
- *  every surface sorts through here rather than trusting the file. */
+ * every surface sorts through here rather than trusting the file. */
 export function sortedPosts(): BlogPostMeta[] {
   return [...posts].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   return [...posts].sort((a: BlogPostMeta, b: BlogPostMeta) => b.publishedAt.localeCompare(a.publishedAt));
@@ -120,7 +120,7 @@ export function resolveAuthor(
 ): BlogAuthor {
   return {
     id,
-    accent: findAuthor(id)?.accent ?? "from-gold/30 to-gold-dark/20",
+    accent: findAuthor(id)?.accent ?? "from-accent/30 to-accent-strong/20",
     name: profile.name,
     role: profile.role,
     initials: initialsOf(profile.name),

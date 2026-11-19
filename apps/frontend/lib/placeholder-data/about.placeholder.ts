@@ -15,33 +15,33 @@ export const values: AboutValueMeta[] = [
   {
     id: "honesty",
     icon: "shield-check",
-    accent: { wrap: "border-gold/20 bg-gold/10", icon: "text-gold" },
+    accent: { wrap: "border-accent/20 bg-accent/10", icon: "text-accent" },
   },
   {
     id: "ats",
     icon: "scan-line",
     accent: {
-      wrap: "border-azure-light/20 bg-azure-light/10",
-      icon: "text-azure-light",
+      wrap: "border-accent/20 bg-accent/10",
+      icon: "text-accent",
     },
   },
   {
     id: "relevance",
     icon: "scissors",
     accent: {
-      wrap: "border-teal-light/20 bg-teal-light/10",
-      icon: "text-teal-light",
+      wrap: "border-pass/20 bg-pass/10",
+      icon: "text-pass",
     },
   },
   {
     id: "cultural",
     icon: "globe",
-    accent: { wrap: "border-vilot/20 bg-vilot/10", icon: "text-vilot" },
+    accent: { wrap: "border-accent/20 bg-accent/10", icon: "text-accent" },
   },
   {
     id: "privacy",
     icon: "lock",
-    accent: { wrap: "border-pink/20 bg-pink/10", icon: "text-pink" },
+    accent: { wrap: "border-flag/20 bg-flag/10", icon: "text-flag" },
   },
 ];
 

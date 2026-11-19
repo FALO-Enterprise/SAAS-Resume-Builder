@@ -5,7 +5,7 @@ export type LegalBlock =
   | { type: "table"; headers: string[]; rows: string[][] }
   | {
       type: "callout";
-      tone: "gold" | "azure" | "teal" | "pink";
+      tone: "note" | "tip" | "warning";
       title: string;
       text: string;
     };

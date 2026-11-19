@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "help" });
 
-  const title = `${t("title")} — ResuMax Help Center`;
+  const title = `${t("title")} — Resumax AI Help Center`;
   const description = t("subtitle");
 
   return {
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       ),
     },
     openGraph: {
-      title: "ResuMax Help Center",
+      title: "Resumax AI Help Center",
       description,
       type: "website",
     },
@@ -48,10 +48,10 @@ export default async function HelpPage({ params }: Params) {
       <header className="relative overflow-hidden pt-32 pb-4">
         <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
           <div className="flex justify-center">
-            <SectionLabel text={t("eyebrow")} color="gold" />
+            <SectionLabel text={t("eyebrow")} />
           </div>
 
-          <h1 className="mt-5 font-playfair text-4xl font-black leading-tight text-primary lg:text-5xl">
+          <h1 className="mt-5 font-display text-4xl font-black leading-tight text-primary lg:text-5xl">
             {t("title")}
           </h1>
 
@@ -75,18 +75,18 @@ export default async function HelpPage({ params }: Params) {
         aria-labelledby="help-contact-heading"
         className="relative mx-auto mt-20 max-w-5xl scroll-mt-24 px-6 pb-24"
       >
-        <div className="glass rounded-3xl border border-edge p-6 sm:p-10">
+        <div className="bg-elevated rounded-3xl border border-edge p-6 sm:p-10">
           <div className="mb-8 flex flex-col items-start gap-4 border-b border-edge pb-8 sm:flex-row sm:items-center">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-accent/20 bg-accent/10 text-accent">
               <LifeBuoy size={20} />
             </span>
             <div>
-              <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gold">
+              <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-accent">
                 {t("contact.eyebrow")}
               </p>
               <h2
                 id="help-contact-heading"
-                className="mb-1.5 font-playfair text-2xl font-bold text-primary"
+                className="mb-1.5 font-display text-2xl font-bold text-primary"
               >
                 {t("contact.title")}
               </h2>
