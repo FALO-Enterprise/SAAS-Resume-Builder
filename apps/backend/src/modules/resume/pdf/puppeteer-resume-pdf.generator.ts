@@ -106,13 +106,30 @@ export class PuppeteerResumePdfGenerator implements ResumePdfGenerator {
             return puppeteer.launch({
                 headless: true,
                 executablePath,
-                args: ['--disable-dev-shm-usage', '--no-sandbox'],
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--no-first-run',
+                    '--no-zygote',
+                    '--single-process',
+                    '--disable-extensions',
+                ],
             });
         },
-        concurrency = Number(process.env.PDF_CONCURRENCY ?? 2),
+        concurrency = Number(process.env.PDF_CONCURRENCY ?? 1),
         private readonly timeoutMilliseconds = Number(process.env.PDF_TIMEOUT_MS ?? 30_000),
     ) {
         this.gate = new ConcurrencyGate(Math.max(1, concurrency));
+    }
+
+    async warmup(): Promise<void> {
+        try {
+            await this.getBrowser();
+        } catch (error) {
+            console.warn('Failed to pre-warm Puppeteer browser:', error instanceof Error ? error.message : error);
+        }
     }
 
     generate(snapshot: ResumeRenderSnapshot): Promise<Buffer> {

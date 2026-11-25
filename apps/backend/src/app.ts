@@ -17,6 +17,15 @@ import { getEnvOrThrow } from './common/utils/util'
 
 const app = express()
 
+const backendPublicUrl = process.env.BACKEND_PUBLIC_URL;
+const privateTunnelUrl = process.env.ALLOW_HTTP_LOOPBACK_SESSION === 'true'
+    && backendPublicUrl !== undefined
+    && URL.canParse(backendPublicUrl)
+    ? new URL(backendPublicUrl)
+    : undefined;
+const allowPrivateTunnelCookie = privateTunnelUrl?.protocol === 'http:'
+    && ['localhost', '127.0.0.1', '[::1]'].includes(privateTunnelUrl.hostname);
+
 if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
@@ -51,7 +60,7 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production' && !allowPrivateTunnelCookie,
             httpOnly: true,
             sameSite: 'lax',
             maxAge: 1000 * 60 * 60 * 24 * 30,

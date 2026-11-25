@@ -1,28 +1,37 @@
-node_modules
-.git
-.gitignore
-.github
-.turbo
-dist-turbo
-.next
-out
-dist
-*.tsbuildinfo
-next-env.d.ts
-**/generated
-*.log
+# Version control & tooling
+**/.git
+**/.github
+**/.turbo
+**/dist-turbo
+**/.vscode
+**/.idea
+
+# Dependencies & build outputs
+**/node_modules
+**/.next
+**/out
+**/dist
+**/*.tsbuildinfo
+**/*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.vscode
-.idea
-*.swp
-*.swo
+
+# Frontend sources (backend build only needs manifests for npm workspace resolution)
+apps/frontend/*
+!apps/frontend/package.json
+!apps/frontend/tsconfig.json
+
+# Backend runtime files
+apps/backend/uploads/*
+!apps/backend/uploads/.gitkeep
+
+# Environment & OS files
+**/.env
+**/.env.*
+!**/.env.example
 .DS_Store
 Thumbs.db
 coverage
-.env
-.env.*
-!.env.example
-apps/backend/uploads/*
-!apps/backend/uploads/.gitkeep
+*.swp
+*.swo

@@ -17,7 +17,8 @@
     "type-check": "tsc --noEmit",
     "pretest": "npm --workspace @resumax/shared-types run build",
     "test": "tsx --test src/**/*.test.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "deploy": "fly deploy ../.. --config apps/backend/fly.toml --dockerfile apps/backend/Dockerfile --depot=false"
   },
   "dependencies": {
     "@google/genai": "^2.15.0",

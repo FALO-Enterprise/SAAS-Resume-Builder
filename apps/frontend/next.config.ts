@@ -6,7 +6,7 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: process.env.RESUMAX_WORKERS_BUILD === "1" ? undefined : "standalone",
   outputFileTracingRoot: path.join(__dirname, "../.."),
   turbopack: {
     root: path.join(__dirname, "../.."),

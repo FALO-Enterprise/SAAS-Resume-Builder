@@ -137,6 +137,10 @@ export class ResumeExportService {
             throw new ResumeExportError('JPG generation failed', 'JPG_FAILED');
         }
     }
+
+    async warmup(): Promise<void> {
+        await this.pdfGenerator.warmup?.();
+    }
 }
 
 export const resumeExportService = new ResumeExportService();

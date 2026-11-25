@@ -1,4 +1,4 @@
-FROM node:20-bookworm-slim AS base
+FROM node:22-bookworm-slim AS base
 
 # Install Chromium and system dependencies for Puppeteer PDF export
 RUN apt-get update && apt-get install -y --no-install-recommends \
