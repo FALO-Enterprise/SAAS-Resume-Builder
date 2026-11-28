@@ -1,45 +1,37 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    // File Layout
-    // "rootDir": "./src",
-    "outDir": "./dist",
-
-    // Environment Settings
-    // See also https://aka.ms/tsconfig/module
-    "module": "CommonJs",
     "target": "esnext",
-    // For nodejs:
-    "lib": ["esnext"],
+    "lib": ["esnext", "dom"],
     "types": ["node"],
     "allowJs": true,
     "esModuleInterop": true,
-    // and npm install -D @types/node
-
-    // Other Outputs
-    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
-
-    // Stricter Typechecking Options
+    "sourceMap": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": false,
-
-    // Style Options
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
-
-    // Recommended Options
-    "strict": true,
     "jsx": "react-jsx",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true
-  }
+    "paths": {
+      "@/*": ["../../*"],
+      "@shared/*": ["../../packages/*/src"],
+      "@shared-types": ["../../packages/shared-types/src"],
+      "@shared-utils": ["../../packages/shared-utils/src"],
+      "@prisma/client": ["./src/generated/prisma"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "src/generated"]
 }
